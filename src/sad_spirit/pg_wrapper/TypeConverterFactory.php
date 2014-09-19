@@ -729,7 +729,7 @@ SQL;
             pg_free_result($res);
 
             if (version_compare(
-                    pg_parameter_status($this->_connection->getResource(), 'server_version'), '9.1.0', '>='
+                    pg_parameter_status($this->_connection->getResource(), 'server_version'), '9.2.0', '>='
             )) {
                 if (!($res = @pg_query(
                     $this->_connection->getResource(), "select rngtypid, rngsubtype from pg_range"

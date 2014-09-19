@@ -232,9 +232,9 @@ class TypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         if (version_compare(
-            pg_parameter_status($connection->getResource(), 'server_version'), '9.1.0', '<'
+            pg_parameter_status($connection->getResource(), 'server_version'), '9.2.0', '<'
         )) {
-            $this->markTestSkipped('Connection to PostgreSQL 9.1+ required');
+            $this->markTestSkipped('Connection to PostgreSQL 9.2+ required');
         }
         $connection->setTypeConverterFactory($this->factory);
         $connection->execute("drop type if exists textrange");

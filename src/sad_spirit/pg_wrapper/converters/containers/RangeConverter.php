@@ -27,7 +27,7 @@ use sad_spirit\pg_wrapper\converters\ContainerConverter,
     sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
- * Converter for range types of PostgreSQL 9.1+
+ * Converter for range types of PostgreSQL 9.2+
  */
 class RangeConverter extends ContainerConverter
 {
