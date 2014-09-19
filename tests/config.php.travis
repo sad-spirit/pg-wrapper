@@ -1,0 +1,5 @@
+<?php
+
+define('TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING', 'host=127.0.0.1 user=postgres dbname=pgwrapper_test');
+
+define('TESTS_SAD_SPIRIT_PG_WRAPPER_FILECACHE_PATH', __DIR__ . '/../cache/');
