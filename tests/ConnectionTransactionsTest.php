@@ -41,7 +41,7 @@ class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
 
     static public function tearDownAfterClass()
     {
-        unset(self::$conn);
+        self::$conn = null;
     }
 
     public function setUp()

@@ -51,7 +51,7 @@ SQL
 
     static public function tearDownAfterClass()
     {
-        unset(self::$conn);
+        self::$conn = null;
     }
 
     public function setUp()
