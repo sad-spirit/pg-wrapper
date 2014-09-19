@@ -1,0 +1,78 @@
+<?php
+/**
+ * Wrapper for PHP's pgsql extension providing conversion of complex DB types
+ *
+ * LICENSE
+ *
+ * This source file is subject to BSD 2-Clause License that is bundled
+ * with this package in the file LICENSE and available at the URL
+ * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
+ *
+ * @package   sad_spirit\pg_wrapper
+ * @copyright 2014 Alexey Borzov
+ * @author    Alexey Borzov <avb@php.net>
+ * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
+ * @link      https://github.com/sad-spirit/pg-wrapper
+ */
+
+namespace sad_spirit\pg_wrapper\converters\geometric;
+
+use sad_spirit\pg_wrapper\converters\ContainerConverter,
+    sad_spirit\pg_wrapper\converters\FloatConverter,
+    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
+    sad_spirit\pg_wrapper\types\Point;
+
+/**
+ * Converter for point type, building block for other geometric types
+ */
+class PointConverter extends ContainerConverter
+{
+    /**
+     * Converter for point's coordinates
+     * @var FloatConverter
+     */
+    private $_float;
+
+    public function __construct()
+    {
+        $this->_float = new FloatConverter();
+    }
+
+    protected function parseInput($native, &$pos)
+    {
+        $hasDelimiters = false;
+        if ('(' === $this->nextChar($native, $pos)) {
+            $hasDelimiters = true;
+            $pos++;
+        }
+        $len  = strcspn($native, ',)', $pos);
+        $x    = call_user_func(self::$substr, $native, $pos, $len);
+        $pos += $len;
+
+        $this->expectChar($native, $pos, ',');
+
+        $len  = strcspn($native, ',)', $pos);
+        $y    = call_user_func(self::$substr, $native, $pos, $len);
+        $pos += $len;
+
+        if ($hasDelimiters) {
+            $this->expectChar($native, $pos, ')');
+        }
+        return new Point($this->_float->input($x), $this->_float->input($y));
+    }
+
+    protected function outputNotNull($value)
+    {
+        if (is_array($value)) {
+            $value = Point::createFromArray($value);
+        } elseif (!($value instanceof Point)) {
+            throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Point or an array', $value);
+        }
+        return '(' . $this->_float->output($value->x) . ',' . $this->_float->output($value->y) . ')';
+    }
+
+    public function dimensions()
+    {
+        return 1;
+    }
+}
