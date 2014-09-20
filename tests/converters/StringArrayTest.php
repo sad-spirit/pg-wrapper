@@ -59,7 +59,6 @@ class StringArrayTest extends TypeConverterTestCase
             array(new TypeConversionException(), 1),
             array(new TypeConversionException(), 'string'),
             array(new TypeConversionException(), array(array('string'), null)),
-            array('{NULL,"Array"}', array(null, array('string'))),
             array(new TypeConversionException(), array(array('ab', 'de'), array())),
             array(new TypeConversionException(), array(array(), array('ab', 'de'))),
             // the result is accepted by Postgres, but probably shouldn't be
