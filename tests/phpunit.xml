@@ -12,7 +12,7 @@
          bootstrap="./bootstrap.php"
 >
     <testsuites>
-        <testsuite name="e-group PostgreSQL Library Test Suite">
+        <testsuite name="Sad Spirit's pg_wrapper Library Test Suite">
             <directory>./</directory>
         </testsuite>
     </testsuites>
