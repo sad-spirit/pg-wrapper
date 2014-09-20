@@ -1,5 +1,7 @@
 # sad_spirit\pg_wrapper
 
+[![Build Status](https://travis-ci.org/sad-spirit/pg-wrapper.svg?branch=master)](https://travis-ci.org/sad-spirit/pg-wrapper)
+
 PostgreSQL supports a large (and extensible) set of complex database types: arrays, ranges, geometric and date/time
 types, composite (row) types, JSON...
 

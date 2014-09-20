@@ -49,8 +49,7 @@ class StringTest extends TypeConverterTestCase
     {
         return array(
             array('1', 1.0),
-            array('-3', -3.00),
-            array('Array', array(1)),
+            array('-3', -3.00)
         );
     }
 }

@@ -43,8 +43,8 @@ class JSONTest extends TypeConverterTestCase
 
     public function testInvalidUTF8Sequence()
     {
-        if (version_compare(phpversion(), '5.4.0', 'lt')) {
-            $this->markTestSkipped("PHP 5.4 needed for correct behaviour");
+        if (version_compare(phpversion(), '5.5.0', 'lt')) {
+            $this->markTestSkipped("PHP 5.5 needed for correct behaviour");
         }
         $this->setExpectedException('\sad_spirit\pg_wrapper\exceptions\TypeConversionException');
         $this->converter->output("\xB1\x31");

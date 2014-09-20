@@ -49,11 +49,6 @@ SQL
 );
     }
 
-    static public function tearDownAfterClass()
-    {
-        self::$conn = null;
-    }
-
     public function setUp()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {

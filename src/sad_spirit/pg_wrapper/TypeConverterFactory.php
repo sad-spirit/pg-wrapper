@@ -260,13 +260,14 @@ class TypeConverterFactory
         } elseif ($type instanceof TypeName) {
             return $this->_getConverterForTypeNameNode($type);
 
-        } elseif (ctype_digit((string)$type)) {
-            // type oid given
-            return $this->_getConverterForTypeOid($type);
-
-        } elseif (is_string($type)) {
-            // type name given
-            return $this->_getConverterForTypeName($type);
+        } elseif (is_scalar($type)) {
+            if (ctype_digit((string)$type)) {
+                // type oid given
+                return $this->_getConverterForTypeOid($type);
+            } else {
+                // type name given
+                return $this->_getConverterForTypeName($type);
+            }
 
         } elseif (is_array($type)) {
             // type specification for composite type
