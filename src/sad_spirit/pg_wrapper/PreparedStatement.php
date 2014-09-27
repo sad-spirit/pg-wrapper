@@ -60,7 +60,7 @@ class PreparedStatement
      * @param array      $types      Types information, used to convert input params.
      * @throws exceptions\InvalidQueryException
      */
-    public function __construct($connection, $query, array $types = array())
+    public function __construct(Connection $connection, $query, array $types = array())
     {
         $this->_connection = $connection;
         $this->_queryId    = 'statement' . ++self::$statementIdx;
@@ -68,11 +68,11 @@ class PreparedStatement
             throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
         }
 
-        foreach (array_values($types) as $key => $type) {
+        foreach ($types as $key => $type) {
             if ($type instanceof TypeConverter) {
                 $this->_converters[$key] = $type;
-            } else {
-                $this->_converters[$key] = $this->_connection->getTypeConverterFactory()->getConverter($type);
+            } elseif (null !== $type) {
+                $this->_converters[$key] = $this->_connection->getTypeConverter($type);
             }
         }
     }
@@ -97,7 +97,7 @@ class PreparedStatement
         if ($type instanceof TypeConverter) {
             $this->_converters[$paramNum - 1] = $type;
         } elseif (null !== $type) {
-            $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverterFactory()->getConverter($type);
+            $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverter($type);
         }
     }
 
@@ -121,7 +121,7 @@ class PreparedStatement
         if ($type instanceof TypeConverter) {
             $this->_converters[$paramNum - 1] = $type;
         } elseif (null !== $type) {
-            $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverterFactory()->getConverter($type);
+            $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverter($type);
         }
     }
 
