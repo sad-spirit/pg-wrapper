@@ -86,10 +86,23 @@ array(5) {
 }
 ```
 
+## Documentation
+
+Is in the [wiki](https://github.com/sad-spirit/pg-wrapper/wiki)
+
+Quick links:
+
+* [Connecting to a DB](https://github.com/sad-spirit/pg-wrapper/wiki/connecting)<br />
+* [Executing a query](https://github.com/sad-spirit/pg-wrapper/wiki/query)<br />
+* [Working with a query result](https://github.com/sad-spirit/pg-wrapper/wiki/result)<br />
+* [Transactions handling](https://github.com/sad-spirit/pg-wrapper/wiki/transactions)<br />
+
 
 ## Requirements
 
-pg_wrapper depends on pgsql extension. The reason for using that instead of PDO pgsql driver is that the latter does
-not support something like `pg_query_params()`.
+pg_wrapper requires PHP 5.3+ with [pgsql extension](http://php.net/manual/en/book.pgsql.php).
+The reason for using that instead of PDO pgsql driver is that the latter does not support something like
+[`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php).
 
-It is highly recommended to use metadata cache in production to prevent metadata lookups from database on each request.
+It is highly recommended to use metadata cache in production to prevent metadata lookups from database on each
+page request.
