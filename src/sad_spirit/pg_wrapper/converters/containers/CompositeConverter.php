@@ -9,7 +9,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014 Alexey Borzov
+ * @copyright 2014-2017 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -52,13 +52,13 @@ class CompositeConverter extends ContainerConverter
     {
         if (!count($items)) {
             throw new InvalidArgumentException(
-                __CLASS__ . " expects an array of Type instances, empty array given"
+                __CLASS__ . " expects an array of TypeConverter instances, empty array given"
             );
         }
         foreach ($items as $field => $item) {
             if (!$item instanceof TypeConverter) {
                 throw new InvalidArgumentException(sprintf(
-                    "%s expects an array of Type instances, '%s' given for index '%s'",
+                    "%s expects an array of TypeConverter instances, '%s' given for index '%s'",
                     __CLASS__, is_object($item) ? get_class($item) : gettype($item), $field
                 ));
             }
@@ -88,17 +88,18 @@ class CompositeConverter extends ContainerConverter
 
     protected function parseInput($native, &$pos)
     {
-        reset($this->_items);
-
         $result   = array();
         $unescape = array_flip($this->_escapes);
+        $closing  = false;
 
         $this->expectChar($native, $pos, '('); // Leading "("
 
-        while (true) {
-            /* @var $type TypeConverter */
-            if (!(list($field, $type) = each($this->_items))) { // Check if we have more fields left.
-                throw TypeConversionException::parsingFailed($this, 'end of input: no more fields left', $native, $pos);
+        foreach ($this->_items as $field => $type) {
+            if ($closing) {
+                // point error at preceding ')'
+                throw TypeConversionException::parsingFailed(
+                    $this, "value for '{$field}'", $native, $pos - 1
+                );
             }
 
             switch ($char = $this->nextChar($native, $pos)) {
@@ -125,9 +126,8 @@ class CompositeConverter extends ContainerConverter
             }
 
             switch ($char) { // Expect delimiter after value
-            case ')':
-                $pos++;
-                break 2;
+            case ')': // fall-through is intentional
+                $closing = true;
             case ',':
                 $pos++;
                 break;
@@ -135,10 +135,8 @@ class CompositeConverter extends ContainerConverter
                 throw TypeConversionException::parsingFailed($this, "',' or ')'", $native, $pos);
             }
         }
-
-        if (list($field,) = each($this->_items)) {
-            // point error at preceding ')'
-            throw TypeConversionException::parsingFailed($this, "value for '{$field}'", $native, $pos - 1);
+        if (!$closing) {
+            throw TypeConversionException::parsingFailed($this, 'end of input: no more fields left', $native, $pos);
         }
 
         return $result;
