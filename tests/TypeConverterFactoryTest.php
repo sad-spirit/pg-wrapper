@@ -9,7 +9,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014 Alexey Borzov
+ * @copyright 2014-2017 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -30,7 +30,9 @@ use sad_spirit\pg_wrapper\Connection,
     sad_spirit\pg_wrapper\converters\StringConverter,
     sad_spirit\pg_wrapper\converters\geometric\PointConverter,
     sad_spirit\pg_wrapper\TypeConverterFactory,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
+    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
+    Psr\Cache\CacheItemPoolInterface,
+    Psr\Cache\CacheItemInterface;
 
 /**
  * Unit test for TypeConverterFactory class
@@ -258,6 +260,85 @@ class TypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
         $result = $connection->execute("select 'maybe'::testenum as value");
         $this->assertSame('maybe', $result[0]['value']);
+    }
+
+    public function testMetadataIsStoredInCache()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this->markTestSkipped('Connection string is not configured');
+        }
+
+        /* @var $mockPool CacheItemPoolInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $mockPool = $this->getMock('Psr\Cache\CacheItemPoolInterface');
+        /* @var $mockItem CacheItemInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $mockItem = $this->getMock('Psr\Cache\CacheItemInterface');
+
+        $mockPool->expects($this->once())
+            ->method('getItem')
+            ->will($this->returnValue($mockItem));
+
+        $mockPool->expects($this->once())
+            ->method('save')
+            ->with($mockItem);
+
+        $mockItem->expects($this->once())
+            ->method('isHit')
+            ->will($this->returnValue(false));
+
+        $mockItem->expects($this->once())
+            ->method('set')
+            ->withAnyParameters()
+            ->willReturnSelf();
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setMetadataCache($mockPool)
+            ->setTypeConverterFactory($this->factory);
+
+        $this->assertEquals(new IntegerConverter(), $this->factory->getConverter(23));
+    }
+
+    public function testMetadataIsLoadedFromCache()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this->markTestSkipped('Connection string is not configured');
+        }
+
+        /* @var $mockPool CacheItemPoolInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $mockPool = $this->getMock('Psr\Cache\CacheItemPoolInterface');
+        /* @var $mockItem CacheItemInterface|\PHPUnit_Framework_MockObject_MockObject */
+        $mockItem = $this->getMock('Psr\Cache\CacheItemInterface');
+
+        $mockPool->expects($this->once())
+            ->method('getItem')
+            ->will($this->returnValue($mockItem));
+
+        $mockPool->expects($this->never())
+            ->method('save');
+
+        $mockItem->expects($this->once())
+            ->method('isHit')
+            ->will($this->returnValue(true));
+
+        $mockItem->expects($this->once())
+            ->method('get')
+            ->will($this->returnValue(array(
+                'composite' => array(),
+                'array'     => array(),
+                'range'     => array(),
+                'names'     => array('blah' => array('blah' => 123456))
+            )));
+
+        $mockItem->expects($this->never())
+            ->method('set');
+
+        $this->factory->registerConverter(
+            'sad_spirit\pg_wrapper\converters\containers\HstoreConverter', 'blah','blah'
+        );
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setMetadataCache($mockPool)
+            ->setTypeConverterFactory($this->factory);
+
+        $this->assertEquals(new HstoreConverter(), $this->factory->getConverter(123456));
     }
 
     public function getBuiltinTypeConverters()

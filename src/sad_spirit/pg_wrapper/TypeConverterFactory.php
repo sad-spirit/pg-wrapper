@@ -9,7 +9,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014 Alexey Borzov
+ * @copyright 2014-2017 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -693,11 +693,16 @@ SQL;
      */
     private function _loadTypes($force = false)
     {
-        $cacheKey = $this->_connection->getConnectionId() . '-types';
+        if ($cache = $this->_connection->getMetadataCache()) {
+            $cacheItem = $cache->getItem($this->_connection->getConnectionId() . '-types');
+        } else {
+            $cacheItem = null;
+        }
 
-        if (!($cache = $this->_connection->getMetadataCache())
-            || $force || null === ($this->_dbTypes = $cache->getItem($cacheKey))
-        ) {
+        if (!$force && null !== $cacheItem && $cacheItem->isHit()) {
+            $this->_dbTypes = $cacheItem->get();
+
+        } else {
             $this->_dbTypes = array(
                 'composite' => array(),
                 'array'     => array(),
@@ -742,8 +747,8 @@ SQL;
                 }
             }
 
-            if ($cache) {
-                $cache->setItem($cacheKey, $this->_dbTypes);
+            if ($cache && $cacheItem) {
+                $cache->save($cacheItem->set($this->_dbTypes));
             }
         }
 

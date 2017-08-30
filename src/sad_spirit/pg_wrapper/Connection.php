@@ -9,13 +9,15 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014 Alexey Borzov
+ * @copyright 2014-2017 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
 namespace sad_spirit\pg_wrapper;
+
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class representing a connection to the database
@@ -42,7 +44,7 @@ class Connection
 
     /**
      * Cache for database metadata
-     * @var MetadataCache
+     * @var CacheItemPoolInterface
      */
     private $_cache;
 
@@ -375,7 +377,7 @@ class Connection
     /**
      * Returns the DB metadata cache
      *
-     * @return MetadataCache
+     * @return CacheItemPoolInterface
      */
     public function getMetadataCache()
     {
@@ -385,11 +387,14 @@ class Connection
     /**
      * Sets the DB metadata cache
      *
-     * @param MetadataCache $cache Cache instance
+     * @param CacheItemPoolInterface $cache Cache instance
+     * @return $this
      */
-    public function setMetadataCache(MetadataCache $cache)
+    public function setMetadataCache(CacheItemPoolInterface $cache)
     {
         $this->_cache = $cache;
+
+        return $this;
     }
 
     /**
