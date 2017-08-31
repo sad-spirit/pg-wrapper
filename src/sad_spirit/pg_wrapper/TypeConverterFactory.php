@@ -89,6 +89,12 @@ class TypeConverterFactory
     private $_converters = array();
 
     /**
+     * Whether to cache composite types' structure
+     * @var
+     */
+    private $_compositeTypesCaching = true;
+
+    /**
      * Constructor, registers converters for built-in types
      */
     public function __construct()
@@ -218,6 +224,38 @@ class TypeConverterFactory
         if ($this->_connection && $converter instanceof converters\ConnectionAware) {
             $converter->setConnectionResource($this->_connection->getResource());
         }
+    }
+
+    /**
+     * Sets whether composite types' structure is cached
+     *
+     * Composite types' (both free-standing and representing table rows) internal structure can change
+     * when columns (attributes) are added / removed / changed. If the cached list of columns is used to convert
+     * the composite value with different columns the conversion will obviously fail.
+     *
+     * This should be set to false if
+     *  - composite types are used in the application
+     *  - changes to those types are expected
+     * Otherwise it can be left at the default (true)
+     *
+     * @param bool $caching
+     * @return $this
+     */
+    public function setCompositeTypesCaching($caching)
+    {
+        $this->_compositeTypesCaching = (bool)$caching;
+
+        return $this;
+    }
+
+    /**
+     * Returns whether composite types' structure is cached
+     *
+     * @return bool
+     */
+    public function getCompositeTypesCaching()
+    {
+        return $this->_compositeTypesCaching;
     }
 
     /**
@@ -623,24 +661,39 @@ class TypeConverterFactory
     private function _getConverterForCompositeTypeOid($oid)
     {
         if (!is_array($this->_dbTypes['composite'][$oid])) {
-            $sql = <<<SQL
+            if (($cache = $this->_connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
+                $cacheItem = $cache->getItem($this->_connection->getConnectionId() . '-composite-' . $oid);
+            } else {
+                $cacheItem = null;
+            }
+
+            if (null !== $cacheItem && $cacheItem->isHit()) {
+                $this->_dbTypes['composite'][$oid] = $cacheItem->get();
+
+            } else {
+                $sql = <<<SQL
 select attname, atttypid
 from pg_catalog.pg_attribute
 where attrelid = $1 and
       attnum > 0
 order by attnum
 SQL;
-            if (!($res = @pg_query_params(
-                    $this->_connection->getResource(), $sql , array($this->_dbTypes['composite'][$oid])
-                ))
-            ) {
-                throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                if (!($res = @pg_query_params(
+                        $this->_connection->getResource(), $sql , array($this->_dbTypes['composite'][$oid])
+                    ))
+                ) {
+                    throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                }
+                $this->_dbTypes['composite'][$oid] = array();
+                while ($row = pg_fetch_assoc($res)) {
+                    $this->_dbTypes['composite'][$oid][$row['attname']] = $row['atttypid'];
+                }
+                pg_free_result($res);
+
+                if ($cache && $cacheItem) {
+                    $cache->save($cacheItem->set($this->_dbTypes['composite'][$oid]));
+                }
             }
-            $this->_dbTypes['composite'][$oid] = array();
-            while ($row = pg_fetch_assoc($res)) {
-                $this->_dbTypes['composite'][$oid][$row['attname']] = $row['atttypid'];
-            }
-            pg_free_result($res);
         }
 
         return $this->getConverter($this->_dbTypes['composite'][$oid]);
@@ -733,6 +786,30 @@ SQL;
                 }
             }
             pg_free_result($res);
+
+            if ($this->getCompositeTypesCaching()) {
+                // Preload columns for free-standing composite types: they are far more likely to appear
+                // in result sets than those linked to tables.
+                $sql = <<<SQL
+select reltype, attname, atttypid
+from pg_catalog.pg_attribute as a, pg_catalog.pg_class as c
+where a.attrelid = c.oid and
+      c.relkind  = 'c' and
+      a.attnum > 0
+order by attrelid, attnum
+SQL;
+                if (!($res = @pg_query($this->_connection->getResource(), $sql))) {
+                    throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                }
+                while ($row = pg_fetch_assoc($res)) {
+                    if (!is_array($this->_dbTypes['composite'][$row['reltype']])) {
+                        $this->_dbTypes['composite'][$row['reltype']] = array($row['attname'] => $row['atttypid']);
+                    } else {
+                        $this->_dbTypes['composite'][$row['reltype']][$row['attname']] = $row['atttypid'];
+                    }
+                }
+                pg_free_result($res);
+            }
 
             if (version_compare(
                     pg_parameter_status($this->_connection->getResource(), 'server_version'), '9.2.0', '>='
