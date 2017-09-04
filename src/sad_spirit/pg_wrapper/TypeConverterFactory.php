@@ -17,10 +17,6 @@
 
 namespace sad_spirit\pg_wrapper;
 
-use sad_spirit\pg_builder\nodes\TypeName,
-    sad_spirit\pg_builder\nodes\QualifiedName,
-    sad_spirit\pg_builder\nodes\IntervalTypeName;
-
 /**
  * Creates type converters for database type based on specific DB metadata
  */
@@ -266,7 +262,6 @@ class TypeConverterFactory
      *  - type name (string), either simple or schema-qualified,
      *    'foo[]' is treated as an array of base type 'foo'
      *  - array('field' => 'type', ...) for composite types
-     *  - TypeName AST node
      *  - TypeConverter instance. If it implements ConnectionAware, then
      *    it will receive current connection resource
      *
@@ -295,9 +290,6 @@ class TypeConverterFactory
             $this->_updateConnection($type);
             return $type;
 
-        } elseif ($type instanceof TypeName) {
-            return $this->_getConverterForTypeNameNode($type);
-
         } elseif (is_scalar($type)) {
             if (ctype_digit((string)$type)) {
                 // type oid given
@@ -318,35 +310,73 @@ class TypeConverterFactory
 
         throw new exceptions\InvalidArgumentException(sprintf(
             '%s expects either of: type oid, type name, composite type array,'
-            . ' instance of TypeConverter or query\nodes\TypeName. %s given',
+            . ' instance of TypeConverter. %s given',
             __METHOD__, is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
         ));
     }
 
     /**
-     * Returns a converter for query builder's TypeName node
+     * Checks whether given oid corresponds to array type
      *
-     * Usually this will come from a typecast applied to a query parameter and
-     * extracted by ParameterWalker
+     * $baseTypeOid will be set to oid of the array base type
      *
-     * @param TypeName $typeName
-     * @return TypeConverter|converters\containers\ArrayConverter
+     * @param int      $oid
+     * @param int|null $baseTypeOid
+     * @return bool
      */
-    private function _getConverterForTypeNameNode(TypeName $typeName)
+    protected function isArrayTypeOid($oid, &$baseTypeOid = null)
     {
-        if ($typeName instanceof IntervalTypeName) {
-            return $this->_getConverterForQualifiedName(
-                'interval', 'pg_catalog', count($typeName->bounds) > 0
-            );
-
+        if (!isset($this->_dbTypes['array'][$oid])) {
+            return false;
         } else {
-            return $this->_getConverterForQualifiedName(
-                $typeName->name->relation->value,
-                $typeName->name->schema ? $typeName->name->schema->value : null,
-                count($typeName->bounds) > 0
-            );
+            $baseTypeOid = $this->_dbTypes['array'][$oid];
+            return true;
         }
     }
+
+    /**
+     * Checks whether given oid corresponds to range type
+     *
+     * $baseTypeOid will be set to oid of the range base type
+     *
+     * @param int      $oid
+     * @param int|null $baseTypeOid
+     * @return bool
+     */
+    protected function isRangeTypeOid($oid, &$baseTypeOid = null)
+    {
+        if (!isset($this->_dbTypes['range'][$oid])) {
+            return false;
+        } else {
+            $baseTypeOid = $this->_dbTypes['range'][$oid];
+            return true;
+        }
+    }
+
+    /**
+     * Checks whether given oid corresponds to composite type
+     *
+     * @param int $oid
+     * @return bool
+     */
+    protected function isCompositeTypeOid($oid)
+    {
+        return isset($this->_dbTypes['composite'][$oid]);
+    }
+
+    /**
+     * Checks whether given oid corresponds to base type
+     *
+     * @param int $oid
+     * @return bool
+     */
+    protected function isBaseTypeOid($oid)
+    {
+        return !isset($this->_dbTypes['array'][$oid])
+               && !isset($this->_dbTypes['range'][$oid])
+               && !isset($this->_dbTypes['composite'][$oid]);
+    }
+
 
     /**
      * Returns a converter for a database type identified by oid
@@ -357,41 +387,99 @@ class TypeConverterFactory
      */
     private function _getConverterForTypeOid($oid)
     {
+        if ($this->isArrayTypeOid($oid, $baseTypeOid)) {
+            return new converters\containers\ArrayConverter(
+                $this->_getConverterForTypeOid($baseTypeOid)
+            );
+
+        } elseif ($this->isRangeTypeOid($oid, $baseTypeOid)) {
+            return new converters\containers\RangeConverter(
+                $this->_getConverterForTypeOid($baseTypeOid)
+            );
+
+        } elseif ($this->isCompositeTypeOid($oid)) {
+            return $this->_getConverterForCompositeTypeOid($oid);
+        }
+
+        list($schemaName, $typeName) = $this->findTypeNameForOid($oid, __METHOD__);
+
+        try {
+            return $this->getConverterForQualifiedName($typeName, $schemaName);
+        } catch (exceptions\InvalidArgumentException $e) {
+            return new converters\StringConverter();
+        }
+    }
+
+    /**
+     * Searches for a type name corresponding to the given oid in loaded type metadata
+     *
+     * @param int    $oid
+     * @param string $method Used in Exception messages only
+     * @return array
+     * @throws exceptions\InvalidArgumentException
+     */
+    protected function findTypeNameForOid($oid, $method)
+    {
         if (!$this->_connection) {
             throw new exceptions\InvalidArgumentException(
-                __METHOD__ . ': Database connection required'
+                $method . ': Database connection required'
             );
         }
-
-        if (!array_key_exists($oid, $this->_oidMap)) {
+        if (!isset($this->_oidMap[$oid])) {
             $this->_loadTypes(true);
         }
-
-        if (array_key_exists($oid, $this->_dbTypes['array'])) {
-            return new converters\containers\ArrayConverter(
-                $this->_getConverterForTypeOid($this->_dbTypes['array'][$oid])
-            );
-
-        } elseif (array_key_exists($oid, $this->_dbTypes['range'])) {
-            return new converters\containers\RangeConverter(
-                $this->_getConverterForTypeOid($this->_dbTypes['range'][$oid])
-            );
-
-        } elseif (array_key_exists($oid, $this->_dbTypes['composite'])) {
-            return $this->_getConverterForCompositeTypeOid($oid);
-
-        } elseif (array_key_exists($oid, $this->_oidMap)) {
-            try {
-                list ($schemaName, $typeName) = $this->_oidMap[$oid];
-                return $this->_getConverterForQualifiedName($typeName, $schemaName);
-            } catch (exceptions\InvalidArgumentException $e) {
-                return new converters\StringConverter();
-            }
+        if (!isset($this->_oidMap[$oid])) {
+            throw new exceptions\InvalidArgumentException(sprintf(
+                '%s: could not find type information for oid %d', $method, $oid
+            ));
         }
 
-        throw new exceptions\InvalidArgumentException(sprintf(
-            '%s: could not find type information for oid %d', __METHOD__, $oid
-        ));
+        return $this->_oidMap[$oid];
+    }
+
+    /**
+     * Searches for an oid corresponding to the given type name in loaded type metadata
+     *
+     * @param string      $typeName
+     * @param string|null $schemaName
+     * @param string      $method     Used in Exception messages only
+     * @return int
+     * @throws exceptions\InvalidArgumentException
+     */
+    protected function findOidForTypeName($typeName, $schemaName, $method)
+    {
+        if (!$this->_connection) {
+            throw new exceptions\InvalidArgumentException(sprintf(
+                "%s: Database connection required to process type name %s",
+                $method, $this->_formatQualifiedName($typeName, $schemaName)
+            ));
+        }
+        if (!isset($this->_dbTypes['names'][$typeName])
+            || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
+        ) {
+            $this->_loadTypes(true);
+        }
+        if (!isset($this->_dbTypes['names'][$typeName])
+            || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
+        ) {
+            throw new exceptions\InvalidArgumentException(sprintf(
+                '%s: type %s does not exist in the database',
+                __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
+            ));
+        }
+
+        if ($schemaName) {
+            return $this->_dbTypes['names'][$typeName][$schemaName];
+
+        } elseif (1 === count($this->_dbTypes['names'][$typeName])) {
+            return reset($this->_dbTypes['names'][$typeName]);
+
+        } else {
+            throw new exceptions\InvalidArgumentException(sprintf(
+                '%s: Types named "%s" found in schemas: %s. Qualified name required.',
+                $method, $typeName, implode(', ', array_keys($this->_dbTypes['names'][$typeName]))
+            ));
+        }
     }
 
     /**
@@ -417,7 +505,7 @@ class TypeConverterFactory
      * @return array structure: array (string schema, string type, bool isArray)
      * @throws exceptions\InvalidArgumentException
      */
-    private function _parseTypeName($name)
+    protected function parseTypeName($name)
     {
         if (false === strpos($name, '.') && false === strpos($name, '"')) {
             // can be an SQL standard type, try known aliases
@@ -556,7 +644,7 @@ class TypeConverterFactory
     private function _getConverterForTypeName($name)
     {
         if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[\])?$/', $name, $m)) {
-            list ($schemaName, $typeName, $isArray) = $this->_parseTypeName(trim($name));
+            list ($schemaName, $typeName, $isArray) = $this->parseTypeName(trim($name));
 
         } else {
             $schemaName = null;
@@ -567,7 +655,7 @@ class TypeConverterFactory
             }
         }
 
-        return $this->_getConverterForQualifiedName($typeName, $schemaName, $isArray);
+        return $this->getConverterForQualifiedName($typeName, $schemaName, $isArray);
     }
 
     /**
@@ -579,60 +667,25 @@ class TypeConverterFactory
      * @return TypeConverter
      * @throws exceptions\InvalidArgumentException
      */
-    private function _getConverterForQualifiedName($typeName, $schemaName = null, $isArray = false)
+    protected function getConverterForQualifiedName($typeName, $schemaName = null, $isArray = false)
     {
         if (isset($this->_types[$typeName])
             && (null === $schemaName || isset($this->_types[$typeName][$schemaName]))
         ) {
             $converter = $this->_getRegisteredConverterInstance($typeName, $schemaName);
 
-        } elseif (!$this->_connection) {
-            throw new exceptions\InvalidArgumentException(sprintf(
-                "%s: Database connection required to process type name %s",
-                __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
-            ));
+        } elseif (!$this->isBaseTypeOid(
+                      $oid = $this->findOidForTypeName($typeName, $schemaName, __METHOD__)
+                  )
+        ) {
+            $converter = $this->_getConverterForTypeOid($oid);
 
         } else {
-            if (!isset($this->_dbTypes['names'][$typeName])
-                || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
-            ) {
-                $this->_loadTypes(true);
-            }
-            if (!isset($this->_dbTypes['names'][$typeName])
-                || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
-            ) {
-                throw new exceptions\InvalidArgumentException(sprintf(
-                    '%s: type %s does not exist in the database',
-                    __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
-                ));
-            }
-
-            if ($schemaName) {
-                $oid = $this->_dbTypes['names'][$typeName][$schemaName];
-
-            } elseif (1 === count($this->_dbTypes['names'][$typeName])) {
-                $oid = reset($this->_dbTypes['names'][$typeName]);
-
-            } else {
-                throw new exceptions\InvalidArgumentException(sprintf(
-                    '%s: Types named "%s" found in schemas: %s. Qualified name required.',
-                    __METHOD__, $typeName, implode(', ', array_keys($this->_dbTypes['names'][$typeName]))
-                ));
-            }
-
-            if (array_key_exists($oid, $this->_dbTypes['array'])
-                || array_key_exists($oid, $this->_dbTypes['range'])
-                || array_key_exists($oid, $this->_dbTypes['composite'])
-            ) {
-                $converter = $this->_getConverterForTypeOid($oid);
-
-            } else {
-                // a converter required by name is required explicitly -> exception if not found
-                throw new exceptions\InvalidArgumentException(sprintf(
-                    '%s: no converter registered for base type %s',
-                    __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
-                ));
-            }
+            // a converter required by name is required explicitly -> exception if not found
+            throw new exceptions\InvalidArgumentException(sprintf(
+                '%s: no converter registered for base type %s',
+                __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
+            ));
         }
 
         return $isArray ? new converters\containers\ArrayConverter($converter) : $converter;
@@ -699,44 +752,6 @@ SQL;
         return $this->getConverter($this->_dbTypes['composite'][$oid]);
     }
 
-
-    /**
-     * Returns TypeName node for query AST based on provided type oid
-     *
-     * @param int $oid
-     * @return TypeName
-     * @throws exceptions\InvalidArgumentException
-     */
-    public function getTypeNameForOid($oid)
-    {
-        if (!$this->_connection) {
-            throw new exceptions\InvalidArgumentException(
-                __METHOD__ . ': Database connection required'
-            );
-        }
-
-        if (!array_key_exists($oid, $this->_oidMap)) {
-            $this->_loadTypes(true);
-        }
-
-        if (array_key_exists($oid, $this->_dbTypes['array'])) {
-            $base = $this->getTypeNameForOid($this->_dbTypes['array'][$oid]);
-            $base->setArrayBounds(array(-1));
-            return $base;
-
-        } elseif (array_key_exists($oid, $this->_oidMap)) {
-            list ($schemaName, $typeName) = $this->_oidMap[$oid];
-            if ('pg_catalog' !== $schemaName) {
-                return new TypeName(new QualifiedName(array($schemaName, $typeName)));
-            } else {
-                return new TypeName(new QualifiedName(array($typeName)));
-            }
-        }
-
-        throw new exceptions\InvalidArgumentException(sprintf(
-            '%s: could not find type information for oid %d', __METHOD__, $oid
-        ));
-    }
 
     /**
      * Populates the types list from pg_catalog.pg_type table
