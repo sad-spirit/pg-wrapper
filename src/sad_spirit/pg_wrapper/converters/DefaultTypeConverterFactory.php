@@ -92,9 +92,15 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
     /**
      * Whether to cache composite types' structure
-     * @var
+     * @var bool
      */
     private $_compositeTypesCaching = true;
+
+    /**
+     * Mapping "type name as string" => array("type name", "schema name", "is array")
+     * @var array
+     */
+    private $_parsedNames = array();
 
     /**
      * Constructor, registers converters for built-in types
@@ -652,16 +658,23 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     private function _getConverterForTypeName($name)
     {
-        if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[\])?$/', $name, $m)) {
-            list ($schemaName, $typeName, $isArray) = $this->parseTypeName(trim($name));
+        if (isset($this->_parsedNames[$name])) {
+            list($typeName, $schemaName, $isArray) = $this->_parsedNames[$name];
 
         } else {
-            $schemaName = null;
-            $isArray    = !empty($m[2]);
-            $typeName   = $this->_asciiLowercase($m[1]);
-            if (isset($this->_simpleAliases[$typeName])) {
-                $typeName = $this->_simpleAliases[$typeName];
+            if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[\])?$/', $name, $m)) {
+                list ($schemaName, $typeName, $isArray) = $this->parseTypeName(trim($name));
+
+            } else {
+                $schemaName = null;
+                $isArray    = !empty($m[2]);
+                $typeName   = $this->_asciiLowercase($m[1]);
+                if (isset($this->_simpleAliases[$typeName])) {
+                    $typeName = $this->_simpleAliases[$typeName];
+                }
             }
+
+            $this->_parsedNames[$name] = array($typeName, $schemaName, $isArray);
         }
 
         return $this->getConverterForQualifiedName($typeName, $schemaName, $isArray);
