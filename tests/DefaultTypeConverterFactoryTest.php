@@ -17,7 +17,8 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\Connection,
+use sad_spirit\pg_wrapper\converters\DefaultTypeConverterFactory,
+    sad_spirit\pg_wrapper\Connection,
     sad_spirit\pg_wrapper\converters\containers\ArrayConverter,
     sad_spirit\pg_wrapper\converters\containers\CompositeConverter,
     sad_spirit\pg_wrapper\converters\containers\HstoreConverter,
@@ -37,7 +38,7 @@ use sad_spirit\pg_wrapper\Connection,
 /**
  * Unit test for TypeConverterFactory class
  */
-class TypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
+class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var TypeConverterFactory
@@ -46,7 +47,7 @@ class TypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->factory = new TypeConverterFactory();
+        $this->factory = new DefaultTypeConverterFactory();
     }
 
     /**

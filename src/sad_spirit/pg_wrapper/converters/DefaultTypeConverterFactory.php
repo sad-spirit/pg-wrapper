@@ -17,15 +17,16 @@
 
 namespace sad_spirit\pg_wrapper\converters;
 
-use sad_spirit\pg_wrapper\Connection,
+use sad_spirit\pg_wrapper\TypeConverterFactory,
     sad_spirit\pg_wrapper\TypeConverter,
+    sad_spirit\pg_wrapper\Connection,
     sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
     sad_spirit\pg_wrapper\exceptions\InvalidQueryException;
 
 /**
  * Creates type converters for database type based on specific DB metadata
  */
-class DefaultTypeConverterFactory
+class DefaultTypeConverterFactory implements TypeConverterFactory
 {
     /**
      * Mapping from one-word SQL standard types to native types
@@ -199,6 +200,7 @@ class DefaultTypeConverterFactory
      * catalog, connection id is used for storing that data in cache.
      *
      * @param Connection $connection
+     * @return $this
      */
     public function setConnection(Connection $connection)
     {
@@ -213,6 +215,8 @@ class DefaultTypeConverterFactory
         }
 
         $this->_loadTypes();
+
+        return $this;
     }
 
     /**

@@ -281,7 +281,7 @@ class Connection
     public function getTypeConverterFactory()
     {
         if (!$this->_converterFactory) {
-            $this->setTypeConverterFactory(new TypeConverterFactory());
+            $this->setTypeConverterFactory(new converters\DefaultTypeConverterFactory());
         }
         return $this->_converterFactory;
     }
