@@ -15,12 +15,17 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
-namespace sad_spirit\pg_wrapper;
+namespace sad_spirit\pg_wrapper\converters;
+
+use sad_spirit\pg_wrapper\Connection,
+    sad_spirit\pg_wrapper\TypeConverter,
+    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
+    sad_spirit\pg_wrapper\exceptions\InvalidQueryException;
 
 /**
  * Creates type converters for database type based on specific DB metadata
  */
-class TypeConverterFactory
+class DefaultTypeConverterFactory
 {
     /**
      * Mapping from one-word SQL standard types to native types
@@ -143,19 +148,19 @@ class TypeConverterFactory
         );
 
         $this->registerConverter(function () {
-            return new converters\containers\RangeConverter(new converters\IntegerConverter());
+            return new containers\RangeConverter(new IntegerConverter());
         }, array('int4range', 'int8range'));
         $this->registerConverter(function () {
-            return new converters\containers\RangeConverter(new converters\NumericConverter());
+            return new containers\RangeConverter(new NumericConverter());
         }, 'numrange');
         $this->registerConverter(function () {
-            return new converters\containers\RangeConverter(new converters\datetime\DateConverter());
+            return new containers\RangeConverter(new datetime\DateConverter());
         }, 'daterange');
         $this->registerConverter(function () {
-            return new converters\containers\RangeConverter(new converters\datetime\TimeStampConverter());
+            return new containers\RangeConverter(new datetime\TimeStampConverter());
         }, 'tsrange');
         $this->registerConverter(function () {
-            return new converters\containers\RangeConverter(new converters\datetime\TimeStampTzConverter());
+            return new containers\RangeConverter(new datetime\TimeStampTzConverter());
         }, 'tstzrange');
     }
 
@@ -165,12 +170,12 @@ class TypeConverterFactory
      * @param string|callable|TypeConverter $converter
      * @param string|array                  $type
      * @param string                        $schema
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function registerConverter($converter, $type, $schema = 'pg_catalog')
     {
         if (!is_string($converter) && !is_callable($converter) && !($converter instanceof TypeConverter)) {
-            throw new exceptions\InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 '%s() expects a class name, a closure or an instance of TypeConverter, %s given',
                 __METHOD__, is_object($converter) ? 'object(' . get_class($converter) . ')' : gettype($converter)
             ));
@@ -217,7 +222,7 @@ class TypeConverterFactory
      */
     private function _updateConnection(TypeConverter $converter)
     {
-        if ($this->_connection && $converter instanceof converters\ConnectionAware) {
+        if ($this->_connection && $converter instanceof ConnectionAware) {
             $converter->setConnectionResource($this->_connection->getResource());
         }
     }
@@ -282,7 +287,7 @@ class TypeConverterFactory
      *
      * @param mixed $type
      * @return TypeConverter
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function getConverter($type)
     {
@@ -305,10 +310,10 @@ class TypeConverterFactory
             foreach ($type as $k => $v) {
                 $types[$k] = $this->getConverter($v);
             }
-            return new converters\containers\CompositeConverter($types);
+            return new containers\CompositeConverter($types);
         }
 
-        throw new exceptions\InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             '%s expects either of: type oid, type name, composite type array,'
             . ' instance of TypeConverter. %s given',
             __METHOD__, is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
@@ -383,17 +388,17 @@ class TypeConverterFactory
      *
      * @param int $oid
      * @return TypeConverter
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function _getConverterForTypeOid($oid)
     {
         if ($this->isArrayTypeOid($oid, $baseTypeOid)) {
-            return new converters\containers\ArrayConverter(
+            return new containers\ArrayConverter(
                 $this->_getConverterForTypeOid($baseTypeOid)
             );
 
         } elseif ($this->isRangeTypeOid($oid, $baseTypeOid)) {
-            return new converters\containers\RangeConverter(
+            return new containers\RangeConverter(
                 $this->_getConverterForTypeOid($baseTypeOid)
             );
 
@@ -405,8 +410,8 @@ class TypeConverterFactory
 
         try {
             return $this->getConverterForQualifiedName($typeName, $schemaName);
-        } catch (exceptions\InvalidArgumentException $e) {
-            return new converters\StringConverter();
+        } catch (InvalidArgumentException $e) {
+            return new StringConverter();
         }
     }
 
@@ -416,12 +421,12 @@ class TypeConverterFactory
      * @param int    $oid
      * @param string $method Used in Exception messages only
      * @return array
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function findTypeNameForOid($oid, $method)
     {
         if (!$this->_connection) {
-            throw new exceptions\InvalidArgumentException(
+            throw new InvalidArgumentException(
                 $method . ': Database connection required'
             );
         }
@@ -429,7 +434,7 @@ class TypeConverterFactory
             $this->_loadTypes(true);
         }
         if (!isset($this->_oidMap[$oid])) {
-            throw new exceptions\InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 '%s: could not find type information for oid %d', $method, $oid
             ));
         }
@@ -444,12 +449,12 @@ class TypeConverterFactory
      * @param string|null $schemaName
      * @param string      $method     Used in Exception messages only
      * @return int
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function findOidForTypeName($typeName, $schemaName, $method)
     {
         if (!$this->_connection) {
-            throw new exceptions\InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 "%s: Database connection required to process type name %s",
                 $method, $this->_formatQualifiedName($typeName, $schemaName)
             ));
@@ -462,7 +467,7 @@ class TypeConverterFactory
         if (!isset($this->_dbTypes['names'][$typeName])
             || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
         ) {
-            throw new exceptions\InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 '%s: type %s does not exist in the database',
                 __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
             ));
@@ -475,7 +480,7 @@ class TypeConverterFactory
             return reset($this->_dbTypes['names'][$typeName]);
 
         } else {
-            throw new exceptions\InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 '%s: Types named "%s" found in schemas: %s. Qualified name required.',
                 $method, $typeName, implode(', ', array_keys($this->_dbTypes['names'][$typeName]))
             ));
@@ -503,7 +508,7 @@ class TypeConverterFactory
      *
      * @param string $name
      * @return array structure: array (string schema, string type, bool isArray)
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function parseTypeName($name)
     {
@@ -544,7 +549,7 @@ class TypeConverterFactory
                 if (!$typeName || $isArray || $identifier
                     || !preg_match('/\\[\\s*\\]$/A', $name, $m, 0, $position)
                 ) {
-                    throw new exceptions\InvalidArgumentException("Invalid array specification in type name '{$name}'");
+                    throw new InvalidArgumentException("Invalid array specification in type name '{$name}'");
                 }
                 $isArray     = true;
                 $position   += $strlen($m[0]);
@@ -552,7 +557,7 @@ class TypeConverterFactory
 
             } elseif ('.' === $name[$position]) {
                 if ($schema || !$typeName || $identifier) {
-                    throw new exceptions\InvalidArgumentException("Extra dots in type name '{$name}'");
+                    throw new InvalidArgumentException("Extra dots in type name '{$name}'");
                 }
                 list($schema, $typeName) = array($typeName, null);
                 $position++;
@@ -562,9 +567,9 @@ class TypeConverterFactory
                 if (!preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
                     || !$strlen($m[1])
                 ) {
-                    throw new exceptions\InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
+                    throw new InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
                 } elseif (!$identifier) {
-                    throw new exceptions\InvalidArgumentException("Unexpected double-quoted string '{$m[0]}' in type name '{$name}'");
+                    throw new InvalidArgumentException("Unexpected double-quoted string '{$m[0]}' in type name '{$name}'");
                 }
                 $typeName    = strtr($m[1], array('""' => '"'));
                 $position   += $strlen($m[0]);
@@ -572,21 +577,21 @@ class TypeConverterFactory
 
             } elseif (preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*/A', $name, $m, 0, $position)) {
                 if (!$identifier) {
-                    throw new exceptions\InvalidArgumentException("Unexpected identifier '{$m[0]}' in type name '{$name}'");
+                    throw new InvalidArgumentException("Unexpected identifier '{$m[0]}' in type name '{$name}'");
                 }
                 $typeName    = $this->_asciiLowercase($m[0]);
                 $position   += $strlen($m[0]);
                 $identifier  = false;
 
             } else {
-                throw new exceptions\InvalidArgumentException("Unexpected symbol '{$name[$position]}' in type name '{$name}'");
+                throw new InvalidArgumentException("Unexpected symbol '{$name[$position]}' in type name '{$name}'");
             }
 
             $position += strspn($name, " \r\n\t\f", $position);
         }
 
         if (!$typeName) {
-            throw new exceptions\InvalidArgumentException("Missing type name in '{$name}'");
+            throw new InvalidArgumentException("Missing type name in '{$name}'");
         }
         return array($schema, $typeName, $isArray);
     }
@@ -598,13 +603,13 @@ class TypeConverterFactory
      * @param string $schemaName schema name (only required if converters for the same
      *                           type name were registered for different schemas)
      * @return TypeConverter
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function _getRegisteredConverterInstance($typeName, $schemaName = null)
     {
         if (null === $schemaName) {
             if (1 < count($this->_types[$typeName])) {
-                throw new exceptions\InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     '%s: Converters for type "%s" exist for schemas: %s. Qualified name required.',
                     __METHOD__, $typeName, implode(', ', array_keys($this->_types[$typeName]))
                 ));
@@ -639,7 +644,7 @@ class TypeConverterFactory
      *
      * @param string $name
      * @return TypeConverter
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function _getConverterForTypeName($name)
     {
@@ -665,7 +670,7 @@ class TypeConverterFactory
      * @param string $schemaName
      * @param bool   $isArray
      * @return TypeConverter
-     * @throws exceptions\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function getConverterForQualifiedName($typeName, $schemaName = null, $isArray = false)
     {
@@ -682,13 +687,13 @@ class TypeConverterFactory
 
         } else {
             // a converter required by name is required explicitly -> exception if not found
-            throw new exceptions\InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 '%s: no converter registered for base type %s',
                 __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
             ));
         }
 
-        return $isArray ? new converters\containers\ArrayConverter($converter) : $converter;
+        return $isArray ? new containers\ArrayConverter($converter) : $converter;
     }
 
     /**
@@ -709,7 +714,7 @@ class TypeConverterFactory
      *
      * @param int $oid
      * @return TypeConverter
-     * @throws exceptions\InvalidQueryException
+     * @throws InvalidQueryException
      */
     private function _getConverterForCompositeTypeOid($oid)
     {
@@ -735,7 +740,7 @@ SQL;
                         $this->_connection->getResource(), $sql , array($this->_dbTypes['composite'][$oid])
                     ))
                 ) {
-                    throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                    throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
                 }
                 $this->_dbTypes['composite'][$oid] = array();
                 while ($row = pg_fetch_assoc($res)) {
@@ -757,7 +762,7 @@ SQL;
      * Populates the types list from pg_catalog.pg_type table
      *
      * @param bool $force Force loading from database even if cached list is available
-     * @throws exceptions\InvalidQueryException
+     * @throws InvalidQueryException
      */
     private function _loadTypes($force = false)
     {
@@ -785,7 +790,7 @@ SQL;
     order by 4 desc
 SQL;
             if (!($res = @pg_query($this->_connection->getResource(), $sql))) {
-                throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
             }
             while ($row = pg_fetch_assoc($res)) {
                 if (!isset($this->_dbTypes['names'][$row['typname']])) {
@@ -814,7 +819,7 @@ where a.attrelid = c.oid and
 order by attrelid, attnum
 SQL;
                 if (!($res = @pg_query($this->_connection->getResource(), $sql))) {
-                    throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                    throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
                 }
                 while ($row = pg_fetch_assoc($res)) {
                     if (!is_array($this->_dbTypes['composite'][$row['reltype']])) {
@@ -832,7 +837,7 @@ SQL;
                 if (!($res = @pg_query(
                     $this->_connection->getResource(), "select rngtypid, rngsubtype from pg_range"
                 ))) {
-                    throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                    throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
                 }
                 while ($row = pg_fetch_assoc($res)) {
                     $this->_dbTypes['range'][$row['rngtypid']] = $row['rngsubtype'];
