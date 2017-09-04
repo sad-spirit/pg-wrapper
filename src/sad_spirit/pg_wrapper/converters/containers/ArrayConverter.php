@@ -37,7 +37,7 @@ class ArrayConverter extends ContainerConverter
     public function __construct(TypeConverter $item)
     {
         if ($item instanceof self) {
-            throw new InvalidArgumentException('MultiArrays should not be nested');
+            throw new InvalidArgumentException('ArrayConverters should not be nested');
         }
         $this->_item = $item;
     }
@@ -45,9 +45,9 @@ class ArrayConverter extends ContainerConverter
     /**
      * Number of array dimensions for PHP variable
      *
-     * Returns null as MultiArrays, by design, can have a variable number of
-     * dimensions. They also cannot be nested and thus this method is not
-     * actually used anywhere.
+     * Returns null as Postgres arrays, by design, can have a variable number of
+     * dimensions. As ArrayConverters cannot be nested this method is not
+     * actually called anywhere.
      *
      * @return int|null
      */

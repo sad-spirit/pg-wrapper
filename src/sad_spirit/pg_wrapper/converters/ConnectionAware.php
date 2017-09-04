@@ -20,8 +20,9 @@ namespace sad_spirit\pg_wrapper\converters;
 /**
  * Interface for type converters whose behaviour may change according to connection properties
  *
- * Currently implemented by Bytea type to check whether the connected server
- * supports 'hex' encoding for bytea type input.
+ * Currently implemented
+ *  - by ByteaConverter to check whether the connected server supports 'hex' encoding for bytea type input.
+ *  - by date and time converters to check server's DateStyle setting
  */
 interface ConnectionAware
 {

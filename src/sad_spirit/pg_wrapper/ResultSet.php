@@ -114,8 +114,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Explicitly sets the type converter for the result field
      *
      * @param int|string $fieldIndex Either field number or field name
-     * @param mixed      $type       Either an instance of Type or an
-     *                               argument to TypeFactory::getConverter()
+     * @param mixed      $type       Either an instance of TypeConverter or an
+     *                               argument for TypeConverterFactory::getConverter()
      * @return $this
      * @throws exceptions\InvalidArgumentException
      */

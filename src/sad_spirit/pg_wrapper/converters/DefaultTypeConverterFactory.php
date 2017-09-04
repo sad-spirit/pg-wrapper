@@ -172,7 +172,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Registers converter for a known named type
+     * Registers a converter for a known named type
      *
      * @param string|callable|TypeConverter $converter
      * @param string|array                  $type
@@ -513,8 +513,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * NB: this method does not employ a full-blown parser, specifically
      * it does not handle type modifiers (except "with/without time zone")
-     * and only understands '[]' as an array modifier. Parser should be used
-     * to process any type name Postgres itself understands.
+     * and only understands '[]' as an array modifier. Use a Parser-backed Factory
+     * in sad_spirit/pg_builder package to process any type name Postgres itself understands.
      *
      * @param string $name
      * @return array structure: array (string schema, string type, bool isArray)

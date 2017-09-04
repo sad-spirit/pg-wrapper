@@ -46,7 +46,7 @@ interface TypeConverter
      * Number of array dimensions for PHP variable
      *
      * Returns zero if variable is scalar. This method is mostly needed for
-     * correct MultiArray handling.
+     * correct arrays conversion.
      *
      * @return int
      */
