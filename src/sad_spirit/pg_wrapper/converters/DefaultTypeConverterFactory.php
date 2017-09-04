@@ -282,7 +282,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * If no converter was registered for a (base) type, the outcome depends
      * on the parameter provided:
      *  - if type name was used, an exception will be thrown
-     *  - if type oid was used, a fallback converter (StringConverter) will
+     *  - if type oid was used, a fallback converter (StubConverter) will
      *    be returned
      *
      * This allows unknown types in ResultSet to be returned as strings, as
@@ -415,7 +415,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         try {
             return $this->getConverterForQualifiedName($typeName, $schemaName);
         } catch (InvalidArgumentException $e) {
-            return new StringConverter();
+            return new StubConverter();
         }
     }
 

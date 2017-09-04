@@ -17,18 +17,37 @@
 
 namespace sad_spirit\pg_wrapper\converters;
 
+use sad_spirit\pg_wrapper\TypeConverter;
+
 /**
- * Converter for string types
+ * Implementation of TypeConverter that performs no conversion
+ *
+ * Always returned by StubTypeConverterFactory, returned by DefaultTypeConverterFactory in case proper converter
+ * could not be determined.
  */
-class StringConverter extends BaseConverter
+class StubConverter implements TypeConverter
 {
-    protected function inputNotNull($native)
+    /**
+     * {@inheritdoc}
+     */
+    public function output($value)
+    {
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function input($native)
     {
         return $native;
     }
 
-    protected function outputNotNull($value)
+    /**
+     * {@inheritdoc}
+     */
+    public function dimensions()
     {
-        return $value;
+        return 0;
     }
 }
