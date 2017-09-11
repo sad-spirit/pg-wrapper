@@ -18,7 +18,8 @@
 namespace sad_spirit\pg_wrapper\tests;
 
 use sad_spirit\pg_wrapper\Connection,
-    sad_spirit\pg_wrapper\converters;
+    sad_spirit\pg_wrapper\converters,
+    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Unit test for ResultSet class
@@ -76,12 +77,42 @@ SQL
         $this->assertEquals(array('a' => 9, 'b' => 'only value of baz'), $res[0]['onethree']);
     }
 
+    public function testSetTypeMissingField()
+    {
+        $res = self::$conn->execute("select one, two from test_resultset");
+
+        try {
+            $res->setType('three', new converters\StubConverter());
+            $this->fail('Expected InvalidArgumentException was not thrown');
+        } catch (InvalidArgumentException $e) {
+            try {
+                $res->setType(3, new converters\StubConverter());
+                $this->fail('Expected InvalidArgumentException was not thrown');
+            } catch (InvalidArgumentException $e) {}
+        }
+    }
+
     public function testFetchColumn()
     {
         $res = self::$conn->execute("select one, two from test_resultset where one > 5");
 
         $this->assertEquals(array(7, 9), $res->fetchColumn(0));
         $this->assertEquals(array('bar', 'baz'), $res->fetchColumn('two'));
+    }
+
+    public function testFetchColumnMissingField()
+    {
+        $res = self::$conn->execute("select one, two from test_resultset");
+
+        try {
+            $res->fetchColumn('three');
+            $this->fail('Expected InvalidArgumentException was not thrown');
+        } catch (InvalidArgumentException $e) {
+            try {
+                $res->fetchColumn(3);
+                $this->fail('Expected InvalidArgumentException was not thrown');
+            } catch (InvalidArgumentException $e) {}
+        }
     }
 
     public function testFetchAll()

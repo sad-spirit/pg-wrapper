@@ -347,10 +347,10 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     private function _checkFieldIndex($fieldIndex)
     {
         if (ctype_digit((string)$fieldIndex)) {
-            if ($fieldIndex < 0 || $fieldIndex >= $this->_numRows) {
+            if ($fieldIndex < 0 || $fieldIndex >= $this->_numFields) {
                 throw new exceptions\InvalidArgumentException(sprintf(
                     "%s: field number %d is not within range 0..%d",
-                    __METHOD__, $fieldIndex, $this->_numRows - 1
+                    __METHOD__, $fieldIndex, $this->_numFields - 1
                 ));
             }
 
