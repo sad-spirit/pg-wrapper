@@ -197,4 +197,22 @@ SQL
             $res->fetchAll(PGSQL_ASSOC, 1, false, true)
         );
     }
+
+    public function testConfiguresTypeConverterArgumentUsingConnection()
+    {
+        $mockTimestamp = $this->getMock('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter');
+        $mockBytea     = $this->getMock('\sad_spirit\pg_wrapper\converters\ByteaConverter');
+
+        $mockTimestamp->expects($this->once())
+            ->method('setConnectionResource');
+
+        $mockBytea->expects($this->once())
+            ->method('setConnectionResource');
+
+        $res = self::$conn->execute(
+            "select now() as tztest, '0x00' as byteatest",
+            array('tztest' => $mockTimestamp)
+        );
+        $res->setType(1, $mockBytea);
+    }
 }

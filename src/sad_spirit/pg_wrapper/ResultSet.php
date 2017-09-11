@@ -126,11 +126,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             $fieldIndex = $this->_namesHash[$fieldIndex];
         }
 
-        if (!($type instanceof TypeConverter)) {
-            $type = $this->_converterFactory->getConverter($type);
-        }
-
-        $this->_converters[$fieldIndex] = $type;
+        $this->_converters[$fieldIndex] = $this->_converterFactory->getConverter($type);
 
         return $this;
     }

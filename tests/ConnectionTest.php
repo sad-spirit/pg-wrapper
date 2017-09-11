@@ -142,6 +142,29 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $connection->quote($value, $type));
     }
 
+    public function testExecuteParamsConfiguresTypeConverterArgumentUsingConnection()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this->markTestSkipped('Connection string is not configured');
+        }
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+
+        $mockTimestamp = $this->getMock('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter');
+
+        $mockTimestamp->expects($this->once())
+            ->method('setConnectionResource');
+        $mockTimestamp->expects($this->once())
+            ->method('output')
+            ->willReturnArgument(0);
+
+        $connection->executeParams(
+            'select * from pg_stat_activity where query_start < $1',
+            array('yesterday'),
+            array($mockTimestamp)
+        );
+    }
+
     public function getImplicitTypes()
     {
         return array(
