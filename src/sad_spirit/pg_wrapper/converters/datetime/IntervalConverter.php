@@ -100,11 +100,6 @@ class IntervalConverter extends BaseConverter
         'S' => 's'
     );
 
-    public function __construct()
-    {
-        $this->initParsingHelpers();
-    }
-
     /**
      * Parses a string representing the fractional part of seconds
      *
