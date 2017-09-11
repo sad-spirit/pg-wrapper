@@ -35,6 +35,12 @@ class PreparedStatement
     private $_connection;
 
     /**
+     * SQL query text
+     * @var string
+     */
+    private $_query;
+
+    /**
      * Statement name for pg_prepare() / pg_execute()
      * @var string
      */
@@ -57,24 +63,70 @@ class PreparedStatement
      *
      * @param Connection $connection Reference to the connection object.
      * @param string     $query      SQL query to prepare.
-     * @param array      $types      Types information, used to convert input params.
+     * @param array      $paramTypes Types information, used to convert input parameters.
      * @throws exceptions\InvalidQueryException
      */
-    public function __construct(Connection $connection, $query, array $types = array())
+    public function __construct(Connection $connection, $query, array $paramTypes = array())
     {
         $this->_connection = $connection;
-        $this->_queryId    = 'statement' . ++self::$statementIdx;
-        if (!@pg_prepare($this->_connection->getResource(), $this->_queryId, $query)) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
-        }
+        $this->_query      = $query;
 
-        foreach ($types as $key => $type) {
+        foreach ($paramTypes as $key => $type) {
             if ($type instanceof TypeConverter) {
                 $this->_converters[$key] = $type;
             } elseif (null !== $type) {
                 $this->_converters[$key] = $this->_connection->getTypeConverter($type);
             }
         }
+
+        $this->prepare();
+    }
+
+    /**
+     * Forces re-preparing the statement in cloned object
+     */
+    public function __clone()
+    {
+        $this->_queryId = null;
+        $this->prepare();
+    }
+
+    /**
+     * Actually prepares the statement with pg_prepare()
+     *
+     * @return $this
+     * @throws exceptions\RuntimeException
+     */
+    public function prepare()
+    {
+        if ($this->_queryId) {
+            throw new exceptions\RuntimeException('The statement has already been prepared');
+        }
+
+        $this->_queryId = 'statement' . ++self::$statementIdx;
+        if (!@pg_prepare($this->_connection->getResource(), $this->_queryId, $this->_query)) {
+            throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Manually deallocates the prepared statement
+     *
+     * This is usually not needed as all the prepared statements are automatically
+     * deallocated once database connection is closed. Trying to call execute()
+     * after deallocate() will result in an Exception.
+     *
+     * @return $this
+     * @throws exceptions\InvalidQueryException
+     */
+    public function deallocate()
+    {
+        $this->_connection->execute('deallocate ' . $this->_queryId);
+        $this->_queryId = null;
+
+        return $this;
     }
 
     /**
@@ -134,9 +186,14 @@ class PreparedStatement
      * @return ResultSet|int|bool Execution result.
      * @throws exceptions\TypeConversionException
      * @throws exceptions\InvalidQueryException
+     * @throws exceptions\RuntimeException
      */
     public function execute(array $params = array(), array $resultTypes = array())
     {
+        if (!$this->_queryId) {
+            throw new exceptions\RuntimeException('The statement has already been deallocated');
+        }
+
         if (!empty($params)) {
             $this->_values = array();
             foreach (array_values($params) as $i => $value) {
