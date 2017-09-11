@@ -18,6 +18,7 @@
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\TypeConverterFactory,
+    sad_spirit\pg_wrapper\TypeConverter,
     sad_spirit\pg_wrapper\Connection;
 
 /**
@@ -28,7 +29,10 @@ use sad_spirit\pg_wrapper\TypeConverterFactory,
  */
 class StubTypeConverterFactory implements TypeConverterFactory
 {
+    /** @var StubConverter */
     private $_converter;
+    /** @var Connection */
+    private $_connection;
 
     public function __construct()
     {
@@ -40,6 +44,12 @@ class StubTypeConverterFactory implements TypeConverterFactory
      */
     public function getConverter($type)
     {
+        if ($type instanceof TypeConverter) {
+            if ($this->_connection && $type instanceof ConnectionAware) {
+                $type->setConnectionResource($this->_connection->getResource());
+            }
+            return $type;
+        }
         return $this->_converter;
     }
 
@@ -48,6 +58,8 @@ class StubTypeConverterFactory implements TypeConverterFactory
      */
     public function setConnection(Connection $connection)
     {
+        $this->_connection = $connection;
+
         return $this;
     }
 }

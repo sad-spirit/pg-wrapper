@@ -30,7 +30,6 @@ use sad_spirit\pg_wrapper\converters\DefaultTypeConverterFactory,
     sad_spirit\pg_wrapper\converters\IntegerConverter,
     sad_spirit\pg_wrapper\converters\StringConverter,
     sad_spirit\pg_wrapper\converters\geometric\PointConverter,
-    sad_spirit\pg_wrapper\TypeConverterFactory,
     sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
     Psr\Cache\CacheItemPoolInterface,
     Psr\Cache\CacheItemInterface;
@@ -41,7 +40,7 @@ use sad_spirit\pg_wrapper\converters\DefaultTypeConverterFactory,
 class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var TypeConverterFactory
+     * @var DefaultTypeConverterFactory
      */
     protected $factory;
 
@@ -340,6 +339,21 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
             ->setTypeConverterFactory($this->factory);
 
         $this->assertEquals(new HstoreConverter(), $this->factory->getConverter(123456));
+    }
+
+    public function testConfiguresTypeConverterArgumentUsingConnection()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this->markTestSkipped('Connection string is not configured');
+        }
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
+        $connection->setTypeConverterFactory($this->factory);
+
+        $mockConverter = $this->getMock('\sad_spirit\pg_wrapper\converters\ByteaConverter');
+        $mockConverter->expects($this->once())
+            ->method('setConnectionResource');
+
+        $this->assertSame($mockConverter, $this->factory->getConverter($mockConverter));
     }
 
     public function getBuiltinTypeConverters()
