@@ -93,16 +93,16 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertNotSame($conn1->getResource(), $conn2->getResource());
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
-     */
-    public function testCloneIsProhibited()
+    public function testClonedInstanceIsDisconnected()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
         }
-        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $cloned     = clone $connection;
+
+        $this->assertTrue($connection->isConnected());
+        $this->assertFalse($cloned->isConnected());
     }
 
     /**

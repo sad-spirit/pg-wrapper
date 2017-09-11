@@ -73,15 +73,11 @@ class Connection
     }
 
     /**
-     * Prevents cloning the Connection object
-     *
-     * @throws exceptions\InvalidArgumentException
+     * Forces opening a new database connection for cloned object
      */
     public function __clone()
     {
-        throw new exceptions\InvalidArgumentException(
-            __CLASS__ . ' should not be cloned. Create a new instance.'
-        );
+        $this->_resource = null;
     }
 
     /**
