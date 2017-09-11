@@ -54,6 +54,7 @@ class StringRangeTest extends TypeConverterTestCase
             array('(a,))',    new TypeConversionException()),
             array('(],a)',    new TypeConversionException()),
             array('(a,])',    new TypeConversionException()),
+            array('( \\',     new TypeConversionException()),
 
             array('  empty  ',                       Range::createEmpty()),
             array(' ( empty, empty )  ',             new Range(' empty', ' empty ', false, false)),

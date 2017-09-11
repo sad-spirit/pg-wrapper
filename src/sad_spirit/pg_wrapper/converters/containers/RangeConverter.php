@@ -84,7 +84,9 @@ class RangeConverter extends ContainerConverter
                 $bound .= strtr($m[1], array('\\\\' => '\\', '\\"' => '"', '""' => '"'));
 
             } else {
-                preg_match("/(?>[^\"\\\\{$quoted}]+|\\\\.)+/As", $string, $m, 0, $pos);
+                if (!preg_match("/(?>[^\"\\\\{$quoted}]+|\\\\.)+/As", $string, $m, 0, $pos)) {
+                    throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
+                }
                 $pos   += call_user_func(self::$strlen, $m[0]);
                 $bound .= stripcslashes($m[0]);
             }
