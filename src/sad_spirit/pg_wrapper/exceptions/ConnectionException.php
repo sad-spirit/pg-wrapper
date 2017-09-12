@@ -18,7 +18,7 @@
 namespace sad_spirit\pg_wrapper\exceptions;
 
 /**
- * Exception thrown when database connection failed
+ * Exception thrown when database connection fails
  */
 class ConnectionException extends RuntimeException
 {

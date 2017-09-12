@@ -21,7 +21,7 @@ use sad_spirit\pg_wrapper\Exception,
     sad_spirit\pg_wrapper\TypeConverter;
 
 /**
- * Exception thrown when conversion of value from/to database representation failed
+ * Exception thrown when conversion of value from/to database representation fails
  */
 class TypeConversionException extends \DomainException implements Exception
 {

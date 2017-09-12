@@ -120,6 +120,8 @@ class Connection
             pg_close($this->_resource);
             $this->_resource = null;
         }
+
+        return $this;
     }
 
     /**
@@ -180,14 +182,15 @@ class Connection
     /**
      * Prepares a given query for execution.
      *
-     * @param string $query SQL query to prepare.
-     * @param array  $types Types information, used to convert input params.
+     * @param string $query      SQL query to prepare.
+     * @param array  $paramTypes Types information used to convert input parameters
+     *
      * @return PreparedStatement Prepared statement.
      * @throws exceptions\InvalidQueryException
      */
-    public function prepare($query, array $types = array())
+    public function prepare($query, array $paramTypes = array())
     {
-        return new PreparedStatement($this, $query, $types);
+        return new PreparedStatement($this, $query, $paramTypes);
     }
 
     /**
@@ -196,12 +199,13 @@ class Connection
      * For queries that return rows this method returns a ResultSet object, for
      * data modification queries it returns the number of affected rows
      *
-     * @param string $sql   SQL query to execute
-     * @param array  $types Type converters to pass to ResultSet
+     * @param string $sql         SQL query to execute
+     * @param array  $resultTypes Type converters to pass to ResultSet
+     *
      * @return ResultSet|int|bool Execution result.
      * @throws exceptions\InvalidQueryException
      */
-    public function execute($sql, array $types = array())
+    public function execute($sql, array $resultTypes = array())
     {
         $result = @pg_query($this->getResource(), $sql);
 
@@ -220,7 +224,7 @@ class Connection
             return true;
         case PGSQL_TUPLES_OK:
         default:
-            return new ResultSet($result, $this->getTypeConverterFactory(), $types);
+            return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
         }
     }
 
@@ -229,21 +233,22 @@ class Connection
      *
      * @param string $sql         Query
      * @param array  $params      Parameters
-     * @param array  $inputTypes  Parameter types
-     * @param array  $outputTypes Result types to pass to ResultSet
+     * @param array  $paramTypes  Types information used to convert input parameters
+     * @param array  $resultTypes Result types to pass to ResultSet
+     *
      * @return bool|ResultSet|int
      * @throws exceptions\InvalidQueryException
      */
     public function executeParams(
-        $sql, array $params, array $inputTypes = array(), array $outputTypes = array()
+        $sql, array $params, array $paramTypes = array(), array $resultTypes = array()
     ) {
         if (!$this->isConnected()) {
             $this->connect();
         }
         $stringParams = array();
         foreach ($params as $key => $value) {
-            if (isset($inputTypes[$key])) {
-                $stringParams[$key] = $this->getTypeConverter($inputTypes[$key])->output($value);
+            if (isset($paramTypes[$key])) {
+                $stringParams[$key] = $this->getTypeConverter($paramTypes[$key])->output($value);
             } else {
                 $stringParams[$key] = $this->guessOutputFormat($value);
             }
@@ -265,7 +270,7 @@ class Connection
             return true;
         case PGSQL_TUPLES_OK:
         default:
-            return new ResultSet($result, $this->getTypeConverterFactory(), $outputTypes);
+            return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
         }
     }
 
