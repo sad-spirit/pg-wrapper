@@ -63,7 +63,8 @@ class PreparedStatement
      *
      * @param Connection $connection Reference to the connection object.
      * @param string     $query      SQL query to prepare.
-     * @param array      $paramTypes Types information, used to convert input parameters.
+     * @param array      $paramTypes Types information used to convert input parameters.
+     *
      * @throws exceptions\InvalidQueryException
      */
     public function __construct(Connection $connection, $query, array $paramTypes = array())
@@ -72,22 +73,19 @@ class PreparedStatement
         $this->_query      = $query;
 
         foreach ($paramTypes as $key => $type) {
-            if ($type instanceof TypeConverter) {
-                $this->_converters[$key] = $type;
-            } elseif (null !== $type) {
-                $this->_converters[$key] = $this->_connection->getTypeConverter($type);
-            }
+            $this->_converters[$key] = $this->_connection->getTypeConverter($type);
         }
 
         $this->prepare();
     }
 
     /**
-     * Forces re-preparing the statement in cloned object
+     * Re-prepares the statement and removes bound values in cloned object
      */
     public function __clone()
     {
         $this->_queryId = null;
+        $this->_values  = array();
         $this->prepare();
     }
 
@@ -95,6 +93,7 @@ class PreparedStatement
      * Actually prepares the statement with pg_prepare()
      *
      * @return $this
+     * @throws exceptions\InvalidQueryException
      * @throws exceptions\RuntimeException
      */
     public function prepare()
@@ -115,14 +114,19 @@ class PreparedStatement
      * Manually deallocates the prepared statement
      *
      * This is usually not needed as all the prepared statements are automatically
-     * deallocated once database connection is closed. Trying to call execute()
+     * deallocated when database connection is closed. Trying to call execute()
      * after deallocate() will result in an Exception.
      *
      * @return $this
      * @throws exceptions\InvalidQueryException
+     * @throws exceptions\RuntimeException
      */
     public function deallocate()
     {
+        if (!$this->_queryId) {
+            throw new exceptions\RuntimeException('The statement has already been deallocated');
+        }
+
         $this->_connection->execute('deallocate ' . $this->_queryId);
         $this->_queryId = null;
 
@@ -135,6 +139,8 @@ class PreparedStatement
      * @param int   $paramNum Parameter number, 1-based
      * @param mixed $value    Parameter value
      * @param mixed $type     Type name / converter object to use for converting to DB type
+     * @return $this
+     *
      * @throws exceptions\InvalidArgumentException
      */
     function bindValue($paramNum, $value, $type = null)
@@ -146,11 +152,11 @@ class PreparedStatement
             ));
         }
         $this->_values[$paramNum - 1] = $value;
-        if ($type instanceof TypeConverter) {
-            $this->_converters[$paramNum - 1] = $type;
-        } elseif (null !== $type) {
+        if (null !== $type) {
             $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverter($type);
         }
+
+        return $this;
     }
 
     /**
@@ -159,6 +165,8 @@ class PreparedStatement
      * @param int   $paramNum Parameter number, 1-based
      * @param mixed $param    Variable to bind
      * @param mixed $type     Type name / converter object to use for converting to DB type
+     * @return $this
+     *
      * @throws exceptions\InvalidArgumentException
      */
     function bindParam($paramNum, &$param, $type = null)
@@ -170,19 +178,21 @@ class PreparedStatement
             ));
         }
         $this->_values[$paramNum - 1] =& $param;
-        if ($type instanceof TypeConverter) {
-            $this->_converters[$paramNum - 1] = $type;
-        } elseif (null !== $type) {
+        if (null !== $type) {
             $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverter($type);
         }
+
+        return $this;
     }
 
 
     /**
      * Executes a prepared query
      *
-     * @param array $params Input params for query.
-     * @param array $resultTypes Types information, used to convert output values (overrides auto-generated types).
+     * @param array $params      Input parameters for query, will override those bound by
+     *                           bindValue() and bindParam() methods when provided.
+     * @param array $resultTypes Types information for result fields, passed to ResultSet
+     *
      * @return ResultSet|int|bool Execution result.
      * @throws exceptions\TypeConversionException
      * @throws exceptions\InvalidQueryException
@@ -201,16 +211,16 @@ class PreparedStatement
             }
         }
 
-        $params = array();
+        $stringParams = array();
         foreach ($this->_values as $key => $value) {
             if (isset($this->_converters[$key])) {
-                $params[$key] = $this->_converters[$key]->output($value);
+                $stringParams[$key] = $this->_converters[$key]->output($value);
             } else {
-                $params[$key] = $this->_connection->guessOutputFormat($value);
+                $stringParams[$key] = $this->_connection->guessOutputFormat($value);
             }
         }
 
-        $result = @pg_execute($this->_connection->getResource(), $this->_queryId, $params);
+        $result = @pg_execute($this->_connection->getResource(), $this->_queryId, $stringParams);
         if (!$result) {
             throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
         }
