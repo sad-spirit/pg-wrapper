@@ -73,7 +73,9 @@ class PreparedStatement
         $this->_query      = $query;
 
         foreach ($paramTypes as $key => $type) {
-            $this->_converters[$key] = $this->_connection->getTypeConverter($type);
+            if (null !== $type) {
+                $this->_converters[$key] = $this->_connection->getTypeConverter($type);
+            }
         }
 
         $this->prepare();

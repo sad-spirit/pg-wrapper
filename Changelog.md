@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+* Constructor of `PreparedStatement` should skip `null` values `$paramTypes` like it did before 0.2.1
+
 ## 0.2.1
 
 * `RangeConverter` could enter an infinite loop on some invalid input.
