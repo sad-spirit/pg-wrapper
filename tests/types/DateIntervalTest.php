@@ -33,7 +33,7 @@ class DateIntervalTest extends \PHPUnit_Framework_TestCase
     public function testOutputFractionalSeconds()
     {
         $interval = new DateInterval('PT1M');
-        $interval->fsec = 0.123;
+        $interval->f = 0.123;
         $this->assertEquals('PT1M0.123S', $interval->__toString());
     }
 

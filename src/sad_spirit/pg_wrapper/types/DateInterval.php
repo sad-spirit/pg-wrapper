@@ -22,22 +22,15 @@ use DateInterval as NativeDateInterval;
 /**
  * Wrapper around PHP's built-in DateInterval class
  *
- * Adds support for fractional seconds and defines a method to return a string
- * representaion of interval.
+ * Adds a method to return the string representation of interval.
  */
 class DateInterval extends NativeDateInterval
 {
     /**
-     * Fractional part of seconds
-     * @var float
-     */
-    public $fsec = 0.0;
-
-    /**
      * Returns the value of DateInterval object as an ISO 8601 time interval string
      *
      * This string will not necessarily work with DateInterval's constructor
-     * as that can handle neither negative numbers nor fractional seconds.
+     * as that cannot handle negative numbers.
      * Mostly intended for sending to Postgres as a value of interval type.
      *
      * @param  \DateInterval $interval
@@ -46,33 +39,31 @@ class DateInterval extends NativeDateInterval
     public static function formatAsISO8601(NativeDateInterval $interval)
     {
         // prevent returning an empty string
-        if (0 == $interval->y && 0 == $interval->m && 0 == $interval->d
-            && 0 == $interval->h && 0 == $interval->i && 0 == $interval->s
-            && (!($interval instanceof self) || 0 == $interval->fsec)
+        if (0 === $interval->y && 0 === $interval->m && 0 === $interval->d
+            && 0 === $interval->h && 0 === $interval->i && 0 === $interval->s
+            && 0.0 === $interval->f
         ) {
             return 'PT0S';
         }
         $string = 'P';
         $mult   = $interval->invert ? -1 : 1;
         foreach (array('y' => 'Y', 'm' => 'M', 'd' => 'D') as $key => $char) {
-            if (0 != $interval->{$key}) {
+            if (0 !== $interval->{$key}) {
                 $string .= sprintf('%d%s', $interval->{$key} * $mult, $char);
             }
         }
-        if (0 != $interval->h || 0 != $interval->i || 0 != $interval->s
-            || $interval instanceof self && 0 != $interval->fsec
-        ) {
+        if (0 !== $interval->h || 0 !== $interval->i || 0 !== $interval->s || 0.0 !== $interval->f) {
             $string .= 'T';
             foreach (array('h' => 'H', 'i' => 'M') as $key => $char) {
-                if (0 != $interval->{$key}) {
+                if (0 !== $interval->{$key}) {
                     $string .= sprintf('%d%s', $interval->{$key} * $mult, $char);
                 }
             }
-            if (0 != $interval->s || $interval instanceof self && 0 != $interval->fsec) {
-                if (!$interval instanceof self || 0 == $interval->fsec) {
+            if (0 !== $interval->s || 0.0 !== $interval->f) {
+                if (0.0 === $interval->f) {
                     $string .= sprintf('%d%s', $interval->s * $mult, 'S');
                 } else {
-                    $string .= rtrim(sprintf('%.6f', ($interval->s + $interval->fsec) * $mult), '0');
+                    $string .= rtrim(sprintf('%.6f', ($interval->s + $interval->f) * $mult), '0');
                     $string .= 'S';
                 }
             }

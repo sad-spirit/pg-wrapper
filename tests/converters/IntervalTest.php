@@ -72,7 +72,7 @@ class IntervalTest extends TypeConverterTestCase
     protected function valuesTo()
     {
         $frac = new DateInterval('PT1H2M3S');
-        $frac->fsec = 0.45;
+        $frac->f = 0.45;
 
         $inv  = new DateInterval('P1Y2M');
         $inv->invert = true;

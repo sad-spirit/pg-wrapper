@@ -138,14 +138,14 @@ class IntervalConverter extends BaseConverter
             $interval->s = 0;
 
         } elseif ('.' === ($char = $this->nextChar($token, $pos))) {
-            $interval->fsec = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
+            $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
             list($interval->h, $interval->i, $interval->s) = array(0, $interval->h, $interval->i);
 
         } else {
             $pos++;
             $interval->s = (int)$this->getStrspn($token, '01234567890', $pos);
             if ($pos !== call_user_func(self::$strlen, $token)) {
-                $interval->fsec = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
+                $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
             }
         }
     }
@@ -178,12 +178,13 @@ class IntervalConverter extends BaseConverter
                 $keys        = array('h', 'i', 's');
                 break;
 
+            /** @noinspection PhpMissingBreakStatementInspection */
             case self::TOKEN_TZ:
                 if (false !== strchr($tokens[$i]['value'], ':')) {
                     $this->_parseTimeToken(call_user_func(self::$substr, $tokens[$i]['value'], 1), $interval);
                     if ('-' === $tokens[$i]['value'][0]) {
-                        list($interval->h, $interval->i, $interval->s, $interval->fsec) =
-                            array(-$interval->h, -$interval->i, -$interval->s, -$interval->fsec);
+                        list($interval->h, $interval->i, $interval->s, $interval->f) =
+                            array(-$interval->h, -$interval->i, -$interval->s, -$interval->f);
                     }
                     $intervalKey = 'd';
                     $keys        = array('h', 'i', 's');
@@ -218,8 +219,8 @@ class IntervalConverter extends BaseConverter
                             $this, 'integer value', $tokens[$i]['value'], $pos
                         );
                     }
-                    $interval->fsec = $this->_parseFractionalSecond(call_user_func(self::$substr, $tokens[$i]['value'], $pos))
-                                      * ('-' === $sign ? -1 : 1);
+                    $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $tokens[$i]['value'], $pos))
+                                   * ('-' === $sign ? -1 : 1);
 
                 } elseif ($pos !== call_user_func(self::$strlen, $tokens[$i]['value'])) {
                     throw TypeConversionException::parsingFailed(
@@ -385,15 +386,14 @@ class IntervalConverter extends BaseConverter
             }
             $pos++;
 
-            if (false === strpos($value, '.')) {
+            if (false === ($dotPos = strpos($value, '.'))) {
                 $interval->{$intervalKey} = (int)$value;
             } else {
                 if ('s' !== $intervalKey) {
                     throw TypeConversionException::parsingFailed($this, 'integer value', $native, $numpos);
                 }
-                $value = (double)$value;
-                $interval->s    = ($value > 0) ? (int)floor($value) : (int)-floor(-$value);
-                $interval->fsec = $value - $interval->s;
+                $interval->s = (int)call_user_func(self::$substr, $value, 0, $dotPos);
+                $interval->f = ($interval->s >= 0 ? 1 : -1) * (double)call_user_func(self::$substr, $value, $dotPos);
             }
         }
 
@@ -404,8 +404,8 @@ class IntervalConverter extends BaseConverter
     {
         $native = trim($native);
         if ('P' === $native[0]) {
-            if (false === strpos($native, '.') && false === strpos($native, '-')) {
-                // No fractional parts and / or minuses -> built-in constructor can probably handle
+            if (false === strpos($native, '-')) {
+                // No minuses -> built-in constructor can probably handle
                 try {
                     return new DateInterval($native);
                 } catch (\Exception $e) {
