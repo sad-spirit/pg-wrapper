@@ -27,10 +27,10 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 abstract class PointPair
 {
-    private $_points = array(
+    private $_points = [
         'start' => null,
         'end'   => null
-    );
+    ];
 
     function __construct(Point $start, Point $end)
     {

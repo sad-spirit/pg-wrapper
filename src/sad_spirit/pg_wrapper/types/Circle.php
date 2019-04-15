@@ -27,10 +27,10 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Circle
 {
-    private $_props = array(
+    private $_props = [
         'center' => null,
         'radius' => 0
-    );
+    ];
 
     function __construct(Point $center, $radius)
     {

@@ -32,82 +32,82 @@ class CompositeTest extends TypeConverterTestCase
 {
     public function setUp()
     {
-        $this->converter = new CompositeConverter(array(
+        $this->converter = new CompositeConverter([
             'num'     => new IntegerConverter(),
             'string'  => new StringConverter(),
             'strings' => new ArrayConverter(new StringConverter()),
             'coord'   => new PointConverter()
-        ));
+        ]);
     }
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array(
+        return [
+            [null, null],
+            [
                 '(,,,)',
-                array(
+                [
                     'num'       => null,
                     'string'    => null,
                     'strings'   => null,
                     'coord'     => null,
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 '(,"test",,)',
-                array(
+                [
                     'num'       => null,
                     'string'    => 'test',
                     'strings'   => null,
                     'coord'     => null,
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 '("7","test","{""a\\\\""b"",""b\\\\\\\\c""}","(1.2,4.2)")',
-                array(
+                [
                     'num'       => 7,
                     'string'    => 'test',
-                    'strings'   => array('a"b', 'b\\c'),
+                    'strings'   => ['a"b', 'b\\c'],
                     'coord'     => new Point(1.2, 4.2),
-                )
-            )
-        );
+                ]
+            ]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array(
+        return [
+            [
                 '(7,test,"{x,y}","(0, 4.2)")',
-                array(
+                [
                     'num'       => '7',
                     'string'    => 'test',
-                    'strings'   => array('x', 'y'),
+                    'strings'   => ['x', 'y'],
                     'coord'     => new Point(0, 4.2),
-                )),
-            array('(,,)', new TypeConversionException()),
-            array('(,,,,)', new TypeConversionException()),
-        );
+                ]],
+            ['(,,)', new TypeConversionException()],
+            ['(,,,,)', new TypeConversionException()],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array(new TypeConversionException(), 1),
-            array(new TypeConversionException(), 'Hi!'),
-            array('(,,,)', array()),
-            array('(,,,)', array('x' => 'd')),
-            array('("7",,,)', array('num' => '7')),
-            array('(,"test",,)', array('string' => 'test')),
-            array(
+        return [
+            [new TypeConversionException(), 1],
+            [new TypeConversionException(), 'Hi!'],
+            ['(,,,)', []],
+            ['(,,,)', ['x' => 'd']],
+            ['("7",,,)', ['num' => '7']],
+            ['(,"test",,)', ['string' => 'test']],
+            [
                 '("5",,"{""Hello,"",""World!""}","(192,4.2)")',
-                (object) array(
+                (object) [
                     'num'       => 5,
-                    'coord'     => array(192, 4.2),
-                    'strings'   => array('Hello,', 'World!'),
+                    'coord'     => [192, 4.2],
+                    'strings'   => ['Hello,', 'World!'],
                     'junk'      => 'Oh, no!',
-                )
-            )
-        );
+                ]
+            ]
+        ];
     }
 }

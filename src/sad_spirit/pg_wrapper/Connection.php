@@ -92,7 +92,7 @@ class Connection
             return $this;
         }
 
-        $connectionWarnings = array();
+        $connectionWarnings = [];
         set_error_handler(function ($errno, $errstr) use (&$connectionWarnings) {
             $connectionWarnings[] = $errstr;
             return true;
@@ -188,7 +188,7 @@ class Connection
      * @return PreparedStatement Prepared statement.
      * @throws exceptions\InvalidQueryException
      */
-    public function prepare($query, array $paramTypes = array())
+    public function prepare($query, array $paramTypes = [])
     {
         return new PreparedStatement($this, $query, $paramTypes);
     }
@@ -205,7 +205,7 @@ class Connection
      * @return ResultSet|int|bool Execution result.
      * @throws exceptions\InvalidQueryException
      */
-    public function execute($sql, array $resultTypes = array())
+    public function execute($sql, array $resultTypes = [])
     {
         $result = @pg_query($this->getResource(), $sql);
 
@@ -240,12 +240,12 @@ class Connection
      * @throws exceptions\InvalidQueryException
      */
     public function executeParams(
-        $sql, array $params, array $paramTypes = array(), array $resultTypes = array()
+        $sql, array $params, array $paramTypes = [], array $resultTypes = []
     ) {
         if (!$this->isConnected()) {
             $this->connect();
         }
-        $stringParams = array();
+        $stringParams = [];
         foreach ($params as $key => $value) {
             if (isset($paramTypes[$key])) {
                 $stringParams[$key] = $this->getTypeConverter($paramTypes[$key])->output($value);

@@ -108,7 +108,7 @@ class ArrayConverter extends ContainerConverter
             );
         }
 
-        $parts = array();
+        $parts = [];
         if (empty($requiredSizes)) {
             foreach ($value as $v) {
                 $item    = $this->_item->output($v);
@@ -136,7 +136,7 @@ class ArrayConverter extends ContainerConverter
      */
     private function _calculateRequiredSizes(array $value)
     {
-        $sizes = array();
+        $sizes = [];
         while (is_array($value)) {
             $sizes[] = count($value);
             if (!count($value) || array_keys($value) !== range(0, count($value) - 1)) {
@@ -170,7 +170,7 @@ class ArrayConverter extends ContainerConverter
 
     protected function parseInput($native, &$pos)
     {
-        $result = array();
+        $result = [];
 
         $this->expectChar($native, $pos, '{'); // Leading "{".
 

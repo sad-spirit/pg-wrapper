@@ -37,7 +37,7 @@ class HstoreConverter extends ContainerConverter
         } elseif (!is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array or object', $value);
         }
-        $parts = array();
+        $parts = [];
         foreach ($value as $key => $item) {
             $parts[] =  '"' . addcslashes($key, "\"\\") . '"'
                         . '=>'
@@ -79,7 +79,7 @@ class HstoreConverter extends ContainerConverter
 
     protected function parseInput($native, &$pos)
     {
-        $result = array();
+        $result = [];
 
         while (false !== ($char = $this->nextChar($native, $pos))) {
             $key = $this->_readString($native, $pos, '=', false);

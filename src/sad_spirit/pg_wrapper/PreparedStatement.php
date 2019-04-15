@@ -50,13 +50,13 @@ class PreparedStatement
      * Values for input parameters
      * @var array
      */
-    private $_values = array();
+    private $_values = [];
 
     /**
      * Converters for input parameters
      * @var TypeConverter[]
      */
-    private $_converters = array();
+    private $_converters = [];
 
     /**
      * Constructor.
@@ -67,7 +67,7 @@ class PreparedStatement
      *
      * @throws exceptions\InvalidQueryException
      */
-    public function __construct(Connection $connection, $query, array $paramTypes = array())
+    public function __construct(Connection $connection, $query, array $paramTypes = [])
     {
         $this->_connection = $connection;
         $this->_query      = $query;
@@ -87,7 +87,7 @@ class PreparedStatement
     public function __clone()
     {
         $this->_queryId = null;
-        $this->_values  = array();
+        $this->_values  = [];
         $this->prepare();
     }
 
@@ -200,20 +200,20 @@ class PreparedStatement
      * @throws exceptions\InvalidQueryException
      * @throws exceptions\RuntimeException
      */
-    public function execute(array $params = array(), array $resultTypes = array())
+    public function execute(array $params = [], array $resultTypes = [])
     {
         if (!$this->_queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
         }
 
         if (!empty($params)) {
-            $this->_values = array();
+            $this->_values = [];
             foreach (array_values($params) as $i => $value) {
                 $this->bindValue($i + 1, $value);
             }
         }
 
-        $stringParams = array();
+        $stringParams = [];
         foreach ($this->_values as $key => $value) {
             if (isset($this->_converters[$key])) {
                 $stringParams[$key] = $this->_converters[$key]->output($value);

@@ -38,7 +38,7 @@ class PolygonConverter extends BaseGeometricConverter
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Polygon or an array', $value);
         }
 
-        $points = array();
+        $points = [];
         foreach ($value as $point) {
             $points[] = $this->point->output($point);
         }

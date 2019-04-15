@@ -36,55 +36,55 @@ class StringRangeTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array('empty',               Range::createEmpty()),
-            array('("два","раз"]',       new Range('два', 'раз', false, true))
-        );
+        return [
+            ['empty',               Range::createEmpty()],
+            ['("два","раз"]',       new Range('два', 'раз', false, true)]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
+        return [
             // tests from rangetypes.sql
-            array('-[a,z)',   new TypeConversionException()),
-            array('[a,z) - ', new TypeConversionException()),
-            array('(",a)',    new TypeConversionException()),
-            array('(,,a)',    new TypeConversionException()),
-            array('(),a)',    new TypeConversionException()),
-            array('(a,))',    new TypeConversionException()),
-            array('(],a)',    new TypeConversionException()),
-            array('(a,])',    new TypeConversionException()),
-            array('( \\',     new TypeConversionException()),
+            ['-[a,z)',   new TypeConversionException()],
+            ['[a,z) - ', new TypeConversionException()],
+            ['(",a)',    new TypeConversionException()],
+            ['(,,a)',    new TypeConversionException()],
+            ['(),a)',    new TypeConversionException()],
+            ['(a,))',    new TypeConversionException()],
+            ['(],a)',    new TypeConversionException()],
+            ['(a,])',    new TypeConversionException()],
+            ['( \\',     new TypeConversionException()],
 
-            array('  empty  ',                       Range::createEmpty()),
-            array(' ( empty, empty )  ',             new Range(' empty', ' empty ', false, false)),
-            array(' ( " a " " a ", " z " " z " )  ', new Range('  a   a ', '  z   z  ', false, false)),
-            array('(,z)',                            new Range(null, 'z', false, false)),
-            array('(a,)',                            new Range('a', null, false, false)),
-            array('[,z]',                            new Range(null, 'z', true, true)),
-            array('[a,]',                            new Range('a', null, true, true)),
-            array('(,)',                             new Range(null, null, false, false)),
-            array('[ , ]',                           new Range(' ', ' ', true, true)),
-            array('["",""]',                         new Range('', '', true, true)),
-            array('[",",","]',                       new Range(',', ',', true, true)),
-            array('["\\\\","\\\\"]',                 new Range('\\', '\\', true, true)),
-            array('(\\\\,a)',                        new Range('\\', 'a', false, false)),
-            array('((,z)',                           new Range('(', 'z', false, false)),
-            array('([,z)',                           new Range('[', 'z', false, false)),
-            array('(!,()',                           new Range('!', '(', false, false)),
-            array('(!,[)',                           new Range('!', '[', false, false)),
-            array('[a,a]',                           new Range('a', 'a', true, true)),
+            ['  empty  ',                       Range::createEmpty()],
+            [' ( empty, empty )  ',             new Range(' empty', ' empty ', false, false)],
+            [' ( " a " " a ", " z " " z " )  ', new Range('  a   a ', '  z   z  ', false, false)],
+            ['(,z)',                            new Range(null, 'z', false, false)],
+            ['(a,)',                            new Range('a', null, false, false)],
+            ['[,z]',                            new Range(null, 'z', true, true)],
+            ['[a,]',                            new Range('a', null, true, true)],
+            ['(,)',                             new Range(null, null, false, false)],
+            ['[ , ]',                           new Range(' ', ' ', true, true)],
+            ['["",""]',                         new Range('', '', true, true)],
+            ['[",",","]',                       new Range(',', ',', true, true)],
+            ['["\\\\","\\\\"]',                 new Range('\\', '\\', true, true)],
+            ['(\\\\,a)',                        new Range('\\', 'a', false, false)],
+            ['((,z)',                           new Range('(', 'z', false, false)],
+            ['([,z)',                           new Range('[', 'z', false, false)],
+            ['(!,()',                           new Range('!', '(', false, false)],
+            ['(!,[)',                           new Range('!', '[', false, false)],
+            ['[a,a]',                           new Range('a', 'a', true, true)],
 
             // additional tests
-            array('("a","bc\\\\\\""""]',             new Range('a', 'bc\\""', false, true)),
-        );
+            ['("a","bc\\\\\\""""]',             new Range('a', 'bc\\""', false, true)],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('("a","bc\\\\\\"\\""]',            new Range('a', 'bc\\""', false, true)),
-            array('["a","z")',                       array('a', 'z'))
-        );
+        return [
+            ['("a","bc\\\\\\"\\""]',            new Range('a', 'bc\\""', false, true)],
+            ['["a","z")',                       ['a', 'z']]
+        ];
     }
 }

@@ -38,30 +38,30 @@ class NumericTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null,   null),
-            array('10',   '10'),
-            array('-20',  '-20'),
-            array('3.5',  '3.5')
-        );
+        return [
+            [null,   null],
+            ['10',   '10'],
+            ['-20',  '-20'],
+            ['3.5',  '3.5']
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('',     new TypeConversionException()),
-            array('blah', new TypeConversionException())
-        );
+        return [
+            ['',     new TypeConversionException()],
+            ['blah', new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('2.3',                         '2,3'),
-            array(new TypeConversionException(), ''),
-            array(new TypeConversionException(), 'fuck'),
-            array(new TypeConversionException(), array())
-        );
+        return [
+            ['2.3',                         '2,3'],
+            [new TypeConversionException(), ''],
+            [new TypeConversionException(), 'fuck'],
+            [new TypeConversionException(), []]
+        ];
     }
 
 }

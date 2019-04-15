@@ -123,6 +123,6 @@ class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$conn->inTransaction());
 
         $result = self::$conn->execute('select array_agg(id) as ids from test_trans');
-        $this->assertEquals(array(1), $result[0]['ids']);
+        $this->assertEquals([1], $result[0]['ids']);
     }
 }

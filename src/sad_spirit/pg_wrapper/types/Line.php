@@ -28,11 +28,11 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Line
 {
-    private $_coeffs = array(
+    private $_coeffs = [
         'A' => 0,
         'B' => 0,
         'C' => 0
-    );
+    ];
 
     function __construct($A, $B, $C)
     {

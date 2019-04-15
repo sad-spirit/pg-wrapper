@@ -35,34 +35,34 @@ class PathTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null,                null),
-            array('[(1,2)]',           new Path(array(new Point(1, 2)), true)),
-            array('[(1,2),(1.2,2.3)]', new Path(array(new Point(1, 2), new Point(1.2, 2.3)), true)),
-            array('((1,2),(1.2,2.3))', new Path(array(new Point(1, 2), new Point(1.2, 2.3)), false))
-        );
+        return [
+            [null,                null],
+            ['[(1,2)]',           new Path([new Point(1, 2)], true)],
+            ['[(1,2),(1.2,2.3)]', new Path([new Point(1, 2), new Point(1.2, 2.3)], true)],
+            ['((1,2),(1.2,2.3))', new Path([new Point(1, 2), new Point(1.2, 2.3)], false)]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('1,2,3,4',     new Path(array(new Point(1, 2), new Point(3, 4)), false)),
-            array('(1,2,3,4,5)', new TypeConversionException()),
-            array('([1,2],3,4)', new TypeConversionException()),
-        );
+        return [
+            ['1,2,3,4',     new Path([new Point(1, 2), new Point(3, 4)], false)],
+            ['(1,2,3,4,5)', new TypeConversionException()],
+            ['([1,2],3,4)', new TypeConversionException()],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('((1,2),(1.2,2.3))',            array(array(1, 2), array(1.2, 2.3))),
-            array('[(3,4),(5,6)]',                array('open' => true, array(3, 4), array(5, 6))),
-            array(new TypeConversionException(),  1),
-            array(new InvalidArgumentException(), array('point')),
-            array(new InvalidArgumentException(), array(array(1))),
-            array(new InvalidArgumentException(), array(array(1, 1, 1))),
-            array(new InvalidArgumentException(), array(array(2, 'string'), null)),
-            array(new InvalidArgumentException(), array(null, array(array(1, 2)))),
-        );
+        return [
+            ['((1,2),(1.2,2.3))',            [[1, 2], [1.2, 2.3]]],
+            ['[(3,4),(5,6)]',                ['open' => true, [3, 4], [5, 6]]],
+            [new TypeConversionException(),  1],
+            [new InvalidArgumentException(), ['point']],
+            [new InvalidArgumentException(), [[1]]],
+            [new InvalidArgumentException(), [[1, 1, 1]]],
+            [new InvalidArgumentException(), [[2, 'string'], null]],
+            [new InvalidArgumentException(), [null, [[1, 2]]]],
+        ];
     }
 }

@@ -34,36 +34,36 @@ class PointTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null,        null),
-            array('(0,0)',     new Point(0, 0)),
-            array('(1,2)',     new Point(1, 2)),
-            array('(0.6,0.3)', new Point(0.6, 0.3)),
-        );
+        return [
+            [null,        null],
+            ['(0,0)',     new Point(0, 0)],
+            ['(1,2)',     new Point(1, 2)],
+            ['(0.6,0.3)', new Point(0.6, 0.3)],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('0,3.2',       new Point(0, 3.2)),
-            array(' 0.1 , 3.2 ', new Point(0.1, 3.2)),
-            array('(0,0',        new TypeConversionException()),
-            array('0,0)',        new TypeConversionException()),
-            array('[0,0]',       new TypeConversionException())
-        );
+        return [
+            ['0,3.2',       new Point(0, 3.2)],
+            [' 0.1 , 3.2 ', new Point(0.1, 3.2)],
+            ['(0,0',        new TypeConversionException()],
+            ['0,0)',        new TypeConversionException()],
+            ['[0,0]',       new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('(1,2)',                       array('y' => 2, 'x' => 1)),
-            array('(3,4)',                       array(3, 4)),
-            array(new TypeConversionException(), 1),
-            array(new TypeConversionException(), 'point'),
-            array(new InvalidArgumentException(), array(1)),
-            array(new InvalidArgumentException(), array(1, 1, 1)),
-            array(new InvalidArgumentException(), array()),
-            array(new InvalidArgumentException(), array(2, 'string')),
-        );
+        return [
+            ['(1,2)',                       ['y' => 2, 'x' => 1]],
+            ['(3,4)',                       [3, 4]],
+            [new TypeConversionException(), 1],
+            [new TypeConversionException(), 'point'],
+            [new InvalidArgumentException(), [1]],
+            [new InvalidArgumentException(), [1, 1, 1]],
+            [new InvalidArgumentException(), []],
+            [new InvalidArgumentException(), [2, 'string']],
+        ];
     }
 }

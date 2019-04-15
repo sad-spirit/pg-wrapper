@@ -33,40 +33,40 @@ class StringArrayTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('{}', array()),
-            array('{NULL,NULL}', array(null, null)),
-            array('{NULL,"test"}', array(null, 'test')),
-            array('{NULL,"te\\"s\\\\t"}', array(null, 'te"s\\t')),
-            array('{"abc","def"}', array('abc', 'def')),
-            array('{{"abc","def"},{"g","h"}}', array(array('abc', 'def'), array('g', 'h'))),
-            array('{"test"}', array('test')),
-        );
+        return [
+            [null, null],
+            ['{}', []],
+            ['{NULL,NULL}', [null, null]],
+            ['{NULL,"test"}', [null, 'test']],
+            ['{NULL,"te\\"s\\\\t"}', [null, 'te"s\\t']],
+            ['{"abc","def"}', ['abc', 'def']],
+            ['{{"abc","def"},{"g","h"}}', [['abc', 'def'], ['g', 'h']]],
+            ['{"test"}', ['test']],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('{ {NULL} ,{  NULL, "string" }}  ', array(array(null), array(null, 'string'))),
-            array('{{NULL},{test,"\\"y"},{NULL,string}}', array(array(null), array('test', '"y'), array(null, 'string'))),
-        );
+        return [
+            ['{ {NULL} ,{  NULL, "string" }}  ', [[null], [null, 'string']]],
+            ['{{NULL},{test,"\\"y"},{NULL,string}}', [[null], ['test', '"y'], [null, 'string']]],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array(new TypeConversionException(), 1),
-            array(new TypeConversionException(), 'string'),
-            array(new TypeConversionException(), array(array('string'), null)),
-            array(new TypeConversionException(), array(array('ab', 'de'), array())),
-            array(new TypeConversionException(), array(array(), array('ab', 'de'))),
+        return [
+            [new TypeConversionException(), 1],
+            [new TypeConversionException(), 'string'],
+            [new TypeConversionException(), [['string'], null]],
+            [new TypeConversionException(), [['ab', 'de'], []]],
+            [new TypeConversionException(), [[], ['ab', 'de']]],
             // the result is accepted by Postgres, but probably shouldn't be
             // http://www.postgresql.org/message-id/E1VEETa-0007KM-8O@wrigleys.postgresql.org
-            array(new TypeConversionException(), array(array(null), array(null, 'test'))),
+            [new TypeConversionException(), [[null], [null, 'test']]],
             // empty sub-arrays
-            array(new TypeConversionException(), array(array())),
-            array(new TypeConversionException(), array(array(), array()))
-        );
+            [new TypeConversionException(), [[]]],
+            [new TypeConversionException(), [[], []]]
+        ];
     }
 }

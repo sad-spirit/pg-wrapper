@@ -64,11 +64,11 @@ class RangeTest extends \PHPUnit_Framework_TestCase
 
     public function getInvalidNumericRanges()
     {
-        return array(
-            array(2, 1),
-            array(5, 'a'),
-            array('b', 6)
-        );
+        return [
+            [2, 1],
+            [5, 'a'],
+            ['b', 6]
+        ];
     }
 
     /**
@@ -92,10 +92,10 @@ class RangeTest extends \PHPUnit_Framework_TestCase
 
     public function getInvalidDateTimeRanges()
     {
-        return array(
-            array(new \DateTime('tomorrow'), new \DateTime('yesterday')),
-            array(new \DateTime('now'), 'foo'),
-            array('bar', new \DateTime('now'))
-        );
+        return [
+            [new \DateTime('tomorrow'), new \DateTime('yesterday')],
+            [new \DateTime('now'), 'foo'],
+            ['bar', new \DateTime('now')]
+        ];
     }
 }

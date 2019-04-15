@@ -31,25 +31,25 @@ class StringTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('', ''),
-            array('1', '1'),
-            array('2.324', '2.324'),
-            array('text', 'text'),
-        );
+        return [
+            [null, null],
+            ['', ''],
+            ['1', '1'],
+            ['2.324', '2.324'],
+            ['text', 'text'],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array();
+        return [];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('1', 1.0),
-            array('-3', -3.00)
-        );
+        return [
+            ['1', 1.0],
+            ['-3', -3.00]
+        ];
     }
 }

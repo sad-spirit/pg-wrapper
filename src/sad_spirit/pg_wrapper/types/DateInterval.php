@@ -47,14 +47,14 @@ class DateInterval extends NativeDateInterval
         }
         $string = 'P';
         $mult   = $interval->invert ? -1 : 1;
-        foreach (array('y' => 'Y', 'm' => 'M', 'd' => 'D') as $key => $char) {
+        foreach (['y' => 'Y', 'm' => 'M', 'd' => 'D'] as $key => $char) {
             if (0 !== $interval->{$key}) {
                 $string .= sprintf('%d%s', $interval->{$key} * $mult, $char);
             }
         }
         if (0 !== $interval->h || 0 !== $interval->i || 0 !== $interval->s || 0.0 !== $interval->f) {
             $string .= 'T';
-            foreach (array('h' => 'H', 'i' => 'M') as $key => $char) {
+            foreach (['h' => 'H', 'i' => 'M'] as $key => $char) {
                 if (0 !== $interval->{$key}) {
                     $string .= sprintf('%d%s', $interval->{$key} * $mult, $char);
                 }

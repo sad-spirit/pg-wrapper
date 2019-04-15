@@ -32,30 +32,30 @@ class IntegerTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('1', 1),
-            array('2', 2),
-            array('0', 0),
-            array('-20', -20),
-            array('9999999999', '9999999999')
-        );
+        return [
+            [null, null],
+            ['1', 1],
+            ['2', 2],
+            ['0', 0],
+            ['-20', -20],
+            ['9999999999', '9999999999']
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('1.0', new TypeConversionException()),
-            array('NaN', new TypeConversionException())
-        );
+        return [
+            ['1.0', new TypeConversionException()],
+            ['NaN', new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array(new TypeConversionException(), ''),
-            array(new TypeConversionException(), 'string'),
-            array(new TypeConversionException(), array(1)),
-        );
+        return [
+            [new TypeConversionException(), ''],
+            [new TypeConversionException(), 'string'],
+            [new TypeConversionException(), [1]],
+        ];
     }
 }

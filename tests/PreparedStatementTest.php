@@ -74,7 +74,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $statement->deallocate();
 
-        $statement->execute(array('yesterday'));
+        $statement->execute(['yesterday']);
     }
 
     public function testBindParam()
@@ -90,7 +90,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $result = $statement->execute();
         $this->assertEquals('bool', $result[0]['typname']);
 
-        $result = $statement->execute(array(18));
+        $result = $statement->execute([18]);
         $this->assertEquals('char', $result[0]['typname']);
     }
 
@@ -102,7 +102,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $result = $statement->execute();
         $this->assertEquals('int4', $result[0]['typname']);
 
-        $result = $statement->execute(array(16));
+        $result = $statement->execute([16]);
         $this->assertEquals('bool', $result[0]['typname']);
     }
 
@@ -123,9 +123,9 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
     {
         $statement = $this->conn->prepare(
             'select * from pg_stat_activity where query_start < $1',
-            array($this->_createMockTimestampConverter())
+            [$this->_createMockTimestampConverter()]
         );
-        $statement->execute(array('yesterday'));
+        $statement->execute(['yesterday']);
     }
 
     public function testBindValueConfiguresTypeConverterArgumentUsingConnection()

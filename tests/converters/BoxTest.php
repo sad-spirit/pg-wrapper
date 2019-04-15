@@ -35,34 +35,34 @@ class BoxTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('((1.2,3.4),(5.6,7.8))', new Box(new Point(1.2, 3.4), new Point(5.6, 7.8)))
-        );
+        return [
+            [null, null],
+            ['((1.2,3.4),(5.6,7.8))', new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('(1.2, 3.4) , (5.6 ,7.8 )', new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))),
-            array('1.2 , 3.4, 5.6 ,7.8 ',     new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))),
-            array('1.2, 3.4, 5.6',            new TypeConversionException()),
-            array('(1.2 , 3.4, 5.6 ,7.8',     new TypeConversionException()),
-            array('[(1.2,3.4),(5.6,7.8)]',    new TypeConversionException()),
-            array('((1.2,foo),(5.6,7.8))',    new TypeConversionException())
-        );
+        return [
+            ['(1.2, 3.4) , (5.6 ,7.8 )', new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))],
+            ['1.2 , 3.4, 5.6 ,7.8 ',     new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))],
+            ['1.2, 3.4, 5.6',            new TypeConversionException()],
+            ['(1.2 , 3.4, 5.6 ,7.8',     new TypeConversionException()],
+            ['[(1.2,3.4),(5.6,7.8)]',    new TypeConversionException()],
+            ['((1.2,foo),(5.6,7.8))',    new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('((1.2,3.4),(5.6,7.8))',        array(array(1.2, 3.4), array(5.6, 7.8))),
-            array('((1.2,3.4),(5.6,7.8))',        array(array(1.2, 3.4), new Point(5.6, 7.8))),
-            array(new TypeConversionException(),  'string'),
-            array(new InvalidArgumentException(), array()),
-            array(new InvalidArgumentException(), array(array(1.2, 'foo'), array(3.4, 5.6))),
-            array(new InvalidArgumentException(), array(array(1.2), array(3.4, 5.6))),
-            array(new InvalidArgumentException(), array(array(1.2, 3.4)))
-        );
+        return [
+            ['((1.2,3.4),(5.6,7.8))',        [[1.2, 3.4], [5.6, 7.8]]],
+            ['((1.2,3.4),(5.6,7.8))',        [[1.2, 3.4], new Point(5.6, 7.8)]],
+            [new TypeConversionException(),  'string'],
+            [new InvalidArgumentException(), []],
+            [new InvalidArgumentException(), [[1.2, 'foo'], [3.4, 5.6]]],
+            [new InvalidArgumentException(), [[1.2], [3.4, 5.6]]],
+            [new InvalidArgumentException(), [[1.2, 3.4]]]
+        ];
     }
 }

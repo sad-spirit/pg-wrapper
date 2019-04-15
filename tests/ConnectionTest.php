@@ -160,64 +160,64 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection->executeParams(
             'select * from pg_stat_activity where query_start < $1',
-            array('yesterday'),
-            array($mockTimestamp)
+            ['yesterday'],
+            [$mockTimestamp]
         );
     }
 
     public function getImplicitTypes()
     {
-        return array(
-            array(null,                         'NULL'),
-            array(false,                        "'f'"),
-            array(1,                            "'1'"),
-            array(2.3,                          "'2.3'"),
-            array('foo',                        "'foo'"),
-            array("o'bar",                      "'o''bar'"),
-            array(new \DateTime('2001-02-03'),  "'2001-02-03 00:00:00.000000+0000'"),
-            array(new \DateInterval('P1YT1S'),  "'P1YT1S'"),
+        return [
+            [null,                         'NULL'],
+            [false,                        "'f'"],
+            [1,                            "'1'"],
+            [2.3,                          "'2.3'"],
+            ['foo',                        "'foo'"],
+            ["o'bar",                      "'o''bar'"],
+            [new \DateTime('2001-02-03'),  "'2001-02-03 00:00:00.000000+0000'"],
+            [new \DateInterval('P1YT1S'),  "'P1YT1S'"],
 
-            array(new Box(new Point(1, 2), new Point(3, 4)), "'((1,2),(3,4))'"),
-            array(new Circle(new Point(1, 2), 3),            "'<(1,2),3>'"),
-            array(new Line(1.2, 3.4, 5.6),                   "'{1.2,3.4,5.6}'"),
-            array(
+            [new Box(new Point(1, 2), new Point(3, 4)), "'((1,2),(3,4))'"],
+            [new Circle(new Point(1, 2), 3),            "'<(1,2),3>'"],
+            [new Line(1.2, 3.4, 5.6),                   "'{1.2,3.4,5.6}'"],
+            [
                 new LineSegment(new Point(1, 2), new Point(3, 4)),
                 "'[(1,2),(3,4)]'"
-            ),
-            array(
-                new Path(array(new Point(1, 2), new Point(3, 4), new Point(5, 6)), true),
+            ],
+            [
+                new Path([new Point(1, 2), new Point(3, 4), new Point(5, 6)], true),
                 "'[(1,2),(3,4),(5,6)]'"
-            ),
-            array(new Point(5.6, 7.8), "'(5.6,7.8)'"),
-            array(
-                new Polygon(array(new Point(0, 0), new Point(0, 1), new Point(1, 0))),
+            ],
+            [new Point(5.6, 7.8), "'(5.6,7.8)'"],
+            [
+                new Polygon([new Point(0, 0), new Point(0, 1), new Point(1, 0)]),
                 "'((0,0),(0,1),(1,0))'"
-            ),
+            ],
 
-            array(
+            [
                 new DateTimeRange(new \DateTime('2014-01-01'), new \DateTime('2014-12-31')),
                 "'[\"2014-01-01 00:00:00.000000+0000\",\"2014-12-31 00:00:00.000000+0000\")'"
-            ),
-            array(new NumericRange(1.2, 3.4, false, true), "'(\"1.2\",\"3.4\"]'"),
+            ],
+            [new NumericRange(1.2, 3.4, false, true), "'(\"1.2\",\"3.4\"]'"],
 
-            array(new Tid(200, 100),                       "'(200,100)'")
-        );
+            [new Tid(200, 100),                       "'(200,100)'"]
+        ];
     }
 
     public function getImplicitTypesFail()
     {
-        return array(
-            array(array()),
-            array(new \stdClass())
-        );
+        return [
+            [[]],
+            [new \stdClass()]
+        ];
     }
 
     public function getExplicitTypes()
     {
-        return array(
-            array(array('foo' => 'bar'),    'hstore',   '\'"foo"=>"bar"\''),
-            array(array(1, 2),              '_int4',    '\'{"1","2"}\''),
-            array(array(1, 2),              'point',    "'(1,2)'")
-        );
+        return [
+            [['foo' => 'bar'],    'hstore',   '\'"foo"=>"bar"\''],
+            [[1, 2],              '_int4',    '\'{"1","2"}\''],
+            [[1, 2],              'point',    "'(1,2)'"]
+        ];
     }
 }

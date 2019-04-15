@@ -35,34 +35,34 @@ class PolygonTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('((1,2))', new Polygon(array(new Point(1, 2)))),
-            array('((1,2),(1.2,2.3))', new Polygon(array(new Point(1, 2), new Point(1.2, 2.3)))),
-        );
+        return [
+            [null, null],
+            ['((1,2))', new Polygon([new Point(1, 2)])],
+            ['((1,2),(1.2,2.3))', new Polygon([new Point(1, 2), new Point(1.2, 2.3)])],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('1, 2,  3  , 4 ', new Polygon(array(new Point(1, 2), new Point(3, 4)))),
-            array('(1, 2, 3,4)',    new Polygon(array(new Point(1, 2), new Point(3, 4)))),
-            array('(1, 2',          new TypeConversionException()),
-            array('[(1,2)]',        new TypeConversionException())
-        );
+        return [
+            ['1, 2,  3  , 4 ', new Polygon([new Point(1, 2), new Point(3, 4)])],
+            ['(1, 2, 3,4)',    new Polygon([new Point(1, 2), new Point(3, 4)])],
+            ['(1, 2',          new TypeConversionException()],
+            ['[(1,2)]',        new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('((1,2))',                      array(array(1, 2))),
-            array('((3,4))',                      array(new Point(3, 4))),
-            array(new TypeConversionException(),  1),
-            array(new InvalidArgumentException(), array('point')),
-            array(new InvalidArgumentException(), array(array(1))),
-            array(new InvalidArgumentException(), array(array(1, 1, 1))),
-            array(new InvalidArgumentException(), array(array(2, 'string'), null)),
-            array(new InvalidArgumentException(), array(null, array(array(1, 2)))),
-        );
+        return [
+            ['((1,2))',                      [[1, 2]]],
+            ['((3,4))',                      [new Point(3, 4)]],
+            [new TypeConversionException(),  1],
+            [new InvalidArgumentException(), ['point']],
+            [new InvalidArgumentException(), [[1]]],
+            [new InvalidArgumentException(), [[1, 1, 1]]],
+            [new InvalidArgumentException(), [[2, 'string'], null]],
+            [new InvalidArgumentException(), [null, [[1, 2]]]],
+        ];
     }
 }

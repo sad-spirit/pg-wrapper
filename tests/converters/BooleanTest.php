@@ -31,38 +31,38 @@ class BooleanTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('t', true),
-            array('f', false),
-        );
+        return [
+            [null, null],
+            ['t', true],
+            ['f', false],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('1', true),
-            array('0', false),
-        );
+        return [
+            ['1', true],
+            ['0', false],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('t', 'true'),
-            array('t', 1),
-            array('t', -1),
-            array('t', '1'),
-            array('t', '1.1'),
-            array('t', '0.0'),
-            array('t', 'string'),
-            array('t', array('value')),
-            array('t', array(0)),
+        return [
+            ['t', 'true'],
+            ['t', 1],
+            ['t', -1],
+            ['t', '1'],
+            ['t', '1.1'],
+            ['t', '0.0'],
+            ['t', 'string'],
+            ['t', ['value']],
+            ['t', [0]],
 
-            array('f', 'false'),
-            array('f', 0),
-            array('f', '0'),
-            array('f', array()),
-        );
+            ['f', 'false'],
+            ['f', 0],
+            ['f', '0'],
+            ['f', []],
+        ];
     }
 }

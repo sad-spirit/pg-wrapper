@@ -62,32 +62,32 @@ class DateTest extends \PHPUnit_Framework_TestCase
 
     public function getValuesFrom()
     {
-        return array(
-            array(null,             null,         null),
-            array(null,             '2001-02-03', new \DateTime('2001-02-03')),
-            array(null,             '1800-01-01', new \DateTime('1800-01-01')),
-            array('ISO, MDY',       '2001-02-03', new \DateTime('2001-02-03')),
-            array('Postgres, DMY',  '03-02-2001', new \DateTime('2001-02-03')),
-            array('Postgres, MDY',  '02-03-2001', new \DateTime('2001-02-03')),
-            array('SQL, DMY',       '03/02/2001', new \DateTime('2001-02-03')),
-            array('SQL, MDY',       '02/03/2001', new \DateTime('2001-02-03')),
-            array('German, YMD',    '03.02.2001', new \DateTime('2001-02-03'))
-        );
+        return [
+            [null,             null,         null],
+            [null,             '2001-02-03', new \DateTime('2001-02-03')],
+            [null,             '1800-01-01', new \DateTime('1800-01-01')],
+            ['ISO, MDY',       '2001-02-03', new \DateTime('2001-02-03')],
+            ['Postgres, DMY',  '03-02-2001', new \DateTime('2001-02-03')],
+            ['Postgres, MDY',  '02-03-2001', new \DateTime('2001-02-03')],
+            ['SQL, DMY',       '03/02/2001', new \DateTime('2001-02-03')],
+            ['SQL, MDY',       '02/03/2001', new \DateTime('2001-02-03')],
+            ['German, YMD',    '03.02.2001', new \DateTime('2001-02-03')]
+        ];
     }
 
     public function getValuesTo()
     {
         $dateTime = new \DateTime('2001-05-25');
-        return array(
-            array('whatever',       'whatever'),
-            array('1970-01-01',     0),
-            array('2001-05-25',     $dateTime),
-            array('2001-05-25',     $dateTime->getTimestamp()),
+        return [
+            ['whatever',       'whatever'],
+            ['1970-01-01',     0],
+            ['2001-05-25',     $dateTime],
+            ['2001-05-25',     $dateTime->getTimestamp()],
 
-            array(new TypeConversionException(), false),
-            array(new TypeConversionException(), 1.234),
-            array(new TypeConversionException(), array()),
-            array(new TypeConversionException(), new \stdClass())
-        );
+            [new TypeConversionException(), false],
+            [new TypeConversionException(), 1.234],
+            [new TypeConversionException(), []],
+            [new TypeConversionException(), new \stdClass()]
+        ];
     }
 }

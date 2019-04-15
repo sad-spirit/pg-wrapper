@@ -35,40 +35,40 @@ class PointArrayTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('{}', array()),
-            array('{NULL,NULL}', array(null, null)),
-            array('{NULL,"(0.6,0.3)"}', array(null, new Point(0.6, 0.3))),
-            array('{"(0,0)","(1,2)"}', array(new Point(0, 0), new Point(1, 2))),
-            array('{"(0.6,0.3)"}', array(new Point(0.6, 0.3))),
-        );
+        return [
+            [null, null],
+            ['{}', []],
+            ['{NULL,NULL}', [null, null]],
+            ['{NULL,"(0.6,0.3)"}', [null, new Point(0.6, 0.3)]],
+            ['{"(0,0)","(1,2)"}', [new Point(0, 0), new Point(1, 2)]],
+            ['{"(0.6,0.3)"}', [new Point(0.6, 0.3)]],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('{NULL, NULL}', array(null, null)),
-            array('{ {NULL} ,{  NULL," (0,   0)" }}  ', array(array(null), array(null, new Point(0, 0)))),
-        );
+        return [
+            ['{NULL, NULL}', [null, null]],
+            ['{ {NULL} ,{  NULL," (0,   0)" }}  ', [[null], [null, new Point(0, 0)]]],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('{"(1,2)","(3,4)"}',           array(array('y' => 2, 'x' => 1), array(3, 4))),
-            array(new TypeConversionException(), 1),
-            array(new TypeConversionException(), array('point')),
-            array(new InvalidArgumentException(), array(array(1))),
-            array(new InvalidArgumentException(), array(array(1, 1, 1))),
-            array(new InvalidArgumentException(), array(array(2, 'string'), null)),
-            array(new InvalidArgumentException(), array(null, array(array(1, 2)))),
+        return [
+            ['{"(1,2)","(3,4)"}',           [['y' => 2, 'x' => 1], [3, 4]]],
+            [new TypeConversionException(), 1],
+            [new TypeConversionException(), ['point']],
+            [new InvalidArgumentException(), [[1]]],
+            [new InvalidArgumentException(), [[1, 1, 1]]],
+            [new InvalidArgumentException(), [[2, 'string'], null]],
+            [new InvalidArgumentException(), [null, [[1, 2]]]],
             // the result is accepted by Postgres but probably shouldn't be
             // http://www.postgresql.org/message-id/E1VEETa-0007KM-8O@wrigleys.postgresql.org
-            array(new TypeConversionException(), array(array(null), array(null, array(0, 0)))),
+            [new TypeConversionException(), [[null], [null, [0, 0]]]],
             // empty sub-arrays
-            array(new InvalidArgumentException(), array(array())),
-            array(new InvalidArgumentException(), array(array(), array()))
-        );
+            [new InvalidArgumentException(), [[]]],
+            [new InvalidArgumentException(), [[], []]]
+        ];
     }
 }

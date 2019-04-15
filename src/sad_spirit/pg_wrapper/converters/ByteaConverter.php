@@ -141,7 +141,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
         } else {
             // this basically tests whether standard_conforming_strings is on for a (default) connection
             $test     = $this->_connection ? pg_escape_bytea($this->_connection, '\\') : pg_escape_bytea('\\');
-            $unescape = array("''" => "'") + ('\\\\\\\\' === $test ? array('\\\\' => '\\') : array());
+            $unescape = ["''" => "'"] + ('\\\\\\\\' === $test ? ['\\\\' => '\\'] : []);
 
             $escaped  = $this->_connection ? pg_escape_bytea($this->_connection, $value) : pg_escape_bytea($value);
             return strtr($escaped, $unescape);

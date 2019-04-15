@@ -31,10 +31,10 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Tid
 {
-    private $_props = array(
+    private $_props = [
         'block' => 0,
         'tuple' => 0
-    );
+    ];
 
     function __construct($block, $tuple)
     {

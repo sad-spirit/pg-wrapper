@@ -91,7 +91,7 @@ abstract class PointList implements ArrayAccess, Countable, IteratorAggregate
 
     public static function createFromArray(array $input)
     {
-        $points = array();
+        $points = [];
         foreach ($input as $point) {
             if (is_array($point)) {
                 $point = Point::createFromArray($point);

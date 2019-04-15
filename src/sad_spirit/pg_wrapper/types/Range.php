@@ -30,13 +30,13 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Range
 {
-    private $_props = array(
+    private $_props = [
         'lower'          => null,
         'upper'          => null,
         'lowerInclusive' => true,
         'upperInclusive' => false,
         'empty'          => false
-    );
+    ];
 
     public function __construct($lower = null, $upper = null, $lowerInclusive = true, $upperInclusive = false)
     {
@@ -70,7 +70,7 @@ class Range
         if (!empty($input['empty'])) {
             return static::createEmpty();
         }
-        foreach (array('lower', 'upper', 'lowerInclusive', 'upperInclusive') as $key) {
+        foreach (['lower', 'upper', 'lowerInclusive', 'upperInclusive'] as $key) {
             if (array_key_exists($key, $input)) {
                 return new static(
                     array_key_exists('lower', $input) ? $input['lower'] : null,

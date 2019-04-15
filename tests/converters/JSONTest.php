@@ -33,7 +33,7 @@ class JSONTest extends TypeConverterTestCase
     public function testJSONBigintAsString()
     {
         $this->assertSame(
-            array('largenum' => '123456789012345678901234567890'),
+            ['largenum' => '123456789012345678901234567890'],
             $this->converter->input('{"largenum":123456789012345678901234567890}')
         );
     }
@@ -46,21 +46,21 @@ class JSONTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null,                         null),
-            array('false',                      false),
-            array('"\u0442\u0435\u0441\u0442"', 'тест'),
-            array('{"foo":"bar"}',              array('foo' => 'bar'))
-        );
+        return [
+            [null,                         null],
+            ['false',                      false],
+            ['"\u0442\u0435\u0441\u0442"', 'тест'],
+            ['{"foo":"bar"}',              ['foo' => 'bar']]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('"тест"',       'тест'),
-            array('[1}',          new TypeConversionException()),
-            array("\"\xB1\x31\"", new TypeConversionException())
-        );
+        return [
+            ['"тест"',       'тест'],
+            ['[1}',          new TypeConversionException()],
+            ["\"\xB1\x31\"", new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
@@ -68,11 +68,11 @@ class JSONTest extends TypeConverterTestCase
         $foo = new \stdClass();
         $foo->bar = $foo;
 
-        return array(
-            array(new TypeConversionException(), $foo),
-            array(new TypeConversionException(), fopen(__DIR__ . '/TypeConverterTestCase.php', 'rb')),
-            array(new TypeConversionException(), array(NAN))
-        );
+        return [
+            [new TypeConversionException(), $foo],
+            [new TypeConversionException(), fopen(__DIR__ . '/TypeConverterTestCase.php', 'rb')],
+            [new TypeConversionException(), [NAN]]
+        ];
     }
 
 }

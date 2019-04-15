@@ -32,24 +32,24 @@ class HstoreArrayTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('{"\"a\"=>\"b\"","\"c\"=>\"d\", \"e\"=>\"f\""}', array(array('a' => 'b'), array('c' => 'd', 'e' => 'f'))),
-            array('{"\"g\"=>\"h\"",NULL}', array(array('g'=>'h'), null)),
-            array(
+        return [
+            [null, null],
+            ['{"\"a\"=>\"b\"","\"c\"=>\"d\", \"e\"=>\"f\""}', [['a' => 'b'], ['c' => 'd', 'e' => 'f']]],
+            ['{"\"g\"=>\"h\"",NULL}', [['g'=>'h'], null]],
+            [
                 '{{"","\"a\"=>\"b\""},{"\"c\"=>\"d\"",NULL}}',
-                array(array(array(), array('a' => 'b')), array(array('c' => 'd'), null))
-            )
-        );
+                [[[], ['a' => 'b']], [['c' => 'd'], null]]
+            ]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array();
+        return [];
     }
 
     protected function valuesTo()
     {
-        return array();
+        return [];
     }
 }

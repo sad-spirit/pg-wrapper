@@ -31,16 +31,16 @@ class DateConverter extends BaseDateTimeConverter
         list($output, $order) = array_map('trim', explode(',', $style));
 
         if (0 === strcasecmp('ISO', $output)) {
-            return array('Y-m-d');
+            return ['Y-m-d'];
 
         } elseif (0 === strcasecmp('Postgres', $output)) {
-            return 0 === strcasecmp('DMY', $order) ? array('d-m-Y') : array('m-d-Y');
+            return 0 === strcasecmp('DMY', $order) ? ['d-m-Y'] : ['m-d-Y'];
 
         } elseif (0 === strcasecmp('SQL', $output)) {
-            return 0 === strcasecmp('DMY', $order) ? array('d/m/Y') : array('m/d/Y');
+            return 0 === strcasecmp('DMY', $order) ? ['d/m/Y'] : ['m/d/Y'];
 
         } elseif (0 === strcasecmp('German', $output)) {
-            return array('d.m.Y');
+            return ['d.m.Y'];
         }
 
         throw TypeConversionException::unexpectedValue($this, 'input', 'valid DateStyle setting', $style);

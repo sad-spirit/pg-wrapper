@@ -26,7 +26,7 @@ class TimeConverter extends BaseDateTimeConverter
 {
     protected function getFormats($style)
     {
-        return array('H:i:s.u', 'H:i:s');
+        return ['H:i:s.u', 'H:i:s'];
     }
 
     protected function inputNotNull($native)

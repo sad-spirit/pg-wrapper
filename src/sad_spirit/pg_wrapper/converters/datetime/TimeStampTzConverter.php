@@ -31,20 +31,20 @@ class TimeStampTzConverter extends BaseDateTimeConverter
         list($output, $order) = array_map('trim', explode(',', $style));
 
         if (0 === strcasecmp('ISO', $output)) {
-            return array('Y-m-d H:i:s.uO', 'Y-m-d H:i:sO');
+            return ['Y-m-d H:i:s.uO', 'Y-m-d H:i:sO'];
 
         } elseif (0 === strcasecmp('Postgres', $output)) {
             return 0 === strcasecmp('DMY', $order)
-                   ? array('* d M H:i:s.u Y T', '* d M H:i:s Y T')
-                   : array('* M d H:i:s.u Y T', '* M d H:i:s Y T');
+                   ? ['* d M H:i:s.u Y T', '* d M H:i:s Y T']
+                   : ['* M d H:i:s.u Y T', '* M d H:i:s Y T'];
 
         } elseif (0 === strcasecmp('SQL', $output)) {
             return 0 === strcasecmp('DMY', $order)
-                   ? array('d/m/Y H:i:s.u T', 'd/m/Y H:i:s T')
-                   : array('m/d/Y H:i:s.u T', 'm/d/Y H:i:s T');
+                   ? ['d/m/Y H:i:s.u T', 'd/m/Y H:i:s T']
+                   : ['m/d/Y H:i:s.u T', 'm/d/Y H:i:s T'];
 
         } elseif (0 === strcasecmp('German', $output)) {
-            return array('d.m.Y H:i:s.u T', 'd.m.Y H:i:s T');
+            return ['d.m.Y H:i:s.u T', 'd.m.Y H:i:s T'];
         }
 
         throw TypeConversionException::unexpectedValue($this, 'input', 'valid DateStyle setting', $style);

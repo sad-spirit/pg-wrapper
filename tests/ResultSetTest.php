@@ -60,10 +60,10 @@ SQL
     public function testSetMode()
     {
         $res = self::$conn->execute("select * from test_resultset where one = 1");
-        $this->assertEquals(array('one' => 1, 'two' => 'foo', 'three' => 'first value of foo'), $res[0]);
+        $this->assertEquals(['one' => 1, 'two' => 'foo', 'three' => 'first value of foo'], $res[0]);
 
         $res->setMode(PGSQL_NUM);
-        $this->assertEquals(array(1, 'foo', 'first value of foo'), $res[0]);
+        $this->assertEquals([1, 'foo', 'first value of foo'], $res[0]);
     }
 
     public function testSetType()
@@ -72,9 +72,9 @@ SQL
         $this->assertEquals('(9,"only value of baz")', $res[0]['onethree']);
 
         $res->setType('onethree', new converters\containers\CompositeConverter(
-            array('a' => new converters\IntegerConverter(), 'b' => new converters\StringConverter())
+            ['a' => new converters\IntegerConverter(), 'b' => new converters\StringConverter()]
         ));
-        $this->assertEquals(array('a' => 9, 'b' => 'only value of baz'), $res[0]['onethree']);
+        $this->assertEquals(['a' => 9, 'b' => 'only value of baz'], $res[0]['onethree']);
     }
 
     public function testSetTypeMissingField()
@@ -96,8 +96,8 @@ SQL
     {
         $res = self::$conn->execute("select one, two from test_resultset where one > 5");
 
-        $this->assertEquals(array(7, 9), $res->fetchColumn(0));
-        $this->assertEquals(array('bar', 'baz'), $res->fetchColumn('two'));
+        $this->assertEquals([7, 9], $res->fetchColumn(0));
+        $this->assertEquals(['bar', 'baz'], $res->fetchColumn('two'));
     }
 
     public function testFetchColumnMissingField()
@@ -120,18 +120,18 @@ SQL
         $res = self::$conn->execute("select one, two from test_resultset where one > 5 order by one");
 
         $this->assertEquals(
-            array(
-                array('one' => 7, 'two' => 'bar'),
-                array('one' => 9, 'two' => 'baz')
-            ),
+            [
+                ['one' => 7, 'two' => 'bar'],
+                ['one' => 9, 'two' => 'baz']
+            ],
             $res->fetchAll(PGSQL_ASSOC)
         );
 
         $this->assertEquals(
-            array(
-                array(7, 'bar'),
-                array(9, 'baz')
-            ),
+            [
+                [7, 'bar'],
+                [9, 'baz']
+            ],
             $res->fetchAll(PGSQL_NUM)
         );
     }
@@ -141,28 +141,28 @@ SQL
         $res = self::$conn->execute("select one, two from test_resultset where one < 9 order by one");
 
         $this->assertEquals(
-            array(
+            [
                 'foo' => 3,
                 'bar' => 7
-            ),
+            ],
             $res->fetchAll(null, 'two')
         );
 
         $this->assertEquals(
-            array(
-                1 => array('foo'),
-                3 => array('foo'),
-                5 => array('bar'),
-                7 => array('bar')
-            ),
+            [
+                1 => ['foo'],
+                3 => ['foo'],
+                5 => ['bar'],
+                7 => ['bar']
+            ],
             $res->fetchAll(PGSQL_NUM, 'one', true)
         );
 
         $this->assertEquals(
-            array(
-                'foo' => array(1, 3),
-                'bar' => array(5, 7)
-            ),
+            [
+                'foo' => [1, 3],
+                'bar' => [5, 7]
+            ],
             $res->fetchAll(null, 1, false, true)
         );
     }
@@ -172,28 +172,28 @@ SQL
         $res = self::$conn->execute("select * from test_resultset where one > 1 order by one");
 
         $this->assertEquals(
-            array(
-                3 => array('foo', 'second value of foo'),
-                5 => array('bar', 'first value of bar'),
-                7 => array('bar', 'second value of bar'),
-                9 => array('baz', 'only value of baz')
-            ),
+            [
+                3 => ['foo', 'second value of foo'],
+                5 => ['bar', 'first value of bar'],
+                7 => ['bar', 'second value of bar'],
+                9 => ['baz', 'only value of baz']
+            ],
             $res->fetchAll(PGSQL_NUM, 'one')
         );
 
         $this->assertEquals(
-            array(
-                'foo' => array(
-                    array('one' => 3, 'three' => 'second value of foo')
-                ),
-                'bar' => array(
-                    array('one' => 5, 'three' => 'first value of bar'),
-                    array('one' => 7, 'three' => 'second value of bar')
-                ),
-                'baz' => array(
-                    array('one' => 9, 'three' => 'only value of baz')
-                )
-            ),
+            [
+                'foo' => [
+                    ['one' => 3, 'three' => 'second value of foo']
+                ],
+                'bar' => [
+                    ['one' => 5, 'three' => 'first value of bar'],
+                    ['one' => 7, 'three' => 'second value of bar']
+                ],
+                'baz' => [
+                    ['one' => 9, 'three' => 'only value of baz']
+                ]
+            ],
             $res->fetchAll(PGSQL_ASSOC, 1, false, true)
         );
     }
@@ -211,7 +211,7 @@ SQL
 
         $res = self::$conn->execute(
             "select now() as tztest, '0x00' as byteatest",
-            array('tztest' => $mockTimestamp)
+            ['tztest' => $mockTimestamp]
         );
         $res->setType(1, $mockBytea);
     }

@@ -62,33 +62,33 @@ class TimestampTest extends \PHPUnit_Framework_TestCase
 
     public function getValuesFrom()
     {
-        return array(
-            array(null,             null,                           null),
-            array(null,             '2001-02-03 04:05:06.78',       new \DateTime('2001-02-03 04:05:06.78')),
-            array(null,             '2001-02-03 04:05:06',          new \DateTime('2001-02-03 04:05:06')),
-            array(null,             '2001-02-03 04:05:06+09',       new TypeConversionException()),
-            array('ISO, MDY',       '2001-02-03 04:05:06.78',       new \DateTime('2001-02-03 04:05:06.78')),
-            array('Postgres, DMY',  'Sat 03 Feb 04:05:06.78 2001',  new \DateTime('2001-02-03 04:05:06.78')),
-            array('Postgres, MDY',  'Sat Feb 03 04:05:06 2001',     new \DateTime('2001-02-03 04:05:06')),
-            array('SQL, DMY',       '03/02/2001 04:05:06',          new \DateTime('2001-02-03 04:05:06')),
-            array('SQL, MDY',       '02/03/2001 04:05:06.78',       new \DateTime('2001-02-03 04:05:06.78')),
-            array('German, YMD',    '03.02.2001 04:05:06',          new \DateTime('2001-02-03 04:05:06'))
-        );
+        return [
+            [null,             null,                           null],
+            [null,             '2001-02-03 04:05:06.78',       new \DateTime('2001-02-03 04:05:06.78')],
+            [null,             '2001-02-03 04:05:06',          new \DateTime('2001-02-03 04:05:06')],
+            [null,             '2001-02-03 04:05:06+09',       new TypeConversionException()],
+            ['ISO, MDY',       '2001-02-03 04:05:06.78',       new \DateTime('2001-02-03 04:05:06.78')],
+            ['Postgres, DMY',  'Sat 03 Feb 04:05:06.78 2001',  new \DateTime('2001-02-03 04:05:06.78')],
+            ['Postgres, MDY',  'Sat Feb 03 04:05:06 2001',     new \DateTime('2001-02-03 04:05:06')],
+            ['SQL, DMY',       '03/02/2001 04:05:06',          new \DateTime('2001-02-03 04:05:06')],
+            ['SQL, MDY',       '02/03/2001 04:05:06.78',       new \DateTime('2001-02-03 04:05:06.78')],
+            ['German, YMD',    '03.02.2001 04:05:06',          new \DateTime('2001-02-03 04:05:06')]
+        ];
     }
 
     public function getValuesTo()
     {
         $dateTime = new \DateTime('2001-02-03 04:05:06');
-        return array(
-            array(null,                             null),
-            array('whatever',                       'whatever'),
-            array('1970-01-01 00:00:00.000000',     0),
-            array('2001-02-03 04:05:06.000000',     $dateTime),
-            array('2001-02-03 04:05:06.000000',     $dateTime->getTimestamp()),
-            array(new TypeConversionException(),    false),
-            array(new TypeConversionException(),    1.234),
-            array(new TypeConversionException(),    array()),
-            array(new TypeConversionException(),    new \stdClass())
-        );
+        return [
+            [null,                             null],
+            ['whatever',                       'whatever'],
+            ['1970-01-01 00:00:00.000000',     0],
+            ['2001-02-03 04:05:06.000000',     $dateTime],
+            ['2001-02-03 04:05:06.000000',     $dateTime->getTimestamp()],
+            [new TypeConversionException(),    false],
+            [new TypeConversionException(),    1.234],
+            [new TypeConversionException(),    []],
+            [new TypeConversionException(),    new \stdClass()]
+        ];
     }
 }

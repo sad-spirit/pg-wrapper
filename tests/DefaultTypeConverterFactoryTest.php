@@ -101,18 +101,18 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConverterForCompositeTypeUsingArray()
     {
-        $this->assertEquals(new CompositeConverter(array(
+        $this->assertEquals(new CompositeConverter([
                 'num'     => new IntegerConverter(),
                 'string'  => new StringConverter(),
                 'strings' => new ArrayConverter(new StringConverter()),
                 'coord'   => new PointConverter()
-            )),
-            $this->factory->getConverter(array(
+            ]),
+            $this->factory->getConverter([
                 'num'     => 'integer',
                 'string'  => '"varchar"',
                 'strings' => 'text[]',
                 'coord'   => 'pg_catalog.point'
-            ))
+            ])
         );
     }
 
@@ -217,12 +217,12 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $connection->setTypeConverterFactory($this->factory);
         // this one has few columns, let's hope none are added later
         $this->assertEquals(
-            new CompositeConverter(array(
+            new CompositeConverter([
                 'cfgname'      => new StringConverter(),
                 'cfgnamespace' => new IntegerConverter(),
                 'cfgowner'     => new IntegerConverter(),
                 'cfgparser'    => new IntegerConverter()
-            )),
+            ]),
             $this->factory->getConverter('pg_ts_config')
         );
     }
@@ -321,12 +321,12 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
         $mockItem->expects($this->once())
             ->method('get')
-            ->will($this->returnValue(array(
-                'composite' => array(),
-                'array'     => array(),
-                'range'     => array(),
-                'names'     => array('blah' => array('blah' => 123456))
-            )));
+            ->will($this->returnValue([
+                'composite' => [],
+                'array'     => [],
+                'range'     => [],
+                'names'     => ['blah' => ['blah' => 123456]]
+            ]));
 
         $mockItem->expects($this->never())
             ->method('set');
@@ -358,43 +358,43 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function getBuiltinTypeConverters()
     {
-        return array(
-            array('int4',                    new IntegerConverter()),
-            array('pg_cAtalOg.iNt4',         new IntegerConverter()),
-            array('"pg_catalog" . "int4" ',  new IntegerConverter()),
-            array('hSTOre',                  new HstoreConverter()),
-            array('pUblic.hstore',           new HstoreConverter()),
-            array(' "public" . "hstore"',    new HstoreConverter()),
-            array('tsrange',                 new RangeConverter(new TimeStampConverter())),
-            array('pg_catalog.int4range',    new RangeConverter(new IntegerConverter()))
-        );
+        return [
+            ['int4',                    new IntegerConverter()],
+            ['pg_cAtalOg.iNt4',         new IntegerConverter()],
+            ['"pg_catalog" . "int4" ',  new IntegerConverter()],
+            ['hSTOre',                  new HstoreConverter()],
+            ['pUblic.hstore',           new HstoreConverter()],
+            [' "public" . "hstore"',    new HstoreConverter()],
+            ['tsrange',                 new RangeConverter(new TimeStampConverter())],
+            ['pg_catalog.int4range',    new RangeConverter(new IntegerConverter())]
+        ];
     }
 
     public function getSqlStandardTypeConverters()
     {
-        return array(
-            array('integer',                    new IntegerConverter()),
-            array('DOUBLE   precision',         new FloatConverter()),
-            array("timestamp  WITH\ntime zone", new TimeStampTzConverter()),
-            array('time without time zone',     new TimeConverter())
-        );
+        return [
+            ['integer',                    new IntegerConverter()],
+            ['DOUBLE   precision',         new FloatConverter()],
+            ["timestamp  WITH\ntime zone", new TimeStampTzConverter()],
+            ['time without time zone',     new TimeConverter()]
+        ];
     }
 
     public function getInvalidTypeNames()
     {
-        return array(
-            array('',             'Missing type name'),
-            array('foo.',         'Missing type name'),
-            array('foo bar',      'Unexpected identifier'),
-            array('foo "bar"',    'Unexpected double-quoted string'),
-            array('foo[bar]',     'Invalid array specification'),
-            array('foo[',         'Invalid array specification'),
-            array('[]',           'Invalid array specification'),
-            array('.foo',         'Extra dots'),
-            array('foo.bar.baz',  'Extra dots'),
-            array('foo.""',       'Invalid double-quoted string'),
-            array('foo."bar',     'Invalid double-quoted string'),
-            array('foo(666)',     'Unexpected symbol')
-        );
+        return [
+            ['',             'Missing type name'],
+            ['foo.',         'Missing type name'],
+            ['foo bar',      'Unexpected identifier'],
+            ['foo "bar"',    'Unexpected double-quoted string'],
+            ['foo[bar]',     'Invalid array specification'],
+            ['foo[',         'Invalid array specification'],
+            ['[]',           'Invalid array specification'],
+            ['.foo',         'Extra dots'],
+            ['foo.bar.baz',  'Extra dots'],
+            ['foo.""',       'Invalid double-quoted string'],
+            ['foo."bar',     'Invalid double-quoted string'],
+            ['foo(666)',     'Unexpected symbol']
+        ];
     }
 }

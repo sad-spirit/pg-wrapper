@@ -44,36 +44,36 @@ class FloatTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('1', 1),
-            array('2', 2),
-            array('2.3', 2.3),
-            array('0', 0),
-            array('-20', -20),
-        );
+        return [
+            [null, null],
+            ['1', 1],
+            ['2', 2],
+            ['2.3', 2.3],
+            ['0', 0],
+            ['-20', -20],
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('1', 1.0),
-            array('1', '1'),
-            array('1', '1.0'),
-            array('2', '2'),
-            array('2.3', '2.3'),
-            array('0', '0'),
-            array('-20', '-20'),
-        );
+        return [
+            ['1', 1.0],
+            ['1', '1'],
+            ['1', '1.0'],
+            ['2', '2'],
+            ['2.3', '2.3'],
+            ['0', '0'],
+            ['-20', '-20'],
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('2.3', '2,3'),
-            array(new TypeConversionException(), ''),
-            array(new TypeConversionException(), 'string'),
-            array(new TypeConversionException(), array(1)),
-        );
+        return [
+            ['2.3', '2,3'],
+            [new TypeConversionException(), ''],
+            [new TypeConversionException(), 'string'],
+            [new TypeConversionException(), [1]],
+        ];
     }
 }

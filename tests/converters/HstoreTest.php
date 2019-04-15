@@ -32,38 +32,38 @@ class HstoreTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('', array()),
-            array('"0"=>"b"', array('0'=>'b')),
-            array('"a"=>"b"', array('a'=>'b')),
-            array('"a"=>"b", "b"=>"\\"a"', array('a'=>'b', 'b'=>'"a')),
-            array('"a"=>NULL, "x"=>"123"', array('a'=>null, 'x'=>'123')),
-            array('"a"=>"null", "b"=>NULL', array('a' => 'null', 'b' => null))
-        );
+        return [
+            [null, null],
+            ['', []],
+            ['"0"=>"b"', ['0'=>'b']],
+            ['"a"=>"b"', ['a'=>'b']],
+            ['"a"=>"b", "b"=>"\\"a"', ['a'=>'b', 'b'=>'"a']],
+            ['"a"=>NULL, "x"=>"123"', ['a'=>null, 'x'=>'123']],
+            ['"a"=>"null", "b"=>NULL', ['a' => 'null', 'b' => null]]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('a=>b', array('a' => 'b')),
-            array('a   =>    b', array('a' => 'b')),
-            array('a   =>    b, 4=>  "\\"x\\"y\\"z\\\\a"', array('a' => 'b', '4' => '"x"y"z\\a')),
-            array('a=>b,', array('a' => 'b')),
-            array(',a=>b', array(',a' => 'b')),
-            array('a=>b=>c', array('a' => 'b=>c')),
-            array('a', new TypeConversionException()),
-            array('a,b', new TypeConversionException()),
-            array('a=>b,,,,,,', new TypeConversionException())
-        );
+        return [
+            ['a=>b', ['a' => 'b']],
+            ['a   =>    b', ['a' => 'b']],
+            ['a   =>    b, 4=>  "\\"x\\"y\\"z\\\\a"', ['a' => 'b', '4' => '"x"y"z\\a']],
+            ['a=>b,', ['a' => 'b']],
+            [',a=>b', [',a' => 'b']],
+            ['a=>b=>c', ['a' => 'b=>c']],
+            ['a', new TypeConversionException()],
+            ['a,b', new TypeConversionException()],
+            ['a=>b,,,,,,', new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array(new TypeConversionException(), 1),
-            array('"0"=>"1", "1"=>"a", "2"=>"xyz"', array(1, "a", 'xyz')),
-            array('"0"=>"1", "1"=>"a", "test"=>"xyz"', array(1, "a", 'test' => 'xyz')),
-        );
+        return [
+            [new TypeConversionException(), 1],
+            ['"0"=>"1", "1"=>"a", "2"=>"xyz"', [1, "a", 'xyz']],
+            ['"0"=>"1", "1"=>"a", "test"=>"xyz"', [1, "a", 'test' => 'xyz']],
+        ];
     }
 }

@@ -90,7 +90,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
             }
         }
 
-        $points = array();
+        $points = [];
         for ($i = 0; $i < $count; $i++) {
             if ($i > 0) {
                 $this->expectChar($native, $pos, ',');

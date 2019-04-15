@@ -28,7 +28,7 @@ class TimeTzConverter extends BaseDateTimeConverter
 {
     protected function getFormats($style)
     {
-        return array('H:i:s.uO', 'H:i:sO');
+        return ['H:i:s.uO', 'H:i:sO'];
     }
 
     protected function inputNotNull($native)

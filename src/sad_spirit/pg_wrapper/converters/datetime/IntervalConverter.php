@@ -50,7 +50,7 @@ class IntervalConverter extends BaseConverter
      * Mapping of units used in 'postgres' and 'postgres_verbose' formats to DateInterval fields
      * @var array
      */
-    private $_postgresUnits = array(
+    private $_postgresUnits = [
         'd'         => 'd',
         'day'       => 'd',
         'days'      => 'd',
@@ -78,27 +78,27 @@ class IntervalConverter extends BaseConverter
         'years'     => 'y',
         'yr'        => 'y',
         'yrs'       => 'y'
-    );
+    ];
 
     /**
      * Mapping of date units in 'iso_8601' format to DateInterval fields
      * @var array
      */
-    private $_iso8601DateUnits = array(
+    private $_iso8601DateUnits = [
         'Y' => 'y',
         'M' => 'm',
         'D' => 'd'
-    );
+    ];
 
     /**
      * Mapping of time units in 'iso_8601' format to DateInterval fields
      * @var array
      */
-    private $_iso8601TimeUnits = array(
+    private $_iso8601TimeUnits = [
         'H' => 'h',
         'M' => 'i',
         'S' => 's'
-    );
+    ];
 
     /**
      * Parses a string representing the fractional part of seconds
@@ -139,7 +139,7 @@ class IntervalConverter extends BaseConverter
 
         } elseif ('.' === ($char = $this->nextChar($token, $pos))) {
             $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
-            list($interval->h, $interval->i, $interval->s) = array(0, $interval->h, $interval->i);
+            list($interval->h, $interval->i, $interval->s) = [0, $interval->h, $interval->i];
 
         } else {
             $pos++;
@@ -167,15 +167,15 @@ class IntervalConverter extends BaseConverter
         $interval    = new DateInterval('PT0S');
         $intervalKey = null;
         $invert      = false;
-        $keysHash    = array();
+        $keysHash    = [];
 
         for ($i = count($tokens) - 1; $i >= 0; $i--) {
-            $keys = array();
+            $keys = [];
             switch ($tokens[$i]['type']) {
             case self::TOKEN_TIME:
                 $this->_parseTimeToken($tokens[$i]['value'], $interval);
                 $intervalKey = 'd';
-                $keys        = array('h', 'i', 's');
+                $keys        = ['h', 'i', 's'];
                 break;
 
             /** @noinspection PhpMissingBreakStatementInspection */
@@ -184,10 +184,10 @@ class IntervalConverter extends BaseConverter
                     $this->_parseTimeToken(call_user_func(self::$substr, $tokens[$i]['value'], 1), $interval);
                     if ('-' === $tokens[$i]['value'][0]) {
                         list($interval->h, $interval->i, $interval->s, $interval->f) =
-                            array(-$interval->h, -$interval->i, -$interval->s, -$interval->f);
+                            [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
                     }
                     $intervalKey = 'd';
-                    $keys        = array('h', 'i', 's');
+                    $keys        = ['h', 'i', 's'];
                     break;
                 }
                 // intentional fall-through
@@ -210,7 +210,7 @@ class IntervalConverter extends BaseConverter
                     }
                     $interval->y = $value;
                     $interval->m = ('-' === $sign ? -$month : $month);
-                    $keys        = array('y', 'm');
+                    $keys        = ['y', 'm'];
                     break;
 
                 } elseif ('.' === $char) {
@@ -229,7 +229,7 @@ class IntervalConverter extends BaseConverter
                 }
 
                 $interval->{$intervalKey} = $value;
-                $keys = array($intervalKey);
+                $keys = [$intervalKey];
 
                 break;
 
@@ -279,7 +279,7 @@ class IntervalConverter extends BaseConverter
      */
     private function _tokenize($native)
     {
-        $tokens = array();
+        $tokens = [];
         $pos    = 0;
         $length = call_user_func(self::$strlen, $native);
 
@@ -337,10 +337,10 @@ class IntervalConverter extends BaseConverter
             }
 
             if (null !== $type) {
-                $tokens[] = array(
+                $tokens[] = [
                     'value' => $field,
                     'type'  => $type
-                );
+                ];
             }
         }
 

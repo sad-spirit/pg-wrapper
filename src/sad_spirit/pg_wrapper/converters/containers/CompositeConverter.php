@@ -31,16 +31,16 @@ class CompositeConverter extends ContainerConverter
      * Converters for fields within composite type
      * @var TypeConverter[]
      */
-    private $_items = array();
+    private $_items = [];
 
     /**
      * Unlike hstore and array, composite types use doubled "" for escaping "
      * @var array
      */
-    private $_escapes = array(
+    private $_escapes = [
         '"'  => '""',
         '\\' => '\\\\'
-    );
+    ];
 
     /**
      * Constructor, accepts an array of (field name => field type converter)
@@ -78,7 +78,7 @@ class CompositeConverter extends ContainerConverter
         } elseif (!is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array or object', $value);
         }
-        $parts = array();
+        $parts = [];
         foreach ($this->_items as $field => $type) {
             $v       = $type->output(isset($value[$field]) ? $value[$field] : null);
             $parts[] = ($v === null) ? '' : ('"' . strtr($v, $this->_escapes) . '"');
@@ -88,7 +88,7 @@ class CompositeConverter extends ContainerConverter
 
     protected function parseInput($native, &$pos)
     {
-        $result   = array();
+        $result   = [];
         $unescape = array_flip($this->_escapes);
         $closing  = false;
 

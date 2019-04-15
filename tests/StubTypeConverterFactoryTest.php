@@ -70,11 +70,11 @@ class StubTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function getTypeSpecifications()
     {
-        return array(
-            array('foo.bar'),
-            array(666),
-            array(array('foo', 'bar')),
-            array(new \stdClass())
-        );
+        return [
+            ['foo.bar'],
+            [666],
+            [['foo', 'bar']],
+            [new \stdClass()]
+        ];
     }
 }

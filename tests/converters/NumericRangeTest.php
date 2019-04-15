@@ -35,30 +35,30 @@ class NumericRangeTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array('empty',  NumericRange::createEmpty()),
-            array('[,)',    new NumericRange()),
-            array('("1",]', new NumericRange(1, null, false, true)),
-            array('(,"2")', new NumericRange(null, 2, false, false))
-        );
+        return [
+            ['empty',  NumericRange::createEmpty()],
+            ['[,)',    new NumericRange()],
+            ['("1",]', new NumericRange(1, null, false, true)],
+            ['(,"2")', new NumericRange(null, 2, false, false)]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array(' (    2    ,   3 )', new NumericRange(2, 3, false, false)),
-            array('[2, a]',             new TypeConversionException()),
-            array('(3,2)',              new InvalidArgumentException())
-        );
+        return [
+            [' (    2    ,   3 )', new NumericRange(2, 3, false, false)],
+            ['[2, a]',             new TypeConversionException()],
+            ['(3,2)',              new InvalidArgumentException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('["2","3"]',                    array('upper' => 3, 'lower' => 2, 'upperInclusive' => true)),
-            array('["2","3")',                    array(2, 3)),
-            array(new InvalidArgumentException(), array(3, 2)),
-            array(new TypeConversionException(),  new \stdClass())
-        );
+        return [
+            ['["2","3"]',                    ['upper' => 3, 'lower' => 2, 'upperInclusive' => true]],
+            ['["2","3")',                    [2, 3]],
+            [new InvalidArgumentException(), [3, 2]],
+            [new TypeConversionException(),  new \stdClass()]
+        ];
     }
 }

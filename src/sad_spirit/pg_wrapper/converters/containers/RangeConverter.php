@@ -81,7 +81,7 @@ class RangeConverter extends ContainerConverter
                     throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
                 }
                 $pos   += call_user_func(self::$strlen, $m[0]);
-                $bound .= strtr($m[1], array('\\\\' => '\\', '\\"' => '"', '""' => '"'));
+                $bound .= strtr($m[1], ['\\\\' => '\\', '\\"' => '"', '""' => '"']);
 
             } else {
                 if (!preg_match("/(?>[^\"\\\\{$quoted}]+|\\\\.)+/As", $string, $m, 0, $pos)) {
@@ -109,7 +109,7 @@ class RangeConverter extends ContainerConverter
         $char = $this->nextChar($native, $pos);
         if (('e' === $char || 'E' === $char) && preg_match('/empty/Ai', $native, $m, 0, $pos)) {
             $pos += 5;
-            return call_user_func(array($this->resultClass, 'createEmpty'));
+            return call_user_func([$this->resultClass, 'createEmpty']);
         }
 
         if ('(' === $char || '[' === $char) {
@@ -145,7 +145,7 @@ class RangeConverter extends ContainerConverter
     protected function outputNotNull($value)
     {
         if (is_array($value)) {
-            $value = call_user_func(array($this->resultClass, 'createFromArray'), $value);
+            $value = call_user_func([$this->resultClass, 'createFromArray'], $value);
         } elseif (!($value instanceof Range)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Range or an array', $value);
         }

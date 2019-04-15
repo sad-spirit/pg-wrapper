@@ -34,30 +34,30 @@ class LineTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null,             null),
-            array('{1.2,3.4,5.6}',  new Line(1.2, 3.4, 5.6))
-        );
+        return [
+            [null,             null],
+            ['{1.2,3.4,5.6}',  new Line(1.2, 3.4, 5.6)]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('  {  1.2 , 3.4 ,    5.6}   ', new Line(1.2, 3.4, 5.6)),
-            array('{ 1 , 2 , 3, 4}',             new TypeConversionException()),
-            array('{1, 2}',                      new TypeConversionException()),
-            array('{1,2,3}+',                    new TypeConversionException()),
-            array('{1,2,3',                      new TypeConversionException())
-        );
+        return [
+            ['  {  1.2 , 3.4 ,    5.6}   ', new Line(1.2, 3.4, 5.6)],
+            ['{ 1 , 2 , 3, 4}',             new TypeConversionException()],
+            ['{1, 2}',                      new TypeConversionException()],
+            ['{1,2,3}+',                    new TypeConversionException()],
+            ['{1,2,3',                      new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('{1.2,3.4,5.6}',                array('C' => 5.6, 'A' => 1.2, 'B' => 3.4)),
-            array('{1.2,3.4,5.6}',                array(1.2, 3.4, 5.6)),
-            array(new TypeConversionException(),  'a line'),
-            array(new InvalidArgumentException(), array(2, 4))
-        );
+        return [
+            ['{1.2,3.4,5.6}',                ['C' => 5.6, 'A' => 1.2, 'B' => 3.4]],
+            ['{1.2,3.4,5.6}',                [1.2, 3.4, 5.6]],
+            [new TypeConversionException(),  'a line'],
+            [new InvalidArgumentException(), [2, 4]]
+        ];
     }
 }

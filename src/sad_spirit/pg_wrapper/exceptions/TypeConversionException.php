@@ -86,7 +86,7 @@ class TypeConversionException extends \DomainException implements Exception
             return 'Object(' . get_class($value) . ')';
 
         } elseif (is_array($value)) {
-            $strings = array();
+            $strings = [];
             foreach ($value as $k => $v) {
                 $strings[] = sprintf('%s => %s', $k, self::stringify($v));
             }

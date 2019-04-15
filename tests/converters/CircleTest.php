@@ -35,35 +35,35 @@ class CircleTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array(null, null),
-            array('<(1.2,3.4),5.6>', new Circle(new Point(1.2, 3.4), 5.6))
-        );
+        return [
+            [null, null],
+            ['<(1.2,3.4),5.6>', new Circle(new Point(1.2, 3.4), 5.6)]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array('((1.2 ,3.4 ) , 5.6)',  new Circle(new Point(1.2, 3.4), 5.6)),
-            array('(1.2 ,3.4 ) , 5.6',    new Circle(new Point(1.2, 3.4), 5.6)),
-            array('1.2 ,3.4 , 5.6',       new Circle(new Point(1.2, 3.4), 5.6)),
-            array('( (1.2 ,3.4 ) ), 5.6', new TypeConversionException()),
-            array('1.2, 3.4',             new TypeConversionException()),
-            array('(1.2, 3.4, 5.6',       new TypeConversionException()),
-            array('1.2, 3.4, 5.6, 7.8',   new TypeConversionException())
-        );
+        return [
+            ['((1.2 ,3.4 ) , 5.6)',  new Circle(new Point(1.2, 3.4), 5.6)],
+            ['(1.2 ,3.4 ) , 5.6',    new Circle(new Point(1.2, 3.4), 5.6)],
+            ['1.2 ,3.4 , 5.6',       new Circle(new Point(1.2, 3.4), 5.6)],
+            ['( (1.2 ,3.4 ) ), 5.6', new TypeConversionException()],
+            ['1.2, 3.4',             new TypeConversionException()],
+            ['(1.2, 3.4, 5.6',       new TypeConversionException()],
+            ['1.2, 3.4, 5.6, 7.8',   new TypeConversionException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('<(1.2,3.4),5.6>',              array('radius' => 5.6, 'center' => array(1.2, 3.4))),
-            array('<(1.2,3.4),5.6>',              array(new Point(1.2, 3.4), 5.6)),
-            array(new TypeConversionException(),  'string'),
-            array(new InvalidArgumentException(), array()),
-            array(new InvalidArgumentException(), array(array(1.2, 'foo'), 3.4)),
-            array(new InvalidArgumentException(), array(array(1.2, 3.4), 'bar')),
-            array(new InvalidArgumentException(), array(array(1.2, 3.4)))
-        );
+        return [
+            ['<(1.2,3.4),5.6>',              ['radius' => 5.6, 'center' => [1.2, 3.4]]],
+            ['<(1.2,3.4),5.6>',              [new Point(1.2, 3.4), 5.6]],
+            [new TypeConversionException(),  'string'],
+            [new InvalidArgumentException(), []],
+            [new InvalidArgumentException(), [[1.2, 'foo'], 3.4]],
+            [new InvalidArgumentException(), [[1.2, 3.4], 'bar']],
+            [new InvalidArgumentException(), [[1.2, 3.4]]]
+        ];
     }
 }

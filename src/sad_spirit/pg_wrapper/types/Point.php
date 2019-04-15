@@ -27,10 +27,10 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Point
 {
-    private $_coordinates = array(
+    private $_coordinates = [
         'x' => 0,
         'y' => 0
-    );
+    ];
 
     function __construct($x, $y)
     {

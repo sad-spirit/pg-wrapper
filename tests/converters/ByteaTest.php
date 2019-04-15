@@ -68,36 +68,36 @@ class ByteaTest extends \PHPUnit_Framework_TestCase
     public function testCastToEscape($value, $escapeEncoded, $hexEncoded)
     {
         $this->caster->useHexEncoding(false);
-        $this->assertContains($this->caster->output($value), array($escapeEncoded, $hexEncoded));
+        $this->assertContains($this->caster->output($value), [$escapeEncoded, $hexEncoded]);
     }
 
     public function getValuesFrom()
     {
-        return array(
-            array(null,                     null),
-            array('',                       ''),
-            array('\x  ',                   ''),
-            array('abc\\000\'\\\\\\001def', "abc\000'\\\001def"),
-            array('\x4142000102',           "AB\000\001\002"),
-            array('\x4 1',                  new TypeConversionException()),
-            array('\x41$2',                 new TypeConversionException())
-        );
+        return [
+            [null,                     null],
+            ['',                       ''],
+            ['\x  ',                   ''],
+            ['abc\\000\'\\\\\\001def', "abc\000'\\\001def"],
+            ['\x4142000102',           "AB\000\001\002"],
+            ['\x4 1',                  new TypeConversionException()],
+            ['\x41$2',                 new TypeConversionException()]
+        ];
     }
 
     public function getValuesToHex()
     {
         return array_map(function($value) {
-            return array($value[0], $value[2]);
+            return [$value[0], $value[2]];
         }, $this->getValuesTo());
     }
 
     public function getValuesTo()
     {
-        return array(
-            array(null,         null,           null),
-            array('',           '',             '\x'),
-            array("\000'\\",    "\\000'\\\\",   '\x00275c'),
-            array('ABC',        'ABC',          '\x414243')
-        );
+        return [
+            [null,         null,           null],
+            ['',           '',             '\x'],
+            ["\000'\\",    "\\000'\\\\",   '\x00275c'],
+            ['ABC',        'ABC',          '\x414243']
+        ];
     }
 }

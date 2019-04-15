@@ -34,35 +34,35 @@ class TidTest extends TypeConverterTestCase
 
     protected function valuesBoth()
     {
-        return array(
-            array('(0,0)', new Tid(0, 0)),
-            array('(1,2)', new Tid(1, 2))
-        );
+        return [
+            ['(0,0)', new Tid(0, 0)],
+            ['(1,2)', new Tid(1, 2)]
+        ];
     }
 
     protected function valuesFrom()
     {
-        return array(
-            array(' ( 3 , 4 ) ', new Tid(3, 4)),
-            array('666',         new TypeConversionException()),
-            array('(5)',         new TypeConversionException()),
-            array('(1,2,3)',     new TypeConversionException()),
-            array('(1,2',        new TypeConversionException()),
-            array('(-1,1)',      new InvalidArgumentException()),
-            array('(1, -1)',     new InvalidArgumentException())
-        );
+        return [
+            [' ( 3 , 4 ) ', new Tid(3, 4)],
+            ['666',         new TypeConversionException()],
+            ['(5)',         new TypeConversionException()],
+            ['(1,2,3)',     new TypeConversionException()],
+            ['(1,2',        new TypeConversionException()],
+            ['(-1,1)',      new InvalidArgumentException()],
+            ['(1, -1)',     new InvalidArgumentException()]
+        ];
     }
 
     protected function valuesTo()
     {
-        return array(
-            array('(1,2)',                       array('tuple' => 2, 'block' => 1)),
-            array('(1,2)',                       array(1, 2)),
-            array(new TypeConversionException(), 'a string'),
-            array(new InvalidArgumentException(), array(1)),
-            array(new InvalidArgumentException(), array(1, 2, 3)),
-            array(new InvalidArgumentException(), array(-1, 2)),
-            array(new InvalidArgumentException(), array(1, 'foo'))
-        );
+        return [
+            ['(1,2)',                       ['tuple' => 2, 'block' => 1]],
+            ['(1,2)',                       [1, 2]],
+            [new TypeConversionException(), 'a string'],
+            [new InvalidArgumentException(), [1]],
+            [new InvalidArgumentException(), [1, 2, 3]],
+            [new InvalidArgumentException(), [-1, 2]],
+            [new InvalidArgumentException(), [1, 'foo']]
+        ];
     }
 }

@@ -38,7 +38,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Type converters, indexed by column number
      * @var TypeConverter[]
      */
-    private $_converters = array();
+    private $_converters = [];
 
     /**
      * Number of rows in result
@@ -56,7 +56,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Hash (column name => column number)
      * @var array
      */
-    private $_namesHash = array();
+    private $_namesHash = [];
 
     /**
      * Current iterator position
@@ -77,7 +77,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param array       $types    Types information, used to convert output values (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      */
-    public function __construct($resource, TypeConverterFactory $factory, array $types = array())
+    public function __construct($resource, TypeConverterFactory $factory, array $types = [])
     {
         if (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource)) {
             throw new exceptions\InvalidArgumentException(sprintf(
@@ -91,7 +91,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         $this->_numRows     = pg_num_rows($this->_resource);
         $this->_numFields   = pg_num_fields($this->_resource);
 
-        $oids = array();
+        $oids = [];
         for ($i = 0; $i < $this->_numFields; $i++) {
             $this->_namesHash[pg_field_name($this->_resource, $i)] = $i;
             $oids[$i] = pg_field_type_oid($this->_resource, $i);
@@ -166,7 +166,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             $fieldIndex = $this->_namesHash[$fieldIndex];
         }
 
-        $result = array();
+        $result = [];
         for ($i = 0; $i < $this->_numRows; $i++) {
             $result[] = $this->_converters[$fieldIndex]->input(
                 pg_fetch_result($this->_resource, $i, $fieldIndex)
@@ -211,7 +211,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         }
         $killArray = (!$forceArray && 2 === $this->_numFields);
 
-        $result = array();
+        $result = [];
 
         for ($i = 0; $i < $this->_numRows; $i++) {
             $row = $this->_read($i);
@@ -223,7 +223,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
                     $key = $row[$keyColumn];
                     unset($row[$keyColumn]);
                 } else {
-                    list($key) = array_splice($row, $keyColumn, 1, array());
+                    list($key) = array_splice($row, $keyColumn, 1, []);
                 }
                 if ($killArray) {
                     $row = reset($row);
