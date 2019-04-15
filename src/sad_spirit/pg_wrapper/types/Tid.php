@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -36,13 +38,13 @@ class Tid
         'tuple' => 0
     ];
 
-    function __construct($block, $tuple)
+    public function __construct($block, $tuple)
     {
         $this->__set('block', $block);
         $this->__set('tuple', $tuple);
     }
 
-    function __get($name)
+    public function __get($name)
     {
         if (array_key_exists($name, $this->_props)) {
             return $this->_props[$name];
@@ -52,7 +54,7 @@ class Tid
         }
     }
 
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         switch ($name) {
         case 'block':
@@ -68,7 +70,7 @@ class Tid
         }
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return array_key_exists($name, $this->_props);
     }

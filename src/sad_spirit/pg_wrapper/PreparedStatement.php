@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper;
 
 /**
@@ -67,7 +69,7 @@ class PreparedStatement
      *
      * @throws exceptions\InvalidQueryException
      */
-    public function __construct(Connection $connection, $query, array $paramTypes = [])
+    public function __construct(Connection $connection, string $query, array $paramTypes = [])
     {
         $this->_connection = $connection;
         $this->_query      = $query;
@@ -98,7 +100,7 @@ class PreparedStatement
      * @throws exceptions\InvalidQueryException
      * @throws exceptions\RuntimeException
      */
-    public function prepare()
+    public function prepare(): self
     {
         if ($this->_queryId) {
             throw new exceptions\RuntimeException('The statement has already been prepared');
@@ -123,7 +125,7 @@ class PreparedStatement
      * @throws exceptions\InvalidQueryException
      * @throws exceptions\RuntimeException
      */
-    public function deallocate()
+    public function deallocate(): self
     {
         if (!$this->_queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
@@ -145,7 +147,7 @@ class PreparedStatement
      *
      * @throws exceptions\InvalidArgumentException
      */
-    function bindValue($paramNum, $value, $type = null)
+    function bindValue(int $paramNum, $value, $type = null): self
     {
         if (!is_int($paramNum) || $paramNum < 1) {
             throw new exceptions\InvalidArgumentException(sprintf(
@@ -171,7 +173,7 @@ class PreparedStatement
      *
      * @throws exceptions\InvalidArgumentException
      */
-    function bindParam($paramNum, &$param, $type = null)
+    function bindParam(int $paramNum, &$param, $type = null): self
     {
         if (!is_int($paramNum) || $paramNum < 1) {
             throw new exceptions\InvalidArgumentException(sprintf(

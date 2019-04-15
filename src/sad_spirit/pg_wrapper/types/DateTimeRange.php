@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -23,11 +25,14 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * Class representing a range with DateTime bounds
  *
  * Used to convert PostgreSQL's tsrange, tstzrange, daterange types
+ *
+ * @property \DateTime $lower
+ * @property \DateTime $upper
  */
 class DateTimeRange extends Range
 {
     public function __construct(
-        \DateTime $lower = null, \DateTime $upper = null, $lowerInclusive = true, $upperInclusive = false
+        \DateTime $lower = null, \DateTime $upper = null, bool $lowerInclusive = true, bool $upperInclusive = false
     ) {
         if (null !== $lower && null !== $upper && $lower > $upper) {
             throw new InvalidArgumentException(

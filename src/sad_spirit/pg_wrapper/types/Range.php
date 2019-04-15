@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -26,7 +28,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * @property mixed $upper
  * @property bool  $lowerInclusive
  * @property bool  $upperInclusive
- * @propery  bool  $empty
+ * @property bool  $empty
  */
 class Range
 {
@@ -38,7 +40,7 @@ class Range
         'empty'          => false
     ];
 
-    public function __construct($lower = null, $upper = null, $lowerInclusive = true, $upperInclusive = false)
+    public function __construct($lower = null, $upper = null, bool $lowerInclusive = true, bool $upperInclusive = false)
     {
         $this->__set('lower', $lower);
         $this->__set('upper', $upper);

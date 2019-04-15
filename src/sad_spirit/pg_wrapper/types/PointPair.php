@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -32,13 +34,13 @@ abstract class PointPair
         'end'   => null
     ];
 
-    function __construct(Point $start, Point $end)
+    public function __construct(Point $start, Point $end)
     {
         $this->_points['start'] = $start;
         $this->_points['end']   = $end;
     }
 
-    function __get($name)
+    public function __get($name)
     {
         if ('start' === $name || 'end' === $name) {
             return $this->_points[$name];
@@ -48,7 +50,7 @@ abstract class PointPair
         }
     }
 
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         if ('start' === $name || 'end' === $name) {
             if (!($value instanceof Point)) {
@@ -63,7 +65,7 @@ abstract class PointPair
         }
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return 'start' === $name || 'end' === $name;
     }

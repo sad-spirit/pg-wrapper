@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper;
 
 use Psr\Cache\CacheItemPoolInterface;
@@ -55,7 +57,7 @@ class Connection
      * @param bool   $lazy             Whether to postpone connecting until needed
      * @throws exceptions\ConnectionException
      */
-    public function __construct($connectionString, $lazy = true)
+    public function __construct($connectionString, bool $lazy = true)
     {
         $this->_connectionString = $connectionString;
         if (!$lazy) {
@@ -86,7 +88,7 @@ class Connection
      * @return $this
      * @throws exceptions\ConnectionException
      */
-    public function connect()
+    public function connect(): self
     {
         if ($this->_resource) {
             return $this;
@@ -114,7 +116,7 @@ class Connection
     /**
      * Disconnects from the database
      */
-    public function disconnect()
+    public function disconnect(): self
     {
         if ($this->isConnected()) {
             pg_close($this->_resource);
@@ -129,7 +131,7 @@ class Connection
      *
      * @return bool
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return is_resource($this->_resource);
     }
@@ -152,7 +154,7 @@ class Connection
      *
      * @return string
      */
-    public function getConnectionId()
+    public function getConnectionId(): string
     {
         return 'pg' . sprintf('%x', crc32(get_class($this) . ' ' . $this->_connectionString));
     }
@@ -165,7 +167,7 @@ class Connection
      * @return string
      * @throws exceptions\TypeConversionException
      */
-    public function quote($value, $type = null)
+    public function quote($value, $type = null): string
     {
         if (null === $value) {
             return 'NULL';
@@ -188,7 +190,7 @@ class Connection
      * @return PreparedStatement Prepared statement.
      * @throws exceptions\InvalidQueryException
      */
-    public function prepare($query, array $paramTypes = [])
+    public function prepare(string $query, array $paramTypes = []): PreparedStatement
     {
         return new PreparedStatement($this, $query, $paramTypes);
     }
@@ -205,7 +207,7 @@ class Connection
      * @return ResultSet|int|bool Execution result.
      * @throws exceptions\InvalidQueryException
      */
-    public function execute($sql, array $resultTypes = [])
+    public function execute(string $sql, array $resultTypes = [])
     {
         $result = @pg_query($this->getResource(), $sql);
 
@@ -240,7 +242,7 @@ class Connection
      * @throws exceptions\InvalidQueryException
      */
     public function executeParams(
-        $sql, array $params, array $paramTypes = [], array $resultTypes = []
+        string $sql, array $params, array $paramTypes = [], array $resultTypes = []
     ) {
         if (!$this->isConnected()) {
             $this->connect();
@@ -279,7 +281,7 @@ class Connection
      *
      * @return TypeConverterFactory
      */
-    public function getTypeConverterFactory()
+    public function getTypeConverterFactory(): TypeConverterFactory
     {
         if (!$this->_converterFactory) {
             $this->setTypeConverterFactory(new converters\DefaultTypeConverterFactory());
@@ -293,7 +295,7 @@ class Connection
      * @param TypeConverterFactory $factory
      * @return $this
      */
-    public function setTypeConverterFactory(TypeConverterFactory $factory)
+    public function setTypeConverterFactory(TypeConverterFactory $factory): self
     {
         $this->_converterFactory = $factory;
         $factory->setConnection($this);
@@ -307,7 +309,7 @@ class Connection
      * @param mixed $type
      * @return TypeConverter
      */
-    public function getTypeConverter($type)
+    public function getTypeConverter($type): TypeConverter
     {
         return $this->getTypeConverterFactory()->getConverter($type);
     }
@@ -319,7 +321,7 @@ class Connection
      * @return null|string
      * @throws exceptions\TypeConversionException
      */
-    public function guessOutputFormat($value)
+    public function guessOutputFormat($value): ?string
     {
         if (is_null($value) || is_string($value)) {
             return $this->getTypeConverter('text')->output($value);
@@ -378,9 +380,9 @@ class Connection
     /**
      * Returns the DB metadata cache
      *
-     * @return CacheItemPoolInterface
+     * @return CacheItemPoolInterface|null
      */
-    public function getMetadataCache()
+    public function getMetadataCache(): ?CacheItemPoolInterface
     {
         return $this->_cache;
     }
@@ -391,7 +393,7 @@ class Connection
      * @param CacheItemPoolInterface $cache Cache instance
      * @return $this
      */
-    public function setMetadataCache(CacheItemPoolInterface $cache)
+    public function setMetadataCache(CacheItemPoolInterface $cache): self
     {
         $this->_cache = $cache;
 
@@ -405,7 +407,7 @@ class Connection
      * @return $this
      * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
      */
-    public function beginTransaction($savepoint = null)
+    public function beginTransaction(?string $savepoint = null): self
     {
         if (null === $savepoint) {
             if (!$this->inTransaction()) {
@@ -431,7 +433,7 @@ class Connection
      * @return $this
      * @throws exceptions\RuntimeException if trying to release a savepoint outside the transaction block
      */
-    public function commit($savepoint = null)
+    public function commit(?string $savepoint = null): self
     {
         if (null === $savepoint) {
             if ($this->inTransaction()) {
@@ -457,7 +459,7 @@ class Connection
      * @return $this
      * @throws exceptions\RuntimeException if trying to roll back to a savepoint outside the transaction block
      */
-    public function rollback($savepoint = null)
+    public function rollback(?string $savepoint = null): self
     {
         if (null === $savepoint) {
             if ($this->inTransaction()) {
@@ -481,7 +483,7 @@ class Connection
      *
      * @return  bool
      */
-    public function inTransaction()
+    public function inTransaction(): bool
     {
         $status = pg_transaction_status($this->getResource());
 

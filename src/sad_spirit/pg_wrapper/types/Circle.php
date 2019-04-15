@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -32,13 +34,13 @@ class Circle
         'radius' => 0
     ];
 
-    function __construct(Point $center, $radius)
+    public function __construct(Point $center, $radius)
     {
         $this->__set('center', $center);
         $this->__set('radius', $radius);
     }
 
-    function __get($name)
+    public function __get($name)
     {
         if ('center' === $name || 'radius' === $name) {
             return $this->_props[$name];
@@ -48,7 +50,7 @@ class Circle
         }
     }
 
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         if ('center' === $name) {
             if (!($value instanceof Point)) {
@@ -67,7 +69,7 @@ class Circle
         }
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return 'center' === $name || 'radius' === $name;
     }
@@ -79,7 +81,7 @@ class Circle
      * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input)
+    public static function createFromArray(array $input): self
     {
         if (2 != count($input)) {
             throw new InvalidArgumentException(sprintf(

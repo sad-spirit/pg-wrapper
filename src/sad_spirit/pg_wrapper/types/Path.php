@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -30,13 +32,13 @@ class Path extends PointList
 {
     private $_open;
 
-    public function __construct(array $points, $open = false)
+    public function __construct(array $points, bool $open = false)
     {
         parent::__construct($points);
         $this->__set('open', $open);
     }
 
-    function __get($name)
+    public function __get($name)
     {
         if ('open' === $name) {
             return $this->_open;
@@ -46,7 +48,7 @@ class Path extends PointList
         }
     }
 
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         if ('open' === $name) {
             $this->_open = (bool)$value;
@@ -56,7 +58,7 @@ class Path extends PointList
         }
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return 'open' === $name;
     }

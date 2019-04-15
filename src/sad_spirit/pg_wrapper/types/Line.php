@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\types;
 
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
@@ -34,14 +36,14 @@ class Line
         'C' => 0
     ];
 
-    function __construct($A, $B, $C)
+    public function __construct($A, $B, $C)
     {
         $this->__set('A', $A);
         $this->__set('B', $B);
         $this->__set('C', $C);
     }
 
-    function __get($name)
+    public function __get($name)
     {
         if (array_key_exists($name, $this->_coeffs)) {
             return $this->_coeffs[$name];
@@ -51,7 +53,7 @@ class Line
         }
     }
 
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         if (array_key_exists($name, $this->_coeffs)) {
             if (!is_numeric($value)) {
@@ -64,7 +66,7 @@ class Line
         }
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return array_key_exists($name, $this->_coeffs);
     }

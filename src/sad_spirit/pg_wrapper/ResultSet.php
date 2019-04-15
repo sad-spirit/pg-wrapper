@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper;
 
 /**
@@ -119,7 +121,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @return $this
      * @throws exceptions\InvalidArgumentException
      */
-    public function setType($fieldIndex, $type)
+    public function setType($fieldIndex, $type): self
     {
         $this->_checkFieldIndex($fieldIndex);
         if (is_string($fieldIndex)) {
@@ -140,7 +142,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @return $this
      * @throws exceptions\InvalidArgumentException
      */
-    public function setMode($mode = PGSQL_ASSOC)
+    public function setMode(int $mode = PGSQL_ASSOC): self
     {
         if (PGSQL_ASSOC !== $mode && PGSQL_NUM !== $mode) {
             throw new exceptions\InvalidArgumentException(
@@ -159,7 +161,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @return array
      * @throws exceptions\InvalidArgumentException
      */
-    public function fetchColumn($fieldIndex)
+    public function fetchColumn($fieldIndex): array
     {
         $this->_checkFieldIndex($fieldIndex);
         if (is_string($fieldIndex)) {
@@ -190,7 +192,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @return array
      * @throws exceptions\InvalidArgumentException
      */
-    public function fetchAll($mode = null, $keyColumn = null, $forceArray = false, $group = false)
+    public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false)
     {
         if (null !== $mode) {
             $oldMode = $this->_mode;
@@ -340,7 +342,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param string|int $fieldIndex
      * @throws exceptions\InvalidArgumentException
      */
-    private function _checkFieldIndex($fieldIndex)
+    private function _checkFieldIndex($fieldIndex): void
     {
         if (ctype_digit((string)$fieldIndex)) {
             if ($fieldIndex < 0 || $fieldIndex >= $this->_numFields) {
@@ -371,7 +373,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param int $position row number
      * @return array
      */
-    private function _read($position)
+    private function _read(int $position): array
     {
         $row = pg_fetch_array($this->_resource, $position, $this->_mode);
         foreach ($row as $key => &$value) {
