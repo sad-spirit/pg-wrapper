@@ -17,8 +17,8 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\HstoreConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\converters\containers\HstoreConverter;
+use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Unit test for hstore type (from contrib) converter

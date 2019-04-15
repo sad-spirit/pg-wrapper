@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\RangeConverter,
-    sad_spirit\pg_wrapper\converters\NumericConverter,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\NumericRange;
+use sad_spirit\pg_wrapper\converters\containers\RangeConverter;
+use sad_spirit\pg_wrapper\{
+    converters\NumericConverter,
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException,
+    types\NumericRange
+};
 
 /**
  * Unit test for numrange type converter

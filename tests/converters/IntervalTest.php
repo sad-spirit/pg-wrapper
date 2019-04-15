@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\types\DateInterval,
-    sad_spirit\pg_wrapper\converters\datetime\IntervalConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\converters\datetime\IntervalConverter;
+use sad_spirit\pg_wrapper\{
+    types\DateInterval,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for interval type converter

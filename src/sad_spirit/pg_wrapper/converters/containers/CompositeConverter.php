@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\converters\containers;
 
-use sad_spirit\pg_wrapper\TypeConverter,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\converters\ContainerConverter;
+use sad_spirit\pg_wrapper\{
+    TypeConverter,
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException,
+    converters\ContainerConverter
+};
 
 /**
  * Class for composite types (row types)

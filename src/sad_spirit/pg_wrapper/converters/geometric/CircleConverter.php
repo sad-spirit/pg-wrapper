@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
-use sad_spirit\pg_wrapper\converters\FloatConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Circle;
+use sad_spirit\pg_wrapper\{
+    converters\FloatConverter,
+    exceptions\TypeConversionException,
+    types\Circle
+};
 
 /**
  * Converter for circle type, represented by a centre point and radius

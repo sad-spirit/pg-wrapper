@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\LineSegment;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    types\LineSegment
+};
 
 /**
  * Converter for line segment type, represented by a pair of points

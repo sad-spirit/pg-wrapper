@@ -17,14 +17,16 @@
 
 namespace sad_spirit\pg_wrapper\converters\containers;
 
-use sad_spirit\pg_wrapper\converters\ContainerConverter,
-    sad_spirit\pg_wrapper\converters\datetime\BaseDateTimeConverter,
-    sad_spirit\pg_wrapper\converters\FloatConverter,
-    sad_spirit\pg_wrapper\converters\IntegerConverter,
-    sad_spirit\pg_wrapper\converters\NumericConverter,
-    sad_spirit\pg_wrapper\TypeConverter,
-    sad_spirit\pg_wrapper\types\Range,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\{
+    converters\ContainerConverter,
+    converters\FloatConverter,
+    converters\IntegerConverter,
+    converters\NumericConverter,
+    TypeConverter,
+    types\Range,
+    exceptions\TypeConversionException
+};
+use sad_spirit\pg_wrapper\converters\datetime\BaseDateTimeConverter;
 
 /**
  * Converter for range types of PostgreSQL 9.2+

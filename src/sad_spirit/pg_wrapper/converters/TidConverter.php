@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\converters;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Tid;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    types\Tid
+};
 
 /**
  * Converter for tid (tuple identifier) type, representing physical location of a row within its table

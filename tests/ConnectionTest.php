@@ -17,18 +17,20 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\Connection,
-    sad_spirit\pg_wrapper\exceptions\ConnectionException,
-    sad_spirit\pg_wrapper\types\Box,
-    sad_spirit\pg_wrapper\types\Circle,
-    sad_spirit\pg_wrapper\types\DateTimeRange,
-    sad_spirit\pg_wrapper\types\Line,
-    sad_spirit\pg_wrapper\types\LineSegment,
-    sad_spirit\pg_wrapper\types\NumericRange,
-    sad_spirit\pg_wrapper\types\Path,
-    sad_spirit\pg_wrapper\types\Point,
-    sad_spirit\pg_wrapper\types\Polygon,
-    sad_spirit\pg_wrapper\types\Tid;
+use sad_spirit\pg_wrapper\{
+    Connection,
+    exceptions\ConnectionException,
+    types\Box,
+    types\Circle,
+    types\DateTimeRange,
+    types\Line,
+    types\LineSegment,
+    types\NumericRange,
+    types\Path,
+    types\Point,
+    types\Polygon,
+    types\Tid
+};
 
 /**
  * Unit test for Connection class

@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
-use sad_spirit\pg_wrapper\converters\ContainerConverter,
-    sad_spirit\pg_wrapper\converters\FloatConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Line;
+use sad_spirit\pg_wrapper\{
+    converters\ContainerConverter,
+    converters\FloatConverter,
+    exceptions\TypeConversionException,
+    types\Line
+};
 
 /**
  * Converter for line type, represented by three coefficients of linear equation (PostgreSQL 9.4+)

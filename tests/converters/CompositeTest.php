@@ -17,13 +17,17 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\CompositeConverter,
-    sad_spirit\pg_wrapper\converters\containers\ArrayConverter,
-    sad_spirit\pg_wrapper\converters\geometric\PointConverter,
-    sad_spirit\pg_wrapper\converters\IntegerConverter,
-    sad_spirit\pg_wrapper\converters\StringConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Point;
+use sad_spirit\pg_wrapper\converters\{
+    containers\CompositeConverter,
+    containers\ArrayConverter,
+    geometric\PointConverter,
+    IntegerConverter,
+    StringConverter
+};
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    types\Point
+};
 
 /**
  * Unit test for composite (row) type converter

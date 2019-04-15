@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\converters\NumericConverter;
+use sad_spirit\pg_wrapper\{
+    converters\NumericConverter,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for numeric type converter

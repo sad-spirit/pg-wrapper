@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
-use sad_spirit\pg_wrapper\converters\ContainerConverter,
-    sad_spirit\pg_wrapper\converters\FloatConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Point;
+use sad_spirit\pg_wrapper\{
+    converters\ContainerConverter,
+    converters\FloatConverter,
+    exceptions\TypeConversionException,
+    types\Point
+};
 
 /**
  * Converter for point type, building block for other geometric types

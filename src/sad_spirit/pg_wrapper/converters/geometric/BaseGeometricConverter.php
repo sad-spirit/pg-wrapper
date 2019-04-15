@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\converters\ContainerConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    converters\ContainerConverter
+};
 
 /**
  * Base class for geometric types

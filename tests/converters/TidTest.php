@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\types\Tid,
-    sad_spirit\pg_wrapper\converters\TidConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\{
+    converters\TidConverter,
+    types\Tid,
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for tid type converter

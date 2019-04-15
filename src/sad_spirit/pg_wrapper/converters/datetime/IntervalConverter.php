@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
-use sad_spirit\pg_wrapper\converters\BaseConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\DateInterval;
+use sad_spirit\pg_wrapper\{
+    converters\BaseConverter,
+    exceptions\TypeConversionException,
+    types\DateInterval
+};
 
 /**
  * Converter for interval type

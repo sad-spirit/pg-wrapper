@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\converters;
 
-use sad_spirit\pg_wrapper\TypeConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\{
+    TypeConverter,
+    exceptions\TypeConversionException
+};
 
 /**
  * Base class for type converters, defines handling for null values and some parsing helpers

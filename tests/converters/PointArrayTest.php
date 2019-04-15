@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\ArrayConverter,
-    sad_spirit\pg_wrapper\converters\geometric\PointConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\types\Point;
+use sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
+use sad_spirit\pg_wrapper\converters\geometric\PointConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    exceptions\InvalidArgumentException,
+    types\Point
+};
 
 /**
  * Unit test for a combination of array and point type converters

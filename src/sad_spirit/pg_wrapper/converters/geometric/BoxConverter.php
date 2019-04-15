@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Box;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    types\Box
+};
 
 /**
  * Converter for box type, box is represented with two points that are its opposite corners

@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\geometric\CircleConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\types\Circle,
-    sad_spirit\pg_wrapper\types\Point;
+use sad_spirit\pg_wrapper\converters\geometric\CircleConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    exceptions\InvalidArgumentException,
+    types\Circle,
+    types\Point
+};
 
 /**
  * Unit test for 'circle' geometric type converter

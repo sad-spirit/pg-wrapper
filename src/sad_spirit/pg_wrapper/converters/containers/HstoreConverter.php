@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\converters\containers;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\converters\ContainerConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    converters\ContainerConverter
+};
 
 /**
  * Class for hstore type from contrib/hstore, representing a set of key => value pairs

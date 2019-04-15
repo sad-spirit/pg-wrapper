@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\Connection,
-    sad_spirit\pg_wrapper\converters,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
+use sad_spirit\pg_wrapper\{
+    Connection,
+    converters,
+    exceptions\InvalidArgumentException
+};
 
 /**
  * Unit test for ResultSet class

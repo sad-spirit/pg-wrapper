@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\ArrayConverter,
-    sad_spirit\pg_wrapper\converters\StringConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\converters\{
+    containers\ArrayConverter,
+    StringConverter
+};
+use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Unit test for an array of strings type converter

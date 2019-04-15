@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
-use sad_spirit\pg_wrapper\converters\BaseConverter,
-    sad_spirit\pg_wrapper\converters\ConnectionAware,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\{
+    converters\BaseConverter,
+    converters\ConnectionAware,
+    exceptions\TypeConversionException
+};
 
 /**
  * Base class for date/time type converters (except intervals)

@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\HstoreConverter,
-    sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
+use sad_spirit\pg_wrapper\converters\{
+    containers\HstoreConverter,
+    containers\ArrayConverter
+};
 
 /**
  * Unit test for a combination of array and hstore type converters

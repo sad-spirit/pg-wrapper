@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\converters\IntegerConverter;
+use sad_spirit\pg_wrapper\{
+    converters\IntegerConverter,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for integer type converter

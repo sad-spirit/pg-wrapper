@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\converters;
 
-use sad_spirit\pg_wrapper\TypeConverterFactory,
-    sad_spirit\pg_wrapper\TypeConverter,
-    sad_spirit\pg_wrapper\Connection,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\exceptions\InvalidQueryException;
+use sad_spirit\pg_wrapper\{
+    TypeConverterFactory,
+    TypeConverter,
+    Connection,
+    exceptions\InvalidArgumentException,
+    exceptions\InvalidQueryException
+};
 
 /**
  * Creates type converters for database type based on specific DB metadata

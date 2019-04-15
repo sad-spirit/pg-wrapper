@@ -17,16 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\types;
 
-use ArrayAccess,
-    Countable,
-    IteratorAggregate,
-    ArrayIterator,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
+use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Base class for geometric types containing an arbitrary number of Points (paths and polygons)
  */
-abstract class PointList implements ArrayAccess, Countable, IteratorAggregate
+abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * Points available through ArrayAccess
@@ -81,7 +77,7 @@ abstract class PointList implements ArrayAccess, Countable, IteratorAggregate
 
     public function getIterator()
     {
-        return new ArrayIterator($this->points);
+        return new \ArrayIterator($this->points);
     }
 
     public function count()

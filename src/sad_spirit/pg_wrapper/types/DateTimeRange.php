@@ -17,8 +17,7 @@
 
 namespace sad_spirit\pg_wrapper\types;
 
-use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    DateTime;
+use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Class representing a range with DateTime bounds
@@ -28,7 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
 class DateTimeRange extends Range
 {
     public function __construct(
-        DateTime $lower = null, DateTime $upper = null, $lowerInclusive = true, $upperInclusive = false
+        \DateTime $lower = null, \DateTime $upper = null, $lowerInclusive = true, $upperInclusive = false
     ) {
         if (null !== $lower && null !== $upper && $lower > $upper) {
             throw new InvalidArgumentException(
@@ -41,7 +40,7 @@ class DateTimeRange extends Range
     public function __set($name, $value)
     {
         if (('upper' === $name || 'lower' === $name) && null !== $value) {
-            if (!($value instanceof DateTime)) {
+            if (!($value instanceof \DateTime)) {
                 throw new InvalidArgumentException(
                     "DateTimeRange {$name} bound should be an instance of DateTime"
                 );

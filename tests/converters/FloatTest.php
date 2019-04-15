@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\FloatConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\{
+    converters\FloatConverter,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for float type converter

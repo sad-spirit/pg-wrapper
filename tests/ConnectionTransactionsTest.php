@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\Connection,
-    sad_spirit\pg_wrapper\exceptions\InvalidQueryException;
+use sad_spirit\pg_wrapper\{
+    Connection,
+    exceptions\InvalidQueryException
+};
 
 /**
  * Unit test for transactions handling in Connection class

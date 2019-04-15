@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\geometric\PolygonConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\types\Point,
-    sad_spirit\pg_wrapper\types\Polygon;
+use sad_spirit\pg_wrapper\converters\geometric\PolygonConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    exceptions\InvalidArgumentException,
+    types\Point,
+    types\Polygon
+};
 
 /**
  * Unit test for 'polygon' geometric type converter

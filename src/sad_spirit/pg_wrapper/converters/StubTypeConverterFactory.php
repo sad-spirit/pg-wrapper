@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\converters;
 
-use sad_spirit\pg_wrapper\TypeConverterFactory,
-    sad_spirit\pg_wrapper\TypeConverter,
-    sad_spirit\pg_wrapper\Connection;
+use sad_spirit\pg_wrapper\{
+    TypeConverterFactory,
+    TypeConverter,
+    Connection
+};
 
 /**
  * Returns StubConverter for any database type

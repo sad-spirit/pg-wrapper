@@ -17,8 +17,8 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
+use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Unit test for 'timestamp with time zone' type converter

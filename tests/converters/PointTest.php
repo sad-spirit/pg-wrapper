@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\geometric\PointConverter,
-    sad_spirit\pg_wrapper\types\Point,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
+use sad_spirit\pg_wrapper\converters\geometric\PointConverter;
+use sad_spirit\pg_wrapper\{    
+    types\Point,
+    exceptions\TypeConversionException,
+    exceptions\InvalidArgumentException
+};
 
 /**
  * Unit test for 'point' geometric type converter

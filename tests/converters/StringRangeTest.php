@@ -17,10 +17,14 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\containers\RangeConverter,
-    sad_spirit\pg_wrapper\converters\StringConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Range;
+use sad_spirit\pg_wrapper\converters\{
+    containers\RangeConverter,
+    StringConverter
+};
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    types\Range
+};
 
 /**
  * Unit test for a string-based range type converter

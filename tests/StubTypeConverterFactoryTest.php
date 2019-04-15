@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\converters\StubTypeConverterFactory,
-    sad_spirit\pg_wrapper\converters\StubConverter,
-    sad_spirit\pg_wrapper\converters\IntegerConverter,
-    sad_spirit\pg_wrapper\Connection;
+use sad_spirit\pg_wrapper\{
+    converters\StubTypeConverterFactory,
+    converters\StubConverter,
+    converters\IntegerConverter,
+    Connection
+};
 
 
 class StubTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase

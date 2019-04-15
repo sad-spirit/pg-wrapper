@@ -17,22 +17,28 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\converters\DefaultTypeConverterFactory,
-    sad_spirit\pg_wrapper\Connection,
-    sad_spirit\pg_wrapper\converters\containers\ArrayConverter,
-    sad_spirit\pg_wrapper\converters\containers\CompositeConverter,
-    sad_spirit\pg_wrapper\converters\containers\HstoreConverter,
-    sad_spirit\pg_wrapper\converters\containers\RangeConverter,
-    sad_spirit\pg_wrapper\converters\datetime\TimeConverter,
-    sad_spirit\pg_wrapper\converters\datetime\TimeStampConverter,
-    sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter,
-    sad_spirit\pg_wrapper\converters\FloatConverter,
-    sad_spirit\pg_wrapper\converters\IntegerConverter,
-    sad_spirit\pg_wrapper\converters\StringConverter,
-    sad_spirit\pg_wrapper\converters\geometric\PointConverter,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    Psr\Cache\CacheItemPoolInterface,
-    Psr\Cache\CacheItemInterface;
+use sad_spirit\pg_wrapper\{
+    Connection,
+    exceptions\InvalidArgumentException
+};
+use sad_spirit\pg_wrapper\converters\{
+    DefaultTypeConverterFactory,
+    FloatConverter,
+    IntegerConverter,
+    StringConverter,
+    containers\ArrayConverter,
+    containers\CompositeConverter,
+    containers\HstoreConverter,
+    containers\RangeConverter,
+    datetime\TimeConverter,
+    datetime\TimeStampConverter,
+    datetime\TimeStampTzConverter,
+    geometric\PointConverter
+};
+use Psr\Cache\{
+    CacheItemPoolInterface,
+    CacheItemInterface
+};
 
 /**
  * Unit test for TypeConverterFactory class

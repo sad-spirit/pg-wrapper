@@ -17,10 +17,12 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\geometric\LineConverter,
-    sad_spirit\pg_wrapper\types\Line,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\converters\geometric\LineConverter;
+use sad_spirit\pg_wrapper\{
+    types\Line,
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for 'line' geometric type (9.4+) converter

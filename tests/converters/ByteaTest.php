@@ -17,8 +17,10 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\ByteaConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+use sad_spirit\pg_wrapper\{
+    converters\ByteaConverter,
+    exceptions\TypeConversionException
+};
 
 /**
  * Unit test for bytea type converter

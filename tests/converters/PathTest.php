@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\geometric\PathConverter,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\types\Path,
-    sad_spirit\pg_wrapper\types\Point;
+use sad_spirit\pg_wrapper\converters\geometric\PathConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException,
+    types\Path,
+    types\Point
+};
 
 /**
  * Unit test for 'path' geometric type converter

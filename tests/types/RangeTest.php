@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\tests\types;
 
-use sad_spirit\pg_wrapper\types\Range,
-    sad_spirit\pg_wrapper\types\NumericRange,
-    sad_spirit\pg_wrapper\types\DateTimeRange;
+use sad_spirit\pg_wrapper\types\{
+    Range,
+    NumericRange,
+    DateTimeRange
+};
 
 /**
  * Unit test for Range class
