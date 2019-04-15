@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 /**
@@ -22,13 +24,13 @@ namespace sad_spirit\pg_wrapper\converters;
  */
 class StringConverter extends BaseConverter
 {
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         return $native;
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
-        return $value;
+        return (string)$value;
     }
 }

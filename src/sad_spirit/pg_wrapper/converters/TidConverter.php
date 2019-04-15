@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\{
@@ -38,7 +40,7 @@ class TidConverter extends ContainerConverter
         $this->_integer = new IntegerConverter();
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos)
     {
         $this->expectChar($native, $pos, '(');
 
@@ -57,7 +59,7 @@ class TidConverter extends ContainerConverter
         return new Tid($this->_integer->input($blockNumber), $this->_integer->input($offset));
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = Tid::createFromArray($value);
@@ -68,7 +70,7 @@ class TidConverter extends ContainerConverter
         return sprintf('(%d,%d)', $value->block, $value->tuple);
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 1;
     }

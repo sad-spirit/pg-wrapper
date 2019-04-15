@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\{
@@ -45,17 +47,17 @@ abstract class BaseConverter implements TypeConverter
      */
     protected static $strrpos = null;
 
-    public function input($native)
+    public function input(?string $native)
     {
-        return ($native === null) ? null : $this->inputNotNull(strval($native));
+        return ($native === null) ? null : $this->inputNotNull($native);
     }
 
-    public function output($value)
+    public function output($value): ?string
     {
-        return ($value === null) ? null : strval($this->outputNotNull($value));
+        return ($value === null) ? null : $this->outputNotNull($value);
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 0;
     }
@@ -66,7 +68,7 @@ abstract class BaseConverter implements TypeConverter
      * @param string $native
      * @return mixed
      */
-    abstract protected function inputNotNull($native);
+    abstract protected function inputNotNull(string $native);
 
     /**
      * Converts PHP variable not identical to null into native format
@@ -74,7 +76,7 @@ abstract class BaseConverter implements TypeConverter
      * @param mixed $value
      * @return string
      */
-    abstract protected function outputNotNull($value);
+    abstract protected function outputNotNull($value): string;
 
     /**
      * Sets the 8-bit versions of string functions in case mbstring.func_overload is on
@@ -91,12 +93,12 @@ abstract class BaseConverter implements TypeConverter
      *
      * @param string $str Input string
      * @param int    $p   Position within input string
-     * @return string
+     * @return string|null
      */
-    protected function nextChar($str, &$p)
+    protected function nextChar(string $str, int &$p): ?string
     {
         $p += strspn($str, " \t\r\n", $p);
-        return isset($str[$p]) ? $str[$p] : false;
+        return isset($str[$p]) ? $str[$p] : null;
     }
 
     /**
@@ -107,7 +109,7 @@ abstract class BaseConverter implements TypeConverter
      * @param string $char
      * @throws TypeConversionException
      */
-    protected function expectChar($string, &$pos, $char)
+    protected function expectChar(string $string, int &$pos, string $char): void
     {
         if ($char !== $this->nextChar($string, $pos)) {
             throw TypeConversionException::parsingFailed($this, "'{$char}'", $string, $pos);
@@ -123,7 +125,7 @@ abstract class BaseConverter implements TypeConverter
      * @param int    $start   Position in the input string, will be moved
      * @return string
      */
-    protected function getStrspn($subject, $mask, &$start)
+    protected function getStrspn(string $subject, string $mask, int &$start): string
     {
         $length = strspn($subject, $mask, $start);
         $masked = call_user_func(self::$substr, $subject, $start, $length);

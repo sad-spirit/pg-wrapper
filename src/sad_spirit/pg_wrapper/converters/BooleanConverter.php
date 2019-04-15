@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 /**
@@ -22,13 +24,13 @@ namespace sad_spirit\pg_wrapper\converters;
  */
 class BooleanConverter extends BaseConverter
 {
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         $native = trim($native);
         return !($native === 'false' || $native === 'f' || $native === '0' || $native === '');
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         return (!$value || $value === 'false' || $value === 'f') ? 'f' : 't';
     }

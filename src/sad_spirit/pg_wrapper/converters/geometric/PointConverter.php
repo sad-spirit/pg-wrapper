@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -40,7 +42,7 @@ class PointConverter extends ContainerConverter
         $this->_float = new FloatConverter();
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): Point
     {
         $hasDelimiters = false;
         if ('(' === $this->nextChar($native, $pos)) {
@@ -63,7 +65,7 @@ class PointConverter extends ContainerConverter
         return new Point($this->_float->input($x), $this->_float->input($y));
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = Point::createFromArray($value);
@@ -73,7 +75,7 @@ class PointConverter extends ContainerConverter
         return '(' . $this->_float->output($value->x) . ',' . $this->_float->output($value->y) . ')';
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 1;
     }

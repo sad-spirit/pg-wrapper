@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\TypeConverter;
@@ -30,7 +32,7 @@ class StubConverter implements TypeConverter
     /**
      * {@inheritdoc}
      */
-    public function output($value)
+    public function output($value): ?string
     {
         return $value;
     }
@@ -38,7 +40,7 @@ class StubConverter implements TypeConverter
     /**
      * {@inheritdoc}
      */
-    public function input($native)
+    public function input(?string $native)
     {
         return $native;
     }
@@ -46,7 +48,7 @@ class StubConverter implements TypeConverter
     /**
      * {@inheritdoc}
      */
-    public function dimensions()
+    public function dimensions(): int
     {
         return 0;
     }

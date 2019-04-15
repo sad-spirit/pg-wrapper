@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -27,14 +29,14 @@ use sad_spirit\pg_wrapper\{
  */
 class LSegConverter extends BaseGeometricConverter
 {
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): LineSegment
     {
         $points = $this->parsePoints($native, $pos, 2, true);
         unset($points['open']);
         return new LineSegment(array_shift($points), array_shift($points));
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = LineSegment::createFromArray($value);
@@ -44,7 +46,7 @@ class LSegConverter extends BaseGeometricConverter
         return '[' . $this->point->output($value->start) . ',' . $this->point->output($value->end) . ']';
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 2;
     }

@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper;
 
 /**
@@ -28,7 +30,7 @@ interface TypeConverterFactory
      * @param mixed $type
      * @return TypeConverter
      */
-    public function getConverter($type);
+    public function getConverter($type): TypeConverter;
 
     /**
      * Sets database connection details for this object
@@ -36,5 +38,5 @@ interface TypeConverterFactory
      * @param Connection $connection
      * @return $this
      */
-    public function setConnection(Connection $connection);
+    public function setConnection(Connection $connection): self;
 }

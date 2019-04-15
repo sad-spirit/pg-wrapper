@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -51,7 +53,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
         }
     }
 
-    public function setConnectionResource($resource)
+    public function setConnectionResource($resource): void
     {
         $this->_connection = $resource;
 
@@ -71,7 +73,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
         $this->useHex = (bool)$hex;
     }
 
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         if ('\x' !== call_user_func(self::$substr, $native, 0, 2)) {
             return pg_unescape_bytea($native);
@@ -132,7 +134,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
      * @param string $value
      * @return string
      */
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if ($this->useHex) {
             list(, $encoded) = unpack('H*', $value);

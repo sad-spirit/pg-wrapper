@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -29,7 +31,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
 {
     /**
      * Point instance used to parse input and build output
-     * @var ContainerConverter
+     * @var PointConverter
      */
     protected $point;
 
@@ -48,7 +50,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
      * @return int Number of points
      * @throws TypeConversionException
      */
-    protected function countPoints($native)
+    protected function countPoints(string $native): int
     {
         $commas = substr_count($native, ',');
         if ($commas % 2) {
@@ -70,7 +72,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
      * @return array
      * @throws TypeConversionException
      */
-    protected function parsePoints($native, &$pos, $count, $allowSquare = false)
+    protected function parsePoints(string $native, int &$pos, int $count, bool $allowSquare = false): array
     {
         $hasDelimiters = $squareDelimiter = false;
 

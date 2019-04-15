@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
@@ -68,12 +70,12 @@ class CompositeConverter extends ContainerConverter
         }
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 1;
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_object($value)) {
             $value = (array)$value;
@@ -88,7 +90,7 @@ class CompositeConverter extends ContainerConverter
         return '(' . join(',', $parts) . ')';
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): array
     {
         $result   = [];
         $unescape = array_flip($this->_escapes);

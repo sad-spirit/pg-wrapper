@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -27,7 +29,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class JSONConverter extends BaseConverter
 {
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         // Postgres stores numbers in JSON as values of "numeric" type, not "float"
         // To prevent loss of precision we should (try to) return these as strings
@@ -40,7 +42,7 @@ class JSONConverter extends BaseConverter
         return $result;
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         $result = json_encode($value);
 

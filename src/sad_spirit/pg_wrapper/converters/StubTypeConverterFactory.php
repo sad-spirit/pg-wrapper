@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\{
@@ -44,7 +46,7 @@ class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function getConverter($type)
+    public function getConverter($type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
             if ($this->_connection && $type instanceof ConnectionAware) {
@@ -58,7 +60,7 @@ class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function setConnection(Connection $connection)
+    public function setConnection(Connection $connection): TypeConverterFactory
     {
         $this->_connection = $connection;
 

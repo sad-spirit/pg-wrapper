@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
@@ -27,12 +29,12 @@ use sad_spirit\pg_wrapper\{
  */
 class HstoreConverter extends ContainerConverter
 {
-    public function dimensions()
+    public function dimensions(): int
     {
         return 1;
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_object($value)) {
             $value = (array)$value;
@@ -41,9 +43,9 @@ class HstoreConverter extends ContainerConverter
         }
         $parts = [];
         foreach ($value as $key => $item) {
-            $parts[] =  '"' . addcslashes($key, "\"\\") . '"'
+            $parts[] =  '"' . addcslashes((string)$key, "\"\\") . '"'
                         . '=>'
-                        . (($item === null) ? 'NULL' : '"' . addcslashes($item, "\"\\") . '"');
+                        . (($item === null) ? 'NULL' : '"' . addcslashes((string)$item, "\"\\") . '"');
         }
         return implode(', ', $parts);
     }
@@ -58,7 +60,7 @@ class HstoreConverter extends ContainerConverter
      * @return null|string
      * @throws TypeConversionException
      */
-    private function _readString($string, &$pos, $delimiters, $convertNull)
+    private function _readString(string $string, int &$pos, string $delimiters, bool $convertNull): ?string
     {
         if ('"' === $string[$pos]) {
             if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
@@ -79,11 +81,11 @@ class HstoreConverter extends ContainerConverter
         }
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): array
     {
         $result = [];
 
-        while (false !== ($char = $this->nextChar($native, $pos))) {
+        while (null !== ($char = $this->nextChar($native, $pos))) {
             $key = $this->_readString($native, $pos, '=', false);
 
             $this->expectChar($native, $pos, '=');

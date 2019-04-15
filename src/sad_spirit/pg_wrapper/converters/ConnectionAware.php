@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 /**
@@ -32,5 +34,5 @@ interface ConnectionAware
      * @param resource $resource
      * @return void
      */
-    public function setConnectionResource($resource);
+    public function setConnectionResource($resource): void;
 }

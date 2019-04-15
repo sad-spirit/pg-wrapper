@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -27,13 +29,13 @@ use sad_spirit\pg_wrapper\{
  */
 class BoxConverter extends BaseGeometricConverter
 {
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): Box
     {
         list($start, $end) = $this->parsePoints($native, $pos, 2, false);
         return new Box($start, $end);
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = Box::createFromArray($value);
@@ -43,7 +45,7 @@ class BoxConverter extends BaseGeometricConverter
         return '(' . $this->point->output($value->start) . ',' . $this->point->output($value->end) . ')';
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 2;
     }

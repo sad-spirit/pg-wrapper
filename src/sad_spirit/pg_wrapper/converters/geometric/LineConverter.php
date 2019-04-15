@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -40,7 +42,7 @@ class LineConverter extends ContainerConverter
         $this->_float = new FloatConverter();
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): Line
     {
         $this->expectChar($native, $pos, '{');
 
@@ -65,7 +67,7 @@ class LineConverter extends ContainerConverter
         return new Line($this->_float->input($A), $this->_float->input($B), $this->_float->input($C));
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = Line::createFromArray($value);
@@ -76,7 +78,7 @@ class LineConverter extends ContainerConverter
                . ',' . $this->_float->output($value->C) . '}';
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 1;
     }

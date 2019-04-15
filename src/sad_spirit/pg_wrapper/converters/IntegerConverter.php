@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -24,7 +26,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class IntegerConverter extends BaseConverter
 {
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         $native = trim($native);
         if (!ctype_digit($native) && !preg_match('/^-\\d+$/', $native)) {
@@ -41,10 +43,10 @@ class IntegerConverter extends BaseConverter
         }
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_numeric($value)) {
-            return $value;
+            return (string)$value;
         }
         throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
     }

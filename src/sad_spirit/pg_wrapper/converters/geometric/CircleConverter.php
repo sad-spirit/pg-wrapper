@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -40,7 +42,7 @@ class CircleConverter extends BaseGeometricConverter
         parent::__construct();
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): Circle
     {
         $hasDelimiters = $angleDelimiter = $singleOpen = false;
 
@@ -71,7 +73,7 @@ class CircleConverter extends BaseGeometricConverter
         return new Circle($center, $this->_float->input($radius));
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = Circle::createFromArray($value);
@@ -81,7 +83,7 @@ class CircleConverter extends BaseGeometricConverter
         return '<' . $this->point->output($value->center) . ',' . $this->_float->output($value->radius) . '>';
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 2;
     }

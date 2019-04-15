@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\{
@@ -210,7 +212,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param Connection $connection
      * @return $this
      */
-    public function setConnection(Connection $connection)
+    public function setConnection(Connection $connection): TypeConverterFactory
     {
         if (!empty($this->_connection)) {
             // prevent reusing old converters with new connection
@@ -301,7 +303,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    public function getConverter($type)
+    public function getConverter($type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
             $this->_updateConnection($type);

@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
 use sad_spirit\pg_wrapper\{
@@ -109,7 +111,7 @@ class IntervalConverter extends BaseConverter
      * @return float
      * @throws TypeConversionException
      */
-    private function _parseFractionalSecond($string)
+    private function _parseFractionalSecond(string $string): float
     {
         if (!is_numeric($string)) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'numeric value', $string);
@@ -124,7 +126,7 @@ class IntervalConverter extends BaseConverter
      * @param DateInterval $interval
      * @throws TypeConversionException
      */
-    private function _parseTimeToken($token, DateInterval $interval)
+    private function _parseTimeToken(string $token, DateInterval $interval): void
     {
         $pos         = 0;
         $interval->h = (int)$this->getStrspn($token, '01234567890', $pos);
@@ -162,7 +164,7 @@ class IntervalConverter extends BaseConverter
      * @return DateInterval
      * @throws TypeConversionException
      */
-    private function _createInterval(array $tokens)
+    private function _createInterval(array $tokens): DateInterval
     {
         // A better approach would be to clone a prototype but cloning DateInterval
         // objects does not quite work
@@ -279,7 +281,7 @@ class IntervalConverter extends BaseConverter
      * @return array
      * @throws TypeConversionException
      */
-    private function _tokenize($native)
+    private function _tokenize(string $native): array
     {
         $tokens = [];
         $pos    = 0;
@@ -359,7 +361,7 @@ class IntervalConverter extends BaseConverter
      * @return DateInterval
      * @throws TypeConversionException
      */
-    private function _parseISO8601($native)
+    private function _parseISO8601(string $native): DateInterval
     {
         $interval = new DateInterval('PT0S');
         $pos      = 1;
@@ -402,7 +404,7 @@ class IntervalConverter extends BaseConverter
         return $interval;
     }
 
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         $native = trim($native);
         if ('P' === $native[0]) {
@@ -432,7 +434,7 @@ class IntervalConverter extends BaseConverter
      * @return string
      * @throws TypeConversionException
      */
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_string($value)) {
             return $value;

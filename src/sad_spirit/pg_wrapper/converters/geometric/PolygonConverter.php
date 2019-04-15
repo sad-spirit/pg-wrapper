@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
@@ -27,12 +29,12 @@ use sad_spirit\pg_wrapper\{
  */
 class PolygonConverter extends BaseGeometricConverter
 {
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): Polygon
     {
         return new Polygon($this->parsePoints($native, $pos, $this->countPoints($native), false));
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = Polygon::createFromArray($value);
@@ -47,7 +49,7 @@ class PolygonConverter extends BaseGeometricConverter
         return '(' . implode(',', $points) . ')';
     }
 
-    public function dimensions()
+    public function dimensions(): int
     {
         return 2;
     }

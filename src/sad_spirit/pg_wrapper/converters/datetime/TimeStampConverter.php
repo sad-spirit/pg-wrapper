@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -26,7 +28,7 @@ class TimeStampConverter extends BaseDateTimeConverter
 {
     protected $expectation = 'date and time string without time zone info';
 
-    protected function getFormats($style)
+    protected function getFormats(string $style): array
     {
         list($output, $order) = array_map('trim', explode(',', $style));
 

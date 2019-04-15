@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper;
 
 /**
@@ -28,7 +30,7 @@ interface TypeConverter
      * @param mixed $value
      * @return string|null
      */
-    public function output($value);
+    public function output($value): ?string;
 
     /**
      * Parses a native value into PHP variable
@@ -39,7 +41,7 @@ interface TypeConverter
      * @param string|null $native
      * @return mixed
      */
-    public function input($native);
+    public function input(?string $native);
 
 
     /**
@@ -50,5 +52,5 @@ interface TypeConverter
      *
      * @return int
      */
-    public function dimensions();
+    public function dimensions(): int;
 }

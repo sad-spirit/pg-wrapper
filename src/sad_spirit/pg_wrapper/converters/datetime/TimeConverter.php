@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -24,12 +26,12 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class TimeConverter extends BaseDateTimeConverter
 {
-    protected function getFormats($style)
+    protected function getFormats(string $style): array
     {
         return ['H:i:s.u', 'H:i:s'];
     }
 
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         foreach ($this->getFormats(self::DEFAULT_STYLE) as $format) {
             if ($value = \DateTime::createFromFormat('!' . $format, $native)) {

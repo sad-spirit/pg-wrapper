@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
@@ -47,15 +49,14 @@ class ArrayConverter extends ContainerConverter
     /**
      * Number of array dimensions for PHP variable
      *
-     * Returns null as Postgres arrays, by design, can have a variable number of
-     * dimensions. As ArrayConverters cannot be nested this method is not
-     * actually called anywhere.
+     * Return value is meaningless as Postgres arrays, by design, can have a variable number of
+     * dimensions. As ArrayConverters cannot be nested this method is not actually called anywhere.
      *
-     * @return int|null
+     * @return int
      */
-    public function dimensions()
+    public function dimensions(): int
     {
-        return null;
+        return -1;
     }
 
     /**
@@ -74,7 +75,7 @@ class ArrayConverter extends ContainerConverter
      * @return string
      * @throws TypeConversionException
      */
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (!is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array', $value);
@@ -101,7 +102,7 @@ class ArrayConverter extends ContainerConverter
      * @return string
      * @throws TypeConversionException
      */
-    private function _buildArrayLiteral(array $value, array $requiredSizes)
+    private function _buildArrayLiteral(array $value, array $requiredSizes): string
     {
         $requiredCount = array_shift($requiredSizes);
         if ($requiredCount !== count($value)) {
@@ -136,7 +137,7 @@ class ArrayConverter extends ContainerConverter
      * @return array
      * @throws TypeConversionException
      */
-    private function _calculateRequiredSizes(array $value)
+    private function _calculateRequiredSizes(array $value): array
     {
         $sizes = [];
         while (is_array($value)) {
@@ -170,7 +171,7 @@ class ArrayConverter extends ContainerConverter
         return $sizes;
     }
 
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): array
     {
         $result = [];
 

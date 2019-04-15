@@ -72,7 +72,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * @param resource $resource
      * @return void
      */
-    public function setConnectionResource($resource)
+    public function setConnectionResource($resource): void
     {
         $this->_connection = $resource;
 
@@ -84,7 +84,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      *
      * @param string $style
      */
-    public function setDateStyle($style = self::DEFAULT_STYLE)
+    public function setDateStyle(string $style = self::DEFAULT_STYLE): void
     {
         $this->_style = $style;
     }
@@ -96,9 +96,9 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * @return array
      * @throws TypeConversionException
      */
-    abstract protected function getFormats($style);
+    abstract protected function getFormats(string $style): array;
 
-    protected function inputNotNull($native)
+    protected function inputNotNull(string $native)
     {
         foreach ($this->getFormats($this->_style) as $format) {
             if ($value = \DateTime::createFromFormat('!' . $format, $native)) {
@@ -131,7 +131,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * @return string
      * @throws TypeConversionException
      */
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_string($value)) {
             return $value;

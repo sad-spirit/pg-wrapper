@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
@@ -73,7 +75,7 @@ class RangeConverter extends ContainerConverter
      * @return null|string
      * @throws TypeConversionException
      */
-    private function _readRangeBound($string, &$pos, $delimiter)
+    private function _readRangeBound(string $string, int &$pos, string $delimiter): ?string
     {
         $bound  = null;
         $quoted = preg_quote($delimiter);
@@ -106,7 +108,7 @@ class RangeConverter extends ContainerConverter
      * @return Range
      * @throws TypeConversionException
      */
-    protected function parseInput($native, &$pos)
+    protected function parseInput(string $native, int &$pos): Range
     {
         $char = $this->nextChar($native, $pos);
         if (('e' === $char || 'E' === $char) && preg_match('/empty/Ai', $native, $m, 0, $pos)) {
@@ -144,7 +146,7 @@ class RangeConverter extends ContainerConverter
         );
     }
 
-    protected function outputNotNull($value)
+    protected function outputNotNull($value): string
     {
         if (is_array($value)) {
             $value = call_user_func([$this->resultClass, 'createFromArray'], $value);
