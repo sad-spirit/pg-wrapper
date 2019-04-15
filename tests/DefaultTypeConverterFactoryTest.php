@@ -275,9 +275,13 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         }
 
         /* @var $mockPool CacheItemPoolInterface|\PHPUnit_Framework_MockObject_MockObject */
-        $mockPool = $this->getMock('Psr\Cache\CacheItemPoolInterface');
+        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
+            ->setMethods(['getItem', 'save'])
+            ->getMockForAbstractClass();
         /* @var $mockItem CacheItemInterface|\PHPUnit_Framework_MockObject_MockObject */
-        $mockItem = $this->getMock('Psr\Cache\CacheItemInterface');
+        $mockItem = $this->getMockBuilder(CacheItemInterface::class)
+            ->setMethods(['isHit', 'set'])
+            ->getMockForAbstractClass();
 
         $mockPool->expects($this->once())
             ->method('getItem')
@@ -310,9 +314,13 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         }
 
         /* @var $mockPool CacheItemPoolInterface|\PHPUnit_Framework_MockObject_MockObject */
-        $mockPool = $this->getMock('Psr\Cache\CacheItemPoolInterface');
+        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
+            ->setMethods(['getItem', 'save'])
+            ->getMockForAbstractClass();
         /* @var $mockItem CacheItemInterface|\PHPUnit_Framework_MockObject_MockObject */
-        $mockItem = $this->getMock('Psr\Cache\CacheItemInterface');
+        $mockItem = $this->getMockBuilder(CacheItemInterface::class)
+            ->setMethods(['isHit', 'set'])
+            ->getMockForAbstractClass();
 
         $mockPool->expects($this->once())
             ->method('getItem')
@@ -355,7 +363,8 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
 
-        $mockConverter = $this->getMock('\sad_spirit\pg_wrapper\converters\ByteaConverter');
+        $mockConverter = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\ByteaConverter')
+            ->getMock();
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');
 

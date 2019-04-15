@@ -108,7 +108,8 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
 
     private function _createMockTimestampConverter()
     {
-        $mockTimestamp = $this->getMock('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter');
+        $mockTimestamp = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter')
+            ->getMock();
 
         $mockTimestamp->expects($this->once())
             ->method('setConnectionResource');

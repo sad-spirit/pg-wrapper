@@ -202,8 +202,10 @@ SQL
 
     public function testConfiguresTypeConverterArgumentUsingConnection()
     {
-        $mockTimestamp = $this->getMock('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter');
-        $mockBytea     = $this->getMock('\sad_spirit\pg_wrapper\converters\ByteaConverter');
+        $mockTimestamp = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter')
+            ->getMock();
+        $mockBytea     = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\ByteaConverter')
+            ->getMock();
 
         $mockTimestamp->expects($this->once())
             ->method('setConnectionResource');

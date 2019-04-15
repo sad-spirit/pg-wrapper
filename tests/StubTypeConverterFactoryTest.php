@@ -63,7 +63,8 @@ class StubTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
 
-        $mockConverter = $this->getMock('\sad_spirit\pg_wrapper\converters\ByteaConverter');
+        $mockConverter = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\ByteaConverter')
+            ->getMock();
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');
 
