@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/sad-spirit/pg-wrapper.svg?branch=master)](https://travis-ci.org/sad-spirit/pg-wrapper)
 
+> Note: master branch is being rewritten. Older but working code is on legacy-0.2 branch.
+
 Wrapper around PHP's [pgsql extension] supporting transparent conversion of [PostgreSQL data types] to their PHP equivalents and back.
 
 PostgreSQL supports a large (and extensible) set of complex database types: arrays, ranges, geometric and date/time
