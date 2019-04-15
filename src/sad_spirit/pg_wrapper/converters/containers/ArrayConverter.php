@@ -197,7 +197,7 @@ class ArrayConverter extends ContainerConverter
                     throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                 }
                 $result[]  = $this->_item->input(stripcslashes($m[1]));
-                $pos      += call_user_func(self::$strlen, $m[0]);
+                $pos      += strlen($m[0]);
 
             } else {
                 // zero-length string can appear only quoted
@@ -206,7 +206,7 @@ class ArrayConverter extends ContainerConverter
                         $this, 'subarray, quoted or unquoted string', $native, $pos
                     );
                 }
-                $v         = call_user_func(self::$substr, $native, $pos, $len);
+                $v         = substr($native, $pos, $len);
                 $result[]  = strcasecmp($v, "null") ? $this->_item->input(stripcslashes($v)) : null;
                 $pos      += $len;
             }

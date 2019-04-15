@@ -75,7 +75,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
 
     protected function inputNotNull(string $native)
     {
-        if ('\x' !== call_user_func(self::$substr, $native, 0, 2)) {
+        if ('\x' !== substr($native, 0, 2)) {
             return pg_unescape_bytea($native);
 
         } else {
@@ -87,7 +87,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
             $warning = '';
             $result  = '';
             $start   = 2;
-            $length  = call_user_func(self::$strlen, $native);
+            $length  = strlen($native);
             while ($start < $length) {
                 $start += strspn($native, " \n\r\t", $start);
                 $hexes  = strcspn($native, " \n\r\t", $start);
@@ -104,7 +104,7 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
                         $warning = $errstr;
                         return true;
                     }, E_WARNING);
-                    $result .= pack('H*', call_user_func(self::$substr, $native, $start, $hexes));
+                    $result .= pack('H*', substr($native, $start, $hexes));
                     $start  += $hexes;
                     restore_error_handler();
 

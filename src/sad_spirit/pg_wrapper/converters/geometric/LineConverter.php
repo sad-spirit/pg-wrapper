@@ -47,19 +47,19 @@ class LineConverter extends ContainerConverter
         $this->expectChar($native, $pos, '{');
 
         $len  = strcspn($native, ',}', $pos);
-        $A    = call_user_func(self::$substr, $native, $pos, $len);
+        $A    = substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
         $len  = strcspn($native, ',}', $pos);
-        $B    = call_user_func(self::$substr, $native, $pos, $len);
+        $B    = substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
         $len  = strcspn($native, ',}', $pos);
-        $C    = call_user_func(self::$substr, $native, $pos, $len);
+        $C    = substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, '}');

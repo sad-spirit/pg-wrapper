@@ -29,24 +29,6 @@ use sad_spirit\pg_wrapper\{
  */
 abstract class BaseConverter implements TypeConverter
 {
-    /**
-     * 8-bit version of substr() in case multibyte overloading is on
-     * @var string
-     */
-    protected static $substr = null;
-
-    /**
-     * 8-bit version of strlen() in case multibyte overloading is on
-     * @var string
-     */
-    protected static $strlen = null;
-
-    /**
-     * 8-bit version of strrpos() in case multibyte overloading is on
-     * @var string
-     */
-    protected static $strrpos = null;
-
     public function input(?string $native)
     {
         return ($native === null) ? null : $this->inputNotNull($native);
@@ -77,16 +59,6 @@ abstract class BaseConverter implements TypeConverter
      * @return string
      */
     abstract protected function outputNotNull($value): string;
-
-    /**
-     * Sets the 8-bit versions of string functions in case mbstring.func_overload is on
-     */
-    public static function initParsingHelpers()
-    {
-        self::$substr  = function_exists('mb_orig_substr') ? 'mb_orig_substr' : 'substr';
-        self::$strlen  = function_exists('mb_orig_strlen') ? 'mb_orig_strlen' : 'strlen';
-        self::$strrpos = function_exists('mb_orig_strrpos') ? 'mb_orig_strrpos' : 'strrpos';
-    }
 
     /**
      * Gets next non-whitespace character from input
@@ -128,11 +100,9 @@ abstract class BaseConverter implements TypeConverter
     protected function getStrspn(string $subject, string $mask, int &$start): string
     {
         $length = strspn($subject, $mask, $start);
-        $masked = call_user_func(self::$substr, $subject, $start, $length);
+        $masked = substr($subject, $start, $length);
         $start += $length;
 
         return $masked;
     }
 }
-
-BaseConverter::initParsingHelpers();

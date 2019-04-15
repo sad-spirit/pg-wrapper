@@ -51,7 +51,7 @@ class CircleConverter extends BaseGeometricConverter
             if ('<' === $char) {
                 $angleDelimiter = true;
             } else {
-                $singleOpen     = $pos === call_user_func(self::$strrpos, $native, '(');
+                $singleOpen     = $pos === strrpos($native, '(');
             }
             $pos++;
         }
@@ -63,7 +63,7 @@ class CircleConverter extends BaseGeometricConverter
         }
         $this->expectChar($native, $pos, ',');
         $len    = strcspn($native, ',)>', $pos);
-        $radius = call_user_func(self::$substr, $native, $pos, $len);
+        $radius = substr($native, $pos, $len);
         $pos   += $len;
 
         if ($hasDelimiters) {

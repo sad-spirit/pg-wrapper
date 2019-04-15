@@ -66,12 +66,12 @@ class HstoreConverter extends ContainerConverter
             if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
                 throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
             }
-            $pos += call_user_func(self::$strlen, $m[0]);
+            $pos += strlen($m[0]);
             return stripcslashes($m[1]);
 
         } else {
             $length  = strcspn($string, " \t\r\n" . $delimiters, $pos);
-            $value   = call_user_func(self::$substr, $string, $pos, $length);
+            $value   = substr($string, $pos, $length);
             $pos    += $length;
             if ($convertNull && 0 === strcasecmp($value, 'NULL')) {
                 return null;

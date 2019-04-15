@@ -86,7 +86,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
 
         } elseif ('(' === $char) {
             $nextPos = $pos + 1;
-            if ($pos === call_user_func(self::$strrpos, $native, '(')
+            if ($pos === strrpos($native, '(')
                 || '(' === $this->nextChar($native, $nextPos)
             ) {
                 $hasDelimiters = true;

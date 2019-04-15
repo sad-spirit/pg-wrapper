@@ -117,13 +117,13 @@ class CompositeConverter extends ContainerConverter
                     throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                 }
                 $result[$field]  = $type->input(strtr($m[1], $unescape));
-                $pos            += call_user_func(self::$strlen, $m[0]);
+                $pos            += strlen($m[0]);
                 $char            = $this->nextChar($native, $pos);
                 break;
 
             default: // Unquoted string.
                 $len             = strcspn($native, ',)', $pos);
-                $result[$field]  = $type->input(call_user_func(self::$substr, $native, $pos, $len));
+                $result[$field]  = $type->input(substr($native, $pos, $len));
                 $pos            += $len;
                 $char            = $this->nextChar($native, $pos);
                 break;

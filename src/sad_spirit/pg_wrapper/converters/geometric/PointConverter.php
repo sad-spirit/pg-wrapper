@@ -50,13 +50,13 @@ class PointConverter extends ContainerConverter
             $pos++;
         }
         $len  = strcspn($native, ',)', $pos);
-        $x    = call_user_func(self::$substr, $native, $pos, $len);
+        $x    = substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
         $len  = strcspn($native, ',)', $pos);
-        $y    = call_user_func(self::$substr, $native, $pos, $len);
+        $y    = substr($native, $pos, $len);
         $pos += $len;
 
         if ($hasDelimiters) {

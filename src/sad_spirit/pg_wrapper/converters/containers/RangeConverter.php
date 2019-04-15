@@ -72,29 +72,34 @@ class RangeConverter extends ContainerConverter
      *
      * @param string $string
      * @param int    $pos
-     * @param string $delimiter
      *
      * @return null|string
      * @throws TypeConversionException
      */
-    private function _readRangeBound(string $string, int &$pos, string $delimiter): ?string
+    private function _readRangeBound(string $string, int &$pos): ?string
     {
-        $bound  = null;
-        $quoted = preg_quote($delimiter);
-        while (!strspn($string, $delimiter, $pos)) {
-            if ('"' === $string[$pos]) {
-                if (!preg_match('/"((?>[^"\\\\]+|\\\\.|"")*)"/As', $string, $m, 0, $pos)) {
-                    throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
-                }
-                $pos   += call_user_func(self::$strlen, $m[0]);
-                $bound .= strtr($m[1], ['\\\\' => '\\', '\\"' => '"', '""' => '"']);
+        $bound = null;
+        while (true) {
+            switch ($string[$pos]) {
+                case ',':
+                case ']':
+                case ')':
+                    break 2;
 
-            } else {
-                if (!preg_match("/(?>[^\"\\\\{$quoted}]+|\\\\.)+/As", $string, $m, 0, $pos)) {
-                    throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
-                }
-                $pos   += call_user_func(self::$strlen, $m[0]);
-                $bound .= stripcslashes($m[0]);
+                case '"':
+                    if (!preg_match('/"((?>[^"\\\\]+|\\\\.|"")*)"/As', $string, $m, 0, $pos)) {
+                        throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
+                    }
+                    $pos   += strlen($m[0]);
+                    $bound .= strtr($m[1], ['\\\\' => '\\', '\\"' => '"', '""' => '"']);
+                    break;
+
+                default:
+                    if (!preg_match("/(?>[^\"\\\\\\]),]+|\\\\.)+/As", $string, $m, 0, $pos)) {
+                        throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
+                    }
+                    $pos   += strlen($m[0]);
+                    $bound .= stripcslashes($m[0]);
             }
         }
 
@@ -112,23 +117,27 @@ class RangeConverter extends ContainerConverter
      */
     protected function parseInput(string $native, int &$pos): Range
     {
-        $char = $this->nextChar($native, $pos);
-        if (('e' === $char || 'E' === $char) && preg_match('/empty/Ai', $native, $m, 0, $pos)) {
-            $pos += 5;
-            return call_user_func([$this->resultClass, 'createEmpty']);
+        switch ($char = $this->nextChar($native, $pos)) {
+            case '(':
+            case '[':
+                $pos++;
+                $lowerInclusive = '[' === $char;
+                break;
+
+            case 'e':
+            case 'E':
+                if (preg_match('/empty/Ai', $native, $m, 0, $pos)) {
+                    $pos += 5;
+                    return call_user_func([$this->resultClass, 'createEmpty']);
+                }
+
+            default:
+                throw TypeConversionException::parsingFailed($this, '[ or (', $native, $pos);
         }
 
-        if ('(' === $char || '[' === $char) {
-            $pos++;
-            $lowerInclusive = '[' === $char;
-
-        } else {
-            throw TypeConversionException::parsingFailed($this, '[ or (', $native, $pos);
-        }
-
-        $lower = $this->_readRangeBound($native, $pos, ',)]');
+        $lower = $this->_readRangeBound($native, $pos);
         $this->expectChar($native, $pos, ',');
-        $upper = $this->_readRangeBound($native, $pos, ',])');
+        $upper = $this->_readRangeBound($native, $pos);
 
         if (']' === $native[$pos]) {
             $upperInclusive = true;

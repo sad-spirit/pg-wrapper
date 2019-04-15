@@ -551,8 +551,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         }
 
         $position   = 0;
-        $strlen     = function_exists('mb_orig_strlen') ? 'mb_orig_strlen' : 'strlen';
-        $length     = $strlen($name);
+        $length     = strlen($name);
         $typeName   = null;
         $schema     = null;
         $isArray    = false;
@@ -566,7 +565,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                     throw new InvalidArgumentException("Invalid array specification in type name '{$name}'");
                 }
                 $isArray     = true;
-                $position   += $strlen($m[0]);
+                $position   += strlen($m[0]);
                 $identifier  = false;
 
             } elseif ('.' === $name[$position]) {
@@ -579,14 +578,14 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
             } elseif ('"' === $name[$position]) {
                 if (!preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
-                    || !$strlen($m[1])
+                    || !strlen($m[1])
                 ) {
                     throw new InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
                 } elseif (!$identifier) {
                     throw new InvalidArgumentException("Unexpected double-quoted string '{$m[0]}' in type name '{$name}'");
                 }
                 $typeName    = strtr($m[1], ['""' => '"']);
-                $position   += $strlen($m[0]);
+                $position   += strlen($m[0]);
                 $identifier  = false;
 
             } elseif (preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*/A', $name, $m, 0, $position)) {
@@ -594,7 +593,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                     throw new InvalidArgumentException("Unexpected identifier '{$m[0]}' in type name '{$name}'");
                 }
                 $typeName    = $this->_asciiLowercase($m[0]);
-                $position   += $strlen($m[0]);
+                $position   += strlen($m[0]);
                 $identifier  = false;
 
             } else {

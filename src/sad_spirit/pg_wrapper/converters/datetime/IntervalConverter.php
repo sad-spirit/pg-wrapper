@@ -138,18 +138,18 @@ class IntervalConverter extends BaseConverter
         }
         $interval->i = (int)$minute;
 
-        if ($pos === call_user_func(self::$strlen, $token)) {
+        if ($pos === strlen($token)) {
             $interval->s = 0;
 
         } elseif ('.' === ($char = $this->nextChar($token, $pos))) {
-            $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
+            $interval->f = $this->_parseFractionalSecond(substr($token, $pos));
             list($interval->h, $interval->i, $interval->s) = [0, $interval->h, $interval->i];
 
         } else {
             $pos++;
             $interval->s = (int)$this->getStrspn($token, '01234567890', $pos);
-            if ($pos !== call_user_func(self::$strlen, $token)) {
-                $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $token, $pos));
+            if ($pos !== strlen($token)) {
+                $interval->f = $this->_parseFractionalSecond(substr($token, $pos));
             }
         }
     }
@@ -185,7 +185,7 @@ class IntervalConverter extends BaseConverter
             /** @noinspection PhpMissingBreakStatementInspection */
             case self::TOKEN_TZ:
                 if (false !== strchr($tokens[$i]['value'], ':')) {
-                    $this->_parseTimeToken(call_user_func(self::$substr, $tokens[$i]['value'], 1), $interval);
+                    $this->_parseTimeToken(substr($tokens[$i]['value'], 1), $interval);
                     if ('-' === $tokens[$i]['value'][0]) {
                         list($interval->h, $interval->i, $interval->s, $interval->f) =
                             [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
@@ -209,7 +209,7 @@ class IntervalConverter extends BaseConverter
                     // SQL "years-months" syntax
                     $pos++;
                     $month = (int)$this->getStrspn($tokens[$i]['value'], '01234567890', $pos);
-                    if ($pos !== call_user_func(self::$strlen, $tokens[$i]['value'])) {
+                    if ($pos !== strlen($tokens[$i]['value'])) {
                         throw TypeConversionException::parsingFailed($this, 'end of input', $tokens[$i]['value'], $pos);
                     }
                     $interval->y = $value;
@@ -223,10 +223,10 @@ class IntervalConverter extends BaseConverter
                             $this, 'integer value', $tokens[$i]['value'], $pos
                         );
                     }
-                    $interval->f = $this->_parseFractionalSecond(call_user_func(self::$substr, $tokens[$i]['value'], $pos))
+                    $interval->f = $this->_parseFractionalSecond(substr($tokens[$i]['value'], $pos))
                                    * ('-' === $sign ? -1 : 1);
 
-                } elseif ($pos !== call_user_func(self::$strlen, $tokens[$i]['value'])) {
+                } elseif ($pos !== strlen($tokens[$i]['value'])) {
                     throw TypeConversionException::parsingFailed(
                         $this, 'end of input', $tokens[$i]['value'], $pos
                     );
@@ -285,7 +285,7 @@ class IntervalConverter extends BaseConverter
     {
         $tokens = [];
         $pos    = 0;
-        $length = call_user_func(self::$strlen, $native);
+        $length = strlen($native);
 
         while ($pos < $length) {
             $field = '';
@@ -307,7 +307,7 @@ class IntervalConverter extends BaseConverter
                     } else {
                         $type   = ('.' === $delim && empty($m[2])) ? self::TOKEN_NUMBER : self::TOKEN_DATE;
                         $field .= $m[0];
-                        $pos   += call_user_func(self::$strlen, $m[0]);
+                        $pos   += strlen($m[0]);
                     }
                     break;
 
@@ -331,7 +331,7 @@ class IntervalConverter extends BaseConverter
 
             } elseif (preg_match('![a-z]+!As', $native, $m, 0, $pos)) {
                 $field  = $m[0];
-                $pos   += call_user_func(self::$strlen, $m[0]);
+                $pos   += strlen($m[0]);
                 $type   = self::TOKEN_STRING;
 
             } else {
@@ -365,7 +365,7 @@ class IntervalConverter extends BaseConverter
     {
         $interval = new DateInterval('PT0S');
         $pos      = 1;
-        $length   = call_user_func(self::$strlen, $native);
+        $length   = strlen($native);
         $isTime   = false;
 
         while ($pos < $length) {
@@ -396,8 +396,8 @@ class IntervalConverter extends BaseConverter
                 if ('s' !== $intervalKey) {
                     throw TypeConversionException::parsingFailed($this, 'integer value', $native, $numpos);
                 }
-                $interval->s = (int)call_user_func(self::$substr, $value, 0, $dotPos);
-                $interval->f = ($interval->s >= 0 ? 1 : -1) * (double)call_user_func(self::$substr, $value, $dotPos);
+                $interval->s = (int)substr($value, 0, $dotPos);
+                $interval->f = ($interval->s >= 0 ? 1 : -1) * (double)substr($value, $dotPos);
             }
         }
 

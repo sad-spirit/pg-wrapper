@@ -45,13 +45,13 @@ class TidConverter extends ContainerConverter
         $this->expectChar($native, $pos, '(');
 
         $len = strcspn($native, ",)", $pos);
-        $blockNumber = call_user_func(self::$substr, $native, $pos, $len);
+        $blockNumber = substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
         $len = strcspn($native, ",)", $pos);
-        $offset = call_user_func(self::$substr, $native, $pos, $len);
+        $offset = substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ')');
