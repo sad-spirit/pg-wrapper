@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/sad-spirit/pg-wrapper.svg?branch=master)](https://travis-ci.org/sad-spirit/pg-wrapper)
 
+Wrapper around PHP's [pgsql extension] supporting transparent conversion of [PostgreSQL data types] to their PHP equivalents and back.
+
 PostgreSQL supports a large (and extensible) set of complex database types: arrays, ranges, geometric and date/time
 types, composite (row) types, JSON...
 
@@ -100,9 +102,12 @@ Quick links:
 
 ## Requirements
 
-pg_wrapper requires PHP 5.3+ with [pgsql extension](http://php.net/manual/en/book.pgsql.php).
+pg_wrapper requires PHP 5.3+ with [pgsql extension].
 The reason for using that instead of PDO pgsql driver is that the latter does not support something like
 [`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php).
 
 It is highly recommended to use metadata cache in production to prevent metadata lookups from database on each
 page request.
+
+[pgsql extension]: (http://php.net/manual/en/book.pgsql.php)
+[PostgreSQL data types]: (https://www.postgresql.org/docs/current/datatype.html)
