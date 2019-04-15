@@ -14,8 +14,10 @@
         "issues":       "https://github.com/sad-spirit/pg-wrapper/issues"
     },
     "require" : {
-        "php":          ">=5.3.0",
-        "ext-pgsql":    "*"
+        "php":          ">=7.2.0",
+        "ext-pgsql":    "*",
+        "ext-ctype":    "*",
+        "ext-json":     "*"
     },
     "suggest": {
         "psr/cache-implementation": "Used for DB metadata caching"
