@@ -27,39 +27,14 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class JSONConverter extends BaseConverter
 {
-    protected static $errors = array(
-        JSON_ERROR_DEPTH          => 'Maximum stack depth exceeded',
-        JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
-        JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
-        JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
-        JSON_ERROR_UTF8           => 'Malformed UTF-8 characters, possibly incorrectly encoded'
-    );
-
-    /**
-     * A replacement for json_last_error_msg() for older PHP versions
-     *
-     * @param int $errorCode
-     * @return string
-     */
-    protected static function errorMessage($errorCode)
-    {
-        return isset(self::$errors[$errorCode]) ? self::$errors[$errorCode] : "Unknown error ({$errorCode})";
-    }
-
     protected function inputNotNull($native)
     {
         // Postgres stores numbers in JSON as values of "numeric" type, not "float"
         // To prevent loss of precision we should (try to) return these as strings
-        if (defined('JSON_BIGINT_AS_STRING')) {
-            $result = json_decode($native, true, 512, JSON_BIGINT_AS_STRING);
-        } else {
-            $result = json_decode($native, true);
-        }
+        $result = json_decode($native, true, 512, JSON_BIGINT_AS_STRING);
 
         if (null === $result && ($code = json_last_error())) {
-            $msg = function_exists('json_last_error_msg')
-                   ? json_last_error_msg() : self::errorMessage($code);
-            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, $msg));
+            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, json_last_error_msg()));
         }
 
         return $result;
@@ -67,25 +42,10 @@ class JSONConverter extends BaseConverter
 
     protected function outputNotNull($value)
     {
-        $warning = '';
-
-        // older PHP versions return bogus encoded values and throw warnings for invalid input
-        set_error_handler(function ($errno, $errstr) use (&$warning) {
-            $warning = $errstr;
-            return true;
-        }, E_WARNING);
-
         $result = json_encode($value);
 
-        restore_error_handler();
-
         if (false === $result) {
-            $msg = function_exists('json_last_error_msg')
-                   ? json_last_error_msg() : self::errorMessage(json_last_error());
-            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, $msg));
-
-        } elseif ($warning) {
-            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, $warning));
+            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, json_last_error_msg()));
         }
 
         return $result;
