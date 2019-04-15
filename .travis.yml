@@ -1,13 +1,17 @@
 language: php
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4snapshot
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7.4snapshot
+
 services: postgresql
 before_script:
   - psql -c 'create database pgwrapper_test' -U postgres -h 127.0.0.1
   - cp tests/config.php.travis tests/config.php
+
 install: composer install
 script: vendor/bin/phpunit --configuration tests/phpunit.xml
