@@ -21,6 +21,7 @@ use sad_spirit\pg_wrapper\{
     converters\StubTypeConverterFactory,
     converters\StubConverter,
     converters\IntegerConverter,
+    converters\ByteaConverter,
     Connection
 };
 
@@ -63,7 +64,7 @@ class StubTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
 
-        $mockConverter = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\ByteaConverter')
+        $mockConverter = $this->getMockBuilder(ByteaConverter::class)
             ->getMock();
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');

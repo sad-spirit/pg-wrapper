@@ -111,50 +111,50 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     public function __construct()
     {
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\BooleanConverter', 'bool');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\ByteaConverter', 'bytea');
+        $this->registerConverter(BooleanConverter::class, 'bool');
+        $this->registerConverter(ByteaConverter::class, 'bytea');
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\IntegerConverter',
+            IntegerConverter::class,
             ['oid', 'cid', 'xid', 'int2', 'int4', 'int8']
         );
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\NumericConverter', 'numeric');
+        $this->registerConverter(NumericConverter::class, 'numeric');
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\FloatConverter',
+            FloatConverter::class,
             ['float4', 'float8', 'money']
         );
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\datetime\DateConverter', 'date');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\datetime\TimeConverter', 'time');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\datetime\TimeTzConverter', 'timetz');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\datetime\TimeStampConverter', 'timestamp');
+        $this->registerConverter(datetime\DateConverter::class, 'date');
+        $this->registerConverter(datetime\TimeConverter::class, 'time');
+        $this->registerConverter(datetime\TimeTzConverter::class, 'timetz');
+        $this->registerConverter(datetime\TimeStampConverter::class, 'timestamp');
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter',
+            datetime\TimeStampTzConverter::class,
             ['timestamptz', 'abstime']
         );
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\datetime\IntervalConverter',
+            datetime\IntervalConverter::class,
             ['interval', 'reltime']
         );
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\StringConverter',
+            StringConverter::class,
             ['cstring', 'text', 'char', 'varchar', 'bpchar', 'name']
         );
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\TidConverter', 'tid');
+        $this->registerConverter(TidConverter::class, 'tid');
 
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\PointConverter', 'point');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\CircleConverter', 'circle');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\LineConverter', 'line');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\LSegConverter', 'lseg');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\BoxConverter', 'box');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\PathConverter', 'path');
-        $this->registerConverter('\sad_spirit\pg_wrapper\converters\geometric\PolygonConverter', 'polygon');
+        $this->registerConverter(geometric\PointConverter::class, 'point');
+        $this->registerConverter(geometric\CircleConverter::class, 'circle');
+        $this->registerConverter(geometric\LineConverter::class, 'line');
+        $this->registerConverter(geometric\LSegConverter::class, 'lseg');
+        $this->registerConverter(geometric\BoxConverter::class, 'box');
+        $this->registerConverter(geometric\PathConverter::class, 'path');
+        $this->registerConverter(geometric\PolygonConverter::class, 'polygon');
 
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\containers\HstoreConverter',
+            containers\HstoreConverter::class,
             'hstore', 'public'
         );
 
         $this->registerConverter(
-            '\sad_spirit\pg_wrapper\converters\JSONConverter',
+            JSONConverter::class,
             ['json', 'jsonb']
         );
 

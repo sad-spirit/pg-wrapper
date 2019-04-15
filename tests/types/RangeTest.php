@@ -40,7 +40,7 @@ class RangeTest extends \PHPUnit_Framework_TestCase
     public function testCreateEmpty()
     {
         $range = NumericRange::createEmpty();
-        $this->assertInstanceOf('\sad_spirit\pg_wrapper\types\NumericRange', $range);
+        $this->assertInstanceOf(NumericRange::class, $range);
         $this->assertTrue($range->empty);
     }
 

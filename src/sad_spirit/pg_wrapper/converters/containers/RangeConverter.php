@@ -26,6 +26,8 @@ use sad_spirit\pg_wrapper\{
     converters\NumericConverter,
     TypeConverter,
     types\Range,
+    types\NumericRange,
+    types\DateTimeRange,
     exceptions\TypeConversionException
 };
 use sad_spirit\pg_wrapper\converters\datetime\BaseDateTimeConverter;
@@ -45,7 +47,7 @@ class RangeConverter extends ContainerConverter
      * input() will return instances of this class
      * @var string
      */
-    protected $resultClass = '\sad_spirit\pg_wrapper\types\Range';
+    protected $resultClass = Range::class;
 
     /**
      * Constructor, sets converter for the
@@ -59,9 +61,9 @@ class RangeConverter extends ContainerConverter
         if ($subtype instanceof FloatConverter || $subtype instanceof NumericConverter
             || $subtype instanceof IntegerConverter
         ) {
-            $this->resultClass = '\sad_spirit\pg_wrapper\types\NumericRange';
+            $this->resultClass = NumericRange::class;
         } elseif ($subtype instanceof BaseDateTimeConverter) {
-            $this->resultClass = '\sad_spirit\pg_wrapper\types\DateTimeRange';
+            $this->resultClass = DateTimeRange::class;
         }
     }
 

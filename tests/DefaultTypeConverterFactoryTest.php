@@ -23,6 +23,7 @@ use sad_spirit\pg_wrapper\{
 };
 use sad_spirit\pg_wrapper\converters\{
     DefaultTypeConverterFactory,
+    ByteaConverter,
     FloatConverter,
     IntegerConverter,
     StringConverter,
@@ -99,7 +100,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
     public function testInvalidTypeNames($typeName, $exceptionMessage)
     {
         $this->setExpectedException(
-            '\sad_spirit\pg_wrapper\exceptions\InvalidArgumentException',
+            InvalidArgumentException::class,
             $exceptionMessage
         );
         $this->factory->getConverter($typeName);
@@ -131,16 +132,16 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
             $this->assertContains('connection required', $e->getMessage());
         }
 
-        $this->factory->registerConverter('\sad_spirit\pg_wrapper\converters\IntegerConverter', 'foo');
+        $this->factory->registerConverter(IntegerConverter::class, 'foo');
         $this->assertInstanceOf(
-            '\sad_spirit\pg_wrapper\converters\IntegerConverter', $this->factory->getConverter('foo')
+            IntegerConverter::class, $this->factory->getConverter('foo')
         );
     }
 
     public function testRequireQualifiedName()
     {
-        $this->factory->registerConverter('\sad_spirit\pg_wrapper\converters\IntegerConverter', 'foo', 'bar');
-        $this->factory->registerConverter('\sad_spirit\pg_wrapper\converters\datetime\TimeConverter', 'foo', 'baz');
+        $this->factory->registerConverter(IntegerConverter::class, 'foo', 'bar');
+        $this->factory->registerConverter(TimeConverter::class, 'foo', 'baz');
 
         try {
             $this->factory->getConverter('foo');
@@ -150,7 +151,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertInstanceOf(
-            '\sad_spirit\pg_wrapper\converters\datetime\TimeConverter', $this->factory->getConverter('baz.foo')
+            TimeConverter::class, $this->factory->getConverter('baz.foo')
         );
     }
 
@@ -363,7 +364,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
 
-        $mockConverter = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\ByteaConverter')
+        $mockConverter = $this->getMockBuilder(ByteaConverter::class)
             ->getMock();
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');

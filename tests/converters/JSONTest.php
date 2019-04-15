@@ -42,7 +42,7 @@ class JSONTest extends TypeConverterTestCase
 
     public function testInvalidUTF8Sequence()
     {
-        $this->setExpectedException('\sad_spirit\pg_wrapper\exceptions\TypeConversionException');
+        $this->setExpectedException(TypeConversionException::class);
         $this->converter->output("\xB1\x31");
     }
 

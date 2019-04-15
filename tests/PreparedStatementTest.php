@@ -18,6 +18,7 @@
 namespace sad_spirit\pg_wrapper\tests;
 
 use sad_spirit\pg_wrapper\Connection;
+use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
 
 /**
  * Unit test for PreparedStatement class
@@ -108,7 +109,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
 
     private function _createMockTimestampConverter()
     {
-        $mockTimestamp = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter')
+        $mockTimestamp = $this->getMockBuilder(TimeStampTzConverter::class)
             ->getMock();
 
         $mockTimestamp->expects($this->once())

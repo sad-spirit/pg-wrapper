@@ -31,6 +31,7 @@ use sad_spirit\pg_wrapper\{
     types\Polygon,
     types\Tid
 };
+use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
 
 /**
  * Unit test for Connection class
@@ -152,7 +153,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
 
-        $mockTimestamp = $this->getMockBuilder('\sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter')
+        $mockTimestamp = $this->getMockBuilder(TimeStampTzConverter::class)
             ->getMock();
 
         $mockTimestamp->expects($this->once())
