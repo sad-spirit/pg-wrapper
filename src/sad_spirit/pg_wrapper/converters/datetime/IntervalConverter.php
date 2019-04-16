@@ -53,7 +53,7 @@ class IntervalConverter extends BaseConverter
      * Mapping of units used in 'postgres' and 'postgres_verbose' formats to DateInterval fields
      * @var array
      */
-    private $_postgresUnits = [
+    const POSTGRES_UNITS = [
         'd'         => 'd',
         'day'       => 'd',
         'days'      => 'd',
@@ -83,25 +83,14 @@ class IntervalConverter extends BaseConverter
         'yrs'       => 'y'
     ];
 
-    /**
-     * Mapping of date units in 'iso_8601' format to DateInterval fields
-     * @var array
-     */
-    private $_iso8601DateUnits = [
-        'Y' => 'y',
-        'M' => 'm',
-        'D' => 'd'
-    ];
+    /** @var DateInterval */
+    private $intervalPrototype;
 
-    /**
-     * Mapping of time units in 'iso_8601' format to DateInterval fields
-     * @var array
-     */
-    private $_iso8601TimeUnits = [
-        'H' => 'h',
-        'M' => 'i',
-        'S' => 's'
-    ];
+    public function __construct()
+    {
+        $this->intervalPrototype = new DateInterval('PT0S');
+    }
+
 
     /**
      * Parses a string representing time, e.g. '01:02:03' or '01:02:03.45' and updates DateInterval's fields
@@ -148,7 +137,7 @@ class IntervalConverter extends BaseConverter
     {
         // A better approach would be to clone a prototype but cloning DateInterval
         // objects does not quite work
-        $interval    = new DateInterval('PT0S');
+        $interval    = clone $this->intervalPrototype;
         $intervalKey = null;
         $invert      = false;
         $keysHash    = [];
@@ -181,8 +170,8 @@ class IntervalConverter extends BaseConverter
                 if ('ago' === $tokenValue) {
                     $invert = true;
 
-                } elseif (isset($this->_postgresUnits[$tokenValue])) {
-                    $intervalKey = $this->_postgresUnits[$tokenValue];
+                } elseif (isset(self::POSTGRES_UNITS[$tokenValue])) {
+                    $intervalKey = self::POSTGRES_UNITS[$tokenValue];
 
                 } else {
                     throw TypeConversionException::unexpectedValue(
@@ -311,41 +300,28 @@ class IntervalConverter extends BaseConverter
      */
     private function _parseISO8601(string $native): DateInterval
     {
-        $interval = new DateInterval('PT0S');
-        $pos      = 1;
-        $length   = strlen($native);
-        $isTime   = false;
+        $interval = clone $this->intervalPrototype;
+        $regexp   = '/^P(?=[T\d-])                      # P should be followed by something
+(?<y>-?\d+Y)? (?<m>-?\d+M)? (?<w>-?\d+W)? (?<d>-?\d+D)? 
+(?:T(?=[\d.-])                                          # T should be followed by something 
+    (?<h>-?\d+H)? (?<i>-?\d+M)?                  
+    (?<s>-? (?: \d+ (\.\d+)? | \.\d+) S)?               # seconds, allow fractional 
+)?$/x';
 
-        while ($pos < $length) {
-            if ('T' === $native[$pos]) {
-                $isTime = true;
-                $pos++;
-                continue;
-            }
-            $numpos = $pos;
-            $value  = $this->getStrspn($native, '0123456789-.', $pos);
-            if (!is_numeric($value)) {
-                throw TypeConversionException::parsingFailed($this, 'numeric value', $native, $pos);
-            }
-            $unit   = $native[$pos];
+        if (!preg_match($regexp, $native, $m, PREG_UNMATCHED_AS_NULL)) {
+            throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
+        }
 
-            if ($isTime && isset($this->_iso8601TimeUnits[$unit])) {
-                $intervalKey = $this->_iso8601TimeUnits[$unit];
-            } elseif (!$isTime && isset($this->_iso8601DateUnits[$unit])) {
-                $intervalKey = $this->_iso8601DateUnits[$unit];
-            } else {
-                throw TypeConversionException::parsingFailed($this, 'ISO 8601 interval unit', $native, $pos);
-            }
-            $pos++;
-
-            if (false === ($dotPos = strpos($value, '.'))) {
-                $interval->{$intervalKey} = (int)$value;
-            } else {
-                if ('s' !== $intervalKey) {
-                    throw TypeConversionException::parsingFailed($this, 'integer value', $native, $numpos);
+        foreach (['y', 'm', 'w', 'd', 'h', 'i', 's'] as $key) {
+            if (isset($m[$key])) {
+                if ('w' === $key) {
+                    $interval->d = 7 * (int)substr($m['w'], 0, -1);
+                } elseif ('s' === $key && false !== ($pos = strpos($m['s'], '.'))) {
+                    $interval->s = (int)substr($m['s'], 0, $pos);
+                    $interval->f = ('-' === $m['s'][0] ? -1 : 1) * (double)substr($m['s'], $pos, -1);
+                } else {
+                    $interval->{$key} = (int)substr($m[$key], 0, -1);
                 }
-                $interval->s = (int)substr($value, 0, $dotPos);
-                $interval->f = ($interval->s >= 0 ? 1 : -1) * (double)substr($value, $dotPos);
             }
         }
 
@@ -362,8 +338,10 @@ class IntervalConverter extends BaseConverter
             return $this->_createInterval($this->_tokenize($native));
 
         } else {
-            if (false === strpos($native, '-')) {
-                // No minuses -> built-in constructor can probably handle
+            if (false === strpos($native, '-') && false === strpos($native, '.')) {
+                // DateInterval in PHP 7.2+ supports fractional seconds, but still cannot parse them:
+                // https://bugs.php.net/bug.php?id=53831
+                // No minuses or dots -> built-in constructor can probably handle
                 try {
                     return new DateInterval($native);
                 } catch (\Exception $e) {
