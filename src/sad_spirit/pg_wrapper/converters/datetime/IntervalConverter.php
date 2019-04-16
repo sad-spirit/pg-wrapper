@@ -174,19 +174,20 @@ class IntervalConverter extends BaseConverter
         $keysHash    = [];
 
         for ($i = count($tokens) - 1; $i >= 0; $i--) {
+            list($tokenValue, $tokenType) = $tokens[$i];
             $keys = [];
-            switch ($tokens[$i]['type']) {
+            switch ($tokenType) {
             case self::TOKEN_TIME:
-                $this->_parseTimeToken($tokens[$i]['value'], $interval);
+                $this->_parseTimeToken($tokenValue, $interval);
                 $intervalKey = 'd';
                 $keys        = ['h', 'i', 's'];
                 break;
 
             /** @noinspection PhpMissingBreakStatementInspection */
             case self::TOKEN_TZ:
-                if (false !== strchr($tokens[$i]['value'], ':')) {
-                    $this->_parseTimeToken(substr($tokens[$i]['value'], 1), $interval);
-                    if ('-' === $tokens[$i]['value'][0]) {
+                if (false !== strchr($tokenValue, ':')) {
+                    $this->_parseTimeToken(substr($tokenValue, 1), $interval);
+                    if ('-' === $tokenValue[0]) {
                         list($interval->h, $interval->i, $interval->s, $interval->f) =
                             [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
                     }
@@ -202,15 +203,15 @@ class IntervalConverter extends BaseConverter
                 }
                 $pos   = 1;
                 // handle possible leading sign
-                $sign  = $tokens[$i]['value'][0];;
-                $value = (int)($sign . $this->getStrspn($tokens[$i]['value'], '01234567890', $pos));
-                $char  = isset($tokens[$i]['value'][$pos]) ? $tokens[$i]['value'][$pos] : false;
+                $sign  = $tokenValue[0];
+                $value = (int)($sign . $this->getStrspn($tokenValue, '01234567890', $pos));
+                $char  = isset($tokenValue[$pos]) ? $tokenValue[$pos] : false;
                 if ('-' === $char) {
                     // SQL "years-months" syntax
                     $pos++;
-                    $month = (int)$this->getStrspn($tokens[$i]['value'], '01234567890', $pos);
-                    if ($pos !== strlen($tokens[$i]['value'])) {
-                        throw TypeConversionException::parsingFailed($this, 'end of input', $tokens[$i]['value'], $pos);
+                    $month = (int)$this->getStrspn($tokenValue, '01234567890', $pos);
+                    if ($pos !== strlen($tokenValue)) {
+                        throw TypeConversionException::parsingFailed($this, 'end of input', $tokenValue, $pos);
                     }
                     $interval->y = $value;
                     $interval->m = ('-' === $sign ? -$month : $month);
@@ -220,15 +221,15 @@ class IntervalConverter extends BaseConverter
                 } elseif ('.' === $char) {
                     if ('s' !== $intervalKey) {
                         throw TypeConversionException::parsingFailed(
-                            $this, 'integer value', $tokens[$i]['value'], $pos
+                            $this, 'integer value', $tokenValue, $pos
                         );
                     }
-                    $interval->f = $this->_parseFractionalSecond(substr($tokens[$i]['value'], $pos))
+                    $interval->f = $this->_parseFractionalSecond(substr($tokenValue, $pos))
                                    * ('-' === $sign ? -1 : 1);
 
-                } elseif ($pos !== strlen($tokens[$i]['value'])) {
+                } elseif ($pos !== strlen($tokenValue)) {
                     throw TypeConversionException::parsingFailed(
-                        $this, 'end of input', $tokens[$i]['value'], $pos
+                        $this, 'end of input', $tokenValue, $pos
                     );
                 }
 
@@ -238,21 +239,21 @@ class IntervalConverter extends BaseConverter
                 break;
 
             case self::TOKEN_STRING:
-                if ('ago' === $tokens[$i]['value']) {
+                if ('ago' === $tokenValue) {
                     $invert = true;
 
-                } elseif (isset($this->_postgresUnits[$tokens[$i]['value']])) {
-                    $intervalKey = $this->_postgresUnits[$tokens[$i]['value']];
+                } elseif (isset($this->_postgresUnits[$tokenValue])) {
+                    $intervalKey = $this->_postgresUnits[$tokenValue];
 
                 } else {
                     throw TypeConversionException::unexpectedValue(
-                        $this, 'input', 'interval unit name', $tokens[$i]['value']
+                        $this, 'input', 'interval unit name', $tokenValue
                     );
                 }
                 break;
             default:
                 throw TypeConversionException::unexpectedValue(
-                    $this, 'input', 'valid token type', $tokens[$i]['type']
+                    $this, 'input', 'valid token type', $tokenType
                 );
             }
 
@@ -287,65 +288,47 @@ class IntervalConverter extends BaseConverter
         $pos    = 0;
         $length = strlen($native);
 
+        if ('@' === $native[0]) {
+            // only skip first @, there can be no other punctuation in _output_
+            $pos++;
+        }
+
         while ($pos < $length) {
-            $field = '';
-            $type  = null;
-            if (ctype_digit($char = $this->nextChar($native, $pos))) {
-                $field = $this->getStrspn($native, '0123456789', $pos);
-                switch ($delim = $native[$pos]) {
-                case ':':
-                    $field .= $this->getStrspn($native, '0123456789:.', $pos);
-                    $type   = self::TOKEN_TIME;
-                    break;
+            // $native cannot have _trailing_ whitespace, it was trimmed in inputNotNull()
+            $pos += strspn($native, " \r\n\t\f", $pos);
 
-                case '-':
-                case '.':
-                    $field .= $delim;
-                    $pos++;
-                    if (!preg_match("!(\\d+)(?:{$delim}(\\d+))?!As", $native, $m, 0, $pos)) {
-                        throw TypeConversionException::parsingFailed($this, 'digit', $native, $pos);
-                    } else {
-                        $type   = ('.' === $delim && empty($m[2])) ? self::TOKEN_NUMBER : self::TOKEN_DATE;
-                        $field .= $m[0];
-                        $pos   += strlen($m[0]);
-                    }
-                    break;
-
-                default:
-                    $type = self::TOKEN_NUMBER;
-                }
-
-            } elseif ('+' === $char || '-' === $char) {
-                $pos++;
-                if (!ctype_digit($this->nextChar($native, $pos))) {
-                    throw TypeConversionException::parsingFailed($this, 'digit', $native, $pos);
-
-                } else {
-                    $field = $char . $this->getStrspn($native, '0123456789:.-', $pos);
-                    $type  = self::TOKEN_TZ;
-                }
-
-            } elseif ('@' === $char && empty($tokens)) {
-                // only skip first @, there can be no other punctuation in _output_
-                $pos++;
-
-            } elseif (preg_match('![a-z]+!As', $native, $m, 0, $pos)) {
+            if (preg_match('/[a-z]+/A', $native, $m, 0, $pos)) {
                 $field  = $m[0];
                 $pos   += strlen($m[0]);
                 $type   = self::TOKEN_STRING;
 
+            } elseif (preg_match('/([+-])? \d+ (?: (:\d+)?:(\d+(\.\d+)?|\.\d+) | ([-.]) \d+ (\5\d+)? )? /Ax', $native, $m, 0, $pos)) {
+                $field  = $m[0];
+                $pos   += strlen($m[0]);
+                if (!empty($m[1])) {
+                    // has leading sign
+                    $type = self::TOKEN_TZ;
+                } elseif (!empty($m[3])) {
+                    // has :[digit] part
+                    $type = self::TOKEN_TIME;
+                } elseif (!empty($m[5]) && (!empty($m[6]) || '.' !== $m[5])) {
+                    // y-m or y-m-d or d.m.Y or something like that
+                    $type = self::TOKEN_DATE;
+                } else {
+                    $type = self::TOKEN_NUMBER;
+                }
+
             } else {
                 throw TypeConversionException::parsingFailed(
-                    $this, 'valid interval string character', $native, $pos
+                    $this, 'valid interval part', $native, $pos
                 );
             }
 
-            if (null !== $type) {
-                $tokens[] = [
-                    'value' => $field,
-                    'type'  => $type
-                ];
-            }
+            $tokens[] = [$field, $type];
+        }
+
+        if (empty($tokens)) {
+            throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
         }
 
         return $tokens;
@@ -407,7 +390,13 @@ class IntervalConverter extends BaseConverter
     protected function inputNotNull(string $native)
     {
         $native = trim($native);
-        if ('P' === $native[0]) {
+        if (!strlen($native)) {
+            throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
+
+        } elseif ('P' !== $native[0]) {
+            return $this->_createInterval($this->_tokenize($native));
+
+        } else {
             if (false === strpos($native, '-')) {
                 // No minuses -> built-in constructor can probably handle
                 try {
@@ -417,9 +406,6 @@ class IntervalConverter extends BaseConverter
                 }
             }
             return $this->_parseISO8601($native);
-
-        } else {
-            return $this->_createInterval($this->_tokenize($native));
         }
     }
 

@@ -62,12 +62,19 @@ class IntervalTest extends TypeConverterTestCase
             ['@ 1 hour 2 mins 3.456 secs ago',                     'PT-1H-2M-3.456S'],
             ['PT1H2M-3.456S',                                      'PT1H2M-3.456S'],
 
+            // Postgres allows this
+            ['10',                                                 'PT10S'],
+
             // invalid input
             ['blah-blah',                                          new TypeConversionException()],
             ['1001 nights',                                        new TypeConversionException()],
             ['P1001N',                                             new TypeConversionException()],
             ['3.5 days',                                           new TypeConversionException()],
-            ['P3.5D',                                              new TypeConversionException()]
+            ['P3.5D',                                              new TypeConversionException()],
+
+            // Postgres does not allow empty interval strings, we shouldn't either
+            ['',                                                   new TypeConversionException()],
+            ['@',                                                  new TypeConversionException()]
         ];
     }
 
