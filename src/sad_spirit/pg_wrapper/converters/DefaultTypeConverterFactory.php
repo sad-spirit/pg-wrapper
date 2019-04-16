@@ -24,7 +24,8 @@ use sad_spirit\pg_wrapper\{
     TypeConverter,
     Connection,
     exceptions\InvalidArgumentException,
-    exceptions\InvalidQueryException
+    exceptions\InvalidQueryException,
+    exceptions\RuntimeException
 };
 
 /**
@@ -111,6 +112,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     public function __construct()
     {
+        if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
+            throw new RuntimeException(
+                'Multibyte function overloading must be disabled for correct parsing of database values'
+            );
+        }
+
         $this->registerConverter(BooleanConverter::class, 'bool');
         $this->registerConverter(ByteaConverter::class, 'bytea');
         $this->registerConverter(
