@@ -53,24 +53,7 @@ class ByteaTest extends \PHPUnit_Framework_TestCase
      */
     public function testCastToHex($value, $hexEncoded)
     {
-        $this->caster->useHexEncoding(true);
         $this->assertEquals($hexEncoded, $this->caster->output($value));
-    }
-
-    /**
-     * Tests the escape encoding for bytea data
-     *
-     * We rely on pg_escape_bytea() and that may return hex encoding in some cases, looks like
-     * this is not a bug:
-     * https://bugs.php.net/bug.php?id=53127
-     * http://www.postgresql.org/message-id/4B3501C7.4070901@beccati.com
-     *
-     * @dataProvider getValuesTo
-     */
-    public function testCastToEscape($value, $escapeEncoded, $hexEncoded)
-    {
-        $this->caster->useHexEncoding(false);
-        $this->assertContains($this->caster->output($value), [$escapeEncoded, $hexEncoded]);
     }
 
     public function getValuesFrom()
@@ -88,18 +71,11 @@ class ByteaTest extends \PHPUnit_Framework_TestCase
 
     public function getValuesToHex()
     {
-        return array_map(function($value) {
-            return [$value[0], $value[2]];
-        }, $this->getValuesTo());
-    }
-
-    public function getValuesTo()
-    {
         return [
-            [null,         null,           null],
-            ['',           '',             '\x'],
-            ["\000'\\",    "\\000'\\\\",   '\x00275c'],
-            ['ABC',        'ABC',          '\x414243']
+            [null,         null],
+            ['',           '\x'],
+            ["\000'\\",    '\x00275c'],
+            ['ABC',        '\x414243']
         ];
     }
 }

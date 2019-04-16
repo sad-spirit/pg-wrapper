@@ -108,6 +108,14 @@ class Connection
                 __METHOD__ . ': ' . implode("\n", $connectionWarnings)
             );
         }
+        $serverVersion = pg_parameter_status($this->_resource, 'server_version');
+        if (version_compare($serverVersion, '9.2.0', '<')) {
+            $this->disconnect();
+            throw new exceptions\ConnectionException(
+                __METHOD__ . ': PostgreSQL versions earlier than 9.2 are no longer supported, '
+                . 'connected server reports version ' . $serverVersion
+            );
+        }
         pg_set_error_verbosity($this->_resource, PGSQL_ERRORS_VERBOSE);
 
         return $this;

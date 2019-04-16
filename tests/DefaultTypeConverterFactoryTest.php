@@ -240,11 +240,6 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
-        if (version_compare(
-            pg_parameter_status($connection->getResource(), 'server_version'), '9.2.0', '<'
-        )) {
-            $this->markTestSkipped('Connection to PostgreSQL 9.2+ required');
-        }
         $connection->setTypeConverterFactory($this->factory);
         $connection->execute("drop type if exists textrange");
         $connection->execute("create type textrange as range (subtype=text, collation=\"C\")");
@@ -364,7 +359,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
 
-        $mockConverter = $this->getMockBuilder(ByteaConverter::class)
+        $mockConverter = $this->getMockBuilder(TimeConverter::class)
             ->getMock();
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');

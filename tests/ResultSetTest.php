@@ -202,21 +202,21 @@ SQL
 
     public function testConfiguresTypeConverterArgumentUsingConnection()
     {
-        $mockTimestamp = $this->getMockBuilder(converters\datetime\TimeStampTzConverter::class)
+        $mockTimestampOne = $this->getMockBuilder(converters\datetime\TimeStampTzConverter::class)
             ->getMock();
-        $mockBytea     = $this->getMockBuilder(converters\ByteaConverter::class)
+        $mockTimestampTwo = $this->getMockBuilder(converters\datetime\TimeStampTzConverter::class)
             ->getMock();
 
-        $mockTimestamp->expects($this->once())
+        $mockTimestampOne->expects($this->once())
             ->method('setConnectionResource');
 
-        $mockBytea->expects($this->once())
+        $mockTimestampTwo->expects($this->once())
             ->method('setConnectionResource');
 
         $res = self::$conn->execute(
-            "select now() as tztest, '0x00' as byteatest",
-            ['tztest' => $mockTimestamp]
+            "select now() as tztest, now() + '1 day'::interval as moretest",
+            ['tztest' => $mockTimestampOne]
         );
-        $res->setType(1, $mockBytea);
+        $res->setType(1, $mockTimestampTwo);
     }
 }

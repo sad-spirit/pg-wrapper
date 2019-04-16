@@ -24,55 +24,12 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Converter for bytea (binary string) type
  *
- * Handles both old 'escape' format via pg_escape_bytea() / pg_unescape_bytea()
- * and newer 'hex' format used by Postgres 9+
+ * Converting value from database representation handles both old 'escape' format
+ * via pg_unescape_bytea() and newer 'hex' format used by Postgres 9+.
+ * Converting to database representation always uses the latter
  */
-class ByteaConverter extends BaseConverter implements ConnectionAware
+class ByteaConverter extends BaseConverter
 {
-    /**
-     * Whether to use 'hex' encoding for output
-     * @var boolean
-     */
-    protected $useHex = false;
-
-    /**
-     * Connection resource, used for calls to pg_escape_bytea()
-     * @var resource
-     */
-    private $_connection = null;
-
-    /**
-     * Constructor, possibly sets the connection this converter works with
-     *
-     * @param resource|null $resource Connection resource
-     */
-    public function __construct($resource = null)
-    {
-        if (null !== $resource) {
-            $this->setConnectionResource($resource);
-        }
-    }
-
-    public function setConnectionResource($resource): void
-    {
-        $this->_connection = $resource;
-
-        // if connection was made to PostgreSQL 9.0+, then use 'hex' encoding
-        $this->useHexEncoding(version_compare(
-            pg_parameter_status($resource, 'server_version'), '9.0.0', '>='
-        ));
-    }
-
-    /**
-     * Sets whether 'hex' encoding should be used for output
-     *
-     * @param bool $hex
-     */
-    public function useHexEncoding($hex)
-    {
-        $this->useHex = (bool)$hex;
-    }
-
     protected function inputNotNull(string $native)
     {
         if ('\x' !== substr($native, 0, 2)) {
@@ -120,33 +77,14 @@ class ByteaConverter extends BaseConverter implements ConnectionAware
     /**
      * Returns the encoded binary string
      *
-     * PHP's pg_escape_bytea() creates a string representation that can be used
-     * when building a query manually, but not in pg_execute(). There is also
-     * no means to specify that an argument to pg_execute() should be treated
-     * as a binary string (unlike in PDO which allows setting PDO::PARAM_LOB or
-     * in underlying PQexecParams).
-     *
-     * This method returns a string that can be passed to pg_execute(), either
-     * by using 'hex' encoding or by stripping the outer level of escapes from
-     * the result of pg_escape_bytea(), leaving only the escapes that will be
-     * handled by bytea input routine.
+     * This always uses 'hex' encoding
      *
      * @param string $value
      * @return string
      */
     protected function outputNotNull($value): string
     {
-        if ($this->useHex) {
-            list(, $encoded) = unpack('H*', $value);
-            return '\x' . $encoded;
-
-        } else {
-            // this basically tests whether standard_conforming_strings is on for a (default) connection
-            $test     = $this->_connection ? pg_escape_bytea($this->_connection, '\\') : pg_escape_bytea('\\');
-            $unescape = ["''" => "'"] + ('\\\\\\\\' === $test ? ['\\\\' => '\\'] : []);
-
-            $escaped  = $this->_connection ? pg_escape_bytea($this->_connection, $value) : pg_escape_bytea($value);
-            return strtr($escaped, $unescape);
-        }
+        list(, $encoded) = unpack('H*', $value);
+        return '\x' . $encoded;
     }
 }
