@@ -40,13 +40,6 @@ class DateInterval extends NativeDateInterval
      */
     public static function formatAsISO8601(NativeDateInterval $interval)
     {
-        // prevent returning an empty string
-        if (0 === $interval->y && 0 === $interval->m && 0 === $interval->d
-            && 0 === $interval->h && 0 === $interval->i && 0 === $interval->s
-            && 0.0 === $interval->f
-        ) {
-            return 'PT0S';
-        }
         $string = 'P';
         $mult   = $interval->invert ? -1 : 1;
         foreach (['y' => 'Y', 'm' => 'M', 'd' => 'D'] as $key => $char) {
@@ -71,7 +64,8 @@ class DateInterval extends NativeDateInterval
             }
         }
 
-        return $string;
+        // prevent returning an empty string
+        return 'P' === $string ? 'PT0S' : $string;
     }
 
     public function __toString()
