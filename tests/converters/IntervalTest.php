@@ -64,6 +64,9 @@ class IntervalTest extends TypeConverterTestCase
 
             // Postgres allows this
             ['10',                                                 'PT10S'],
+            // time specification with two fields, note the difference
+            ['1:2',                                                'PT1H2M'],
+            ['3:4.5',                                              'PT3M4.5S'],
 
             // invalid input
             ['blah-blah',                                          new TypeConversionException()],
