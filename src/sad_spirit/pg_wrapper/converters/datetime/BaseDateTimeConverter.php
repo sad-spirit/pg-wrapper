@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
 use sad_spirit\pg_wrapper\{
@@ -123,7 +125,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * Converts PHP variable not identical to null into native format
      *
      * Note: a passed string will be returned as-is without any attempts to parse it.
-     * PostgreSQL's interval parser accepts a lot more possible formats than this
+     * PostgreSQL's date and time parser accepts a lot more possible formats than this
      * class can handle. Integer will be handled using date() with an appropriate
      * format specification.
      *
