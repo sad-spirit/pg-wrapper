@@ -17,11 +17,13 @@
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
-use sad_spirit\pg_wrapper\converters\geometric\BoxConverter,
-    sad_spirit\pg_wrapper\exceptions\TypeConversionException,
-    sad_spirit\pg_wrapper\exceptions\InvalidArgumentException,
-    sad_spirit\pg_wrapper\types\Box,
-    sad_spirit\pg_wrapper\types\Point;
+use sad_spirit\pg_wrapper\converters\geometric\BoxConverter;
+use sad_spirit\pg_wrapper\{
+    exceptions\TypeConversionException,
+    exceptions\InvalidArgumentException,
+    types\Box,
+    types\Point
+};
 
 /**
  * Unit test for 'box' geometric type converter

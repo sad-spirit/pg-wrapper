@@ -15,16 +15,22 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\exceptions;
 
-use sad_spirit\pg_wrapper\Exception,
-    sad_spirit\pg_wrapper\TypeConverter;
+use sad_spirit\pg_wrapper\{
+    Exception,
+    TypeConverter
+};
 
 /**
  * Exception thrown when conversion of value from/to database representation fails
  */
 class TypeConversionException extends \DomainException implements Exception
 {
+    use Stringifier;
+
     /**
      * Thrown when parsing the database value failed (and we know exactly where)
      *
@@ -34,7 +40,7 @@ class TypeConversionException extends \DomainException implements Exception
      * @param int           $position
      * @return TypeConversionException
      */
-    public static function parsingFailed(TypeConverter $converter, $expected, $given, $position)
+    public static function parsingFailed(TypeConverter $converter, string $expected, string $given, int $position): self
     {
         return new self(
             get_class($converter) . '::input(): error parsing database value: unexpected input '
@@ -52,7 +58,7 @@ class TypeConversionException extends \DomainException implements Exception
      * @param mixed         $given
      * @return TypeConversionException
      */
-    public static function unexpectedValue(TypeConverter $converter, $method, $expected, $given)
+    public static function unexpectedValue(TypeConverter $converter, string $method, string $expected, $given): self
     {
         return new self(
             get_class($converter) . '::' . $method . '(): unexpected '
@@ -66,42 +72,11 @@ class TypeConversionException extends \DomainException implements Exception
      * @param mixed $value
      * @return TypeConversionException
      */
-    public static function guessFailed($value)
+    public static function guessFailed($value): self
     {
         return new self(
             'Failed to deduce a proper type converter for '
             . self::stringify($value) . ', specify an explicit native type'
         );
-    }
-
-    /**
-     * Returns a string representation of $value for exception message
-     *
-     * @param mixed $value
-     * @return string
-     */
-    protected static function stringify($value)
-    {
-        if (is_object($value)) {
-            return 'Object(' . get_class($value) . ')';
-
-        } elseif (is_array($value)) {
-            $strings = [];
-            foreach ($value as $k => $v) {
-                $strings[] = sprintf('%s => %s', $k, self::stringify($v));
-            }
-            return 'Array(' . implode(', ', $strings) . ')';
-
-        } elseif (is_resource($value)) {
-            return 'Resource (' . get_resource_type($value) . ')';
-
-        } elseif (is_null($value)) {
-            return 'null';
-
-        } elseif (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-
-        return "'" . (string)$value . "'";
     }
 }
