@@ -1,18 +1,6 @@
 <?php
 
-spl_autoload_register(function($class) {
-    if ('\\' == $class[0]) {
-        $class = substr($class, 1);
-    }
-
-    if (0 === strpos($class, 'sad_spirit\\pg_wrapper\\tests\\')
-        && file_exists($file = __DIR__. str_replace('\\', '/', substr($class, strlen('sad_spirit\\pg_wrapper\\tests'))) . '.php')
-    ) {
-        require_once $file;
-    }
-});
-
-require_once __DIR__ . '/../src/sad_spirit/pg_wrapper/autoloader.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 date_default_timezone_set('UTC');
 
