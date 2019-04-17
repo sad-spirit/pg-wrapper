@@ -17,9 +17,11 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\ConnectionException,
+    exceptions\TypeConversionException,
     types\Box,
     types\Circle,
     types\DateTimeRange,
@@ -36,7 +38,7 @@ use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
 /**
  * Unit test for Connection class
  */
-class ConnectionTest extends \PHPUnit_Framework_TestCase
+class ConnectionTest extends TestCase
 {
     public function testDefaultConnectionIsLazy()
     {
@@ -44,11 +46,9 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($connection->isConnected());
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\ConnectionException
-     */
     public function testInvalidConnectionString()
     {
+        $this->expectException(ConnectionException::class);
         $connection = new Connection('blah=blah duh=oh', false);
     }
 
@@ -60,7 +60,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         try {
             $connection = new Connection('blah=blah duh=oh', false);
         } catch (ConnectionException $e) {
-            $this->assertContains('invalid connection option', $e->getMessage());
+            $this->assertStringContainsString('invalid connection option', $e->getMessage());
         }
         restore_error_handler();
     }
@@ -71,8 +71,8 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-        $this->assertInternalType('resource', $connection->getResource());
-        $this->assertContains('pgsql link', get_resource_type($connection->getResource()));
+        $this->assertIsResource($connection->getResource());
+        $this->assertStringContainsString('pgsql link', get_resource_type($connection->getResource()));
     }
 
     public function testDestructorDisconnects()
@@ -122,13 +122,13 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider getImplicitTypesFail
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\TypeConversionException
      */
     public function testFailToQuoteImplicitTypes($value)
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
         }
+        $this->expectException(TypeConversionException::class);
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $connection->quote($value);
     }

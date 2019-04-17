@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\converters;
 
 use sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
@@ -30,7 +32,7 @@ use sad_spirit\pg_wrapper\{
  */
 class PointArrayTest extends TypeConverterTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->converter = new ArrayConverter(new PointConverter());
     }

@@ -15,8 +15,12 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\types;
 
+use PHPUnit\Framework\TestCase;
+use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 use sad_spirit\pg_wrapper\types\{
     Range,
     NumericRange,
@@ -26,13 +30,12 @@ use sad_spirit\pg_wrapper\types\{
 /**
  * Unit test for Range class
  */
-class RangeTest extends \PHPUnit_Framework_TestCase
+class RangeTest extends TestCase
 {
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
-     */
     public function testDisallowExtraProperties()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $range = new Range();
         $range->foo = 'bar';
     }
@@ -46,19 +49,21 @@ class RangeTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider getInvalidNumericRanges
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
      */
     public function testInvalidNumericRangesViaConstructor($lower, $upper)
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $range = new NumericRange($lower, $upper);
     }
 
     /**
      * @dataProvider getInvalidNumericRanges
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
      */
     public function testInvalidNumericRangesViaProperties($lower, $upper)
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $range = new NumericRange();
         $range->lower = $lower;
         $range->upper = $upper;
@@ -73,20 +78,20 @@ class RangeTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
-     */
     public function testInvalidDateTimeRangesViaConstructor()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $range = new DateTimeRange(new \DateTime('tomorrow'), new \DateTime('yesterday'));
     }
 
     /**
      * @dataProvider getInvalidDateTimeRanges
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
      */
     public function testInvalidDateTimeRangesViaProperties($lower, $upper)
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $range = new DateTimeRange();
         $range->lower = $lower;
         $range->upper = $upper;

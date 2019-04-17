@@ -17,6 +17,7 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     converters\StubTypeConverterFactory,
     converters\StubConverter,
@@ -26,14 +27,14 @@ use sad_spirit\pg_wrapper\{
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampConverter;
 
 
-class StubTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
+class StubTypeConverterFactoryTest extends TestCase
 {
     /**
      * @var StubTypeConverterFactory
      */
     protected $factory;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->factory = new StubTypeConverterFactory();
     }

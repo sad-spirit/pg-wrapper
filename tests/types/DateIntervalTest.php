@@ -15,14 +15,17 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\types;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\types\DateInterval;
 
 /**
  * Unit test for DateInterval class (the one from package, not built-in)
  */
-class DateIntervalTest extends \PHPUnit_Framework_TestCase
+class DateIntervalTest extends TestCase
 {
     public function testOutputEmpty()
     {

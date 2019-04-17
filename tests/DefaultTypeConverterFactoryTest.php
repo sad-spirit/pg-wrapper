@@ -17,6 +17,7 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\InvalidArgumentException
@@ -43,14 +44,14 @@ use Psr\Cache\{
 /**
  * Unit test for TypeConverterFactory class
  */
-class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
+class DefaultTypeConverterFactoryTest extends TestCase
 {
     /**
      * @var DefaultTypeConverterFactory
      */
     protected $factory;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->factory = new DefaultTypeConverterFactory();
     }
@@ -98,10 +99,9 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidTypeNames($typeName, $exceptionMessage)
     {
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            $exceptionMessage
-        );
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
         $this->factory->getConverter($typeName);
     }
 
@@ -129,7 +129,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
             $this->factory->getConverter('foo');
             $this->fail('Expected InvalidArgumentException was not thrown');
         } catch (InvalidArgumentException $e) {
-            $this->assertContains('connection required', $e->getMessage());
+            $this->assertStringContainsString('connection required', $e->getMessage());
         }
 
         $this->factory->registerConverter(IntegerConverter::class, 'foo');
@@ -145,46 +145,45 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
             $this->factory->getConverter('foo');
             $this->fail('Expected InvalidArgumentException was not thrown');
         } catch (InvalidArgumentException $e) {
-            $this->assertContains('Qualified name required', $e->getMessage());
+            $this->assertStringContainsString('Qualified name required', $e->getMessage());
         }
 
         $this->assertInstanceOf(TimeConverter::class, $this->factory->getConverter('baz.foo'));
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
-     * @expectedExceptionMessage does not exist in the database
-     */
     public function testMissingTypeWithDatabaseConnection()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
         }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('does not exist in the database');
+
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
         $this->factory->getConverter('missing');
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
-     * @expectedExceptionMessage no converter registered for base type
-     */
     public function testMissingConverterWithDatabaseConnection()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
         }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('no converter registered for base type');
+
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
         $this->factory->getConverter('trigger');
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\InvalidArgumentException
-     * @expectedExceptionMessage Database connection required
-     */
     public function testTypeOidRequiresConnection()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Database connection required');
+
         $this->factory->getConverter(23);
     }
 

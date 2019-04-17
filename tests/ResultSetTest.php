@@ -17,6 +17,7 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
     converters,
@@ -26,14 +27,14 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for ResultSet class
  */
-class ResultSetTest extends \PHPUnit_Framework_TestCase
+class ResultSetTest extends TestCase
 {
     /**
      * @var Connection
      */
     protected static $conn;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             return;
@@ -52,7 +53,7 @@ SQL
 );
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -79,20 +80,20 @@ SQL
         $this->assertEquals(['a' => 9, 'b' => 'only value of baz'], $res[0]['onethree']);
     }
 
-    public function testSetTypeMissingField()
+    public function testSetTypeMissingFieldName()
     {
-        $res = self::$conn->execute("select one, two from test_resultset");
+        $this->expectException(InvalidArgumentException::class);
 
-        try {
-            $res->setType('three', new converters\StubConverter());
-            $this->fail('Expected InvalidArgumentException was not thrown');
-        } catch (InvalidArgumentException $e) {
-            try {
-                $res->setType(3, new converters\StubConverter());
-                $this->fail('Expected InvalidArgumentException was not thrown');
-            } catch (InvalidArgumentException $e) {
-            }
-        }
+        $res = self::$conn->execute("select one, two from test_resultset");
+        $res->setType('three', new converters\StubConverter());
+    }
+
+    public function testSetTypeMissingFieldIndex()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $res = self::$conn->execute("select one, two from test_resultset");
+        $res->setType(3, new converters\StubConverter());
     }
 
     public function testFetchColumn()
@@ -103,20 +104,20 @@ SQL
         $this->assertEquals(['bar', 'baz'], $res->fetchColumn('two'));
     }
 
-    public function testFetchColumnMissingField()
+    public function testFetchColumnMissingFieldName()
     {
-        $res = self::$conn->execute("select one, two from test_resultset");
+        $this->expectException(InvalidArgumentException::class);
 
-        try {
-            $res->fetchColumn('three');
-            $this->fail('Expected InvalidArgumentException was not thrown');
-        } catch (InvalidArgumentException $e) {
-            try {
-                $res->fetchColumn(3);
-                $this->fail('Expected InvalidArgumentException was not thrown');
-            } catch (InvalidArgumentException $e) {
-            }
-        }
+        $res = self::$conn->execute("select one, two from test_resultset");
+        $res->fetchColumn('three');
+    }
+
+    public function testFetchColumnMissingFieldIndex()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $res = self::$conn->execute("select one, two from test_resultset");
+        $res->fetchColumn(3);
     }
 
     public function testFetchAll()

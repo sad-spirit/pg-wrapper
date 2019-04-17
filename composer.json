@@ -23,7 +23,7 @@
         "psr/cache-implementation": "Used for DB metadata caching"
     },
     "require-dev":  {
-        "phpunit/phpunit":  "^5.7",
+        "phpunit/phpunit":  "^8.0",
         "psr/cache":        "^1.0"
     },
     "autoload":     {

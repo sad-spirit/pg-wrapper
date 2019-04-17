@@ -17,22 +17,24 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
-    exceptions\InvalidQueryException
+    exceptions\InvalidQueryException,
+    exceptions\RuntimeException
 };
 
 /**
  * Unit test for transactions handling in Connection class
  */
-class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
+class ConnectionTransactionsTest extends TestCase
 {
     /**
      * @var Connection
      */
     protected static $conn;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             self::$conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
@@ -41,7 +43,7 @@ class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -49,12 +51,12 @@ class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
         self::$conn->execute('truncate test_trans');
     }
 
-    protected function assertPreConditions()
+    protected function assertPreConditions(): void
     {
         $this->assertFalse(self::$conn->inTransaction());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         if (self::$conn && self::$conn->inTransaction()) {
             self::$conn->rollback();
@@ -98,11 +100,9 @@ class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $result[0]['cnt']);
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\RuntimeException
-     */
     public function testDisallowSavepointOutsideTransaction()
     {
+        $this->expectException(RuntimeException::class);
         self::$conn->beginTransaction('foo');
     }
 

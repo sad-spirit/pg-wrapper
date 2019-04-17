@@ -15,14 +15,17 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\TypeConverter;
 
 /**
  * Base class for type converter tests
  */
-abstract class TypeConverterTestCase extends \PHPUnit_Framework_TestCase
+abstract class TypeConverterTestCase extends TestCase
 {
     /**
      * @var TypeConverter
@@ -35,7 +38,7 @@ abstract class TypeConverterTestCase extends \PHPUnit_Framework_TestCase
     public function testCastFrom($native, $value)
     {
         if ($value instanceof \Exception) {
-            $this->setExpectedException(get_class($value));
+            $this->expectException(get_class($value));
             $this->converter->input($native);
         } else {
             $this->assertEquals($value, $this->converter->input($native));
@@ -48,7 +51,7 @@ abstract class TypeConverterTestCase extends \PHPUnit_Framework_TestCase
     public function testCastTo($native, $value)
     {
         if ($native instanceof \Exception) {
-            $this->setExpectedException(get_class($native));
+            $this->expectException(get_class($native));
             $this->converter->output($value);
         } else {
             $this->assertEquals($native, $this->converter->output($value));

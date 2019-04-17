@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\converters;
 
 use sad_spirit\pg_wrapper\converters\{
@@ -27,7 +29,7 @@ use sad_spirit\pg_wrapper\converters\{
  */
 class HstoreArrayTest extends TypeConverterTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->converter = new ArrayConverter(new HstoreConverter());
     }

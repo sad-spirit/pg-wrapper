@@ -15,8 +15,11 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     converters\ByteaConverter,
     exceptions\TypeConversionException
@@ -25,14 +28,14 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for bytea type converter
  */
-class ByteaTest extends \PHPUnit_Framework_TestCase
+class ByteaTest extends TestCase
 {
     /**
      * @var ByteaConverter
      */
     protected $caster;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->caster = new ByteaConverter();
     }
@@ -43,7 +46,7 @@ class ByteaTest extends \PHPUnit_Framework_TestCase
     public function testCastFrom($native, $value)
     {
         if ($value instanceof \Exception) {
-            $this->setExpectedException(get_class($value));
+            $this->expectException(get_class($value));
         }
         $this->assertEquals($value, $this->caster->input($native));
     }

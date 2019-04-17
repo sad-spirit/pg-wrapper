@@ -15,22 +15,25 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+declare(strict_types=1);
+
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Unit test for 'timestamp with time zone' type converter
  */
-class TimestampTzTest extends \PHPUnit_Framework_TestCase
+class TimestampTzTest extends TestCase
 {
     /**
      * @var TimeStampTzConverter
      */
     protected $caster;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->caster = new TimeStampTzConverter();
     }
@@ -41,7 +44,7 @@ class TimestampTzTest extends \PHPUnit_Framework_TestCase
     public function testCastFrom($style, $native, $value)
     {
         if ($value instanceof \Exception) {
-            $this->setExpectedException(get_class($value));
+            $this->expectException(get_class($value));
         }
         if (null !== $style) {
             $this->caster->setDateStyle($style);
@@ -55,7 +58,7 @@ class TimestampTzTest extends \PHPUnit_Framework_TestCase
     public function testCastTo($native, $value)
     {
         if ($native instanceof \Exception) {
-            $this->setExpectedException(get_class($native));
+            $this->expectException(get_class($native));
         }
         $this->assertEquals($native, $this->caster->output($value));
     }

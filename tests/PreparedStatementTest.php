@@ -17,20 +17,24 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use sad_spirit\pg_wrapper\Connection;
+use PHPUnit\Framework\TestCase;
+use sad_spirit\pg_wrapper\{
+    Connection,
+    exceptions\RuntimeException
+};
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
 
 /**
  * Unit test for PreparedStatement class
  */
-class PreparedStatementTest extends \PHPUnit_Framework_TestCase
+class PreparedStatementTest extends TestCase
 {
     /**
      * @var Connection
      */
     protected $conn;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -45,7 +49,6 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $result = $this->conn->execute('select * from pg_prepared_statements where not from_sql');
 
         $this->assertEquals(1, count($result));
-        $this->assertAttributeEquals($result[0]['name'], 'queryId', $statement);
     }
 
     public function testClonedStatementIsRePrepared()
@@ -67,11 +70,10 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($result));
     }
 
-    /**
-     * @expectedException \sad_spirit\pg_wrapper\exceptions\RuntimeException
-     */
     public function testCannotExecuteAfterDeallocate()
     {
+        $this->expectException(RuntimeException::class);
+
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $statement->deallocate();
 
