@@ -56,9 +56,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
         if ($commas % 2) {
             return intval(($commas + 1) / 2);
         } else {
-            throw TypeConversionException::unexpectedValue(
-                $this, 'input', 'even number of numeric values', $native
-            );
+            throw TypeConversionException::unexpectedValue($this, 'input', 'even number of numeric values', $native);
         }
     }
 

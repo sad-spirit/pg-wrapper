@@ -41,7 +41,7 @@ class RangeConverter extends ContainerConverter
      * Converter for the base type of the range
      * @var TypeConverter
      */
-    private $_subtype;
+    private $subtypeConverter;
 
     /**
      * input() will return instances of this class
@@ -52,17 +52,17 @@ class RangeConverter extends ContainerConverter
     /**
      * Constructor, sets converter for the
      *
-     * @param TypeConverter $subtype
+     * @param TypeConverter $subtypeConverter
      */
-    public function __construct(TypeConverter $subtype)
+    public function __construct(TypeConverter $subtypeConverter)
     {
-        $this->_subtype = $subtype;
+        $this->subtypeConverter = $subtypeConverter;
 
-        if ($subtype instanceof FloatConverter || $subtype instanceof NumericConverter
-            || $subtype instanceof IntegerConverter
+        if ($subtypeConverter instanceof FloatConverter || $subtypeConverter instanceof NumericConverter
+            || $subtypeConverter instanceof IntegerConverter
         ) {
             $this->resultClass = NumericRange::class;
-        } elseif ($subtype instanceof BaseDateTimeConverter) {
+        } elseif ($subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeRange::class;
         }
     }
@@ -76,7 +76,7 @@ class RangeConverter extends ContainerConverter
      * @return null|string
      * @throws TypeConversionException
      */
-    private function _readRangeBound(string $string, int &$pos): ?string
+    private function readRangeBound(string $string, int &$pos): ?string
     {
         $bound = null;
         while (true) {
@@ -130,14 +130,14 @@ class RangeConverter extends ContainerConverter
                     $pos += 5;
                     return call_user_func([$this->resultClass, 'createEmpty']);
                 }
-
+                // fall-through is intentional
             default:
                 throw TypeConversionException::parsingFailed($this, '[ or (', $native, $pos);
         }
 
-        $lower = $this->_readRangeBound($native, $pos);
+        $lower = $this->readRangeBound($native, $pos);
         $this->expectChar($native, $pos, ',');
-        $upper = $this->_readRangeBound($native, $pos);
+        $upper = $this->readRangeBound($native, $pos);
 
         if (']' === $native[$pos]) {
             $upperInclusive = true;
@@ -152,8 +152,10 @@ class RangeConverter extends ContainerConverter
         }
 
         return new $this->resultClass(
-            $this->_subtype->input($lower), $this->_subtype->input($upper),
-            $lowerInclusive, $upperInclusive
+            $this->subtypeConverter->input($lower),
+            $this->subtypeConverter->input($upper),
+            $lowerInclusive,
+            $upperInclusive
         );
     }
 
@@ -170,10 +172,10 @@ class RangeConverter extends ContainerConverter
         }
         return ($value->lowerInclusive ? '[' : '(')
                . (null === $value->lower
-                  ? '' : '"' . addcslashes($this->_subtype->output($value->lower), "\"\\") . '"')
+                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->lower), "\"\\") . '"')
                . ','
                . (null === $value->upper
-                  ? '' : '"' . addcslashes($this->_subtype->output($value->upper), "\"\\") . '"')
+                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->upper), "\"\\") . '"')
                . ($value->upperInclusive ? ']' : ')');
     }
 }

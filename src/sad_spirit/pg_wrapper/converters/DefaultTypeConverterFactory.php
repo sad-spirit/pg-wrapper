@@ -35,9 +35,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 {
     /**
      * Mapping from one-word SQL standard types to native types
-     * @var array
      */
-    private $_simpleAliases = [
+    private const SIMPLE_ALIASES = [
         'int'       => 'int4',
         'integer'   => 'int4',
         'smallint'  => 'int2',
@@ -55,7 +54,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * DB connection object
      * @var Connection
      */
-    private $_connection;
+    private $connection;
 
     /**
      * Types list for current database, loaded from pg_catalog.pg_type
@@ -67,7 +66,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @var array
      */
-    private $_dbTypes = [
+    private $dbTypes = [
         'composite' => [],
         'array'     => [],
         'range'     => [],
@@ -81,31 +80,31 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @var array
      */
-    private $_oidMap = [];
+    private $oidMap = [];
 
     /**
      * Mapping of known base types to converter class names
      * @var array
      */
-    private $_types = [];
+    private $types = [];
 
     /**
      * Converter instances
      * @var array
      */
-    private $_converters = [];
+    private $converters = [];
 
     /**
      * Whether to cache composite types' structure
      * @var bool
      */
-    private $_compositeTypesCaching = true;
+    private $compositeTypesCaching = true;
 
     /**
      * Mapping "type name as string" => array("type name", "schema name", "is array")
      * @var array
      */
-    private $_parsedNames = [];
+    private $parsedNames = [];
 
     /**
      * Constructor, registers converters for built-in types
@@ -155,10 +154,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         $this->registerConverter(geometric\PathConverter::class, 'path');
         $this->registerConverter(geometric\PolygonConverter::class, 'polygon');
 
-        $this->registerConverter(
-            containers\HstoreConverter::class,
-            'hstore', 'public'
-        );
+        $this->registerConverter(containers\HstoreConverter::class, 'hstore', 'public');
 
         $this->registerConverter(
             JSONConverter::class,
@@ -195,17 +191,18 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         if (!is_string($converter) && !is_callable($converter) && !($converter instanceof TypeConverter)) {
             throw new InvalidArgumentException(sprintf(
                 '%s() expects a class name, a closure or an instance of TypeConverter, %s given',
-                __METHOD__, is_object($converter) ? 'object(' . get_class($converter) . ')' : gettype($converter)
+                __METHOD__,
+                is_object($converter) ? 'object(' . get_class($converter) . ')' : gettype($converter)
             ));
         }
         foreach ((array)$type as $typeName) {
-            if (isset($this->_converters[$typeName])) {
-                unset($this->_converters[$typeName][$schema]);
+            if (isset($this->converters[$typeName])) {
+                unset($this->converters[$typeName][$schema]);
             }
-            if (!isset($this->_types[$typeName])) {
-                $this->_types[$typeName] = [$schema => $converter];
+            if (!isset($this->types[$typeName])) {
+                $this->types[$typeName] = [$schema => $converter];
             } else {
-                $this->_types[$typeName][$schema] = $converter;
+                $this->types[$typeName][$schema] = $converter;
             }
         }
     }
@@ -221,17 +218,17 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     public function setConnection(Connection $connection): TypeConverterFactory
     {
-        if (!empty($this->_connection)) {
+        if (!empty($this->connection)) {
             // prevent reusing old converters with new connection
-            $this->_converters = [];
+            $this->converters = [];
         }
 
-        $this->_connection = $connection;
-        foreach ($this->_converters as $converter) {
-            $this->_updateConnection($converter);
+        $this->connection = $connection;
+        foreach ($this->converters as $converter) {
+            $this->updateConnection($converter);
         }
 
-        $this->_loadTypes();
+        $this->loadTypes();
 
         return $this;
     }
@@ -241,10 +238,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @param TypeConverter $converter
      */
-    private function _updateConnection(TypeConverter $converter)
+    private function updateConnection(TypeConverter $converter)
     {
-        if ($this->_connection && $converter instanceof ConnectionAware) {
-            $converter->setConnectionResource($this->_connection->getResource());
+        if ($this->connection && $converter instanceof ConnectionAware) {
+            $converter->setConnectionResource($this->connection->getResource());
         }
     }
 
@@ -265,7 +262,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     public function setCompositeTypesCaching($caching)
     {
-        $this->_compositeTypesCaching = (bool)$caching;
+        $this->compositeTypesCaching = (bool)$caching;
 
         return $this;
     }
@@ -277,7 +274,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     public function getCompositeTypesCaching()
     {
-        return $this->_compositeTypesCaching;
+        return $this->compositeTypesCaching;
     }
 
     /**
@@ -313,16 +310,16 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     public function getConverter($type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
-            $this->_updateConnection($type);
+            $this->updateConnection($type);
             return $type;
 
         } elseif (is_scalar($type)) {
             if (ctype_digit((string)$type)) {
                 // type oid given
-                return $this->_getConverterForTypeOid($type);
+                return $this->getConverterForTypeOid($type);
             } else {
                 // type name given
-                return $this->_getConverterForTypeName($type);
+                return $this->getConverterForTypeName($type);
             }
 
         } elseif (is_array($type)) {
@@ -337,7 +334,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         throw new InvalidArgumentException(sprintf(
             '%s expects either of: type oid, type name, composite type array,'
             . ' instance of TypeConverter. %s given',
-            __METHOD__, is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
+            __METHOD__,
+            is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
         ));
     }
 
@@ -352,10 +350,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function isArrayTypeOid($oid, &$baseTypeOid = null)
     {
-        if (!isset($this->_dbTypes['array'][$oid])) {
+        if (!isset($this->dbTypes['array'][$oid])) {
             return false;
         } else {
-            $baseTypeOid = $this->_dbTypes['array'][$oid];
+            $baseTypeOid = $this->dbTypes['array'][$oid];
             return true;
         }
     }
@@ -371,10 +369,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function isRangeTypeOid($oid, &$baseTypeOid = null)
     {
-        if (!isset($this->_dbTypes['range'][$oid])) {
+        if (!isset($this->dbTypes['range'][$oid])) {
             return false;
         } else {
-            $baseTypeOid = $this->_dbTypes['range'][$oid];
+            $baseTypeOid = $this->dbTypes['range'][$oid];
             return true;
         }
     }
@@ -387,7 +385,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function isCompositeTypeOid($oid)
     {
-        return isset($this->_dbTypes['composite'][$oid]);
+        return isset($this->dbTypes['composite'][$oid]);
     }
 
     /**
@@ -398,9 +396,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function isBaseTypeOid($oid)
     {
-        return !isset($this->_dbTypes['array'][$oid])
-               && !isset($this->_dbTypes['range'][$oid])
-               && !isset($this->_dbTypes['composite'][$oid]);
+        return !isset($this->dbTypes['array'][$oid])
+               && !isset($this->dbTypes['range'][$oid])
+               && !isset($this->dbTypes['composite'][$oid]);
     }
 
 
@@ -411,20 +409,20 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    private function _getConverterForTypeOid($oid)
+    private function getConverterForTypeOid($oid)
     {
         if ($this->isArrayTypeOid($oid, $baseTypeOid)) {
             return new containers\ArrayConverter(
-                $this->_getConverterForTypeOid($baseTypeOid)
+                $this->getConverterForTypeOid($baseTypeOid)
             );
 
         } elseif ($this->isRangeTypeOid($oid, $baseTypeOid)) {
             return new containers\RangeConverter(
-                $this->_getConverterForTypeOid($baseTypeOid)
+                $this->getConverterForTypeOid($baseTypeOid)
             );
 
         } elseif ($this->isCompositeTypeOid($oid)) {
-            return $this->_getConverterForCompositeTypeOid($oid);
+            return $this->getConverterForCompositeTypeOid($oid);
         }
 
         list($schemaName, $typeName) = $this->findTypeNameForOid($oid, __METHOD__);
@@ -446,21 +444,21 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function findTypeNameForOid($oid, $method)
     {
-        if (!$this->_connection) {
+        if (!$this->connection) {
             throw new InvalidArgumentException(
                 $method . ': Database connection required'
             );
         }
-        if (!isset($this->_oidMap[$oid])) {
-            $this->_loadTypes(true);
+        if (!isset($this->oidMap[$oid])) {
+            $this->loadTypes(true);
         }
-        if (!isset($this->_oidMap[$oid])) {
-            throw new InvalidArgumentException(sprintf(
-                '%s: could not find type information for oid %d', $method, $oid
-            ));
+        if (!isset($this->oidMap[$oid])) {
+            throw new InvalidArgumentException(
+                sprintf('%s: could not find type information for oid %d', $method, $oid)
+            );
         }
 
-        return $this->_oidMap[$oid];
+        return $this->oidMap[$oid];
     }
 
     /**
@@ -474,36 +472,40 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function findOidForTypeName($typeName, $schemaName, $method)
     {
-        if (!$this->_connection) {
+        if (!$this->connection) {
             throw new InvalidArgumentException(sprintf(
                 "%s: Database connection required to process type name %s",
-                $method, $this->_formatQualifiedName($typeName, $schemaName)
+                $method,
+                $this->formatQualifiedName($typeName, $schemaName)
             ));
         }
-        if (!isset($this->_dbTypes['names'][$typeName])
-            || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
+        if (!isset($this->dbTypes['names'][$typeName])
+            || null !== $schemaName && !isset($this->dbTypes['names'][$typeName][$schemaName])
         ) {
-            $this->_loadTypes(true);
+            $this->loadTypes(true);
         }
-        if (!isset($this->_dbTypes['names'][$typeName])
-            || null !== $schemaName && !isset($this->_dbTypes['names'][$typeName][$schemaName])
+        if (!isset($this->dbTypes['names'][$typeName])
+            || null !== $schemaName && !isset($this->dbTypes['names'][$typeName][$schemaName])
         ) {
             throw new InvalidArgumentException(sprintf(
                 '%s: type %s does not exist in the database',
-                __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
+                __METHOD__,
+                $this->formatQualifiedName($typeName, $schemaName)
             ));
         }
 
         if ($schemaName) {
-            return $this->_dbTypes['names'][$typeName][$schemaName];
+            return $this->dbTypes['names'][$typeName][$schemaName];
 
-        } elseif (1 === count($this->_dbTypes['names'][$typeName])) {
-            return reset($this->_dbTypes['names'][$typeName]);
+        } elseif (1 === count($this->dbTypes['names'][$typeName])) {
+            return reset($this->dbTypes['names'][$typeName]);
 
         } else {
             throw new InvalidArgumentException(sprintf(
                 '%s: Types named "%s" found in schemas: %s. Qualified name required.',
-                $method, $typeName, implode(', ', array_keys($this->_dbTypes['names'][$typeName]))
+                $method,
+                $typeName,
+                implode(', ', array_keys($this->dbTypes['names'][$typeName]))
             ));
         }
     }
@@ -514,7 +516,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param string $string
      * @return string
      */
-    private function _asciiLowercase($string)
+    private function asciiLowercase($string)
     {
         return strtr($string, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
     }
@@ -535,7 +537,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     {
         if (false === strpos($name, '.') && false === strpos($name, '"')) {
             // can be an SQL standard type, try known aliases
-            $regexp = '(?:(' . implode('|', array_keys($this->_simpleAliases)) . ')' // 1
+            $regexp = '(?:(' . implode('|', array_keys(self::SIMPLE_ALIASES)) . ')' // 1
                       . '|(double\\s+precision)' // 2
                       . '|(?:(time|timestamp)(?:\\s+(with|without)\\s+time\\s+zone)?)' // 3,4
                       . '|(national\\s+(?:character|char)(?:\\s*varying)?)' // 5
@@ -544,11 +546,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             if (preg_match('/^' . $regexp . '$/i', $name, $matches)) {
                 $isArray = !empty($matches[7]);
                 if (!empty($matches[1])) {
-                    $typeName = $this->_simpleAliases[$this->_asciiLowercase($matches[1])];
+                    $typeName = self::SIMPLE_ALIASES[$this->asciiLowercase($matches[1])];
                 } elseif (!empty($matches[2])) {
                     $typeName = 'float8';
                 } elseif (!empty($matches[3])) {
-                    $typeName = $this->_asciiLowercase($matches[3])
+                    $typeName = $this->asciiLowercase($matches[3])
                                 . (0 === strcasecmp($matches[4], 'with') ? 'tz' : '');
                 } else {
                     $typeName = 'text';
@@ -589,7 +591,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                 ) {
                     throw new InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
                 } elseif (!$identifier) {
-                    throw new InvalidArgumentException("Unexpected double-quoted string '{$m[0]}' in type name '{$name}'");
+                    throw new InvalidArgumentException(
+                        "Unexpected double-quoted string '{$m[0]}' in type name '{$name}'"
+                    );
                 }
                 $typeName    = strtr($m[1], ['""' => '"']);
                 $position   += strlen($m[0]);
@@ -599,7 +603,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                 if (!$identifier) {
                     throw new InvalidArgumentException("Unexpected identifier '{$m[0]}' in type name '{$name}'");
                 }
-                $typeName    = $this->_asciiLowercase($m[0]);
+                $typeName    = $this->asciiLowercase($m[0]);
                 $position   += strlen($m[0]);
                 $identifier  = false;
 
@@ -625,34 +629,36 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    private function _getRegisteredConverterInstance($typeName, $schemaName = null)
+    private function getRegisteredConverterInstance($typeName, $schemaName = null)
     {
         if (null === $schemaName) {
-            if (1 < count($this->_types[$typeName])) {
+            if (1 < count($this->types[$typeName])) {
                 throw new InvalidArgumentException(sprintf(
                     '%s: Converters for type "%s" exist for schemas: %s. Qualified name required.',
-                    __METHOD__, $typeName, implode(', ', array_keys($this->_types[$typeName]))
+                    __METHOD__,
+                    $typeName,
+                    implode(', ', array_keys($this->types[$typeName]))
                 ));
             }
-            reset($this->_types[$typeName]);
-            $schemaName = key($this->_types[$typeName]);
+            reset($this->types[$typeName]);
+            $schemaName = key($this->types[$typeName]);
         }
-        if (empty($this->_converters[$typeName][$schemaName])) {
-            if ($this->_types[$typeName][$schemaName] instanceof TypeConverter) {
-                $converter = clone $this->_types[$typeName][$schemaName];
+        if (empty($this->converters[$typeName][$schemaName])) {
+            if ($this->types[$typeName][$schemaName] instanceof TypeConverter) {
+                $converter = clone $this->types[$typeName][$schemaName];
 
-            } elseif (is_callable($this->_types[$typeName][$schemaName])) {
-                $converter = $this->_types[$typeName][$schemaName]();
+            } elseif (is_callable($this->types[$typeName][$schemaName])) {
+                $converter = $this->types[$typeName][$schemaName]();
 
             } else {
-                $className = $this->_types[$typeName][$schemaName];
-                $converter = new $className;
+                $className = $this->types[$typeName][$schemaName];
+                $converter = new $className();
             }
 
-            $this->_updateConnection($converter);
-            $this->_converters[$typeName][$schemaName] = $converter;
+            $this->updateConnection($converter);
+            $this->converters[$typeName][$schemaName] = $converter;
         }
-        return $this->_converters[$typeName][$schemaName];
+        return $this->converters[$typeName][$schemaName];
     }
 
     /**
@@ -666,10 +672,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    private function _getConverterForTypeName($name)
+    private function getConverterForTypeName($name)
     {
-        if (isset($this->_parsedNames[$name])) {
-            list($typeName, $schemaName, $isArray) = $this->_parsedNames[$name];
+        if (isset($this->parsedNames[$name])) {
+            list($typeName, $schemaName, $isArray) = $this->parsedNames[$name];
 
         } else {
             if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[\])?$/', $name, $m)) {
@@ -678,13 +684,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             } else {
                 $schemaName = null;
                 $isArray    = !empty($m[2]);
-                $typeName   = $this->_asciiLowercase($m[1]);
-                if (isset($this->_simpleAliases[$typeName])) {
-                    $typeName = $this->_simpleAliases[$typeName];
+                $typeName   = $this->asciiLowercase($m[1]);
+                if (isset(self::SIMPLE_ALIASES[$typeName])) {
+                    $typeName = self::SIMPLE_ALIASES[$typeName];
                 }
             }
 
-            $this->_parsedNames[$name] = [$typeName, $schemaName, $isArray];
+            $this->parsedNames[$name] = [$typeName, $schemaName, $isArray];
         }
 
         return $this->getConverterForQualifiedName($typeName, $schemaName, $isArray);
@@ -701,22 +707,22 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function getConverterForQualifiedName($typeName, $schemaName = null, $isArray = false)
     {
-        if (isset($this->_types[$typeName])
-            && (null === $schemaName || isset($this->_types[$typeName][$schemaName]))
+        if (isset($this->types[$typeName])
+            && (null === $schemaName || isset($this->types[$typeName][$schemaName]))
         ) {
-            $converter = $this->_getRegisteredConverterInstance($typeName, $schemaName);
+            $converter = $this->getRegisteredConverterInstance($typeName, $schemaName);
 
         } elseif (!$this->isBaseTypeOid(
-                      $oid = $this->findOidForTypeName($typeName, $schemaName, __METHOD__)
-                  )
-        ) {
-            $converter = $this->_getConverterForTypeOid($oid);
+            $oid = $this->findOidForTypeName($typeName, $schemaName, __METHOD__)
+        )) {
+            $converter = $this->getConverterForTypeOid($oid);
 
         } else {
             // a converter required by name is required explicitly -> exception if not found
             throw new InvalidArgumentException(sprintf(
                 '%s: no converter registered for base type %s',
-                __METHOD__, $this->_formatQualifiedName($typeName, $schemaName)
+                __METHOD__,
+                $this->formatQualifiedName($typeName, $schemaName)
             ));
         }
 
@@ -730,7 +736,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param string $schemaName
      * @return string
      */
-    private function _formatQualifiedName($typeName, $schemaName)
+    private function formatQualifiedName($typeName, $schemaName)
     {
         return (null === $schemaName ? '' : '"' . strtr($schemaName, ['"' => '""']) . '".')
                . '"' . strtr($typeName, ['"' => '""']) . '"';
@@ -743,17 +749,17 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidQueryException
      */
-    private function _getConverterForCompositeTypeOid($oid)
+    private function getConverterForCompositeTypeOid($oid)
     {
-        if (!is_array($this->_dbTypes['composite'][$oid])) {
-            if (($cache = $this->_connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
-                $cacheItem = $cache->getItem($this->_connection->getConnectionId() . '-composite-' . $oid);
+        if (!is_array($this->dbTypes['composite'][$oid])) {
+            if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
+                $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-composite-' . $oid);
             } else {
                 $cacheItem = null;
             }
 
             if (null !== $cacheItem && $cacheItem->isHit()) {
-                $this->_dbTypes['composite'][$oid] = $cacheItem->get();
+                $this->dbTypes['composite'][$oid] = $cacheItem->get();
 
             } else {
                 $sql = <<<SQL
@@ -764,24 +770,25 @@ where attrelid = $1 and
 order by attnum
 SQL;
                 if (!($res = @pg_query_params(
-                        $this->_connection->getResource(), $sql , [$this->_dbTypes['composite'][$oid]]
-                    ))
-                ) {
-                    throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                    $this->connection->getResource(),
+                    $sql,
+                    [$this->dbTypes['composite'][$oid]]
+                ))) {
+                    throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
                 }
-                $this->_dbTypes['composite'][$oid] = [];
+                $this->dbTypes['composite'][$oid] = [];
                 while ($row = pg_fetch_assoc($res)) {
-                    $this->_dbTypes['composite'][$oid][$row['attname']] = $row['atttypid'];
+                    $this->dbTypes['composite'][$oid][$row['attname']] = $row['atttypid'];
                 }
                 pg_free_result($res);
 
                 if ($cache && $cacheItem) {
-                    $cache->save($cacheItem->set($this->_dbTypes['composite'][$oid]));
+                    $cache->save($cacheItem->set($this->dbTypes['composite'][$oid]));
                 }
             }
         }
 
-        return $this->getConverter($this->_dbTypes['composite'][$oid]);
+        return $this->getConverter($this->dbTypes['composite'][$oid]);
     }
 
 
@@ -791,19 +798,19 @@ SQL;
      * @param bool $force Force loading from database even if cached list is available
      * @throws InvalidQueryException
      */
-    private function _loadTypes($force = false)
+    private function loadTypes($force = false)
     {
-        if ($cache = $this->_connection->getMetadataCache()) {
-            $cacheItem = $cache->getItem($this->_connection->getConnectionId() . '-types');
+        if ($cache = $this->connection->getMetadataCache()) {
+            $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-types');
         } else {
             $cacheItem = null;
         }
 
         if (!$force && null !== $cacheItem && $cacheItem->isHit()) {
-            $this->_dbTypes = $cacheItem->get();
+            $this->dbTypes = $cacheItem->get();
 
         } else {
-            $this->_dbTypes = [
+            $this->dbTypes = [
                 'composite' => [],
                 'array'     => [],
                 'range'     => [],
@@ -816,20 +823,20 @@ SQL;
           typtype != 'd'
     order by 4 desc
 SQL;
-            if (!($res = @pg_query($this->_connection->getResource(), $sql))) {
-                throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
+            if (!($res = @pg_query($this->connection->getResource(), $sql))) {
+                throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
             }
             while ($row = pg_fetch_assoc($res)) {
-                if (!isset($this->_dbTypes['names'][$row['typname']])) {
-                    $this->_dbTypes['names'][$row['typname']] = [$row['nspname'] => $row['oid']];
+                if (!isset($this->dbTypes['names'][$row['typname']])) {
+                    $this->dbTypes['names'][$row['typname']] = [$row['nspname'] => $row['oid']];
                 } else {
-                    $this->_dbTypes['names'][$row['typname']][$row['nspname']] = $row['oid'];
+                    $this->dbTypes['names'][$row['typname']][$row['nspname']] = $row['oid'];
                 }
                 if ('0' !== $row['typarray']) {
-                    $this->_dbTypes['array'][$row['typarray']] = $row['oid'];
+                    $this->dbTypes['array'][$row['typarray']] = $row['oid'];
                 }
                 if ('0' !== $row['typrelid']) {
-                    $this->_dbTypes['composite'][$row['oid']] = $row['typrelid'];
+                    $this->dbTypes['composite'][$row['oid']] = $row['typrelid'];
                 }
             }
             pg_free_result($res);
@@ -845,38 +852,36 @@ where a.attrelid = c.oid and
       a.attnum > 0
 order by attrelid, attnum
 SQL;
-                if (!($res = @pg_query($this->_connection->getResource(), $sql))) {
-                    throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
+                if (!($res = @pg_query($this->connection->getResource(), $sql))) {
+                    throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
                 }
                 while ($row = pg_fetch_assoc($res)) {
-                    if (!is_array($this->_dbTypes['composite'][$row['reltype']])) {
-                        $this->_dbTypes['composite'][$row['reltype']] = [$row['attname'] => $row['atttypid']];
+                    if (!is_array($this->dbTypes['composite'][$row['reltype']])) {
+                        $this->dbTypes['composite'][$row['reltype']] = [$row['attname'] => $row['atttypid']];
                     } else {
-                        $this->_dbTypes['composite'][$row['reltype']][$row['attname']] = $row['atttypid'];
+                        $this->dbTypes['composite'][$row['reltype']][$row['attname']] = $row['atttypid'];
                     }
                 }
                 pg_free_result($res);
             }
 
-            if (!($res = @pg_query(
-                $this->_connection->getResource(), "select rngtypid, rngsubtype from pg_range"
-            ))) {
-                throw new InvalidQueryException(pg_last_error($this->_connection->getResource()));
+            if (!($res = @pg_query($this->connection->getResource(), "select rngtypid, rngsubtype from pg_range"))) {
+                throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
             }
             while ($row = pg_fetch_assoc($res)) {
-                $this->_dbTypes['range'][$row['rngtypid']] = $row['rngsubtype'];
+                $this->dbTypes['range'][$row['rngtypid']] = $row['rngsubtype'];
             }
             pg_free_result($res);
 
             if ($cache && $cacheItem) {
-                $cache->save($cacheItem->set($this->_dbTypes));
+                $cache->save($cacheItem->set($this->dbTypes));
             }
         }
 
-        $this->_oidMap = [];
-        foreach ($this->_dbTypes['names'] as $typeName => $schemas) {
+        $this->oidMap = [];
+        foreach ($this->dbTypes['names'] as $typeName => $schemas) {
             foreach ($schemas as $schemaName => $oid) {
-                $this->_oidMap[$oid] = [$schemaName, $typeName];
+                $this->oidMap[$oid] = [$schemaName, $typeName];
             }
         }
     }

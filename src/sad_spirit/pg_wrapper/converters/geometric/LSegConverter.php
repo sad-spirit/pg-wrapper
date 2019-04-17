@@ -41,7 +41,12 @@ class LSegConverter extends BaseGeometricConverter
         if (is_array($value)) {
             $value = LineSegment::createFromArray($value);
         } elseif (!($value instanceof LineSegment)) {
-            throw TypeConversionException::unexpectedValue($this, 'output', 'instance of LineSegment or an array', $value);
+            throw TypeConversionException::unexpectedValue(
+                $this,
+                'output',
+                'instance of LineSegment or an array',
+                $value
+            );
         }
         return '[' . $this->point->output($value->start) . ',' . $this->point->output($value->end) . ']';
     }

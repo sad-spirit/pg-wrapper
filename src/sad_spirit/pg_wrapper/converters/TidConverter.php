@@ -33,11 +33,11 @@ class TidConverter extends ContainerConverter
      * Converter for numbers within Tid
      * @var IntegerConverter
      */
-    private $_integer;
+    private $integerConverter;
 
     public function __construct()
     {
-        $this->_integer = new IntegerConverter();
+        $this->integerConverter = new IntegerConverter();
     }
 
     protected function parseInput(string $native, int &$pos)
@@ -56,7 +56,7 @@ class TidConverter extends ContainerConverter
 
         $this->expectChar($native, $pos, ')');
 
-        return new Tid($this->_integer->input($blockNumber), $this->_integer->input($offset));
+        return new Tid($this->integerConverter->input($blockNumber), $this->integerConverter->input($offset));
     }
 
     protected function outputNotNull($value): string

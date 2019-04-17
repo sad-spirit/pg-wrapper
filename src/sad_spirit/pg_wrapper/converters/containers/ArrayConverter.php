@@ -36,14 +36,14 @@ class ArrayConverter extends ContainerConverter
      * Base type for elements of the array
      * @var TypeConverter
      */
-    private $_item;
+    private $itemConverter;
 
-    public function __construct(TypeConverter $item)
+    public function __construct(TypeConverter $itemConverter)
     {
-        if ($item instanceof self) {
+        if ($itemConverter instanceof self) {
             throw new InvalidArgumentException('ArrayConverters should not be nested');
         }
-        $this->_item = $item;
+        $this->itemConverter = $itemConverter;
     }
 
     /**
@@ -84,14 +84,17 @@ class ArrayConverter extends ContainerConverter
             return '{}';
         }
 
-        $requiredSizes = $this->_calculateRequiredSizes($value);
+        $requiredSizes = $this->calculateRequiredSizes($value);
         // this can only happen if $_item->dimensions() > 0, i.e. it should be an array iself
         if (count($requiredSizes) < 1) {
             throw TypeConversionException::unexpectedValue(
-                $this, 'output', "array with at least {$this->_item->dimensions()} dimension(s)", reset($value)
+                $this,
+                'output',
+                "array with at least {$this->itemConverter->dimensions()} dimension(s)",
+                reset($value)
             );
         }
-        return $this->_buildArrayLiteral($value, $requiredSizes);
+        return $this->buildArrayLiteral($value, $requiredSizes);
     }
 
     /**
@@ -102,19 +105,22 @@ class ArrayConverter extends ContainerConverter
      * @return string
      * @throws TypeConversionException
      */
-    private function _buildArrayLiteral(array $value, array $requiredSizes): string
+    private function buildArrayLiteral(array $value, array $requiredSizes): string
     {
         $requiredCount = array_shift($requiredSizes);
         if ($requiredCount !== count($value)) {
             throw TypeConversionException::unexpectedValue(
-                $this, 'output', "array with {$requiredCount} value(s)", $value
+                $this,
+                'output',
+                "array with {$requiredCount} value(s)",
+                $value
             );
         }
 
         $parts = [];
         if (empty($requiredSizes)) {
             foreach ($value as $v) {
-                $item    = $this->_item->output($v);
+                $item    = $this->itemConverter->output($v);
                 $parts[] = ($item === null) ? 'NULL' : '"' . addcslashes($item, "\"\\") . '"';
             }
 
@@ -123,7 +129,7 @@ class ArrayConverter extends ContainerConverter
                 if (!is_array($v)) {
                     throw TypeConversionException::unexpectedValue($this, 'output', 'array', $v);
                 }
-                $parts[] = $this->_buildArrayLiteral($v, $requiredSizes);
+                $parts[] = $this->buildArrayLiteral($v, $requiredSizes);
             }
         }
 
@@ -137,16 +143,19 @@ class ArrayConverter extends ContainerConverter
      * @return array
      * @throws TypeConversionException
      */
-    private function _calculateRequiredSizes(array $value): array
+    private function calculateRequiredSizes(array $value): array
     {
         $sizes = [];
         while (is_array($value)) {
             $sizes[] = count($value);
             if (!count($value) || array_keys($value) !== range(0, count($value) - 1)) {
-                if (0 === $this->_item->dimensions()) {
+                if (0 === $this->itemConverter->dimensions()) {
                     // scalar base type? "weird" sub-array is not allowed
                     throw TypeConversionException::unexpectedValue(
-                        $this, 'output', 'non-empty array with 0-based numeric indexes', $value
+                        $this,
+                        'output',
+                        'non-empty array with 0-based numeric indexes',
+                        $value
                     );
                 }
                 // assume that we reached an array representing base type
@@ -158,15 +167,16 @@ class ArrayConverter extends ContainerConverter
                 return $sizes;
             }
         }
-        if ($this->_item->dimensions() > 0) {
+        if ($this->itemConverter->dimensions() > 0) {
             // check whether we have an object representing base type
             if (is_object($value)) {
                 try {
-                    $this->_item->output($value);
+                    $this->itemConverter->output($value);
                     return $sizes;
-                } catch (PackageException $e) {}
+                } catch (PackageException $e) {
+                }
             }
-            array_splice($sizes, -$this->_item->dimensions());
+            array_splice($sizes, -$this->itemConverter->dimensions());
         }
         return $sizes;
     }
@@ -196,18 +206,21 @@ class ArrayConverter extends ContainerConverter
                 if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $native, $m, 0, $pos)) {
                     throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                 }
-                $result[]  = $this->_item->input(stripcslashes($m[1]));
+                $result[]  = $this->itemConverter->input(stripcslashes($m[1]));
                 $pos      += strlen($m[0]);
 
             } else {
                 // zero-length string can appear only quoted
                 if (0 === ($len = strcspn($native, ",} \t\r\n", $pos))) {
                     throw TypeConversionException::parsingFailed(
-                        $this, 'subarray, quoted or unquoted string', $native, $pos
+                        $this,
+                        'subarray, quoted or unquoted string',
+                        $native,
+                        $pos
                     );
                 }
                 $v         = substr($native, $pos, $len);
-                $result[]  = strcasecmp($v, "null") ? $this->_item->input(stripcslashes($v)) : null;
+                $result[]  = strcasecmp($v, "null") ? $this->itemConverter->input(stripcslashes($v)) : null;
                 $pos      += $len;
             }
         }

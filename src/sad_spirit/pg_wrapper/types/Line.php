@@ -30,7 +30,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Line
 {
-    private $_coeffs = [
+    private $coeffs = [
         'A' => 0,
         'B' => 0,
         'C' => 0
@@ -45,8 +45,8 @@ class Line
 
     public function __get($name)
     {
-        if (array_key_exists($name, $this->_coeffs)) {
-            return $this->_coeffs[$name];
+        if (array_key_exists($name, $this->coeffs)) {
+            return $this->coeffs[$name];
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -55,11 +55,11 @@ class Line
 
     public function __set($name, $value)
     {
-        if (array_key_exists($name, $this->_coeffs)) {
+        if (array_key_exists($name, $this->coeffs)) {
             if (!is_numeric($value)) {
                 throw new InvalidArgumentException("Line coefficient '{$name}' should be numeric");
             }
-            $this->_coeffs[$name] = (double)$value;
+            $this->coeffs[$name] = (double)$value;
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -68,7 +68,7 @@ class Line
 
     public function __isset($name)
     {
-        return array_key_exists($name, $this->_coeffs);
+        return array_key_exists($name, $this->coeffs);
     }
 
     /**
@@ -81,9 +81,9 @@ class Line
     public static function createFromArray(array $input)
     {
         if (3 != count($input)) {
-            throw new InvalidArgumentException(sprintf(
-                "%s() expects an array with exactly three elements", __METHOD__
-            ));
+            throw new InvalidArgumentException(
+                sprintf("%s() expects an array with exactly three elements", __METHOD__)
+            );
         }
         if (array_key_exists('A', $input) && array_key_exists('B', $input) && array_key_exists('C', $input)) {
             return new self($input['A'], $input['B'], $input['C']);

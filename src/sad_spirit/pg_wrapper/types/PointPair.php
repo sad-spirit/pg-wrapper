@@ -29,21 +29,21 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 abstract class PointPair
 {
-    private $_points = [
+    private $points = [
         'start' => null,
         'end'   => null
     ];
 
     public function __construct(Point $start, Point $end)
     {
-        $this->_points['start'] = $start;
-        $this->_points['end']   = $end;
+        $this->points['start'] = $start;
+        $this->points['end']   = $end;
     }
 
     public function __get($name)
     {
         if ('start' === $name || 'end' === $name) {
-            return $this->_points[$name];
+            return $this->points[$name];
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -54,11 +54,11 @@ abstract class PointPair
     {
         if ('start' === $name || 'end' === $name) {
             if (!($value instanceof Point)) {
-                throw new InvalidArgumentException(sprintf(
-                    "%s '%s' property should be a Point", __CLASS__, $name
-                ));
+                throw new InvalidArgumentException(
+                    sprintf("%s '%s' property should be a Point", __CLASS__, $name)
+                );
             }
-            $this->_points[$name] = $value;
+            $this->points[$name] = $value;
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -80,9 +80,9 @@ abstract class PointPair
     public static function createFromArray(array $input)
     {
         if (2 != count($input)) {
-            throw new InvalidArgumentException(sprintf(
-                "%s() expects an array with exactly two elements", __METHOD__
-            ));
+            throw new InvalidArgumentException(
+                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+            );
         }
         if (array_key_exists('start', $input) && array_key_exists('end', $input)) {
             $start = $input['start'];

@@ -29,28 +29,28 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Point
 {
-    private $_coordinates = [
+    private $coordinates = [
         'x' => 0,
         'y' => 0
     ];
 
-    function __construct($x, $y)
+    public function __construct($x, $y)
     {
         $this->__set('x', $x);
         $this->__set('y', $y);
     }
 
-    function __get($name)
+    public function __get($name)
     {
         if ('x' === $name || 'y' === $name) {
-            return $this->_coordinates[$name];
+            return $this->coordinates[$name];
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
         }
     }
 
-    function __set($name, $value)
+    public function __set($name, $value)
     {
         if ('x' !== $name && 'y' !== $name) {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -59,10 +59,10 @@ class Point
             throw new InvalidArgumentException("Point '{$name}' coordinate should be numeric");
         }
 
-        $this->_coordinates[$name] = (double)$value;
+        $this->coordinates[$name] = (double)$value;
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return 'x' === $name || 'y' === $name;
     }
@@ -77,9 +77,9 @@ class Point
     public static function createFromArray(array $input)
     {
         if (2 != count($input)) {
-            throw new InvalidArgumentException(sprintf(
-                "%s() expects an array with exactly two elements", __METHOD__
-            ));
+            throw new InvalidArgumentException(
+                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+            );
         }
         if (array_key_exists('x', $input) && array_key_exists('y', $input)) {
             return new self($input['x'], $input['y']);

@@ -35,11 +35,11 @@ class LineConverter extends ContainerConverter
      * Converter for line's coefficients
      * @var FloatConverter
      */
-    private $_float;
+    private $floatConverter;
 
     public function __construct()
     {
-        $this->_float = new FloatConverter();
+        $this->floatConverter = new FloatConverter();
     }
 
     protected function parseInput(string $native, int &$pos): Line
@@ -64,7 +64,11 @@ class LineConverter extends ContainerConverter
 
         $this->expectChar($native, $pos, '}');
 
-        return new Line($this->_float->input($A), $this->_float->input($B), $this->_float->input($C));
+        return new Line(
+            $this->floatConverter->input($A),
+            $this->floatConverter->input($B),
+            $this->floatConverter->input($C)
+        );
     }
 
     protected function outputNotNull($value): string
@@ -74,8 +78,8 @@ class LineConverter extends ContainerConverter
         } elseif (!($value instanceof Line)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Line or an array', $value);
         }
-        return '{' . $this->_float->output($value->A) . ',' . $this->_float->output($value->B)
-               . ',' . $this->_float->output($value->C) . '}';
+        return '{' . $this->floatConverter->output($value->A) . ',' . $this->floatConverter->output($value->B)
+               . ',' . $this->floatConverter->output($value->C) . '}';
     }
 
     public function dimensions(): int

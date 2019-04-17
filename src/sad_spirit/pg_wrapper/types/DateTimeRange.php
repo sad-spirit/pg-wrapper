@@ -32,7 +32,10 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 class DateTimeRange extends Range
 {
     public function __construct(
-        \DateTime $lower = null, \DateTime $upper = null, bool $lowerInclusive = true, bool $upperInclusive = false
+        \DateTime $lower = null,
+        \DateTime $upper = null,
+        bool $lowerInclusive = true,
+        bool $upperInclusive = false
     ) {
         if (null !== $lower && null !== $upper && $lower > $upper) {
             throw new InvalidArgumentException(

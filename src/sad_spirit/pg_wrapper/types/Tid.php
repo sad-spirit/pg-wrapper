@@ -33,7 +33,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Tid
 {
-    private $_props = [
+    private $props = [
         'block' => 0,
         'tuple' => 0
     ];
@@ -46,8 +46,8 @@ class Tid
 
     public function __get($name)
     {
-        if (array_key_exists($name, $this->_props)) {
-            return $this->_props[$name];
+        if (array_key_exists($name, $this->props)) {
+            return $this->props[$name];
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -57,22 +57,23 @@ class Tid
     public function __set($name, $value)
     {
         switch ($name) {
-        case 'block':
-        case 'tuple':
-            if (ctype_digit((string)$value)) {
-                $this->_props[$name] = $value;
-            } else {
-                throw new InvalidArgumentException("Tid {$name} field should be a nonnegative integer");
-            }
-            break;
-        default:
-            throw new InvalidArgumentException("Unknown property '{$name}'");
+            case 'block':
+            case 'tuple':
+                if (ctype_digit((string)$value)) {
+                    $this->props[$name] = $value;
+                } else {
+                    throw new InvalidArgumentException("Tid {$name} field should be a nonnegative integer");
+                }
+                break;
+
+            default:
+                throw new InvalidArgumentException("Unknown property '{$name}'");
         }
     }
 
     public function __isset($name)
     {
-        return array_key_exists($name, $this->_props);
+        return array_key_exists($name, $this->props);
     }
 
     /**
@@ -85,9 +86,9 @@ class Tid
     public static function createFromArray(array $input)
     {
         if (2 != count($input)) {
-            throw new InvalidArgumentException(sprintf(
-                "%s() expects an array with exactly two elements", __METHOD__
-            ));
+            throw new InvalidArgumentException(
+                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+            );
         }
         if (array_key_exists('block', $input) && array_key_exists('tuple', $input)) {
             return new self($input['block'], $input['tuple']);

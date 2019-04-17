@@ -28,48 +28,48 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * PostgreSQL result resource
      * @var resource
      */
-    private $_resource;
+    private $resource;
 
     /**
      * Factory for database type converters (mostly needed for setType())
      * @var TypeConverterFactory
      */
-    private $_converterFactory;
+    private $converterFactory;
 
     /**
      * Type converters, indexed by column number
      * @var TypeConverter[]
      */
-    private $_converters = [];
+    private $converters = [];
 
     /**
      * Number of rows in result
      * @var int
      */
-    private $_numRows;
+    private $numRows;
 
     /**
      * Number of columns in result
      * @var int
      */
-    private $_numFields;
+    private $numFields;
 
     /**
      * Hash (column name => column number)
      * @var array
      */
-    private $_namesHash = [];
+    private $namesHash = [];
 
     /**
      * Current iterator position
      * @var int
      */
-    private $_position = 0;
+    private $position = 0;
 
     /**
      * @var int
      */
-    private $_mode = PGSQL_ASSOC;
+    private $mode = PGSQL_ASSOC;
 
     /**
      * Constructor.
@@ -83,20 +83,20 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     {
         if (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource)) {
             throw new exceptions\InvalidArgumentException(sprintf(
-                "%s requires a query result resource, '%s' given", __CLASS__,
+                "%s requires a query result resource, '%s' given",
+                __CLASS__,
                 is_resource($resource) ? 'resource(' . get_resource_type($resource) . ')' : gettype($resource)
             ));
         }
-        $this->_resource         = $resource;
-        $this->_converterFactory = $factory;
-
-        $this->_numRows     = pg_num_rows($this->_resource);
-        $this->_numFields   = pg_num_fields($this->_resource);
+        $this->resource         = $resource;
+        $this->converterFactory = $factory;
+        $this->numRows          = pg_num_rows($this->resource);
+        $this->numFields        = pg_num_fields($this->resource);
 
         $oids = [];
-        for ($i = 0; $i < $this->_numFields; $i++) {
-            $this->_namesHash[pg_field_name($this->_resource, $i)] = $i;
-            $oids[$i] = pg_field_type_oid($this->_resource, $i);
+        for ($i = 0; $i < $this->numFields; $i++) {
+            $this->namesHash[pg_field_name($this->resource, $i)] = $i;
+            $oids[$i] = pg_field_type_oid($this->resource, $i);
         }
 
         // first set the explicitly given types...
@@ -105,9 +105,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         }
 
         // ...then use type factory to create default converters
-        for ($i = 0; $i < $this->_numFields; $i++) {
-            if (!isset($this->_converters[$i])) {
-                $this->_converters[$i] = $this->_converterFactory->getConverter($oids[$i]);
+        for ($i = 0; $i < $this->numFields; $i++) {
+            if (!isset($this->converters[$i])) {
+                $this->converters[$i] = $this->converterFactory->getConverter($oids[$i]);
             }
         }
     }
@@ -123,12 +123,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function setType($fieldIndex, $type): self
     {
-        $this->_checkFieldIndex($fieldIndex);
+        $this->checkFieldIndex($fieldIndex);
         if (is_string($fieldIndex)) {
-            $fieldIndex = $this->_namesHash[$fieldIndex];
+            $fieldIndex = $this->namesHash[$fieldIndex];
         }
 
-        $this->_converters[$fieldIndex] = $this->_converterFactory->getConverter($type);
+        $this->converters[$fieldIndex] = $this->converterFactory->getConverter($type);
 
         return $this;
     }
@@ -149,7 +149,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
                 __METHOD__ . ' accepts either of PGSQL_ASSOC or PGSQL_NUM constants'
             );
         }
-        $this->_mode = $mode;
+        $this->mode = $mode;
 
         return $this;
     }
@@ -163,15 +163,15 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function fetchColumn($fieldIndex): array
     {
-        $this->_checkFieldIndex($fieldIndex);
+        $this->checkFieldIndex($fieldIndex);
         if (is_string($fieldIndex)) {
-            $fieldIndex = $this->_namesHash[$fieldIndex];
+            $fieldIndex = $this->namesHash[$fieldIndex];
         }
 
         $result = [];
-        for ($i = 0; $i < $this->_numRows; $i++) {
-            $result[] = $this->_converters[$fieldIndex]->input(
-                pg_fetch_result($this->_resource, $i, $fieldIndex)
+        for ($i = 0; $i < $this->numRows; $i++) {
+            $result[] = $this->converters[$fieldIndex]->input(
+                pg_fetch_result($this->resource, $i, $fieldIndex)
             );
         }
         return $result;
@@ -195,33 +195,33 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false)
     {
         if (null !== $mode) {
-            $oldMode = $this->_mode;
+            $oldMode = $this->mode;
             $this->setMode($mode);
         }
         if (null !== $keyColumn) {
-            if ($this->_numFields < 2) {
+            if ($this->numFields < 2) {
                 throw new exceptions\InvalidArgumentException(
                     __METHOD__ . ': at least two columns needed for associative array result'
                 );
             }
-            $this->_checkFieldIndex($keyColumn);
-            if (PGSQL_ASSOC === $this->_mode && ctype_digit((string)$keyColumn)) {
-                $keyColumn = pg_field_name($this->_resource, $keyColumn);
-            } elseif (PGSQL_NUM === $this->_mode && !ctype_digit((string)$keyColumn)) {
-                $keyColumn = $this->_namesHash[$keyColumn];
+            $this->checkFieldIndex($keyColumn);
+            if (PGSQL_ASSOC === $this->mode && ctype_digit((string)$keyColumn)) {
+                $keyColumn = pg_field_name($this->resource, $keyColumn);
+            } elseif (PGSQL_NUM === $this->mode && !ctype_digit((string)$keyColumn)) {
+                $keyColumn = $this->namesHash[$keyColumn];
             }
         }
-        $killArray = (!$forceArray && 2 === $this->_numFields);
+        $killArray = (!$forceArray && 2 === $this->numFields);
 
         $result = [];
 
-        for ($i = 0; $i < $this->_numRows; $i++) {
-            $row = $this->_read($i);
+        for ($i = 0; $i < $this->numRows; $i++) {
+            $row = $this->read($i);
             if (null === $keyColumn) {
                 $result[] = $row;
 
             } else {
-                if (PGSQL_ASSOC === $this->_mode) {
+                if (PGSQL_ASSOC === $this->mode) {
                     $key = $row[$keyColumn];
                     unset($row[$keyColumn]);
                 } else {
@@ -252,7 +252,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function getFieldNames()
     {
-        return array_flip($this->_namesHash);
+        return array_flip($this->namesHash);
     }
 
     /**
@@ -262,7 +262,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function getFieldCount()
     {
-        return $this->_numFields;
+        return $this->numFields;
     }
 
     /**
@@ -270,7 +270,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        pg_free_result($this->_resource);
+        pg_free_result($this->resource);
     }
 
     /**#@+
@@ -278,27 +278,27 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function current()
     {
-        return $this->valid() ? $this->_read($this->_position) : false;
+        return $this->valid() ? $this->read($this->position) : false;
     }
 
     public function next()
     {
-        $this->_position++;
+        $this->position++;
     }
 
     public function key()
     {
-        return $this->_position;
+        return $this->position;
     }
 
     public function valid()
     {
-        return ($this->_position >= 0) && ($this->_position < $this->_numRows);
+        return ($this->position >= 0) && ($this->position < $this->numRows);
     }
 
     public function rewind()
     {
-        $this->_position = 0;
+        $this->position = 0;
     }
     /**#@-*/
 
@@ -309,7 +309,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function count()
     {
-        return $this->_numRows;
+        return $this->numRows;
     }
 
     /**#@+
@@ -317,22 +317,22 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return ctype_digit((string)$offset) && $offset < $this->_numRows;
+        return ctype_digit((string)$offset) && $offset < $this->numRows;
     }
 
     public function offsetGet($offset)
     {
-        return $this->offsetExists($offset) ? $this->_read($offset) : false;
+        return $this->offsetExists($offset) ? $this->read($offset) : false;
     }
 
     public function offsetSet($offset, $value)
     {
-        throw new exceptions\InvalidArgumentException(__CLASS__ . ' is _read-only');
+        throw new exceptions\InvalidArgumentException(__CLASS__ . ' is read-only');
     }
 
     public function offsetUnset($offset)
     {
-        throw new exceptions\InvalidArgumentException(__CLASS__ . ' is _read-only');
+        throw new exceptions\InvalidArgumentException(__CLASS__ . ' is read-only');
     }
     /**#@-*/
 
@@ -342,27 +342,30 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param string|int $fieldIndex
      * @throws exceptions\InvalidArgumentException
      */
-    private function _checkFieldIndex($fieldIndex): void
+    private function checkFieldIndex($fieldIndex): void
     {
         if (ctype_digit((string)$fieldIndex)) {
-            if ($fieldIndex < 0 || $fieldIndex >= $this->_numFields) {
+            if ($fieldIndex < 0 || $fieldIndex >= $this->numFields) {
                 throw new exceptions\InvalidArgumentException(sprintf(
                     "%s: field number %d is not within range 0..%d",
-                    __METHOD__, $fieldIndex, $this->_numFields - 1
+                    __METHOD__,
+                    $fieldIndex,
+                    $this->numFields - 1
                 ));
             }
 
         } elseif (is_string($fieldIndex)) {
-            if (!isset($this->_namesHash[$fieldIndex])) {
-                throw new exceptions\InvalidArgumentException(sprintf(
-                    "%s: field name '%s' is not present", __METHOD__, $fieldIndex
-                ));
+            if (!isset($this->namesHash[$fieldIndex])) {
+                throw new exceptions\InvalidArgumentException(
+                    sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
+                );
             }
 
         } else {
             throw new exceptions\InvalidArgumentException(sprintf(
                 "%s expects a field number or a field name, '%s' given",
-                __METHOD__, is_object($fieldIndex) ? get_class($fieldIndex) : gettype($fieldIndex)
+                __METHOD__,
+                is_object($fieldIndex) ? get_class($fieldIndex) : gettype($fieldIndex)
             ));
         }
     }
@@ -373,14 +376,14 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param int $position row number
      * @return array
      */
-    private function _read(int $position): array
+    private function read(int $position): array
     {
-        $row = pg_fetch_array($this->_resource, $position, $this->_mode);
+        $row = pg_fetch_array($this->resource, $position, $this->mode);
         foreach ($row as $key => &$value) {
-            if (PGSQL_ASSOC === $this->_mode) {
-                $value = $this->_converters[$this->_namesHash[$key]]->input($value);
+            if (PGSQL_ASSOC === $this->mode) {
+                $value = $this->converters[$this->namesHash[$key]]->input($value);
             } else {
-                $value = $this->_converters[$key]->input($value);
+                $value = $this->converters[$key]->input($value);
             }
         }
         return $row;

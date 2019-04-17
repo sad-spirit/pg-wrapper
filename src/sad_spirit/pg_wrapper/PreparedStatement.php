@@ -28,37 +28,37 @@ class PreparedStatement
      * Used to generate statement names for pg_prepare()
      * @var int
      */
-    static protected $statementIdx = 0;
+    protected static $statementIdx = 0;
 
     /**
      * Connection object
      * @var Connection
      */
-    private $_connection;
+    private $connection;
 
     /**
      * SQL query text
      * @var string
      */
-    private $_query;
+    private $query;
 
     /**
      * Statement name for pg_prepare() / pg_execute()
      * @var string
      */
-    private $_queryId;
+    private $queryId;
 
     /**
      * Values for input parameters
      * @var array
      */
-    private $_values = [];
+    private $values = [];
 
     /**
      * Converters for input parameters
      * @var TypeConverter[]
      */
-    private $_converters = [];
+    private $converters = [];
 
     /**
      * Constructor.
@@ -71,12 +71,12 @@ class PreparedStatement
      */
     public function __construct(Connection $connection, string $query, array $paramTypes = [])
     {
-        $this->_connection = $connection;
-        $this->_query      = $query;
+        $this->connection = $connection;
+        $this->query      = $query;
 
         foreach ($paramTypes as $key => $type) {
             if (null !== $type) {
-                $this->_converters[$key] = $this->_connection->getTypeConverter($type);
+                $this->converters[$key] = $this->connection->getTypeConverter($type);
             }
         }
 
@@ -88,8 +88,8 @@ class PreparedStatement
      */
     public function __clone()
     {
-        $this->_queryId = null;
-        $this->_values  = [];
+        $this->queryId = null;
+        $this->values  = [];
         $this->prepare();
     }
 
@@ -102,13 +102,13 @@ class PreparedStatement
      */
     public function prepare(): self
     {
-        if ($this->_queryId) {
+        if ($this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been prepared');
         }
 
-        $this->_queryId = 'statement' . ++self::$statementIdx;
-        if (!@pg_prepare($this->_connection->getResource(), $this->_queryId, $this->_query)) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+        $this->queryId = 'statement' . ++self::$statementIdx;
+        if (!@pg_prepare($this->connection->getResource(), $this->queryId, $this->query)) {
+            throw new exceptions\InvalidQueryException(pg_last_error($this->connection->getResource()));
         }
 
         return $this;
@@ -127,12 +127,12 @@ class PreparedStatement
      */
     public function deallocate(): self
     {
-        if (!$this->_queryId) {
+        if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
         }
 
-        $this->_connection->execute('deallocate ' . $this->_queryId);
-        $this->_queryId = null;
+        $this->connection->execute('deallocate ' . $this->queryId);
+        $this->queryId = null;
 
         return $this;
     }
@@ -147,17 +147,18 @@ class PreparedStatement
      *
      * @throws exceptions\InvalidArgumentException
      */
-    function bindValue(int $paramNum, $value, $type = null): self
+    public function bindValue(int $paramNum, $value, $type = null): self
     {
         if (!is_int($paramNum) || $paramNum < 1) {
             throw new exceptions\InvalidArgumentException(sprintf(
                 '%s: parameter number should be an integer >= 1, %s given',
-                __METHOD__, is_int($paramNum) ? $paramNum : gettype($paramNum)
+                __METHOD__,
+                is_int($paramNum) ? $paramNum : gettype($paramNum)
             ));
         }
-        $this->_values[$paramNum - 1] = $value;
+        $this->values[$paramNum - 1] = $value;
         if (null !== $type) {
-            $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverter($type);
+            $this->converters[$paramNum - 1] = $this->connection->getTypeConverter($type);
         }
 
         return $this;
@@ -173,17 +174,18 @@ class PreparedStatement
      *
      * @throws exceptions\InvalidArgumentException
      */
-    function bindParam(int $paramNum, &$param, $type = null): self
+    public function bindParam(int $paramNum, &$param, $type = null): self
     {
         if (!is_int($paramNum) || $paramNum < 1) {
             throw new exceptions\InvalidArgumentException(sprintf(
                 '%s: parameter number should be an integer >= 1, %s given',
-                __METHOD__, is_int($paramNum) ? $paramNum : gettype($paramNum)
+                __METHOD__,
+                is_int($paramNum) ? $paramNum : gettype($paramNum)
             ));
         }
-        $this->_values[$paramNum - 1] =& $param;
+        $this->values[$paramNum - 1] =& $param;
         if (null !== $type) {
-            $this->_converters[$paramNum - 1] = $this->_connection->getTypeConverter($type);
+            $this->converters[$paramNum - 1] = $this->connection->getTypeConverter($type);
         }
 
         return $this;
@@ -204,43 +206,45 @@ class PreparedStatement
      */
     public function execute(array $params = [], array $resultTypes = [])
     {
-        if (!$this->_queryId) {
+        if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
         }
 
         if (!empty($params)) {
-            $this->_values = [];
+            $this->values = [];
             foreach (array_values($params) as $i => $value) {
                 $this->bindValue($i + 1, $value);
             }
         }
 
         $stringParams = [];
-        foreach ($this->_values as $key => $value) {
-            if (isset($this->_converters[$key])) {
-                $stringParams[$key] = $this->_converters[$key]->output($value);
+        foreach ($this->values as $key => $value) {
+            if (isset($this->converters[$key])) {
+                $stringParams[$key] = $this->converters[$key]->output($value);
             } else {
-                $stringParams[$key] = $this->_connection->guessOutputFormat($value);
+                $stringParams[$key] = $this->connection->guessOutputFormat($value);
             }
         }
 
-        $result = @pg_execute($this->_connection->getResource(), $this->_queryId, $stringParams);
+        $result = @pg_execute($this->connection->getResource(), $this->queryId, $stringParams);
         if (!$result) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->_connection->getResource()));
+            throw new exceptions\InvalidQueryException(pg_last_error($this->connection->getResource()));
         }
 
         switch (pg_result_status($result)) {
-        case PGSQL_COPY_IN:
-        case PGSQL_COPY_OUT:
-            pg_free_result($result);
-            return true;
-        case PGSQL_COMMAND_OK:
-            $count = pg_affected_rows($result);
-            pg_free_result($result);
-            return $count;
-        case PGSQL_TUPLES_OK:
-        default:
-            return new ResultSet($result, $this->_connection->getTypeConverterFactory(), $resultTypes);
+            case PGSQL_COPY_IN:
+            case PGSQL_COPY_OUT:
+                pg_free_result($result);
+                return true;
+
+            case PGSQL_COMMAND_OK:
+                $count = pg_affected_rows($result);
+                pg_free_result($result);
+                return $count;
+
+            case PGSQL_TUPLES_OK:
+            default:
+                return new ResultSet($result, $this->connection->getTypeConverterFactory(), $resultTypes);
         }
     }
 }

@@ -35,15 +35,22 @@ class CompositeConverter extends ContainerConverter
      * Converters for fields within composite type
      * @var TypeConverter[]
      */
-    private $_items = [];
+    private $items = [];
 
     /**
      * Unlike hstore and array, composite types use doubled "" for escaping "
-     * @var array
      */
-    private $_escapes = [
+    private const ESCAPES = [
         '"'  => '""',
         '\\' => '\\\\'
+    ];
+
+    /**
+     * For removal of escaping in input()
+     */
+    private const UNESCAPES = [
+        '""'   => '"',
+        '\\\\' => '\\'
     ];
 
     /**
@@ -63,10 +70,12 @@ class CompositeConverter extends ContainerConverter
             if (!$item instanceof TypeConverter) {
                 throw new InvalidArgumentException(sprintf(
                     "%s expects an array of TypeConverter instances, '%s' given for index '%s'",
-                    __CLASS__, is_object($item) ? get_class($item) : gettype($item), $field
+                    __CLASS__,
+                    is_object($item) ? get_class($item) : gettype($item),
+                    $field
                 ));
             }
-            $this->_items[$field] = $item;
+            $this->items[$field] = $item;
         }
     }
 
@@ -83,9 +92,9 @@ class CompositeConverter extends ContainerConverter
             throw TypeConversionException::unexpectedValue($this, 'output', 'array or object', $value);
         }
         $parts = [];
-        foreach ($this->_items as $field => $type) {
+        foreach ($this->items as $field => $type) {
             $v       = $type->output(isset($value[$field]) ? $value[$field] : null);
-            $parts[] = ($v === null) ? '' : ('"' . strtr($v, $this->_escapes) . '"');
+            $parts[] = ($v === null) ? '' : ('"' . strtr($v, self::ESCAPES) . '"');
         }
         return '(' . join(',', $parts) . ')';
     }
@@ -93,50 +102,50 @@ class CompositeConverter extends ContainerConverter
     protected function parseInput(string $native, int &$pos): array
     {
         $result   = [];
-        $unescape = array_flip($this->_escapes);
         $closing  = false;
 
         $this->expectChar($native, $pos, '('); // Leading "("
 
-        foreach ($this->_items as $field => $type) {
+        foreach ($this->items as $field => $type) {
             if ($closing) {
                 // point error at preceding ')'
-                throw TypeConversionException::parsingFailed(
-                    $this, "value for '{$field}'", $native, $pos - 1
-                );
+                throw TypeConversionException::parsingFailed($this, "value for '{$field}'", $native, $pos - 1);
             }
 
             switch ($char = $this->nextChar($native, $pos)) {
-            case ',':
-            case ')': // Comma or end of row instead of value: treat as NULL.
-                $result[$field] = null;
-                break;
+                case ',':
+                case ')': // Comma or end of row instead of value: treat as NULL.
+                    $result[$field] = null;
+                    break;
 
-            case '"': // Quoted string.
-                if (!preg_match('/"((?>[^"]+|"")*)"/As', $native, $m, 0, $pos)) {
-                    throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
-                }
-                $result[$field]  = $type->input(strtr($m[1], $unescape));
-                $pos            += strlen($m[0]);
-                $char            = $this->nextChar($native, $pos);
-                break;
+                case '"': // Quoted string.
+                    if (!preg_match('/"((?>[^"]+|"")*)"/As', $native, $m, 0, $pos)) {
+                        throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
+                    }
+                    $result[$field]  = $type->input(strtr($m[1], self::UNESCAPES));
+                    $pos            += strlen($m[0]);
+                    $char            = $this->nextChar($native, $pos);
+                    break;
 
-            default: // Unquoted string.
-                $len             = strcspn($native, ',)', $pos);
-                $result[$field]  = $type->input(substr($native, $pos, $len));
-                $pos            += $len;
-                $char            = $this->nextChar($native, $pos);
-                break;
+                default: // Unquoted string.
+                    $len             = strcspn($native, ',)', $pos);
+                    $result[$field]  = $type->input(substr($native, $pos, $len));
+                    $pos            += $len;
+                    $char            = $this->nextChar($native, $pos);
+                    break;
             }
 
             switch ($char) { // Expect delimiter after value
-            case ')': // fall-through is intentional
-                $closing = true;
-            case ',':
-                $pos++;
-                break;
-            default:
-                throw TypeConversionException::parsingFailed($this, "',' or ')'", $native, $pos);
+                /** @noinspection PhpMissingBreakStatementInspection */
+                case ')':
+                    $closing = true;
+                    // fall-through is intentional
+                case ',':
+                    $pos++;
+                    break;
+
+                default:
+                    throw TypeConversionException::parsingFailed($this, "',' or ')'", $native, $pos);
             }
         }
         if (!$closing) {

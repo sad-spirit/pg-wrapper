@@ -45,7 +45,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $result = $this->conn->execute('select * from pg_prepared_statements where not from_sql');
 
         $this->assertEquals(1, count($result));
-        $this->assertAttributeEquals($result[0]['name'], '_queryId', $statement);
+        $this->assertAttributeEquals($result[0]['name'], 'queryId', $statement);
     }
 
     public function testClonedStatementIsRePrepared()

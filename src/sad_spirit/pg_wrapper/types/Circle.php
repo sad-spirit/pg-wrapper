@@ -29,7 +29,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Circle
 {
-    private $_props = [
+    private $props = [
         'center' => null,
         'radius' => 0
     ];
@@ -43,7 +43,7 @@ class Circle
     public function __get($name)
     {
         if ('center' === $name || 'radius' === $name) {
-            return $this->_props[$name];
+            return $this->props[$name];
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -56,13 +56,13 @@ class Circle
             if (!($value instanceof Point)) {
                 throw new InvalidArgumentException("Circle center should be a Point");
             }
-            $this->_props[$name] = $value;
+            $this->props[$name] = $value;
 
         } elseif ('radius' === $name) {
             if (!is_numeric($value)) {
                 throw new InvalidArgumentException("Circle radius should be numeric");
             }
-            $this->_props[$name] = (double)$value;
+            $this->props[$name] = (double)$value;
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -84,9 +84,9 @@ class Circle
     public static function createFromArray(array $input): self
     {
         if (2 != count($input)) {
-            throw new InvalidArgumentException(sprintf(
-                "%s() expects an array with exactly two elements", __METHOD__
-            ));
+            throw new InvalidArgumentException(
+                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+            );
         }
         if (array_key_exists('center', $input) && array_key_exists('radius', $input)) {
             $center = $input['center'];

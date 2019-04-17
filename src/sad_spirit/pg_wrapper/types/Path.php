@@ -30,7 +30,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Path extends PointList
 {
-    private $_open;
+    private $openProp;
 
     public function __construct(array $points, bool $open = false)
     {
@@ -41,7 +41,7 @@ class Path extends PointList
     public function __get($name)
     {
         if ('open' === $name) {
-            return $this->_open;
+            return $this->openProp;
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -51,7 +51,7 @@ class Path extends PointList
     public function __set($name, $value)
     {
         if ('open' === $name) {
-            $this->_open = (bool)$value;
+            $this->openProp = (bool)$value;
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");

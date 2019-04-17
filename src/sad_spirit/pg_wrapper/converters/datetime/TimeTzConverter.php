@@ -41,7 +41,10 @@ class TimeTzConverter extends BaseDateTimeConverter
             }
         }
         throw TypeConversionException::unexpectedValue(
-            $this, 'input', 'time string with time zone info', $native
+            $this,
+            'input',
+            'time string with time zone info',
+            $native
         );
     }
 }

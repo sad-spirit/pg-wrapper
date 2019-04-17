@@ -30,25 +30,25 @@ class Connection
      * Connection resource
      * @var resource
      */
-    private $_resource;
+    private $resource;
 
     /**
      * Connection string (as used for pg_connect())
      * @var string
      */
-    private $_connectionString;
+    private $connectionString;
 
     /**
      * Type conversion factory for this connection
      * @var TypeConverterFactory
      */
-    private $_converterFactory;
+    private $converterFactory;
 
     /**
      * Cache for database metadata
      * @var CacheItemPoolInterface
      */
-    private $_cache;
+    private $cacheItemPool;
 
     /**
      * Constructor.
@@ -59,7 +59,7 @@ class Connection
      */
     public function __construct($connectionString, bool $lazy = true)
     {
-        $this->_connectionString = $connectionString;
+        $this->connectionString = $connectionString;
         if (!$lazy) {
             $this->connect();
         }
@@ -70,7 +70,7 @@ class Connection
      */
     public function __destruct()
     {
-        $this->_converterFactory = null;
+        $this->converterFactory = null;
         $this->disconnect();
     }
 
@@ -79,7 +79,7 @@ class Connection
      */
     public function __clone()
     {
-        $this->_resource = null;
+        $this->resource = null;
     }
 
     /**
@@ -90,7 +90,7 @@ class Connection
      */
     public function connect(): self
     {
-        if ($this->_resource) {
+        if ($this->resource) {
             return $this;
         }
 
@@ -100,15 +100,15 @@ class Connection
             return true;
         }, E_WARNING);
 
-        $this->_resource = pg_connect($this->_connectionString, PGSQL_CONNECT_FORCE_NEW);
+        $this->resource = pg_connect($this->connectionString, PGSQL_CONNECT_FORCE_NEW);
 
         restore_error_handler();
-        if (false === $this->_resource) {
+        if (false === $this->resource) {
             throw new exceptions\ConnectionException(
                 __METHOD__ . ': ' . implode("\n", $connectionWarnings)
             );
         }
-        $serverVersion = pg_parameter_status($this->_resource, 'server_version');
+        $serverVersion = pg_parameter_status($this->resource, 'server_version');
         if (version_compare($serverVersion, '9.2.0', '<')) {
             $this->disconnect();
             throw new exceptions\ConnectionException(
@@ -116,7 +116,7 @@ class Connection
                 . 'connected server reports version ' . $serverVersion
             );
         }
-        pg_set_error_verbosity($this->_resource, PGSQL_ERRORS_VERBOSE);
+        pg_set_error_verbosity($this->resource, PGSQL_ERRORS_VERBOSE);
 
         return $this;
     }
@@ -127,8 +127,8 @@ class Connection
     public function disconnect(): self
     {
         if ($this->isConnected()) {
-            pg_close($this->_resource);
-            $this->_resource = null;
+            pg_close($this->resource);
+            $this->resource = null;
         }
 
         return $this;
@@ -141,7 +141,7 @@ class Connection
      */
     public function isConnected(): bool
     {
-        return is_resource($this->_resource);
+        return is_resource($this->resource);
     }
 
     /**
@@ -154,7 +154,7 @@ class Connection
         if (!$this->isConnected()) {
             $this->connect();
         }
-        return $this->_resource;
+        return $this->resource;
     }
 
     /**
@@ -164,7 +164,7 @@ class Connection
      */
     public function getConnectionId(): string
     {
-        return 'pg' . sprintf('%x', crc32(get_class($this) . ' ' . $this->_connectionString));
+        return 'pg' . sprintf('%x', crc32(get_class($this) . ' ' . $this->connectionString));
     }
 
     /**
@@ -224,17 +224,19 @@ class Connection
         }
 
         switch (pg_result_status($result)) {
-        case PGSQL_COMMAND_OK:
-            $rows = pg_affected_rows($result);
-            pg_free_result($result);
-            return $rows;
-        case PGSQL_COPY_IN:
-        case PGSQL_COPY_OUT:
-            pg_free_result($result);
-            return true;
-        case PGSQL_TUPLES_OK:
-        default:
-            return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
+            case PGSQL_COMMAND_OK:
+                $rows = pg_affected_rows($result);
+                pg_free_result($result);
+                return $rows;
+
+            case PGSQL_COPY_IN:
+            case PGSQL_COPY_OUT:
+                pg_free_result($result);
+                return true;
+
+            case PGSQL_TUPLES_OK:
+            default:
+                return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
         }
     }
 
@@ -249,9 +251,8 @@ class Connection
      * @return bool|ResultSet|int
      * @throws exceptions\InvalidQueryException
      */
-    public function executeParams(
-        string $sql, array $params, array $paramTypes = [], array $resultTypes = []
-    ) {
+    public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = [])
+    {
         if (!$this->isConnected()) {
             $this->connect();
         }
@@ -270,17 +271,19 @@ class Connection
         }
 
         switch (pg_result_status($result)) {
-        case PGSQL_COMMAND_OK:
-            $rows = pg_affected_rows($result);
-            pg_free_result($result);
-            return $rows;
-        case PGSQL_COPY_IN:
-        case PGSQL_COPY_OUT:
-            pg_free_result($result);
-            return true;
-        case PGSQL_TUPLES_OK:
-        default:
-            return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
+            case PGSQL_COMMAND_OK:
+                $rows = pg_affected_rows($result);
+                pg_free_result($result);
+                return $rows;
+
+            case PGSQL_COPY_IN:
+            case PGSQL_COPY_OUT:
+                pg_free_result($result);
+                return true;
+
+            case PGSQL_TUPLES_OK:
+            default:
+                return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
         }
     }
 
@@ -291,10 +294,10 @@ class Connection
      */
     public function getTypeConverterFactory(): TypeConverterFactory
     {
-        if (!$this->_converterFactory) {
+        if (!$this->converterFactory) {
             $this->setTypeConverterFactory(new converters\DefaultTypeConverterFactory());
         }
-        return $this->_converterFactory;
+        return $this->converterFactory;
     }
 
     /**
@@ -305,7 +308,7 @@ class Connection
      */
     public function setTypeConverterFactory(TypeConverterFactory $factory): self
     {
-        $this->_converterFactory = $factory;
+        $this->converterFactory = $factory;
         $factory->setConnection($this);
 
         return $this;
@@ -392,7 +395,7 @@ class Connection
      */
     public function getMetadataCache(): ?CacheItemPoolInterface
     {
-        return $this->_cache;
+        return $this->cacheItemPool;
     }
 
     /**
@@ -403,7 +406,7 @@ class Connection
      */
     public function setMetadataCache(CacheItemPoolInterface $cache): self
     {
-        $this->_cache = $cache;
+        $this->cacheItemPool = $cache;
 
         return $this;
     }

@@ -34,11 +34,11 @@ class CircleConverter extends BaseGeometricConverter
      * Converter for circle's radius
      * @var FloatConverter
      */
-    private $_float;
+    private $floatConverter;
 
     public function __construct()
     {
-        $this->_float = new FloatConverter();
+        $this->floatConverter = new FloatConverter();
         parent::__construct();
     }
 
@@ -70,7 +70,7 @@ class CircleConverter extends BaseGeometricConverter
             $this->expectChar($native, $pos, $angleDelimiter ? '>' : ')');
         }
 
-        return new Circle($center, $this->_float->input($radius));
+        return new Circle($center, $this->floatConverter->input($radius));
     }
 
     protected function outputNotNull($value): string
@@ -80,7 +80,7 @@ class CircleConverter extends BaseGeometricConverter
         } elseif (!($value instanceof Circle)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Circle or an array', $value);
         }
-        return '<' . $this->point->output($value->center) . ',' . $this->_float->output($value->radius) . '>';
+        return '<' . $this->point->output($value->center) . ',' . $this->floatConverter->output($value->radius) . '>';
     }
 
     public function dimensions(): int

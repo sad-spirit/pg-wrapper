@@ -61,7 +61,8 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
         if (!($value instanceof Point)) {
             throw new InvalidArgumentException(sprintf(
                 '%s can contain only instances of Point, %s given',
-                __CLASS__, is_object($value) ? 'object(' . get_class($value) . ')' : gettype($value)
+                __CLASS__,
+                is_object($value) ? 'object(' . get_class($value) . ')' : gettype($value)
             ));
         }
 

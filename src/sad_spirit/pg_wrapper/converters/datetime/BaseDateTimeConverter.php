@@ -42,13 +42,13 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * Current DateStyle setting, used for input
      * @var string
      */
-    private $_style = self::DEFAULT_STYLE;
+    private $style = self::DEFAULT_STYLE;
 
     /**
      * Connection resource, used for checking DateStyle setting
      * @var resource
      */
-    private $_connection = null;
+    private $connection = null;
 
     /**
      * What to display in exception message if conversion failed
@@ -76,7 +76,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     public function setConnectionResource($resource): void
     {
-        $this->_connection = $resource;
+        $this->connection = $resource;
 
         $this->setDateStyle(pg_parameter_status($resource, 'DateStyle'));
     }
@@ -88,7 +88,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     public function setDateStyle(string $style = self::DEFAULT_STYLE): void
     {
-        $this->_style = $style;
+        $this->style = $style;
     }
 
     /**
@@ -102,17 +102,17 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
 
     protected function inputNotNull(string $native)
     {
-        foreach ($this->getFormats($this->_style) as $format) {
+        foreach ($this->getFormats($this->style) as $format) {
             if ($value = \DateTime::createFromFormat('!' . $format, $native)) {
                 return $value;
             }
         }
         // check whether datestyle setting changed
-        if ($this->_connection
-            && $this->_style !== ($style = pg_parameter_status($this->_connection, 'DateStyle'))
+        if ($this->connection
+            && $this->style !== ($style = pg_parameter_status($this->connection, 'DateStyle'))
         ) {
-            $this->_style = $style;
-            foreach ($this->getFormats($this->_style) as $format) {
+            $this->style = $style;
+            foreach ($this->getFormats($this->style) as $format) {
                 if ($value = \DateTime::createFromFormat('!' . $format, $native)) {
                     return $value;
                 }
@@ -148,7 +148,10 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
         }
 
         throw TypeConversionException::unexpectedValue(
-            $this, 'output', 'a string, an integer or an instance of DateTime', $value
+            $this,
+            'output',
+            'a string, an integer or an instance of DateTime',
+            $value
         );
     }
 }

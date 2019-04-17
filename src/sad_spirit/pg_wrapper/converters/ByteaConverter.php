@@ -52,12 +52,13 @@ class ByteaConverter extends BaseConverter
                     if ($hexes % 2) {
                         throw new TypeConversionException(sprintf(
                             '%s(): expecting even number of hex digits, %d hex digit(s) found',
-                            __METHOD__, $hexes
+                            __METHOD__,
+                            $hexes
                         ));
                     }
 
                     // pack() throws a warning, but returns a string nonetheless, so use warnings handler
-                    set_error_handler(function($errno, $errstr) use (&$warning) {
+                    set_error_handler(function ($errno, $errstr) use (&$warning) {
                         $warning = $errstr;
                         return true;
                     }, E_WARNING);

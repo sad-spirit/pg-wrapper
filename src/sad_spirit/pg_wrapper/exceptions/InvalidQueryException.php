@@ -30,14 +30,14 @@ class InvalidQueryException extends \UnexpectedValueException implements Excepti
      * Five-character 'SQLSTATE' error code
      * @var string
      */
-    private $_sqlState;
+    private $sqlState;
 
     public function __construct($message = "", $code = 0, \Exception $previous = null)
     {
         // We can only use pg_result_error_field() with async queries, so just parse the message
         // instead. See function pqGetErrorNotice3() in src/interfaces/libpq/fe-protocol3.c
         if (preg_match("/^[^\\r\\n]+:  ([A-Z0-9]{5}):/", $message, $m)) {
-            $this->_sqlState = $m[1];
+            $this->sqlState = $m[1];
         }
         parent::__construct($message, $code, $previous);
     }
@@ -49,6 +49,6 @@ class InvalidQueryException extends \UnexpectedValueException implements Excepti
      */
     public function getSqlState()
     {
-        return $this->_sqlState;
+        return $this->sqlState;
     }
 }

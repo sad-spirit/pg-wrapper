@@ -60,7 +60,7 @@ class HstoreConverter extends ContainerConverter
      * @return null|string
      * @throws TypeConversionException
      */
-    private function _readString(string $string, int &$pos, string $delimiters, bool $convertNull): ?string
+    private function readString(string $string, int &$pos, string $delimiters, bool $convertNull): ?string
     {
         if ('"' === $string[$pos]) {
             if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
@@ -86,7 +86,7 @@ class HstoreConverter extends ContainerConverter
         $result = [];
 
         while (null !== ($char = $this->nextChar($native, $pos))) {
-            $key = $this->_readString($native, $pos, '=', false);
+            $key = $this->readString($native, $pos, '=', false);
 
             $this->expectChar($native, $pos, '=');
             // don't use expectChar as there can be no whitespace
@@ -97,7 +97,7 @@ class HstoreConverter extends ContainerConverter
             // skip possible whitespace before value
             $this->nextChar($native, $pos);
 
-            $result[$key] = $this->_readString($native, $pos, ',', true);
+            $result[$key] = $this->readString($native, $pos, ',', true);
 
             // skip one comma after the pair
             if (',' === $this->nextChar($native, $pos)) {

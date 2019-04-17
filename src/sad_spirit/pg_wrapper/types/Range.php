@@ -32,7 +32,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Range
 {
-    private $_props = [
+    private $props = [
         'lower'          => null,
         'upper'          => null,
         'lowerInclusive' => true,
@@ -55,7 +55,7 @@ class Range
      */
     public static function createEmpty()
     {
-        $range = new static;
+        $range = new static();
         $range->empty = true;
 
         return $range;
@@ -87,8 +87,8 @@ class Range
 
     public function __get($name)
     {
-        if (array_key_exists($name, $this->_props)) {
-            return $this->_props[$name];
+        if (array_key_exists($name, $this->props)) {
+            return $this->props[$name];
 
         } else {
             throw new InvalidArgumentException("Unknown property '{$name}'");
@@ -98,24 +98,24 @@ class Range
     public function __set($name, $value)
     {
         switch ($name) {
-        case 'upper':
-        case 'lower':
-            $this->_props[$name] = $value;
-            break;
+            case 'upper':
+            case 'lower':
+                $this->props[$name] = $value;
+                break;
 
-        case 'upperInclusive':
-        case 'lowerInclusive':
-        case 'empty':
-            $this->_props[$name] = (bool)$value;
-            break;
+            case 'upperInclusive':
+            case 'lowerInclusive':
+            case 'empty':
+                $this->props[$name] = (bool)$value;
+                break;
 
-        default:
-            throw new InvalidArgumentException("Unknown property '{$name}'");
+            default:
+                throw new InvalidArgumentException("Unknown property '{$name}'");
         }
     }
 
     public function __isset($name)
     {
-        return array_key_exists($name, $this->_props);
+        return array_key_exists($name, $this->props);
     }
 }

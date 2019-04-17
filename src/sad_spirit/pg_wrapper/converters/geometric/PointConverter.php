@@ -35,11 +35,11 @@ class PointConverter extends ContainerConverter
      * Converter for point's coordinates
      * @var FloatConverter
      */
-    private $_float;
+    private $floatConverter;
 
     public function __construct()
     {
-        $this->_float = new FloatConverter();
+        $this->floatConverter = new FloatConverter();
     }
 
     protected function parseInput(string $native, int &$pos): Point
@@ -62,7 +62,7 @@ class PointConverter extends ContainerConverter
         if ($hasDelimiters) {
             $this->expectChar($native, $pos, ')');
         }
-        return new Point($this->_float->input($x), $this->_float->input($y));
+        return new Point($this->floatConverter->input($x), $this->floatConverter->input($y));
     }
 
     protected function outputNotNull($value): string
@@ -72,7 +72,7 @@ class PointConverter extends ContainerConverter
         } elseif (!($value instanceof Point)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Point or an array', $value);
         }
-        return '(' . $this->_float->output($value->x) . ',' . $this->_float->output($value->y) . ')';
+        return '(' . $this->floatConverter->output($value->x) . ',' . $this->floatConverter->output($value->y) . ')';
     }
 
     public function dimensions(): int

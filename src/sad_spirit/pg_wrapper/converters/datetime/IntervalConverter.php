@@ -41,7 +41,7 @@ use sad_spirit\pg_wrapper\{
 class IntervalConverter extends BaseConverter
 {
     /**#@+
-     * Token types used by _tokenize() and _createInterval()
+     * Token types used by tokenize() and createInterval()
      */
     const TOKEN_STRING = 'string';
     const TOKEN_NUMBER = 'number';
@@ -99,7 +99,7 @@ class IntervalConverter extends BaseConverter
      * @param DateInterval $interval
      * @throws TypeConversionException
      */
-    private function _parseTimeToken(string $token, DateInterval $interval): void
+    private function parseTimeToken(string $token, DateInterval $interval): void
     {
         $parts = explode(':', $token);
 
@@ -133,7 +133,7 @@ class IntervalConverter extends BaseConverter
      * @return DateInterval
      * @throws TypeConversionException
      */
-    private function _createInterval(array $tokens): DateInterval
+    private function createInterval(array $tokens): DateInterval
     {
         // A better approach would be to clone a prototype but cloning DateInterval
         // objects does not quite work
@@ -146,79 +146,79 @@ class IntervalConverter extends BaseConverter
             list($tokenValue, $tokenType) = $tokens[$i];
             $keys = [];
             switch ($tokenType) {
-            case self::TOKEN_NUMBER:
-                $intervalKey = $intervalKey ?: 's';
+                case self::TOKEN_NUMBER:
+                    $intervalKey = $intervalKey ?: 's';
 
-                if (false === ($pos = strpos($tokenValue, '.'))) {
-                    $interval->{$intervalKey} = (int)$tokenValue;
-                } elseif ('s' !== $intervalKey) {
-                    // Only allow fractional seconds, otherwise there is a non-trivial amount of work
-                    // to e.g. properly convert '4.56 months'
-                    throw TypeConversionException::parsingFailed(
-                        $this, 'integer value', $tokenValue, 0
-                    );
-                } else {
-                    $interval->s = (int)substr($tokenValue, 0, $pos);
-                    $interval->f = ('-' === $tokenValue[0] ? -1 : 1)
-                                   * (double)substr($tokenValue, $pos);
-                }
-
-                $keys = [$intervalKey];
-                break;
-
-            case self::TOKEN_STRING:
-                if ('ago' === $tokenValue) {
-                    $invert = true;
-
-                } elseif (isset(self::POSTGRES_UNITS[$tokenValue])) {
-                    $intervalKey = self::POSTGRES_UNITS[$tokenValue];
-
-                } else {
-                    throw TypeConversionException::unexpectedValue(
-                        $this, 'input', 'interval unit name', $tokenValue
-                    );
-                }
-                break;
-
-            case self::TOKEN_TIME:
-                if ('-' !== $tokenValue[0] && '+' !== $tokenValue[0]) {
-                    $this->_parseTimeToken($tokenValue, $interval);
-                } else {
-                    $this->_parseTimeToken(substr($tokenValue, 1), $interval);
-                    if ('-' === $tokenValue[0]) {
-                        list($interval->h, $interval->i, $interval->s, $interval->f) =
-                            [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
+                    if (false === ($pos = strpos($tokenValue, '.'))) {
+                        $interval->{$intervalKey} = (int)$tokenValue;
+                    } elseif ('s' !== $intervalKey) {
+                        // Only allow fractional seconds, otherwise there is a non-trivial amount of work
+                        // to e.g. properly convert '4.56 months'
+                        throw TypeConversionException::parsingFailed($this, 'integer value', $tokenValue, 0);
+                    } else {
+                        $interval->s = (int)substr($tokenValue, 0, $pos);
+                        $interval->f = ('-' === $tokenValue[0] ? -1 : 1)
+                                       * (double)substr($tokenValue, $pos);
                     }
-                }
-                $intervalKey = 'd';
-                $keys        = ['h', 'i', 's'];
-                break;
 
-            case self::TOKEN_DATE:
-                // SQL "years-months" syntax
-                if ('-' !== $tokenValue[0] && '+' !== $tokenValue[0]) {
-                    $sign  = '+';
-                    $parts = explode('-', $tokenValue);
-                } else {
-                    $sign  = $tokenValue[0];
-                    $parts = explode('-', substr($tokenValue, 1));
-                }
-                $interval->y = ('-' === $sign ? -1 : 1) * (int)$parts[0];
-                $interval->m = ('-' === $sign ? -1 : 1) * (int)$parts[1];
-                $keys        = ['y', 'm'];
-                break;
+                    $keys = [$intervalKey];
+                    break;
 
-            default:
-                throw TypeConversionException::unexpectedValue(
-                    $this, 'input', 'valid token type', $tokenType
-                );
+                case self::TOKEN_STRING:
+                    if ('ago' === $tokenValue) {
+                        $invert = true;
+
+                    } elseif (isset(self::POSTGRES_UNITS[$tokenValue])) {
+                        $intervalKey = self::POSTGRES_UNITS[$tokenValue];
+
+                    } else {
+                        throw TypeConversionException::unexpectedValue(
+                            $this,
+                            'input',
+                            'interval unit name',
+                            $tokenValue
+                        );
+                    }
+                    break;
+
+                case self::TOKEN_TIME:
+                    if ('-' !== $tokenValue[0] && '+' !== $tokenValue[0]) {
+                        $this->parseTimeToken($tokenValue, $interval);
+                    } else {
+                        $this->parseTimeToken(substr($tokenValue, 1), $interval);
+                        if ('-' === $tokenValue[0]) {
+                            list($interval->h, $interval->i, $interval->s, $interval->f) =
+                                [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
+                        }
+                    }
+                    $intervalKey = 'd';
+                    $keys        = ['h', 'i', 's'];
+                    break;
+
+                case self::TOKEN_DATE:
+                    // SQL "years-months" syntax
+                    if ('-' !== $tokenValue[0] && '+' !== $tokenValue[0]) {
+                        $sign  = '+';
+                        $parts = explode('-', $tokenValue);
+                    } else {
+                        $sign  = $tokenValue[0];
+                        $parts = explode('-', substr($tokenValue, 1));
+                    }
+                    $interval->y = ('-' === $sign ? -1 : 1) * (int)$parts[0];
+                    $interval->m = ('-' === $sign ? -1 : 1) * (int)$parts[1];
+                    $keys        = ['y', 'm'];
+                    break;
+
+                default:
+                    throw TypeConversionException::unexpectedValue($this, 'input', 'valid token type', $tokenType);
             }
 
             foreach ($keys as $key) {
                 if (isset($keysHash[$key])) {
                     throw new TypeConversionException(sprintf(
                         "%s: duplicate value for interval field '%s' found",
-                        __METHOD__, $key
+                        __METHOD__,
+                        $key
                     ));
                 }
                 $keysHash[$key] = true;
@@ -239,7 +239,7 @@ class IntervalConverter extends BaseConverter
      * @return array
      * @throws TypeConversionException
      */
-    private function _tokenize(string $native): array
+    private function tokenize(string $native): array
     {
         $tokens = [];
         $pos    = 0;
@@ -273,9 +273,7 @@ class IntervalConverter extends BaseConverter
                 }
 
             } else {
-                throw TypeConversionException::parsingFailed(
-                    $this, 'valid interval part', $native, $pos
-                );
+                throw TypeConversionException::parsingFailed($this, 'valid interval part', $native, $pos);
             }
 
             $tokens[] = [$field, $type];
@@ -298,7 +296,7 @@ class IntervalConverter extends BaseConverter
      * @return DateInterval
      * @throws TypeConversionException
      */
-    private function _parseISO8601(string $native): DateInterval
+    private function parseISO8601(string $native): DateInterval
     {
         $interval = clone $this->intervalPrototype;
         $regexp   = '/^P(?=[T\d-])                      # P should be followed by something
@@ -335,7 +333,7 @@ class IntervalConverter extends BaseConverter
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
 
         } elseif ('P' !== $native[0]) {
-            return $this->_createInterval($this->_tokenize($native));
+            return $this->createInterval($this->tokenize($native));
 
         } else {
             if (false === strpos($native, '-') && false === strpos($native, '.')) {
@@ -348,7 +346,7 @@ class IntervalConverter extends BaseConverter
                     // croaked; let our own parsing function work and throw an Exception
                 }
             }
-            return $this->_parseISO8601($native);
+            return $this->parseISO8601($native);
         }
     }
 
@@ -379,7 +377,10 @@ class IntervalConverter extends BaseConverter
         }
 
         throw TypeConversionException::unexpectedValue(
-            $this, 'output', 'a string, a number or an instance of DateInterval', $value
+            $this,
+            'output',
+            'a string, a number or an instance of DateInterval',
+            $value
         );
     }
 }
