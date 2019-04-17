@@ -81,7 +81,10 @@ class TimestampTzTest extends \PHPUnit_Framework_TestCase
         return [
             ['whatever',                       'whatever'],
             ['1970-01-01 00:00:01.000000+0000', 1],
-            ['2013-01-01 02:03:04.000000+0400', new \DateTime('2013-01-01 02:03:04', new \DateTimeZone('Europe/Moscow'))],
+            [
+                '2013-01-01 02:03:04.000000+0400',
+                new \DateTime('2013-01-01 02:03:04', new \DateTimeZone('Europe/Moscow'))
+            ],
             [new TypeConversionException(),     false],
             [new TypeConversionException(),     1.234],
             [new TypeConversionException(),     []],

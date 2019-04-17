@@ -65,5 +65,4 @@ class NumericTest extends TypeConverterTestCase
             [new TypeConversionException(), []]
         ];
     }
-
 }

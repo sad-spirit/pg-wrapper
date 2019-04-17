@@ -32,7 +32,7 @@ class DateTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->caster = new DateConverter;
+        $this->caster = new DateConverter();
     }
 
     /**

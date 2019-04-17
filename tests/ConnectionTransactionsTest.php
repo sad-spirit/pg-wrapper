@@ -30,9 +30,9 @@ class ConnectionTransactionsTest extends \PHPUnit_Framework_TestCase
     /**
      * @var Connection
      */
-    static $conn;
+    protected static $conn;
 
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         if (TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             self::$conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);

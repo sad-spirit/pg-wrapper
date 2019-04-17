@@ -76,5 +76,4 @@ class JSONTest extends TypeConverterTestCase
             [new TypeConversionException(), [NAN]]
         ];
     }
-
 }

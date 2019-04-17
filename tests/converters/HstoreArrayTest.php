@@ -37,7 +37,7 @@ class HstoreArrayTest extends TypeConverterTestCase
         return [
             [null, null],
             ['{"\"a\"=>\"b\"","\"c\"=>\"d\", \"e\"=>\"f\""}', [['a' => 'b'], ['c' => 'd', 'e' => 'f']]],
-            ['{"\"g\"=>\"h\"",NULL}', [['g'=>'h'], null]],
+            ['{"\"g\"=>\"h\"",NULL}', [['g' => 'h'], null]],
             [
                 '{{"","\"a\"=>\"b\""},{"\"c\"=>\"d\"",NULL}}',
                 [[[], ['a' => 'b']], [['c' => 'd'], null]]

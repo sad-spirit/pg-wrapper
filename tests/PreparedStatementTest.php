@@ -107,7 +107,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bool', $result[0]['typname']);
     }
 
-    private function _createMockTimestampConverter()
+    private function createMockTimestampConverter()
     {
         $mockTimestamp = $this->getMockBuilder(TimeStampTzConverter::class)
             ->getMock();
@@ -125,7 +125,7 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
     {
         $statement = $this->conn->prepare(
             'select * from pg_stat_activity where query_start < $1',
-            [$this->_createMockTimestampConverter()]
+            [$this->createMockTimestampConverter()]
         );
         $statement->execute(['yesterday']);
     }
@@ -133,14 +133,14 @@ class PreparedStatementTest extends \PHPUnit_Framework_TestCase
     public function testBindValueConfiguresTypeConverterArgumentUsingConnection()
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
-        $statement->bindValue(1, 'yesterday', $this->_createMockTimestampConverter());
+        $statement->bindValue(1, 'yesterday', $this->createMockTimestampConverter());
         $statement->execute();
     }
 
     public function testBindParamConfiguresTypeConverterArgumentUsingConnection()
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
-        $statement->bindParam(1, $param, $this->_createMockTimestampConverter());
+        $statement->bindParam(1, $param, $this->createMockTimestampConverter());
 
         $param = 'yesterday';
         $statement->execute();

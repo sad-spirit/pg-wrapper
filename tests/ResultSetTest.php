@@ -31,9 +31,9 @@ class ResultSetTest extends \PHPUnit_Framework_TestCase
     /**
      * @var Connection
      */
-    static $conn;
+    protected static $conn;
 
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             return;
@@ -90,7 +90,8 @@ SQL
             try {
                 $res->setType(3, new converters\StubConverter());
                 $this->fail('Expected InvalidArgumentException was not thrown');
-            } catch (InvalidArgumentException $e) {}
+            } catch (InvalidArgumentException $e) {
+            }
         }
     }
 
@@ -113,7 +114,8 @@ SQL
             try {
                 $res->fetchColumn(3);
                 $this->fail('Expected InvalidArgumentException was not thrown');
-            } catch (InvalidArgumentException $e) {}
+            } catch (InvalidArgumentException $e) {
+            }
         }
     }
 

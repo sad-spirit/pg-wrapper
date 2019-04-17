@@ -33,36 +33,36 @@ class HstoreTest extends TypeConverterTestCase
     protected function valuesBoth()
     {
         return [
-            [null, null],
-            ['', []],
-            ['"0"=>"b"', ['0'=>'b']],
-            ['"a"=>"b"', ['a'=>'b']],
-            ['"a"=>"b", "b"=>"\\"a"', ['a'=>'b', 'b'=>'"a']],
-            ['"a"=>NULL, "x"=>"123"', ['a'=>null, 'x'=>'123']],
-            ['"a"=>"null", "b"=>NULL', ['a' => 'null', 'b' => null]]
+            [null,                      null],
+            ['',                        []],
+            ['"0"=>"b"',                ['0' => 'b']],
+            ['"a"=>"b"',                ['a' => 'b']],
+            ['"a"=>"b", "b"=>"\\"a"',   ['a' => 'b', 'b' => '"a']],
+            ['"a"=>NULL, "x"=>"123"',   ['a' => null, 'x' => '123']],
+            ['"a"=>"null", "b"=>NULL',  ['a' => 'null', 'b' => null]]
         ];
     }
 
     protected function valuesFrom()
     {
         return [
-            ['a=>b', ['a' => 'b']],
-            ['a   =>    b', ['a' => 'b']],
+            ['a=>b',                                  ['a' => 'b']],
+            ['a   =>    b',                           ['a' => 'b']],
             ['a   =>    b, 4=>  "\\"x\\"y\\"z\\\\a"', ['a' => 'b', '4' => '"x"y"z\\a']],
-            ['a=>b,', ['a' => 'b']],
-            [',a=>b', [',a' => 'b']],
-            ['a=>b=>c', ['a' => 'b=>c']],
-            ['a', new TypeConversionException()],
-            ['a,b', new TypeConversionException()],
-            ['a=>b,,,,,,', new TypeConversionException()]
+            ['a=>b,',                                 ['a' => 'b']],
+            [',a=>b',                                 [',a' => 'b']],
+            ['a=>b=>c',                               ['a' => 'b=>c']],
+            ['a',                                     new TypeConversionException()],
+            ['a,b',                                   new TypeConversionException()],
+            ['a=>b,,,,,,',                            new TypeConversionException()]
         ];
     }
 
     protected function valuesTo()
     {
         return [
-            [new TypeConversionException(), 1],
-            ['"0"=>"1", "1"=>"a", "2"=>"xyz"', [1, "a", 'xyz']],
+            [new TypeConversionException(),       1],
+            ['"0"=>"1", "1"=>"a", "2"=>"xyz"',    [1, "a", 'xyz']],
             ['"0"=>"1", "1"=>"a", "test"=>"xyz"', [1, "a", 'test' => 'xyz']],
         ];
     }

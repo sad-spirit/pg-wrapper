@@ -30,7 +30,7 @@ class IntervalTest extends TypeConverterTestCase
 {
     public function setUp()
     {
-        $this->converter = new IntervalConverter;
+        $this->converter = new IntervalConverter();
     }
 
     protected function valuesBoth()
@@ -111,5 +111,3 @@ class IntervalTest extends TypeConverterTestCase
         ];
     }
 }
-
-

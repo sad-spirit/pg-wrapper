@@ -23,7 +23,6 @@ use sad_spirit\pg_wrapper\{
 };
 use sad_spirit\pg_wrapper\converters\{
     DefaultTypeConverterFactory,
-    ByteaConverter,
     FloatConverter,
     IntegerConverter,
     StringConverter,
@@ -108,7 +107,8 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConverterForCompositeTypeUsingArray()
     {
-        $this->assertEquals(new CompositeConverter([
+        $this->assertEquals(
+            new CompositeConverter([
                 'num'     => new IntegerConverter(),
                 'string'  => new StringConverter(),
                 'strings' => new ArrayConverter(new StringConverter()),
@@ -133,9 +133,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->factory->registerConverter(IntegerConverter::class, 'foo');
-        $this->assertInstanceOf(
-            IntegerConverter::class, $this->factory->getConverter('foo')
-        );
+        $this->assertInstanceOf(IntegerConverter::class, $this->factory->getConverter('foo'));
     }
 
     public function testRequireQualifiedName()
@@ -150,9 +148,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
             $this->assertContains('Qualified name required', $e->getMessage());
         }
 
-        $this->assertInstanceOf(
-            TimeConverter::class, $this->factory->getConverter('baz.foo')
-        );
+        $this->assertInstanceOf(TimeConverter::class, $this->factory->getConverter('baz.foo'));
     }
 
     /**
@@ -341,9 +337,7 @@ class DefaultTypeConverterFactoryTest extends \PHPUnit_Framework_TestCase
         $mockItem->expects($this->never())
             ->method('set');
 
-        $this->factory->registerConverter(
-            'sad_spirit\pg_wrapper\converters\containers\HstoreConverter', 'blah','blah'
-        );
+        $this->factory->registerConverter(HstoreConverter::class, 'blah', 'blah');
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $connection->setMetadataCache($mockPool)
             ->setTypeConverterFactory($this->factory);

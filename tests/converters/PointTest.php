@@ -18,7 +18,7 @@
 namespace sad_spirit\pg_wrapper\tests\converters;
 
 use sad_spirit\pg_wrapper\converters\geometric\PointConverter;
-use sad_spirit\pg_wrapper\{    
+use sad_spirit\pg_wrapper\{
     types\Point,
     exceptions\TypeConversionException,
     exceptions\InvalidArgumentException

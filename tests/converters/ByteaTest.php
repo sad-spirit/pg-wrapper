@@ -34,7 +34,7 @@ class ByteaTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->caster = new ByteaConverter;
+        $this->caster = new ByteaConverter();
     }
 
     /**
