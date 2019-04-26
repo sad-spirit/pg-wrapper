@@ -17,12 +17,17 @@
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\{
+    TestCase,
+    MockObject\MockObject
+};
 use sad_spirit\pg_wrapper\{
     Connection,
-    exceptions\InvalidArgumentException
+    exceptions\InvalidArgumentException,
+    types\DateTimeRange
 };
 use sad_spirit\pg_wrapper\converters\{
+    datetime\DateConverter,
     DefaultTypeConverterFactory,
     FloatConverter,
     IntegerConverter,
@@ -265,11 +270,11 @@ class DefaultTypeConverterFactoryTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
 
-        /* @var $mockPool CacheItemPoolInterface|\PHPUnit_Framework_MockObject_MockObject */
+        /* @var $mockPool CacheItemPoolInterface|MockObject */
         $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
             ->setMethods(['getItem', 'save'])
             ->getMockForAbstractClass();
-        /* @var $mockItem CacheItemInterface|\PHPUnit_Framework_MockObject_MockObject */
+        /* @var $mockItem CacheItemInterface|MockObject */
         $mockItem = $this->getMockBuilder(CacheItemInterface::class)
             ->setMethods(['isHit', 'set'])
             ->getMockForAbstractClass();
@@ -304,11 +309,11 @@ class DefaultTypeConverterFactoryTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
 
-        /* @var $mockPool CacheItemPoolInterface|\PHPUnit_Framework_MockObject_MockObject */
+        /* @var $mockPool CacheItemPoolInterface|MockObject */
         $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
             ->setMethods(['getItem', 'save'])
             ->getMockForAbstractClass();
-        /* @var $mockItem CacheItemInterface|\PHPUnit_Framework_MockObject_MockObject */
+        /* @var $mockItem CacheItemInterface|MockObject */
         $mockItem = $this->getMockBuilder(CacheItemInterface::class)
             ->setMethods(['isHit', 'set'])
             ->getMockForAbstractClass();
@@ -358,6 +363,69 @@ class DefaultTypeConverterFactoryTest extends TestCase
             ->method('setConnectionResource');
 
         $this->assertSame($mockConverter, $this->factory->getConverter($mockConverter));
+    }
+
+    public function testConnectionAwareSubConverterOfArrayShouldBeConfigured()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setTypeConverterFactory($this->factory);
+
+        $connection->execute("set datestyle='sql, mdy'");
+        $result = $connection->execute(
+            "select array['2019-04-26']::date[]",
+            [new ArrayConverter(new DateConverter())]
+        );
+
+        $this::assertEquals(
+            [[new \DateTime('2019-04-26')]],
+            $result->fetchColumn(0)
+        );
+    }
+
+    public function testConnectionAwareSubConverterOfRangeShouldBeConfigured()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setTypeConverterFactory($this->factory);
+
+        $connection->execute("set datestyle='german'");
+        $result = $connection->execute(
+            "select daterange('2019-04-26', '2019-04-27', '[]')",
+            ['daterange']
+        );
+
+        $this::assertEquals(
+            [new DateTimeRange(new \DateTime('2019-04-26'), new \DateTime('2019-04-28'), true, false)],
+            $result->fetchColumn(0)
+        );
+    }
+
+    public function testConnectionAwareSubConverterOfCompositeTypeShouldBeConfigured()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setTypeConverterFactory($this->factory);
+
+        $connection->execute("set datestyle='postgres'");
+        $result = $connection->execute(
+            "select row('2019-04-26'::date, 1::integer)",
+            [new CompositeConverter(['foo' => new DateConverter(), 'bar' => new IntegerConverter()])]
+        );
+
+        $this::assertEquals(
+            [['foo' => new \DateTime('2019-04-26'), 'bar' => 1]],
+            $result->fetchColumn(0)
+        );
     }
 
     public function getBuiltinTypeConverters()
