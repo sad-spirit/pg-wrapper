@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
+    converters\ConnectionAware,
     exceptions\TypeConversionException,
     exceptions\InvalidArgumentException,
     TypeConverter,
@@ -30,7 +31,7 @@ use sad_spirit\pg_wrapper\{
 /**
  * Class for arrays, including multi-dimensional ones
  */
-class ArrayConverter extends ContainerConverter
+class ArrayConverter extends ContainerConverter implements ConnectionAware
 {
     /**
      * Base type for elements of the array
@@ -57,6 +58,18 @@ class ArrayConverter extends ContainerConverter
     public function dimensions(): int
     {
         return -1;
+    }
+
+    /**
+     * Propagates $resource to ConnectionAware converters of base type
+     *
+     * @param resource $resource
+     */
+    public function setConnectionResource($resource): void
+    {
+        if ($this->itemConverter instanceof ConnectionAware) {
+            $this->itemConverter->setConnectionResource($resource);
+        }
     }
 
     /**

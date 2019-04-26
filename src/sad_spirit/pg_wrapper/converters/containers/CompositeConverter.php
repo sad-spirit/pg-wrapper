@@ -23,13 +23,14 @@ use sad_spirit\pg_wrapper\{
     TypeConverter,
     exceptions\InvalidArgumentException,
     exceptions\TypeConversionException,
+    converters\ConnectionAware,
     converters\ContainerConverter
 };
 
 /**
  * Class for composite types (row types)
  */
-class CompositeConverter extends ContainerConverter
+class CompositeConverter extends ContainerConverter implements ConnectionAware
 {
     /**
      * Converters for fields within composite type
@@ -82,6 +83,20 @@ class CompositeConverter extends ContainerConverter
     public function dimensions(): int
     {
         return 1;
+    }
+
+    /**
+     * Propagates $resource to ConnectionAware converters for fields
+     *
+     * @param resource $resource
+     */
+    public function setConnectionResource($resource): void
+    {
+        foreach ($this->items as $converter) {
+            if ($converter instanceof ConnectionAware) {
+                $converter->setConnectionResource($resource);
+            }
+        }
     }
 
     protected function outputNotNull($value): string

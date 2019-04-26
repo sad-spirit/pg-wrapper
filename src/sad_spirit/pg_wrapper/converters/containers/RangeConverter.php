@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
+    converters\ConnectionAware,
     converters\ContainerConverter,
     converters\FloatConverter,
     converters\IntegerConverter,
@@ -35,7 +36,7 @@ use sad_spirit\pg_wrapper\converters\datetime\BaseDateTimeConverter;
 /**
  * Converter for range types of PostgreSQL 9.2+
  */
-class RangeConverter extends ContainerConverter
+class RangeConverter extends ContainerConverter implements ConnectionAware
 {
     /**
      * Converter for the base type of the range
@@ -64,6 +65,18 @@ class RangeConverter extends ContainerConverter
             $this->resultClass = NumericRange::class;
         } elseif ($subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeRange::class;
+        }
+    }
+
+    /**
+     * Propagates $resource to ConnectionAware converters of base type
+     *
+     * @param resource $resource
+     */
+    public function setConnectionResource($resource): void
+    {
+        if ($this->subtypeConverter instanceof ConnectionAware) {
+            $this->subtypeConverter->setConnectionResource($resource);
         }
     }
 
