@@ -50,6 +50,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         'nchar'     => 'text'
     ];
 
+    private const SOURCE_BUILTIN = 'built-in';
+    private const SOURCE_CACHE   = 'cache';
+    private const SOURCE_DB      = 'db';
+
     /**
      * DB connection object
      * @var Connection
@@ -59,24 +63,303 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Types list for current database, loaded from pg_catalog.pg_type
      *
-     * 'composite': array('type oid' => 'relation oid'), for composite types
-     * 'array': array('array type oid' => 'base type oid'), for arrays
-     * 'range': array('range type oid' => 'base type oid'), for ranges
-     * 'names': array('type name' => array('schema name' => 'type oid', ...))
+     * 'composite': ['type oid' => 'relation oid' or 'type specification'], for composite types
+     * 'array':     ['array type oid' => 'base type oid'], for arrays
+     * 'range':     ['range type oid' => 'base type oid'], for ranges
+     * 'domain':    ['domain type oid' => 'base type oid'], for domains
+     * 'names':     ['type name' => ['schema name' => 'type oid', ...]]
+     *
+     * If data for composite type was not yet loaded, its key contains relation oid,
+     * afterwards it contains type specification of the form
+     * ['field name' => 'field type oid', ...]
+     *
+     * The array is pre-populated with known builtin types of Postgres 11.
+     * Only types with oids below 10000 are used since those oids are assigned manually
+     * (see src/include/access/transam.h) and don't change between versions and
+     * installations.
      *
      * @var array
      */
     private $dbTypes = [
-        'composite' => [],
-        'array'     => [],
-        'range'     => [],
-        'names'     => []
+        'composite' => [
+            71   => 1247,
+            75   => 1249,
+            81   => 1255,
+            83   => 1259,
+            1248 => 1262,
+            2842 => 1260,
+            2843 => 1261,
+            4066 => 3592,
+            6101 => 6100
+        ],
+        'array'     => [
+            1000 => 16,
+            1001 => 17,
+            1002 => 18,
+            1003 => 19,
+            1016 => 20,
+            1005 => 21,
+            1006 => 22,
+            1007 => 23,
+            1008 => 24,
+            1009 => 25,
+            1028 => 26,
+            1010 => 27,
+            1011 => 28,
+            1012 => 29,
+            1013 => 30,
+            199  => 114,
+            143  => 142,
+            1017 => 600,
+            1018 => 601,
+            1019 => 602,
+            1020 => 603,
+            1027 => 604,
+            629  => 628,
+            651  => 650,
+            1021 => 700,
+            1022 => 701,
+            1023 => 702,
+            1024 => 703,
+            1025 => 704,
+            719  => 718,
+            775  => 774,
+            791  => 790,
+            1040 => 829,
+            1041 => 869,
+            1034 => 1033,
+            1014 => 1042,
+            1015 => 1043,
+            1182 => 1082,
+            1183 => 1083,
+            1115 => 1114,
+            1185 => 1184,
+            1187 => 1186,
+            1270 => 1266,
+            1561 => 1560,
+            1563 => 1562,
+            1231 => 1700,
+            2201 => 1790,
+            2207 => 2202,
+            2208 => 2203,
+            2209 => 2204,
+            2210 => 2205,
+            2211 => 2206,
+            2287 => 2249,
+            1263 => 2275,
+            2951 => 2950,
+            2949 => 2970,
+            3221 => 3220,
+            3643 => 3614,
+            3645 => 3615,
+            3644 => 3642,
+            3735 => 3734,
+            3770 => 3769,
+            3807 => 3802,
+            3905 => 3904,
+            3907 => 3906,
+            3909 => 3908,
+            3911 => 3910,
+            3913 => 3912,
+            3927 => 3926,
+            4090 => 4089,
+            4097 => 4096
+        ],
+        'range'     => [
+            3904 => 23,
+            3906 => 1700,
+            3908 => 1114,
+            3910 => 1184,
+            3912 => 1082,
+            3926 => 20
+        ],
+        'domain'    => [],
+        'names'     => [
+            'bool'             => ['pg_catalog' => 16],
+            'bytea'            => ['pg_catalog' => 17],
+            'char'             => ['pg_catalog' => 18],
+            'name'             => ['pg_catalog' => 19],
+            'int8'             => ['pg_catalog' => 20],
+            'int2'             => ['pg_catalog' => 21],
+            'int2vector'       => ['pg_catalog' => 22],
+            'int4'             => ['pg_catalog' => 23],
+            'regproc'          => ['pg_catalog' => 24],
+            'text'             => ['pg_catalog' => 25],
+            'oid'              => ['pg_catalog' => 26],
+            'tid'              => ['pg_catalog' => 27],
+            'xid'              => ['pg_catalog' => 28],
+            'cid'              => ['pg_catalog' => 29],
+            'oidvector'        => ['pg_catalog' => 30],
+            'pg_ddl_command'   => ['pg_catalog' => 32],
+            'pg_type'          => ['pg_catalog' => 71],
+            'pg_attribute'     => ['pg_catalog' => 75],
+            'pg_proc'          => ['pg_catalog' => 81],
+            'pg_class'         => ['pg_catalog' => 83],
+            'json'             => ['pg_catalog' => 114],
+            'xml'              => ['pg_catalog' => 142],
+            '_xml'             => ['pg_catalog' => 143],
+            'pg_node_tree'     => ['pg_catalog' => 194],
+            '_json'            => ['pg_catalog' => 199],
+            'smgr'             => ['pg_catalog' => 210],
+            'index_am_handler' => ['pg_catalog' => 325],
+            'point'            => ['pg_catalog' => 600],
+            'lseg'             => ['pg_catalog' => 601],
+            'path'             => ['pg_catalog' => 602],
+            'box'              => ['pg_catalog' => 603],
+            'polygon'          => ['pg_catalog' => 604],
+            'line'             => ['pg_catalog' => 628],
+            '_line'            => ['pg_catalog' => 629],
+            'cidr'             => ['pg_catalog' => 650],
+            '_cidr'            => ['pg_catalog' => 651],
+            'float4'           => ['pg_catalog' => 700],
+            'float8'           => ['pg_catalog' => 701],
+            'abstime'          => ['pg_catalog' => 702],
+            'reltime'          => ['pg_catalog' => 703],
+            'tinterval'        => ['pg_catalog' => 704],
+            'unknown'          => ['pg_catalog' => 705],
+            'circle'           => ['pg_catalog' => 718],
+            '_circle'          => ['pg_catalog' => 719],
+            'macaddr8'         => ['pg_catalog' => 774],
+            '_macaddr8'        => ['pg_catalog' => 775],
+            'money'            => ['pg_catalog' => 790],
+            '_money'           => ['pg_catalog' => 791],
+            'macaddr'          => ['pg_catalog' => 829],
+            'inet'             => ['pg_catalog' => 869],
+            '_bool'            => ['pg_catalog' => 1000],
+            '_bytea'           => ['pg_catalog' => 1001],
+            '_char'            => ['pg_catalog' => 1002],
+            '_name'            => ['pg_catalog' => 1003],
+            '_int2'            => ['pg_catalog' => 1005],
+            '_int2vector'      => ['pg_catalog' => 1006],
+            '_int4'            => ['pg_catalog' => 1007],
+            '_regproc'         => ['pg_catalog' => 1008],
+            '_text'            => ['pg_catalog' => 1009],
+            '_tid'             => ['pg_catalog' => 1010],
+            '_xid'             => ['pg_catalog' => 1011],
+            '_cid'             => ['pg_catalog' => 1012],
+            '_oidvector'       => ['pg_catalog' => 1013],
+            '_bpchar'          => ['pg_catalog' => 1014],
+            '_varchar'         => ['pg_catalog' => 1015],
+            '_int8'            => ['pg_catalog' => 1016],
+            '_point'           => ['pg_catalog' => 1017],
+            '_lseg'            => ['pg_catalog' => 1018],
+            '_path'            => ['pg_catalog' => 1019],
+            '_box'             => ['pg_catalog' => 1020],
+            '_float4'          => ['pg_catalog' => 1021],
+            '_float8'          => ['pg_catalog' => 1022],
+            '_abstime'         => ['pg_catalog' => 1023],
+            '_reltime'         => ['pg_catalog' => 1024],
+            '_tinterval'       => ['pg_catalog' => 1025],
+            '_polygon'         => ['pg_catalog' => 1027],
+            '_oid'             => ['pg_catalog' => 1028],
+            'aclitem'          => ['pg_catalog' => 1033],
+            '_aclitem'         => ['pg_catalog' => 1034],
+            '_macaddr'         => ['pg_catalog' => 1040],
+            '_inet'            => ['pg_catalog' => 1041],
+            'bpchar'           => ['pg_catalog' => 1042],
+            'varchar'          => ['pg_catalog' => 1043],
+            'date'             => ['pg_catalog' => 1082],
+            'time'             => ['pg_catalog' => 1083],
+            'timestamp'        => ['pg_catalog' => 1114],
+            '_timestamp'       => ['pg_catalog' => 1115],
+            '_date'            => ['pg_catalog' => 1182],
+            '_time'            => ['pg_catalog' => 1183],
+            'timestamptz'      => ['pg_catalog' => 1184],
+            '_timestamptz'     => ['pg_catalog' => 1185],
+            'interval'         => ['pg_catalog' => 1186],
+            '_interval'        => ['pg_catalog' => 1187],
+            '_numeric'         => ['pg_catalog' => 1231],
+            'pg_database'      => ['pg_catalog' => 1248],
+            '_cstring'         => ['pg_catalog' => 1263],
+            'timetz'           => ['pg_catalog' => 1266],
+            '_timetz'          => ['pg_catalog' => 1270],
+            'bit'              => ['pg_catalog' => 1560],
+            '_bit'             => ['pg_catalog' => 1561],
+            'varbit'           => ['pg_catalog' => 1562],
+            '_varbit'          => ['pg_catalog' => 1563],
+            'numeric'          => ['pg_catalog' => 1700],
+            'refcursor'        => ['pg_catalog' => 1790],
+            '_refcursor'       => ['pg_catalog' => 2201],
+            'regprocedure'     => ['pg_catalog' => 2202],
+            'regoper'          => ['pg_catalog' => 2203],
+            'regoperator'      => ['pg_catalog' => 2204],
+            'regclass'         => ['pg_catalog' => 2205],
+            'regtype'          => ['pg_catalog' => 2206],
+            '_regprocedure'    => ['pg_catalog' => 2207],
+            '_regoper'         => ['pg_catalog' => 2208],
+            '_regoperator'     => ['pg_catalog' => 2209],
+            '_regclass'        => ['pg_catalog' => 2210],
+            '_regtype'         => ['pg_catalog' => 2211],
+            'record'           => ['pg_catalog' => 2249],
+            'cstring'          => ['pg_catalog' => 2275],
+            'any'              => ['pg_catalog' => 2276],
+            'anyarray'         => ['pg_catalog' => 2277],
+            'void'             => ['pg_catalog' => 2278],
+            'trigger'          => ['pg_catalog' => 2279],
+            'language_handler' => ['pg_catalog' => 2280],
+            'internal'         => ['pg_catalog' => 2281],
+            'opaque'           => ['pg_catalog' => 2282],
+            'anyelement'       => ['pg_catalog' => 2283],
+            '_record'          => ['pg_catalog' => 2287],
+            'anynonarray'      => ['pg_catalog' => 2776],
+            'pg_authid'        => ['pg_catalog' => 2842],
+            'pg_auth_members'  => ['pg_catalog' => 2843],
+            '_txid_snapshot'   => ['pg_catalog' => 2949],
+            'uuid'             => ['pg_catalog' => 2950],
+            '_uuid'            => ['pg_catalog' => 2951],
+            'txid_snapshot'    => ['pg_catalog' => 2970],
+            'fdw_handler'      => ['pg_catalog' => 3115],
+            'pg_lsn'           => ['pg_catalog' => 3220],
+            '_pg_lsn'          => ['pg_catalog' => 3221],
+            'tsm_handler'      => ['pg_catalog' => 3310],
+            'pg_ndistinct'     => ['pg_catalog' => 3361],
+            'pg_dependencies'  => ['pg_catalog' => 3402],
+            'anyenum'          => ['pg_catalog' => 3500],
+            'tsvector'         => ['pg_catalog' => 3614],
+            'tsquery'          => ['pg_catalog' => 3615],
+            'gtsvector'        => ['pg_catalog' => 3642],
+            '_tsvector'        => ['pg_catalog' => 3643],
+            '_gtsvector'       => ['pg_catalog' => 3644],
+            '_tsquery'         => ['pg_catalog' => 3645],
+            'regconfig'        => ['pg_catalog' => 3734],
+            '_regconfig'       => ['pg_catalog' => 3735],
+            'regdictionary'    => ['pg_catalog' => 3769],
+            '_regdictionary'   => ['pg_catalog' => 3770],
+            'jsonb'            => ['pg_catalog' => 3802],
+            '_jsonb'           => ['pg_catalog' => 3807],
+            'anyrange'         => ['pg_catalog' => 3831],
+            'event_trigger'    => ['pg_catalog' => 3838],
+            'int4range'        => ['pg_catalog' => 3904],
+            '_int4range'       => ['pg_catalog' => 3905],
+            'numrange'         => ['pg_catalog' => 3906],
+            '_numrange'        => ['pg_catalog' => 3907],
+            'tsrange'          => ['pg_catalog' => 3908],
+            '_tsrange'         => ['pg_catalog' => 3909],
+            'tstzrange'        => ['pg_catalog' => 3910],
+            '_tstzrange'       => ['pg_catalog' => 3911],
+            'daterange'        => ['pg_catalog' => 3912],
+            '_daterange'       => ['pg_catalog' => 3913],
+            'int8range'        => ['pg_catalog' => 3926],
+            '_int8range'       => ['pg_catalog' => 3927],
+            'pg_shseclabel'    => ['pg_catalog' => 4066],
+            'regnamespace'     => ['pg_catalog' => 4089],
+            '_regnamespace'    => ['pg_catalog' => 4090],
+            'regrole'          => ['pg_catalog' => 4096],
+            '_regrole'         => ['pg_catalog' => 4097],
+            'pg_subscription'  => ['pg_catalog' => 6101]
+        ]
     ];
 
     /**
-     * Mapping type oid => array('schema name', 'type name')
+     * Source of $dbTypes data, one of SOURCE_* constants
+     * @var string
+     */
+    private $dbTypesSource = self::SOURCE_BUILTIN;
+
+    /**
+     * Mapping 'type oid' => ['schema name', 'type name']
      *
-     * This is built based on _dbTypes['names'], but not saved to cache
+     * This is built based on $dbTypes['names'], but not saved to cache
      *
      * @var array
      */
@@ -101,7 +384,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     private $compositeTypesCaching = true;
 
     /**
-     * Mapping "type name as string" => array("type name", "schema name", "is array")
+     * Mapping "type name as string" => ["type name", "schema name", "is array"]
      * @var array
      */
     private $parsedNames = [];
@@ -176,6 +459,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         $this->registerConverter(function () {
             return new containers\RangeConverter(new datetime\TimeStampTzConverter());
         }, 'tstzrange');
+
+        $this->buildOidMap();
     }
 
     /**
@@ -228,7 +513,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             $this->updateConnection($converter);
         }
 
-        $this->loadTypes();
+        // If loadTypes() was not called and we are using the pre-populated $dbTypes,  then we may delay
+        // loading types when Connection changes. If it was called, we need to reload the types ASAP,
+        // as the new database may have different types using the same oids.
+        if (self::SOURCE_BUILTIN !== $this->dbTypesSource) {
+            $this->loadTypes();
+        }
 
         return $this;
     }
@@ -378,6 +668,25 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
+     * Checks whether given oid corresponds to domain type
+     *
+     * $baseTypeOid will be set to oid of the underlying data type
+     *
+     * @param int      $oid
+     * @param int|null $baseTypeOid
+     * @return bool
+     */
+    protected function isDomainTypeOid($oid, &$baseTypeOid = null)
+    {
+        if (!isset($this->dbTypes['domain'][$oid])) {
+            return false;
+        } else {
+            $baseTypeOid = $this->dbTypes['domain'][$oid];
+            return true;
+        }
+    }
+
+    /**
      * Checks whether given oid corresponds to composite type
      *
      * @param int $oid
@@ -398,7 +707,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     {
         return !isset($this->dbTypes['array'][$oid])
                && !isset($this->dbTypes['range'][$oid])
-               && !isset($this->dbTypes['composite'][$oid]);
+               && !isset($this->dbTypes['composite'][$oid])
+               && !isset($this->dbTypes['domain'][$oid]);
     }
 
 
@@ -423,6 +733,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
         } elseif ($this->isCompositeTypeOid($oid)) {
             return $this->getConverterForCompositeTypeOid($oid);
+
+        } elseif ($this->isDomainTypeOid($oid, $baseTypeOid)) {
+            return $this->getConverterForTypeOid($baseTypeOid);
         }
 
         list($schemaName, $typeName) = $this->findTypeNameForOid($oid, __METHOD__);
@@ -444,15 +757,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function findTypeNameForOid($oid, $method)
     {
-        if (!$this->connection) {
-            throw new InvalidArgumentException(
-                $method . ': Database connection required'
-            );
-        }
-        if (!isset($this->oidMap[$oid])) {
-            $this->loadTypes(true);
-        }
-        if (!isset($this->oidMap[$oid])) {
+        if (!$this->checkTypesArrayWithPossibleReload(
+            function () use ($oid) {
+                return isset($this->oidMap[$oid]);
+            },
+            $method . ': Database connection required'
+        )) {
             throw new InvalidArgumentException(
                 sprintf('%s: could not find type information for oid %d', $method, $oid)
             );
@@ -472,21 +782,17 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     protected function findOidForTypeName($typeName, $schemaName, $method)
     {
-        if (!$this->connection) {
-            throw new InvalidArgumentException(sprintf(
+        if (!$this->checkTypesArrayWithPossibleReload(
+            function () use ($typeName, $schemaName) {
+                return isset($this->dbTypes['names'][$typeName])
+                       && (null === $schemaName || isset($this->dbTypes['names'][$typeName][$schemaName]));
+            },
+            sprintf(
                 "%s: Database connection required to process type name %s",
                 $method,
                 $this->formatQualifiedName($typeName, $schemaName)
-            ));
-        }
-        if (!isset($this->dbTypes['names'][$typeName])
-            || null !== $schemaName && !isset($this->dbTypes['names'][$typeName][$schemaName])
-        ) {
-            $this->loadTypes(true);
-        }
-        if (!isset($this->dbTypes['names'][$typeName])
-            || null !== $schemaName && !isset($this->dbTypes['names'][$typeName][$schemaName])
-        ) {
+            )
+        )) {
             throw new InvalidArgumentException(sprintf(
                 '%s: type %s does not exist in the database',
                 __METHOD__,
@@ -509,6 +815,40 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             ));
         }
     }
+
+
+    /**
+     * Checks for presence of keys in $dbTypes array using provided condition
+     *
+     * If the keys are not present, may reload the array from cache / database, erroring if the connection
+     * needed for that is not available
+     *
+     * @param callable $condition                 Should return true if required keys are present, false otherwise
+     * @param string   $connectionRequiredMessage Message for the exception thrown if required connection is missing
+     * @return bool
+     * @throws RuntimeException
+     */
+    private function checkTypesArrayWithPossibleReload(callable $condition, $connectionRequiredMessage)
+    {
+        if ($condition()) {
+            return true;
+
+        } elseif (!$this->connection) {
+            throw new RuntimeException($connectionRequiredMessage);
+
+        } elseif (self::SOURCE_BUILTIN === $this->dbTypesSource) {
+            $this->loadTypes();
+            if ($condition()) {
+                return true;
+            } elseif (self::SOURCE_DB === $this->dbTypesSource) {
+                return false;
+            }
+        }
+
+        $this->loadTypes(true);
+        return $condition();
+    }
+
 
     /**
      * ASCII-only lowercasing for type names
@@ -807,21 +1147,22 @@ SQL;
         }
 
         if (!$force && null !== $cacheItem && $cacheItem->isHit()) {
-            $this->dbTypes = $cacheItem->get();
+            $this->dbTypes       = $cacheItem->get();
+            $this->dbTypesSource = self::SOURCE_CACHE;
 
         } else {
             $this->dbTypes = [
                 'composite' => [],
                 'array'     => [],
                 'range'     => [],
+                'domain'    => [],
                 'names'     => []
             ];
             $sql = <<<SQL
-    select t.oid, nspname, typname, typarray, typrelid
-    from pg_catalog.pg_type as t, pg_catalog.pg_namespace as s
-    where t.typnamespace = s.oid and
-          typtype != 'd'
-    order by 4 desc
+select t.oid, nspname, typname, typarray, typrelid, typbasetype
+from pg_catalog.pg_type as t, pg_catalog.pg_namespace as s
+where t.typnamespace = s.oid
+order by 1 asc
 SQL;
             if (!($res = @pg_query($this->connection->getResource(), $sql))) {
                 throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
@@ -837,6 +1178,9 @@ SQL;
                 }
                 if ('0' !== $row['typrelid']) {
                     $this->dbTypes['composite'][$row['oid']] = $row['typrelid'];
+                }
+                if ('0' !== $row['typbasetype']) {
+                    $this->dbTypes['domain'][$row['oid']] = $row['typbasetype'];
                 }
             }
             pg_free_result($res);
@@ -876,8 +1220,18 @@ SQL;
             if ($cache && $cacheItem) {
                 $cache->save($cacheItem->set($this->dbTypes));
             }
+
+            $this->dbTypesSource = self::SOURCE_DB;
         }
 
+        $this->buildOidMap();
+    }
+
+    /**
+     * Builds mapping ['type oid' => ['schema name', 'type name']] using information from $dbTypes
+     */
+    private function buildOidMap(): void
+    {
         $this->oidMap = [];
         foreach ($this->dbTypes['names'] as $typeName => $schemas) {
             foreach ($schemas as $schemaName => $oid) {

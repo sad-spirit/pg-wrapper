@@ -24,6 +24,7 @@ use PHPUnit\Framework\{
 use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\InvalidArgumentException,
+    exceptions\RuntimeException,
     types\DateTimeRange
 };
 use sad_spirit\pg_wrapper\converters\{
@@ -130,15 +131,10 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
     public function testMissingConverter()
     {
-        try {
-            $this->factory->getConverter('foo');
-            $this->fail('Expected InvalidArgumentException was not thrown');
-        } catch (InvalidArgumentException $e) {
-            $this->assertStringContainsString('connection required', $e->getMessage());
-        }
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('connection required');
 
-        $this->factory->registerConverter(IntegerConverter::class, 'foo');
-        $this->assertInstanceOf(IntegerConverter::class, $this->factory->getConverter('foo'));
+        $this->factory->getConverter('foo');
     }
 
     public function testRequireQualifiedName()
@@ -146,14 +142,10 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->registerConverter(IntegerConverter::class, 'foo', 'bar');
         $this->factory->registerConverter(TimeConverter::class, 'foo', 'baz');
 
-        try {
-            $this->factory->getConverter('foo');
-            $this->fail('Expected InvalidArgumentException was not thrown');
-        } catch (InvalidArgumentException $e) {
-            $this->assertStringContainsString('Qualified name required', $e->getMessage());
-        }
+        $this::expectException(InvalidArgumentException::class);
+        $this::expectExceptionMessage('Qualified name required');
 
-        $this->assertInstanceOf(TimeConverter::class, $this->factory->getConverter('baz.foo'));
+        $this->factory->getConverter('foo');
     }
 
     public function testMissingTypeWithDatabaseConnection()
@@ -184,22 +176,34 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverter('trigger');
     }
 
-    public function testTypeOidRequiresConnection()
+    public function testBuiltinTypeOid()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Database connection required');
+        $this::assertEquals(new IntegerConverter(), $this->factory->getConverter(23));
+    }
 
-        $this->factory->getConverter(23);
+    public function testCustomTypeOidRequiresConnection()
+    {
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('Database connection required');
+
+        $this->factory->getConverter(1000000);
     }
 
     public function testGetConverterByTypeOid()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
-            $this->markTestSkipped('Connection string is not configured');
+            $this::markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
-        $this->assertEquals(new IntegerConverter(), $this->factory->getConverter(23));
+
+        $result = $connection->executeParams(
+            'select t.oid from pg_type as t join pg_namespace as n on t.typnamespace = n.oid'
+            . ' where t.typname = $2 and n.nspname = $1',
+            ['information_schema', 'tables']
+        );
+
+        $this::assertInstanceOf(CompositeConverter::class, $this->factory->getConverter($result[0]['oid']));
     }
 
     public function testArrayTypeConverterFromMetadata()
@@ -264,6 +268,20 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->assertSame('maybe', $result[0]['value']);
     }
 
+    public function testDomainConverterFromMetadata()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
+        $connection->setTypeConverterFactory($this->factory);
+        $connection->execute("drop domain if exists testdomain");
+        $connection->execute("create domain testdomain as text check (value in ('yes', 'no', 'maybe', 'test'))");
+
+        $this::assertInstanceOf(StringConverter::class, $this->factory->getConverter('testdomain'));
+    }
+
     public function testMetadataIsStoredInCache()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -300,7 +318,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection->setMetadataCache($mockPool)
             ->setTypeConverterFactory($this->factory);
 
-        $this->assertEquals(new IntegerConverter(), $this->factory->getConverter(23));
+        $this->assertEquals(new IntegerConverter(), $this->factory->getConverter('information_schema.cardinal_number'));
     }
 
     public function testMetadataIsLoadedFromCache()
