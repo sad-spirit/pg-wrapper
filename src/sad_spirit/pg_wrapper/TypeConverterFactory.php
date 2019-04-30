@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper;
 
+use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
+
 /**
  * Interface for classes that create type converters
  */
@@ -31,6 +33,19 @@ interface TypeConverterFactory
      * @return TypeConverter
      */
     public function getConverter($type): TypeConverter;
+
+    /**
+     * Tries to return a converter based on type of $value
+     *
+     * Should throw TypeConversionException if it is not possible to find a proper converter, e.g.
+     *  - input is ambiguous (PHP arrays can map to several DB types)
+     *  - $value is an instance of class not explicitly known to Factory
+     *
+     * @param mixed $value
+     * @return TypeConverter
+     * @throws TypeConversionException
+     */
+    public function getConverterForPHPValue($value): TypeConverter;
 
     /**
      * Sets database connection details for this object

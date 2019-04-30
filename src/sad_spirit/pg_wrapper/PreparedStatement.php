@@ -222,7 +222,9 @@ class PreparedStatement
             if (isset($this->converters[$key])) {
                 $stringParams[$key] = $this->converters[$key]->output($value);
             } else {
-                $stringParams[$key] = $this->connection->guessOutputFormat($value);
+                $stringParams[$key] = $this->connection->getTypeConverterFactory()
+                    ->getConverterForPHPValue($value)
+                    ->output($value);
             }
         }
 

@@ -66,4 +66,12 @@ class StubTypeConverterFactory implements TypeConverterFactory
 
         return $this;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConverterForPHPValue($value): TypeConverter
+    {
+        return $this->converter;
+    }
 }

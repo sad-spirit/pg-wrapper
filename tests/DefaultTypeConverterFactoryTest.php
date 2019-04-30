@@ -25,6 +25,7 @@ use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\InvalidArgumentException,
     exceptions\RuntimeException,
+    exceptions\TypeConversionException,
     types\DateTimeRange
 };
 use sad_spirit\pg_wrapper\converters\{
@@ -443,6 +444,25 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this::assertEquals(
             [['foo' => new \DateTime('2019-04-26'), 'bar' => 1]],
             $result->fetchColumn(0)
+        );
+    }
+
+    public function testConvertingInstanceOfUnknownClassResultsInException()
+    {
+        $this::expectException(TypeConversionException::class);
+        $this::expectExceptionMessage('Failed to deduce');
+
+        $this->factory->getConverterForPHPValue((object)['foo' => 'bar']);
+    }
+
+    public function testCanRegisterAMappingFromPHPClassToDBType()
+    {
+        $this->factory->registerClassMapping('\stdClass', 'json');
+
+        $value = (object)['foo' => 'bar'];
+        $this::assertEquals(
+            '{"foo":"bar"}',
+            $this->factory->getConverterForPHPValue($value)->output($value)
         );
     }
 

@@ -25,7 +25,9 @@ use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\InvalidArgumentException,
     exceptions\InvalidQueryException,
-    exceptions\RuntimeException
+    exceptions\RuntimeException,
+    exceptions\TypeConversionException,
+    types
 };
 
 /**
@@ -390,6 +392,27 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     private $parsedNames = [];
 
     /**
+     * Mapping "PHP class name" => ["schema name", "type name"]
+     * @var array
+     */
+    private $classMapping = [
+        '\DateTime'                => ['pg_catalog', 'timestamptz'],
+        '\DateInterval'            => ['pg_catalog', 'interval'],
+
+        types\Box::class           => ['pg_catalog', 'box'],
+        types\Circle::class        => ['pg_catalog', 'circle'],
+        types\Line::class          => ['pg_catalog', 'line'],
+        types\LineSegment::class   => ['pg_catalog', 'lseg'],
+        types\Path::class          => ['pg_catalog', 'path'],
+        types\Point::class         => ['pg_catalog', 'point'],
+        types\Polygon::class       => ['pg_catalog', 'polygon'],
+        types\DateTimeRange::class => ['pg_catalog', 'tstzrange'],
+        types\NumericRange::class  => ['pg_catalog', 'numrange'],
+        types\Tid::class           => ['pg_catalog', 'tid']
+    ];
+
+
+    /**
      * Constructor, registers converters for built-in types
      */
     public function __construct()
@@ -490,6 +513,21 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                 $this->types[$typeName][$schema] = $converter;
             }
         }
+    }
+
+    /**
+     * Registers a mapping between PHP class and database type name
+     *
+     * If an instance of the given class will later be provided to getConverterForPHPValue(), that method will return
+     * a converter for the given database type
+     *
+     * @param string $className
+     * @param string $type
+     * @param string $schema
+     */
+    public function registerClassMapping(string $className, string $type, string $schema = 'pg_catalog'): void
+    {
+        $this->classMapping[$className] = [$schema, $type];
     }
 
     /**
@@ -627,6 +665,45 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             __METHOD__,
             is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
         ));
+    }
+
+    /**
+     * Tries to return a converter based on type of value
+     *
+     * This will work for
+     *  - nulls
+     *  - values of scalar types (string / int / float / bool)
+     *  - instances of classes from $classMapping (new ones may be added with registerClassMapping())
+     *
+     * @param mixed $value
+     * @return TypeConverter
+     * @throws TypeConversionException
+     */
+    public function getConverterForPHPValue($value): TypeConverter
+    {
+        switch (gettype($value)) {
+            case 'string':
+            case 'NULL':
+                return $this->getConverterForQualifiedName('text', 'pg_catalog');
+
+            case 'integer':
+                return $this->getConverterForQualifiedName('int8', 'pg_catalog');
+
+            case 'double':
+                return $this->getConverterForQualifiedName('numeric', 'pg_catalog');
+
+            case 'boolean':
+                return $this->getConverterForQualifiedName('bool', 'pg_catalog');
+
+            case 'object':
+                foreach ($this->classMapping as $className => list($schemaName, $typeName)) {
+                    if ($value instanceof $className) {
+                        return $this->getConverterForQualifiedName($typeName, $schemaName);
+                    }
+                }
+        }
+
+        throw TypeConversionException::guessFailed($value);
     }
 
     /**

@@ -182,10 +182,15 @@ class Connection
         }
 
         $resource = $this->getResource(); // forces connecting if not connected yet
-        if (null === $type) {
-            return "'" . pg_escape_string($resource, $this->guessOutputFormat($value)) . "'";
-        } else {
+        if (null !== $type) {
             return "'" . pg_escape_string($resource, $this->getTypeConverter($type)->output($value)) . "'";
+        } else {
+            return "'" . pg_escape_string(
+                $resource,
+                $this->getTypeConverterFactory()
+                    ->getConverterForPHPValue($value)
+                    ->output($value)
+            ) . "'";
         }
     }
 
@@ -261,7 +266,9 @@ class Connection
             if (isset($paramTypes[$key])) {
                 $stringParams[$key] = $this->getTypeConverter($paramTypes[$key])->output($value);
             } else {
-                $stringParams[$key] = $this->guessOutputFormat($value);
+                $stringParams[$key] = $this->getTypeConverterFactory()
+                    ->getConverterForPHPValue($value)
+                    ->output($value);
             }
         }
 
@@ -323,69 +330,6 @@ class Connection
     public function getTypeConverter($type): TypeConverter
     {
         return $this->getTypeConverterFactory()->getConverter($type);
-    }
-
-    /**
-     * Tries to guess an output converter for PHP variable (based on type) and return its native format
-     *
-     * @param mixed $value
-     * @return null|string
-     * @throws exceptions\TypeConversionException
-     */
-    public function guessOutputFormat($value): ?string
-    {
-        if (is_null($value) || is_string($value)) {
-            return $this->getTypeConverter('text')->output($value);
-
-        } elseif (is_int($value)) {
-            return $this->getTypeConverter('int8')->output($value);
-
-        } elseif (is_float($value)) {
-            return $this->getTypeConverter('numeric')->output($value);
-
-        } elseif (is_bool($value)) {
-            return $this->getTypeConverter('bool')->output($value);
-
-        } elseif ($value instanceof \DateTime) {
-            // use timestamptz as this outputs everything, Postgres will ignore
-            // extra data when casting to a proper date/time type
-            return $this->getTypeConverter('timestamptz')->output($value);
-
-        } elseif ($value instanceof \DateInterval) {
-            return $this->getTypeConverter('interval')->output($value);
-
-        } elseif ($value instanceof types\Box) {
-            return $this->getTypeConverter('box')->output($value);
-
-        } elseif ($value instanceof types\Circle) {
-            return $this->getTypeConverter('circle')->output($value);
-
-        } elseif ($value instanceof types\Line) {
-            return $this->getTypeConverter('line')->output($value);
-
-        } elseif ($value instanceof types\LineSegment) {
-            return $this->getTypeConverter('lseg')->output($value);
-
-        } elseif ($value instanceof types\Path) {
-            return $this->getTypeConverter('path')->output($value);
-
-        } elseif ($value instanceof types\Point) {
-            return $this->getTypeConverter('point')->output($value);
-
-        } elseif ($value instanceof types\Polygon) {
-            return $this->getTypeConverter('polygon')->output($value);
-
-        } elseif ($value instanceof types\DateTimeRange) {
-            return $this->getTypeConverter('tstzrange')->output($value);
-
-        } elseif ($value instanceof types\NumericRange) {
-            return $this->getTypeConverter('numrange')->output($value);
-
-        } elseif ($value instanceof types\Tid) {
-            return $this->getTypeConverter('tid')->output($value);
-        }
-
-        throw exceptions\TypeConversionException::guessFailed($value);
     }
 
     /**
