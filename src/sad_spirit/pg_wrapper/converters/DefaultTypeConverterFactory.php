@@ -494,7 +494,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param string                        $schema
      * @throws InvalidArgumentException
      */
-    public function registerConverter($converter, $type, $schema = 'pg_catalog')
+    public function registerConverter($converter, $type, string $schema = 'pg_catalog'): void
     {
         if (!is_string($converter) && !is_callable($converter) && !($converter instanceof TypeConverter)) {
             throw new InvalidArgumentException(sprintf(
@@ -566,7 +566,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @param TypeConverter $converter
      */
-    private function updateConnection(TypeConverter $converter)
+    private function updateConnection(TypeConverter $converter): void
     {
         if ($this->connection && $converter instanceof ConnectionAware) {
             $converter->setConnectionResource($this->connection->getResource());
@@ -588,7 +588,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param bool $caching
      * @return $this
      */
-    public function setCompositeTypesCaching($caching)
+    final public function setCompositeTypesCaching(bool $caching): self
     {
         $this->compositeTypesCaching = (bool)$caching;
 
@@ -600,7 +600,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @return bool
      */
-    public function getCompositeTypesCaching()
+    final public function getCompositeTypesCaching(): bool
     {
         return $this->compositeTypesCaching;
     }
@@ -699,7 +699,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param int|null $baseTypeOid
      * @return bool
      */
-    protected function isArrayTypeOid($oid, &$baseTypeOid = null)
+    final protected function isArrayTypeOid(int $oid, ?int &$baseTypeOid = null): bool
     {
         if (!isset($this->dbTypes['array'][$oid])) {
             return false;
@@ -718,7 +718,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param int|null $baseTypeOid
      * @return bool
      */
-    protected function isRangeTypeOid($oid, &$baseTypeOid = null)
+    final protected function isRangeTypeOid(int $oid, ?int &$baseTypeOid = null): bool
     {
         if (!isset($this->dbTypes['range'][$oid])) {
             return false;
@@ -737,7 +737,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param int|null $baseTypeOid
      * @return bool
      */
-    protected function isDomainTypeOid($oid, &$baseTypeOid = null)
+    final protected function isDomainTypeOid(int $oid, ?int &$baseTypeOid = null): bool
     {
         if (!isset($this->dbTypes['domain'][$oid])) {
             return false;
@@ -753,7 +753,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param int $oid
      * @return bool
      */
-    protected function isCompositeTypeOid($oid)
+    final protected function isCompositeTypeOid(int $oid): bool
     {
         return isset($this->dbTypes['composite'][$oid]);
     }
@@ -764,7 +764,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param int $oid
      * @return bool
      */
-    protected function isBaseTypeOid($oid)
+    final protected function isBaseTypeOid(int $oid): bool
     {
         return !isset($this->dbTypes['array'][$oid])
                && !isset($this->dbTypes['range'][$oid])
@@ -812,7 +812,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return array
      * @throws InvalidArgumentException
      */
-    protected function findTypeNameForOid($oid, $method)
+    final protected function findTypeNameForOid(int $oid, string $method): array
     {
         if (!$this->checkTypesArrayWithPossibleReload(
             function () use ($oid) {
@@ -837,7 +837,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return int
      * @throws InvalidArgumentException
      */
-    protected function findOidForTypeName($typeName, $schemaName, $method)
+    final protected function findOidForTypeName(string $typeName, ?string $schemaName, string $method): int
     {
         if (!$this->checkTypesArrayWithPossibleReload(
             function () use ($typeName, $schemaName) {
@@ -885,7 +885,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return bool
      * @throws RuntimeException
      */
-    private function checkTypesArrayWithPossibleReload(callable $condition, $connectionRequiredMessage)
+    private function checkTypesArrayWithPossibleReload(callable $condition, string $connectionRequiredMessage): bool
     {
         if ($condition()) {
             return true;
@@ -913,7 +913,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param string $string
      * @return string
      */
-    private function asciiLowercase($string)
+    private function asciiLowercase(string $string): string
     {
         return strtr($string, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
     }
@@ -930,7 +930,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return array structure: array (string schema, string type, bool isArray)
      * @throws InvalidArgumentException
      */
-    protected function parseTypeName($name)
+    protected function parseTypeName(string $name): array
     {
         if (false === strpos($name, '.') && false === strpos($name, '"')) {
             // can be an SQL standard type, try known aliases
@@ -1020,13 +1020,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Returns an instance of converter explicitly registered for a given type
      *
-     * @param string $typeName   type name (as passed to registerConverter())
-     * @param string $schemaName schema name (only required if converters for the same
-     *                           type name were registered for different schemas)
+     * @param string      $typeName   type name (as passed to registerConverter())
+     * @param string|null $schemaName schema name (only required if converters for the same
+     *                                type name were registered for different schemas)
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    private function getRegisteredConverterInstance($typeName, $schemaName = null)
+    private function getRegisteredConverterInstance(string $typeName, ?string $schemaName = null): TypeConverter
     {
         if (null === $schemaName) {
             if (1 < count($this->types[$typeName])) {
@@ -1069,12 +1069,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    private function getConverterForTypeName($name)
+    private function getConverterForTypeName(string $name): TypeConverter
     {
-        if (isset($this->parsedNames[$name])) {
-            list($typeName, $schemaName, $isArray) = $this->parsedNames[$name];
-
-        } else {
+        if (!isset($this->parsedNames[$name])) {
             if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[\])?$/', $name, $m)) {
                 list ($schemaName, $typeName, $isArray) = $this->parseTypeName(trim($name));
 
@@ -1090,20 +1087,23 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             $this->parsedNames[$name] = [$typeName, $schemaName, $isArray];
         }
 
-        return $this->getConverterForQualifiedName($typeName, $schemaName, $isArray);
+        return $this->getConverterForQualifiedName(...$this->parsedNames[$name]);
     }
 
     /**
      * Returns type converter for separately supplied type and schema names
      *
-     * @param string $typeName
-     * @param string $schemaName
-     * @param bool   $isArray
+     * @param string      $typeName
+     * @param string|null $schemaName
+     * @param bool        $isArray
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    protected function getConverterForQualifiedName($typeName, $schemaName = null, $isArray = false)
-    {
+    protected function getConverterForQualifiedName(
+        string $typeName,
+        ?string $schemaName = null,
+        bool $isArray = false
+    ): TypeConverter {
         if (isset($this->types[$typeName])
             && (null === $schemaName || isset($this->types[$typeName][$schemaName]))
         ) {
@@ -1129,11 +1129,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Formats qualified type name (for usage in exception messages)
      *
-     * @param string $typeName
-     * @param string $schemaName
+     * @param string      $typeName
+     * @param string|null $schemaName
      * @return string
      */
-    private function formatQualifiedName($typeName, $schemaName)
+    private function formatQualifiedName(string $typeName, ?string $schemaName): string
     {
         return (null === $schemaName ? '' : '"' . strtr($schemaName, ['"' => '""']) . '".')
                . '"' . strtr($typeName, ['"' => '""']) . '"';
@@ -1149,10 +1149,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     private function getConverterForCompositeTypeOID(int $oid): TypeConverter
     {
         if (!is_array($this->dbTypes['composite'][$oid])) {
+            $cacheItem = null;
             if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
-                $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-composite-' . $oid);
-            } else {
-                $cacheItem = null;
+                try {
+                    $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-composite-' . $oid);
+                } catch (\Psr\Cache\InvalidArgumentException $e) {
+                }
             }
 
             if (null !== $cacheItem && $cacheItem->isHit()) {
@@ -1199,7 +1201,7 @@ SQL;
      * @param bool $force Force loading from database even if cached list is available
      * @throws InvalidQueryException
      */
-    private function loadTypes($force = false)
+    private function loadTypes(bool $force = false): void
     {
         $cacheItem = null;
         if ($cache = $this->connection->getMetadataCache()) {
