@@ -20,7 +20,7 @@ namespace sad_spirit\pg_wrapper\tests;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
-    exceptions\InvalidQueryException,
+    exceptions\ServerException,
     exceptions\RuntimeException
 };
 
@@ -89,8 +89,8 @@ class ConnectionTransactionsTest extends TestCase
 
         try {
             self::$conn->execute("insert into test_trans values ('foo')");
-            $this->fail('Expected InvalidQueryException was not thrown');
-        } catch (InvalidQueryException $e) {
+            $this->fail('Expected ServerException was not thrown');
+        } catch (ServerException $e) {
         }
         $this->assertTrue(self::$conn->inTransaction());
         self::$conn->rollback();
@@ -117,8 +117,8 @@ class ConnectionTransactionsTest extends TestCase
         self::$conn->commit('second');
         try {
             self::$conn->commit('third');
-            $this->fail('Expected InvalidQueryException was not thrown');
-        } catch (InvalidQueryException $e) {
+            $this->fail('Expected ServerException was not thrown');
+        } catch (ServerException $e) {
         }
         self::$conn->rollback('first');
         self::$conn->commit();

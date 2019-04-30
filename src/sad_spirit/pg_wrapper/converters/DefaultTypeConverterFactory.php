@@ -24,7 +24,7 @@ use sad_spirit\pg_wrapper\{
     TypeConverter,
     Connection,
     exceptions\InvalidArgumentException,
-    exceptions\InvalidQueryException,
+    exceptions\ServerException,
     exceptions\RuntimeException,
     exceptions\TypeConversionException,
     types
@@ -1143,7 +1143,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @param int $oid
      * @return TypeConverter
-     * @throws InvalidQueryException
+     * @throws ServerException
      */
     private function getConverterForCompositeTypeOID(int $oid): TypeConverter
     {
@@ -1172,7 +1172,7 @@ SQL;
                     $sql,
                     [$this->dbTypes['composite'][$oid]]
                 ))) {
-                    throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
+                    throw new ServerException(pg_last_error($this->connection->getResource()));
                 }
                 $this->dbTypes['composite'][$oid] = [];
                 while ($row = pg_fetch_assoc($res)) {
@@ -1198,7 +1198,7 @@ SQL;
      * Populates the types list from pg_catalog.pg_type table
      *
      * @param bool $force Force loading from database even if cached list is available
-     * @throws InvalidQueryException
+     * @throws ServerException
      */
     private function loadTypes(bool $force = false): void
     {
@@ -1229,7 +1229,7 @@ where t.typnamespace = s.oid
 order by 1 asc
 SQL;
             if (!($res = @pg_query($this->connection->getResource(), $sql))) {
-                throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
+                throw new ServerException(pg_last_error($this->connection->getResource()));
             }
             while ($row = pg_fetch_assoc($res)) {
                 if (!isset($this->dbTypes['names'][$row['typname']])) {
@@ -1261,7 +1261,7 @@ where a.attrelid = c.oid and
 order by attrelid, attnum
 SQL;
                 if (!($res = @pg_query($this->connection->getResource(), $sql))) {
-                    throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
+                    throw new ServerException(pg_last_error($this->connection->getResource()));
                 }
                 while ($row = pg_fetch_assoc($res)) {
                     if (!is_array($this->dbTypes['composite'][$row['reltype']])) {
@@ -1274,7 +1274,7 @@ SQL;
             }
 
             if (!($res = @pg_query($this->connection->getResource(), "select rngtypid, rngsubtype from pg_range"))) {
-                throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
+                throw new ServerException(pg_last_error($this->connection->getResource()));
             }
             while ($row = pg_fetch_assoc($res)) {
                 $this->dbTypes['range'][$row['rngtypid']] = (int)$row['rngsubtype'];

@@ -67,7 +67,7 @@ class PreparedStatement
      * @param string     $query      SQL query to prepare.
      * @param array      $paramTypes Types information used to convert input parameters.
      *
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      */
     public function __construct(Connection $connection, string $query, array $paramTypes = [])
     {
@@ -97,7 +97,7 @@ class PreparedStatement
      * Actually prepares the statement with pg_prepare()
      *
      * @return $this
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      * @throws exceptions\RuntimeException
      */
     public function prepare(): self
@@ -108,7 +108,7 @@ class PreparedStatement
 
         $this->queryId = 'statement' . ++self::$statementIdx;
         if (!@pg_prepare($this->connection->getResource(), $this->queryId, $this->query)) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->connection->getResource()));
+            throw new exceptions\ServerException(pg_last_error($this->connection->getResource()));
         }
 
         return $this;
@@ -122,7 +122,7 @@ class PreparedStatement
      * after deallocate() will result in an Exception.
      *
      * @return $this
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      * @throws exceptions\RuntimeException
      */
     public function deallocate(): self
@@ -201,7 +201,7 @@ class PreparedStatement
      *
      * @return ResultSet|int|bool Execution result.
      * @throws exceptions\TypeConversionException
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      * @throws exceptions\RuntimeException
      */
     public function execute(array $params = [], array $resultTypes = [])
@@ -230,7 +230,7 @@ class PreparedStatement
 
         $result = @pg_execute($this->connection->getResource(), $this->queryId, $stringParams);
         if (!$result) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->connection->getResource()));
+            throw new exceptions\ServerException(pg_last_error($this->connection->getResource()));
         }
 
         switch (pg_result_status($result)) {

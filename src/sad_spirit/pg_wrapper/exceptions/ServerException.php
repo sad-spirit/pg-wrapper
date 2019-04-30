@@ -24,7 +24,7 @@ use sad_spirit\pg_wrapper\Exception;
 /**
  * Exception thrown on failed query
  */
-class InvalidQueryException extends \UnexpectedValueException implements Exception
+class ServerException extends \UnexpectedValueException implements Exception
 {
     /**
      * Five-character 'SQLSTATE' error code

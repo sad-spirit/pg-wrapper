@@ -201,7 +201,7 @@ class Connection
      * @param array  $paramTypes Types information used to convert input parameters
      *
      * @return PreparedStatement Prepared statement.
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      */
     public function prepare(string $query, array $paramTypes = []): PreparedStatement
     {
@@ -218,14 +218,14 @@ class Connection
      * @param array  $resultTypes Type converters to pass to ResultSet
      *
      * @return ResultSet|int|bool Execution result.
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      */
     public function execute(string $sql, array $resultTypes = [])
     {
         $result = @pg_query($this->getResource(), $sql);
 
         if (false === $result) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->getResource()));
+            throw new exceptions\ServerException(pg_last_error($this->getResource()));
         }
 
         switch (pg_result_status($result)) {
@@ -254,7 +254,7 @@ class Connection
      * @param array  $resultTypes Result types to pass to ResultSet
      *
      * @return bool|ResultSet|int
-     * @throws exceptions\InvalidQueryException
+     * @throws exceptions\ServerException
      */
     public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = [])
     {
@@ -274,7 +274,7 @@ class Connection
 
         $result = @pg_query_params($this->getResource(), $sql, $stringParams);
         if (false === $result) {
-            throw new exceptions\InvalidQueryException(pg_last_error($this->getResource()));
+            throw new exceptions\ServerException(pg_last_error($this->getResource()));
         }
 
         switch (pg_result_status($result)) {
