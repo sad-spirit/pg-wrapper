@@ -65,18 +65,18 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Types list for current database, loaded from pg_catalog.pg_type
      *
-     * 'composite': ['type oid' => 'relation oid' or 'type specification'], for composite types
-     * 'array':     ['array type oid' => 'base type oid'], for arrays
-     * 'range':     ['range type oid' => 'base type oid'], for ranges
-     * 'domain':    ['domain type oid' => 'base type oid'], for domains
-     * 'names':     ['type name' => ['schema name' => 'type oid', ...]]
+     * 'composite': ['type OID' => 'relation OID' or 'type specification'], for composite types
+     * 'array':     ['array type OID' => 'base type OID'], for arrays
+     * 'range':     ['range type OID' => 'base type OID'], for ranges
+     * 'domain':    ['domain type OID' => 'base type OID'], for domains
+     * 'names':     ['type name' => ['schema name' => 'type OID', ...]]
      *
-     * If data for composite type was not yet loaded, its key contains relation oid,
+     * If data for composite type was not yet loaded, its key contains relation OID,
      * afterwards it contains type specification of the form
-     * ['field name' => 'field type oid', ...]
+     * ['field name' => 'field type OID', ...]
      *
      * The array is pre-populated with known builtin types of Postgres 11.
-     * Only types with oids below 10000 are used since those oids are assigned manually
+     * Only types with OIDs below 10000 are used since those OIDs are assigned manually
      * (see src/include/access/transam.h) and don't change between versions and
      * installations.
      *
@@ -359,7 +359,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     private $dbTypesSource = self::SOURCE_BUILTIN;
 
     /**
-     * Mapping 'type oid' => ['schema name', 'type name']
+     * Mapping 'type OID' => ['schema name', 'type name']
      *
      * This is built based on $dbTypes['names'], but not saved to cache
      *
@@ -483,7 +483,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             return new containers\RangeConverter(new datetime\TimeStampTzConverter());
         }, 'tstzrange');
 
-        $this->buildOidMap();
+        $this->buildOIDMap();
     }
 
     /**
@@ -553,7 +553,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
         // If loadTypes() was not called and we are using the pre-populated $dbTypes,  then we may delay
         // loading types when Connection changes. If it was called, we need to reload the types ASAP,
-        // as the new database may have different types using the same oids.
+        // as the new database may have different types using the same OIDs.
         if (self::SOURCE_BUILTIN !== $this->dbTypesSource) {
             $this->loadTypes();
         }
@@ -690,15 +690,15 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Checks whether given oid corresponds to array type
+     * Checks whether given OID corresponds to array type
      *
-     * $baseTypeOid will be set to oid of the array base type
+     * $baseTypeOid will be set to OID of the array base type
      *
      * @param int      $oid
      * @param int|null $baseTypeOid
      * @return bool
      */
-    final protected function isArrayTypeOid(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isArrayTypeOID(int $oid, ?int &$baseTypeOid = null): bool
     {
         if (!isset($this->dbTypes['array'][$oid])) {
             return false;
@@ -709,15 +709,15 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Checks whether given oid corresponds to range type
+     * Checks whether given OID corresponds to range type
      *
-     * $baseTypeOid will be set to oid of the range base type
+     * $baseTypeOid will be set to OID of the range base type
      *
      * @param int      $oid
      * @param int|null $baseTypeOid
      * @return bool
      */
-    final protected function isRangeTypeOid(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isRangeTypeOID(int $oid, ?int &$baseTypeOid = null): bool
     {
         if (!isset($this->dbTypes['range'][$oid])) {
             return false;
@@ -728,15 +728,15 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Checks whether given oid corresponds to domain type
+     * Checks whether given OID corresponds to domain type
      *
-     * $baseTypeOid will be set to oid of the underlying data type
+     * $baseTypeOid will be set to OID of the underlying data type
      *
      * @param int      $oid
      * @param int|null $baseTypeOid
      * @return bool
      */
-    final protected function isDomainTypeOid(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isDomainTypeOID(int $oid, ?int &$baseTypeOid = null): bool
     {
         if (!isset($this->dbTypes['domain'][$oid])) {
             return false;
@@ -747,23 +747,23 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Checks whether given oid corresponds to composite type
+     * Checks whether given OID corresponds to composite type
      *
      * @param int $oid
      * @return bool
      */
-    final protected function isCompositeTypeOid(int $oid): bool
+    final protected function isCompositeTypeOID(int $oid): bool
     {
         return isset($this->dbTypes['composite'][$oid]);
     }
 
     /**
-     * Checks whether given oid corresponds to base type
+     * Checks whether given OID corresponds to base type
      *
      * @param int $oid
      * @return bool
      */
-    final protected function isBaseTypeOid(int $oid): bool
+    final protected function isBaseTypeOID(int $oid): bool
     {
         return !isset($this->dbTypes['array'][$oid])
                && !isset($this->dbTypes['range'][$oid])
@@ -777,24 +777,24 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     final public function getConverterForTypeOID(int $oid): TypeConverter
     {
-        if ($this->isArrayTypeOid($oid, $baseTypeOid)) {
+        if ($this->isArrayTypeOID($oid, $baseTypeOid)) {
             return new containers\ArrayConverter(
-                $this->getConverterForTypeOid($baseTypeOid)
+                $this->getConverterForTypeOID($baseTypeOid)
             );
 
-        } elseif ($this->isRangeTypeOid($oid, $baseTypeOid)) {
+        } elseif ($this->isRangeTypeOID($oid, $baseTypeOid)) {
             return new containers\RangeConverter(
-                $this->getConverterForTypeOid($baseTypeOid)
+                $this->getConverterForTypeOID($baseTypeOid)
             );
 
-        } elseif ($this->isCompositeTypeOid($oid)) {
+        } elseif ($this->isCompositeTypeOID($oid)) {
             return $this->getConverterForCompositeTypeOID($oid);
 
-        } elseif ($this->isDomainTypeOid($oid, $baseTypeOid)) {
-            return $this->getConverterForTypeOid($baseTypeOid);
+        } elseif ($this->isDomainTypeOID($oid, $baseTypeOid)) {
+            return $this->getConverterForTypeOID($baseTypeOid);
         }
 
-        list($schemaName, $typeName) = $this->findTypeNameForOid($oid, __METHOD__);
+        list($schemaName, $typeName) = $this->findTypeNameForOID($oid, __METHOD__);
 
         try {
             return $this->getConverterForQualifiedName($typeName, $schemaName);
@@ -804,14 +804,14 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Searches for a type name corresponding to the given oid in loaded type metadata
+     * Searches for a type name corresponding to the given OID in loaded type metadata
      *
      * @param int    $oid
      * @param string $method Used in Exception messages only
      * @return array
      * @throws InvalidArgumentException
      */
-    final protected function findTypeNameForOid(int $oid, string $method): array
+    final protected function findTypeNameForOID(int $oid, string $method): array
     {
         if (!$this->checkTypesArrayWithPossibleReload(
             function () use ($oid) {
@@ -820,7 +820,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             $method . ': Database connection required'
         )) {
             throw new InvalidArgumentException(
-                sprintf('%s: could not find type information for oid %d', $method, $oid)
+                sprintf('%s: could not find type information for OID %d', $method, $oid)
             );
         }
 
@@ -828,7 +828,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Searches for an oid corresponding to the given type name in loaded type metadata
+     * Searches for an OID corresponding to the given type name in loaded type metadata
      *
      * @param string      $typeName
      * @param string|null $schemaName
@@ -836,7 +836,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return int
      * @throws InvalidArgumentException
      */
-    final protected function findOidForTypeName(string $typeName, ?string $schemaName, string $method): int
+    final protected function findOIDForTypeName(string $typeName, ?string $schemaName, string $method): int
     {
         if (!$this->checkTypesArrayWithPossibleReload(
             function () use ($typeName, $schemaName) {
@@ -1108,10 +1108,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         ) {
             $converter = $this->getRegisteredConverterInstance($typeName, $schemaName);
 
-        } elseif (!$this->isBaseTypeOid(
-            $oid = $this->findOidForTypeName($typeName, $schemaName, __METHOD__)
+        } elseif (!$this->isBaseTypeOID(
+            $oid = $this->findOIDForTypeName($typeName, $schemaName, __METHOD__)
         )) {
-            $converter = $this->getConverterForTypeOid($oid);
+            $converter = $this->getConverterForTypeOID($oid);
 
         } else {
             // a converter required by name is required explicitly -> exception if not found
@@ -1288,13 +1288,13 @@ SQL;
             $this->dbTypesSource = self::SOURCE_DB;
         }
 
-        $this->buildOidMap();
+        $this->buildOIDMap();
     }
 
     /**
-     * Builds mapping ['type oid' => ['schema name', 'type name']] using information from $dbTypes
+     * Builds mapping ['type OID' => ['schema name', 'type name']] using information from $dbTypes
      */
-    private function buildOidMap(): void
+    private function buildOIDMap(): void
     {
         $this->oidMap = [];
         foreach ($this->dbTypes['names'] as $typeName => $schemas) {
