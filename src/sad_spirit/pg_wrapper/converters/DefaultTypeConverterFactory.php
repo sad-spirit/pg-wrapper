@@ -497,11 +497,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     public function registerConverter($converter, $type, string $schema = 'pg_catalog'): void
     {
         if (!is_string($converter) && !is_callable($converter) && !($converter instanceof TypeConverter)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s() expects a class name, a closure or an instance of TypeConverter, %s given',
+            throw InvalidArgumentException::unexpectedType(
                 __METHOD__,
-                is_object($converter) ? 'object(' . get_class($converter) . ')' : gettype($converter)
-            ));
+                'a class name, a closure or an instance of TypeConverter',
+                $converter
+            );
         }
         foreach ((array)$type as $typeName) {
             if (isset($this->converters[$typeName])) {
@@ -643,12 +643,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             return new containers\CompositeConverter($types);
         }
 
-        throw new InvalidArgumentException(sprintf(
-            '%s expects either of: type name, composite type array,'
-            . ' instance of TypeConverter. %s given',
+        throw InvalidArgumentException::unexpectedType(
             __METHOD__,
-            is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
-        ));
+            'either of: type name, composite type array, instance of TypeConverter',
+            $type
+        );
     }
 
     /**

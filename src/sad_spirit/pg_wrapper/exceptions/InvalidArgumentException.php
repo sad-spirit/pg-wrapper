@@ -26,4 +26,25 @@ use sad_spirit\pg_wrapper\Exception;
  */
 class InvalidArgumentException extends \InvalidArgumentException implements Exception
 {
+    use Stringifier;
+
+    /**
+     * Thrown when a method expects a value of several possible types but is given something else
+     *
+     * In case of single possible type a type hint should be used, obviously
+     *
+     * @param string $method
+     * @param string $expected
+     * @param mixed  $given
+     * @return InvalidArgumentException
+     */
+    public static function unexpectedType(string $method, string $expected, $given): self
+    {
+        return new self(sprintf(
+            '%s() expects %s, %s given',
+            $method,
+            $expected,
+            self::stringify($given)
+        ));
+    }
 }
