@@ -82,11 +82,11 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     public function __construct($resource, TypeConverterFactory $factory, array $types = [])
     {
         if (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource)) {
-            throw new exceptions\InvalidArgumentException(sprintf(
-                "%s requires a query result resource, '%s' given",
-                __CLASS__,
-                is_resource($resource) ? 'resource(' . get_resource_type($resource) . ')' : gettype($resource)
-            ));
+            throw exceptions\InvalidArgumentException::unexpectedType(
+                __METHOD__,
+                'a query result resource',
+                $resource
+            );
         }
         $this->resource         = $resource;
         $this->converterFactory = $factory;
@@ -120,6 +120,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *                               argument for TypeConverterFactory::getConverterForTypeSpecification()
      * @return $this
      * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\OutOfBoundsException
      */
     public function setType($fieldIndex, $type): self
     {
@@ -160,6 +161,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param string|int $fieldIndex Either a column name or an index (0-based)
      * @return array
      * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\OutOfBoundsException
      */
     public function fetchColumn($fieldIndex): array
     {
@@ -191,6 +193,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *        of other columns will be appended to this array instead of overwriting previous ones
      * @return array
      * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\OutOfBoundsException
      */
     public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false)
     {
@@ -200,7 +203,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         }
         if (null !== $keyColumn) {
             if ($this->numFields < 2) {
-                throw new exceptions\InvalidArgumentException(
+                throw new exceptions\OutOfBoundsException(
                     __METHOD__ . ': at least two columns needed for associative array result'
                 );
             }
@@ -273,34 +276,45 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         pg_free_result($this->resource);
     }
 
-    /**#@+
-     * Methods defined in Iterator interface
+    /**
+     * {@inheritdoc}
      */
     public function current()
     {
         return $this->valid() ? $this->read($this->position) : false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function next()
     {
         $this->position++;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function key()
     {
         return $this->position;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function valid()
     {
         return ($this->position >= 0) && ($this->position < $this->numRows);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function rewind()
     {
         $this->position = 0;
     }
-    /**#@-*/
 
     /**
      * Method defined in Countable interface
@@ -312,41 +326,57 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         return $this->numRows;
     }
 
-    /**#@+
-     * Methods defined in ArrayAccess interface
+    /**
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
         return ctype_digit((string)$offset) && $offset < $this->numRows;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetGet($offset)
     {
         return $this->offsetExists($offset) ? $this->read($offset) : false;
     }
 
+    /**
+     * Disallows setting the offset
+     *
+     * @param mixed $offset (not used)
+     * @param mixed $value  (not used)
+     * @throws exceptions\BadMethodCallException
+     */
     public function offsetSet($offset, $value)
     {
-        throw new exceptions\InvalidArgumentException(__CLASS__ . ' is read-only');
+        throw new exceptions\BadMethodCallException(__CLASS__ . ' is read-only');
     }
 
+    /**
+     * Disallows unsetting the offset
+     *
+     * @param mixed $offset (not used)
+     * @throws exceptions\BadMethodCallException
+     */
     public function offsetUnset($offset)
     {
-        throw new exceptions\InvalidArgumentException(__CLASS__ . ' is read-only');
+        throw new exceptions\BadMethodCallException(__CLASS__ . ' is read-only');
     }
-    /**#@-*/
 
     /**
      * Sanity check for field index
      *
      * @param string|int $fieldIndex
      * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\OutOfBoundsException
      */
     private function checkFieldIndex($fieldIndex): void
     {
         if (ctype_digit((string)$fieldIndex)) {
             if ($fieldIndex < 0 || $fieldIndex >= $this->numFields) {
-                throw new exceptions\InvalidArgumentException(sprintf(
+                throw new exceptions\OutOfBoundsException(sprintf(
                     "%s: field number %d is not within range 0..%d",
                     __METHOD__,
                     $fieldIndex,
@@ -356,17 +386,17 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
         } elseif (is_string($fieldIndex)) {
             if (!isset($this->namesHash[$fieldIndex])) {
-                throw new exceptions\InvalidArgumentException(
+                throw new exceptions\OutOfBoundsException(
                     sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
                 );
             }
 
         } else {
-            throw new exceptions\InvalidArgumentException(sprintf(
-                "%s expects a field number or a field name, '%s' given",
+            throw exceptions\InvalidArgumentException::unexpectedType(
                 __METHOD__,
-                is_object($fieldIndex) ? get_class($fieldIndex) : gettype($fieldIndex)
-            ));
+                'a field number or a field name',
+                $fieldIndex
+            );
         }
     }
 

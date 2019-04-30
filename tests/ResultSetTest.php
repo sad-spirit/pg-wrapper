@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
     converters,
-    exceptions\InvalidArgumentException
+    exceptions\OutOfBoundsException
 };
 
 /**
@@ -82,7 +82,7 @@ SQL
 
     public function testSetTypeMissingFieldName()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this::expectException(OutOfBoundsException::class);
 
         $res = self::$conn->execute("select one, two from test_resultset");
         $res->setType('three', new converters\StubConverter());
@@ -90,7 +90,7 @@ SQL
 
     public function testSetTypeMissingFieldIndex()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this::expectException(OutOfBoundsException::class);
 
         $res = self::$conn->execute("select one, two from test_resultset");
         $res->setType(3, new converters\StubConverter());
@@ -106,7 +106,7 @@ SQL
 
     public function testFetchColumnMissingFieldName()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this::expectException(OutOfBoundsException::class);
 
         $res = self::$conn->execute("select one, two from test_resultset");
         $res->fetchColumn('three');
@@ -114,7 +114,7 @@ SQL
 
     public function testFetchColumnMissingFieldIndex()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this::expectException(OutOfBoundsException::class);
 
         $res = self::$conn->execute("select one, two from test_resultset");
         $res->fetchColumn(3);
