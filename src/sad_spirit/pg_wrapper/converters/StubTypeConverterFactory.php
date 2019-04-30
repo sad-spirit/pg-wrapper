@@ -31,7 +31,7 @@ use sad_spirit\pg_wrapper\{
  * Should be used when type conversion is not needed, all values will be returned as strings
  * just as stock pgsql extension does.
  */
-class StubTypeConverterFactory implements TypeConverterFactory
+final class StubTypeConverterFactory implements TypeConverterFactory
 {
     /** @var StubConverter */
     private $converter;
@@ -46,7 +46,7 @@ class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function getConverter($type): TypeConverter
+    public function getConverterForTypeSpecification($type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
             if ($this->connection && $type instanceof ConnectionAware) {
@@ -71,6 +71,14 @@ class StubTypeConverterFactory implements TypeConverterFactory
      * {@inheritdoc}
      */
     public function getConverterForPHPValue($value): TypeConverter
+    {
+        return $this->converter;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConverterForTypeOID(int $oid): TypeConverter
     {
         return $this->converter;
     }

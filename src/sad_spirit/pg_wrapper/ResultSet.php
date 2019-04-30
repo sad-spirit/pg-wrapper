@@ -107,7 +107,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         // ...then use type factory to create default converters
         for ($i = 0; $i < $this->numFields; $i++) {
             if (!isset($this->converters[$i])) {
-                $this->converters[$i] = $this->converterFactory->getConverter($oids[$i]);
+                $this->converters[$i] = $this->converterFactory->getConverterForTypeOID($oids[$i]);
             }
         }
     }
@@ -117,7 +117,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @param int|string $fieldIndex Either field number or field name
      * @param mixed      $type       Either an instance of TypeConverter or an
-     *                               argument for TypeConverterFactory::getConverter()
+     *                               argument for TypeConverterFactory::getConverterForTypeSpecification()
      * @return $this
      * @throws exceptions\InvalidArgumentException
      */
@@ -128,7 +128,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             $fieldIndex = $this->namesHash[$fieldIndex];
         }
 
-        $this->converters[$fieldIndex] = $this->converterFactory->getConverter($type);
+        $this->converters[$fieldIndex] = $this->converterFactory->getConverterForTypeSpecification($type);
 
         return $this;
     }

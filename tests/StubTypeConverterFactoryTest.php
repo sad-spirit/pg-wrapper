@@ -47,14 +47,14 @@ class StubTypeConverterFactoryTest extends TestCase
     {
         $this->assertEquals(
             new StubConverter(),
-            $this->factory->getConverter($type)
+            $this->factory->getConverterForTypeSpecification($type)
         );
     }
 
     public function testReturnsTypeConverterArgument()
     {
         $converter = new IntegerConverter();
-        $this->assertSame($converter, $this->factory->getConverter($converter));
+        $this->assertSame($converter, $this->factory->getConverterForTypeSpecification($converter));
     }
 
     public function testConfiguresTypeConverterArgumentUsingConnection()
@@ -70,7 +70,7 @@ class StubTypeConverterFactoryTest extends TestCase
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');
 
-        $this->assertSame($mockConverter, $this->factory->getConverter($mockConverter));
+        $this->assertSame($mockConverter, $this->factory->getConverterForTypeSpecification($mockConverter));
     }
 
     public function getTypeSpecifications()

@@ -606,61 +606,45 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
-     * Returns a converter for a given database type
+     * Returns a converter specified by a given type
      *
      * $type can be either of
-     *  - type oid (integer)
      *  - type name (string), either simple or schema-qualified,
      *    'foo[]' is treated as an array of base type 'foo'
-     *  - array('field' => 'type', ...) for composite types
+     *  - ['field' => 'type', ...] for composite types
      *  - TypeConverter instance. If it implements ConnectionAware, then
      *    it will receive current connection resource
      *
      * Converters for type names registered with registerConverter() will
      * be returned even without database connection. Getting Converters for
-     * type oids and database-specific names (e.g. composite types) require
-     * a connection.
+     * database-specific names (e.g. composite types) requires a connection.
      *
-     * If no converter was registered for a (base) type, the outcome depends
-     * on the parameter provided:
-     *  - if type name was used, an exception will be thrown
-     *  - if type oid was used, a fallback converter (StubConverter) will
-     *    be returned
-     *
-     * This allows unknown types in ResultSet to be returned as strings, as
-     * pgsql extension itself does, while at the same time prevents errors
-     * when manually requesting converters for a type.
+     * If no converter was registered for a (base) type, an exception will be thrown
      *
      * @param mixed $type
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    public function getConverter($type): TypeConverter
+    public function getConverterForTypeSpecification($type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
             $this->updateConnection($type);
             return $type;
 
-        } elseif (is_scalar($type)) {
-            if (ctype_digit((string)$type)) {
-                // type oid given
-                return $this->getConverterForTypeOid($type);
-            } else {
-                // type name given
-                return $this->getConverterForTypeName($type);
-            }
+        } elseif (is_string($type)) {
+            return $this->getConverterForTypeName($type);
 
         } elseif (is_array($type)) {
             // type specification for composite type
             $types = [];
             foreach ($type as $k => $v) {
-                $types[$k] = $this->getConverter($v);
+                $types[$k] = $this->getConverterForTypeSpecification($v);
             }
             return new containers\CompositeConverter($types);
         }
 
         throw new InvalidArgumentException(sprintf(
-            '%s expects either of: type oid, type name, composite type array,'
+            '%s expects either of: type name, composite type array,'
             . ' instance of TypeConverter. %s given',
             __METHOD__,
             is_object($type) ? 'object(' . get_class($type) . ')' : gettype($type)
@@ -790,13 +774,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
 
     /**
-     * Returns a converter for a database type identified by oid
-     *
-     * @param int $oid
-     * @return TypeConverter
-     * @throws InvalidArgumentException
+     * {@inheritdoc}
      */
-    private function getConverterForTypeOid($oid)
+    final public function getConverterForTypeOID(int $oid): TypeConverter
     {
         if ($this->isArrayTypeOid($oid, $baseTypeOid)) {
             return new containers\ArrayConverter(
@@ -809,7 +789,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             );
 
         } elseif ($this->isCompositeTypeOid($oid)) {
-            return $this->getConverterForCompositeTypeOid($oid);
+            return $this->getConverterForCompositeTypeOID($oid);
 
         } elseif ($this->isDomainTypeOid($oid, $baseTypeOid)) {
             return $this->getConverterForTypeOid($baseTypeOid);
@@ -1166,7 +1146,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidQueryException
      */
-    private function getConverterForCompositeTypeOid($oid)
+    private function getConverterForCompositeTypeOID(int $oid): TypeConverter
     {
         if (!is_array($this->dbTypes['composite'][$oid])) {
             if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
@@ -1195,7 +1175,7 @@ SQL;
                 }
                 $this->dbTypes['composite'][$oid] = [];
                 while ($row = pg_fetch_assoc($res)) {
-                    $this->dbTypes['composite'][$oid][$row['attname']] = $row['atttypid'];
+                    $this->dbTypes['composite'][$oid][$row['attname']] = (int)$row['atttypid'];
                 }
                 pg_free_result($res);
 
@@ -1205,7 +1185,11 @@ SQL;
             }
         }
 
-        return $this->getConverter($this->dbTypes['composite'][$oid]);
+        $types = [];
+        foreach ($this->dbTypes['composite'][$oid] as $field => $typeOID) {
+            $types[$field] = $this->getConverterForTypeOID($typeOID);
+        }
+        return new containers\CompositeConverter($types);
     }
 
 
@@ -1217,10 +1201,12 @@ SQL;
      */
     private function loadTypes($force = false)
     {
+        $cacheItem = null;
         if ($cache = $this->connection->getMetadataCache()) {
-            $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-types');
-        } else {
-            $cacheItem = null;
+            try {
+                $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-types');
+            } catch (\Psr\Cache\InvalidArgumentException $e) {
+            }
         }
 
         if (!$force && null !== $cacheItem && $cacheItem->isHit()) {
@@ -1246,18 +1232,18 @@ SQL;
             }
             while ($row = pg_fetch_assoc($res)) {
                 if (!isset($this->dbTypes['names'][$row['typname']])) {
-                    $this->dbTypes['names'][$row['typname']] = [$row['nspname'] => $row['oid']];
+                    $this->dbTypes['names'][$row['typname']] = [$row['nspname'] => (int)$row['oid']];
                 } else {
-                    $this->dbTypes['names'][$row['typname']][$row['nspname']] = $row['oid'];
+                    $this->dbTypes['names'][$row['typname']][$row['nspname']] = (int)$row['oid'];
                 }
                 if ('0' !== $row['typarray']) {
-                    $this->dbTypes['array'][$row['typarray']] = $row['oid'];
+                    $this->dbTypes['array'][$row['typarray']] = (int)$row['oid'];
                 }
                 if ('0' !== $row['typrelid']) {
-                    $this->dbTypes['composite'][$row['oid']] = $row['typrelid'];
+                    $this->dbTypes['composite'][$row['oid']] = (int)$row['typrelid'];
                 }
                 if ('0' !== $row['typbasetype']) {
-                    $this->dbTypes['domain'][$row['oid']] = $row['typbasetype'];
+                    $this->dbTypes['domain'][$row['oid']] = (int)$row['typbasetype'];
                 }
             }
             pg_free_result($res);
@@ -1278,9 +1264,9 @@ SQL;
                 }
                 while ($row = pg_fetch_assoc($res)) {
                     if (!is_array($this->dbTypes['composite'][$row['reltype']])) {
-                        $this->dbTypes['composite'][$row['reltype']] = [$row['attname'] => $row['atttypid']];
+                        $this->dbTypes['composite'][$row['reltype']] = [$row['attname'] => (int)$row['atttypid']];
                     } else {
-                        $this->dbTypes['composite'][$row['reltype']][$row['attname']] = $row['atttypid'];
+                        $this->dbTypes['composite'][$row['reltype']][$row['attname']] = (int)$row['atttypid'];
                     }
                 }
                 pg_free_result($res);
@@ -1290,7 +1276,7 @@ SQL;
                 throw new InvalidQueryException(pg_last_error($this->connection->getResource()));
             }
             while ($row = pg_fetch_assoc($res)) {
-                $this->dbTypes['range'][$row['rngtypid']] = $row['rngsubtype'];
+                $this->dbTypes['range'][$row['rngtypid']] = (int)$row['rngsubtype'];
             }
             pg_free_result($res);
 

@@ -329,7 +329,7 @@ class Connection
      */
     public function getTypeConverter($type): TypeConverter
     {
-        return $this->getTypeConverterFactory()->getConverter($type);
+        return $this->getTypeConverterFactory()->getConverterForTypeSpecification($type);
     }
 
     /**
