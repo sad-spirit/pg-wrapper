@@ -225,7 +225,7 @@ class Connection
         $result = @pg_query($this->getResource(), $sql);
 
         if (false === $result) {
-            throw new exceptions\ServerException(pg_last_error($this->getResource()));
+            throw exceptions\ServerException::fromConnection($this->getResource());
         }
 
         switch (pg_result_status($result)) {
@@ -274,7 +274,7 @@ class Connection
 
         $result = @pg_query_params($this->getResource(), $sql, $stringParams);
         if (false === $result) {
-            throw new exceptions\ServerException(pg_last_error($this->getResource()));
+            throw exceptions\ServerException::fromConnection($this->getResource());
         }
 
         switch (pg_result_status($result)) {

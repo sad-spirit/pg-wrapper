@@ -1172,7 +1172,7 @@ SQL;
                     $sql,
                     [$this->dbTypes['composite'][$oid]]
                 ))) {
-                    throw new ServerException(pg_last_error($this->connection->getResource()));
+                    throw ServerException::fromConnection($this->connection->getResource());
                 }
                 $this->dbTypes['composite'][$oid] = [];
                 while ($row = pg_fetch_assoc($res)) {
@@ -1229,7 +1229,7 @@ where t.typnamespace = s.oid
 order by 1 asc
 SQL;
             if (!($res = @pg_query($this->connection->getResource(), $sql))) {
-                throw new ServerException(pg_last_error($this->connection->getResource()));
+                throw ServerException::fromConnection($this->connection->getResource());
             }
             while ($row = pg_fetch_assoc($res)) {
                 if (!isset($this->dbTypes['names'][$row['typname']])) {
@@ -1261,7 +1261,7 @@ where a.attrelid = c.oid and
 order by attrelid, attnum
 SQL;
                 if (!($res = @pg_query($this->connection->getResource(), $sql))) {
-                    throw new ServerException(pg_last_error($this->connection->getResource()));
+                    throw ServerException::fromConnection($this->connection->getResource());
                 }
                 while ($row = pg_fetch_assoc($res)) {
                     if (!is_array($this->dbTypes['composite'][$row['reltype']])) {
@@ -1274,7 +1274,7 @@ SQL;
             }
 
             if (!($res = @pg_query($this->connection->getResource(), "select rngtypid, rngsubtype from pg_range"))) {
-                throw new ServerException(pg_last_error($this->connection->getResource()));
+                throw ServerException::fromConnection($this->connection->getResource());
             }
             while ($row = pg_fetch_assoc($res)) {
                 $this->dbTypes['range'][$row['rngtypid']] = (int)$row['rngsubtype'];

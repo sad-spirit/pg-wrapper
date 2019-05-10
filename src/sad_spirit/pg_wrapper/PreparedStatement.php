@@ -108,7 +108,7 @@ class PreparedStatement
 
         $this->queryId = 'statement' . ++self::$statementIdx;
         if (!@pg_prepare($this->connection->getResource(), $this->queryId, $this->query)) {
-            throw new exceptions\ServerException(pg_last_error($this->connection->getResource()));
+            throw exceptions\ServerException::fromConnection($this->connection->getResource());
         }
 
         return $this;
@@ -230,7 +230,7 @@ class PreparedStatement
 
         $result = @pg_execute($this->connection->getResource(), $this->queryId, $stringParams);
         if (!$result) {
-            throw new exceptions\ServerException(pg_last_error($this->connection->getResource()));
+            throw exceptions\ServerException::fromConnection($this->connection->getResource());
         }
 
         switch (pg_result_status($result)) {
