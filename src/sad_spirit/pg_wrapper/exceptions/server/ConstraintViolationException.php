@@ -1,0 +1,61 @@
+<?php
+/**
+ * Wrapper for PHP's pgsql extension providing conversion of complex DB types
+ *
+ * LICENSE
+ *
+ * This source file is subject to BSD 2-Clause License that is bundled
+ * with this package in the file LICENSE and available at the URL
+ * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
+ *
+ * @package   sad_spirit\pg_wrapper
+ * @copyright 2014-2019 Alexey Borzov
+ * @author    Alexey Borzov <avb@php.net>
+ * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
+ * @link      https://github.com/sad-spirit/pg-wrapper
+ */
+
+declare(strict_types=1);
+
+namespace sad_spirit\pg_wrapper\exceptions\server;
+
+use sad_spirit\pg_wrapper\exceptions\ServerException;
+
+/**
+ * Thrown when database integrity constraint is violated
+ */
+class ConstraintViolationException extends ServerException
+{
+    private $constraintName = null;
+
+    public function __construct($message = "", $sqlState = "", \Throwable $previous = null)
+    {
+        parent::__construct($message, $sqlState, $previous);
+
+        // NOT NULL violation messages do not contain constraint names, in case of any other violation
+        // try to extract the name
+        if (self::NOT_NULL_VIOLATION !== $sqlState) {
+            $parts = array_filter(explode("\n", $message), 'strlen');
+            if (count($parts) > 2
+                // last line of message points to source file and line of error?
+                && preg_match('/\.c:\d+$/', $parts[count($parts) - 1])
+                // previous line should have constraint name, unfortunately "CONSTRAINT NAME" string can be localized
+                && preg_match('/:\s+(.*)$/', $parts[count($parts) - 2], $m)
+                // constraint name is repeated in main error message?
+                && false !== strpos($parts[0], $m[1])
+            ) {
+                $this->constraintName = $m[1];
+            }
+        }
+    }
+
+    /**
+     * Returns the name of the violated constraint, if available
+     *
+     * @return string|null
+     */
+    public function getConstraintName(): ?string
+    {
+        return $this->constraintName;
+    }
+}

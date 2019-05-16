@@ -22,7 +22,6 @@ use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\ConnectionException,
     exceptions\TypeConversionException,
-    ResultSet,
     types\Box,
     types\Circle,
     types\DateTimeRange,
@@ -170,25 +169,6 @@ class ConnectionTest extends TestCase
         );
     }
 
-    public function testConnectionExceptionIsThrownIfConnectionBroken()
-    {
-        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
-            $this->markTestSkipped('Connection string is not configured');
-        }
-
-        $connectionOne = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
-        $connectionTwo = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
-
-        $this::assertInstanceOf(ResultSet::class, $connectionOne->execute('select true'));
-
-        $connectionTwo->executeParams(
-            'select pg_terminate_backend($1)',
-            [pg_get_pid($connectionOne->getResource())]
-        );
-
-        $this::expectException(ConnectionException::class);
-        $connectionOne->execute('select true');
-    }
 
     public function getImplicitTypes()
     {

@@ -370,19 +370,32 @@ class ServerException extends \UnexpectedValueException implements Exception
         $message = pg_last_error($resource);
         if (PGSQL_CONNECTION_OK !== pg_connection_status($resource)) {
             return new ConnectionException($message);
-        } else {
+
+        // We can only use pg_result_error_field() with async queries, so just try to parse the message
+        // instead. See function pqBuildErrorMessage3() in src/interfaces/libpq/fe-protocol3.c
+        } elseif (!preg_match("/^[^\\r\\n]+:  ([A-Z0-9]{5}):/", $message, $m)) {
             return new self($message);
+
+        } else {
+            switch (substr($m[1], 0, 2)) {
+                case '0A':
+                    return new server\FeatureNotSupportedException($message, $m[1]);
+
+                case '22':
+                    return new server\DataException($message, $m[1]);
+
+                case '23':
+                    return new server\ConstraintViolationException($message, $m[1]);
+            }
+
+            return new self($message, $m[1]);
         }
     }
 
-    public function __construct($message = "", $code = 0, \Exception $previous = null)
+    public function __construct(string $message = "", string $sqlState = "", \Throwable $previous = null)
     {
-        // We can only use pg_result_error_field() with async queries, so just parse the message
-        // instead. See function pqGetErrorNotice3() in src/interfaces/libpq/fe-protocol3.c
-        if (preg_match("/^[^\\r\\n]+:  ([A-Z0-9]{5}):/", $message, $m)) {
-            $this->sqlState = $m[1];
-        }
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 0, $previous);
+        $this->sqlState = $sqlState;
     }
 
     /**
@@ -390,7 +403,7 @@ class ServerException extends \UnexpectedValueException implements Exception
      *
      * @return string
      */
-    public function getSqlState()
+    public function getSqlState(): string
     {
         return $this->sqlState;
     }
