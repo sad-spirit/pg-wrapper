@@ -98,7 +98,15 @@ class ServerExceptionsTest extends TestCase
             $this::fail('Expected ConstraintViolationException was not thrown');
         } catch (ConstraintViolationException $e) {
             $this::assertEquals(ServerException::UNIQUE_VIOLATION, $e->getSqlState());
-            $this::assertEquals('test_exception_pkey', $e->getConstraintName());
+            // Looks like constraint name was added to exceptions only in 9.3, see
+            // https://git.postgresql.org/gitweb/?p=postgresql.git;a=commit;h=991f3e5ab3f8196d18d5b313c81a5f744f3baaea
+            if (version_compare(
+                pg_parameter_status(self::$conn->getResource(), 'server_version'),
+                '9.3',
+                '>='
+            )) {
+                $this::assertEquals('test_exception_pkey', $e->getConstraintName());
+            }
         }
     }
 }
