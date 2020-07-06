@@ -174,7 +174,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
-        $this->factory->getConverterForTypeSpecification('trigger');
+        $this->factory->getConverterForTypeSpecification('xml');
     }
 
     public function testBuiltinTypeOid()
