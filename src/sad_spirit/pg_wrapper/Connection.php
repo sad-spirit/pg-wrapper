@@ -109,10 +109,10 @@ class Connection
             );
         }
         $serverVersion = pg_parameter_status($this->resource, 'server_version');
-        if (version_compare($serverVersion, '9.2.0', '<')) {
+        if (version_compare($serverVersion, '9.3', '<')) {
             $this->disconnect();
             throw new exceptions\ConnectionException(
-                __METHOD__ . ': PostgreSQL versions earlier than 9.2 are no longer supported, '
+                __METHOD__ . ': PostgreSQL versions earlier than 9.3 are no longer supported, '
                 . 'connected server reports version ' . $serverVersion
             );
         }
