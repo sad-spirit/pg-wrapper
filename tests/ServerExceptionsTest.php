@@ -15,6 +15,8 @@
  * @link      https://github.com/sad-spirit/pg-wrapper
  */
 
+namespace sad_spirit\pg_wrapper\tests;
+
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
