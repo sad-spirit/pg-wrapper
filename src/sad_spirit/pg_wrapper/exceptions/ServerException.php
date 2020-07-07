@@ -41,7 +41,7 @@ class ServerException extends \UnexpectedValueException implements Exception
     public const NULL_VALUE_ELIMINATED_IN_SET_FUNCTION = '01003';
     public const PRIVILEGE_NOT_GRANTED                 = '01007';
     public const PRIVILEGE_NOT_REVOKED                 = '01006';
-    public const STRING_DATA_RIGHT_TRUNCATION          = '01004';
+    public const WARNING_STRING_DATA_RIGHT_TRUNCATION  = '01004'; // name changed, code 22001 had the same one
     public const DEPRECATED_FEATURE                    = '01P01';
 
     /* Class 02 - No Data (this is also a warning class per the SQL standard) */
@@ -91,57 +91,75 @@ class ServerException extends \UnexpectedValueException implements Exception
     public const CARDINALITY_VIOLATION = '21000';
 
     /* Class 22 - Data Exception */
-    public const DATA_EXCEPTION                             = '22000';
-    public const ARRAY_SUBSCRIPT_ERROR                      = '2202E';
-    public const CHARACTER_NOT_IN_REPERTOIRE                = '22021';
-    public const DATETIME_FIELD_OVERFLOW                    = '22008';
-    public const DIVISION_BY_ZERO                           = '22012';
-    public const ERROR_IN_ASSIGNMENT                        = '22005';
-    public const ESCAPE_CHARACTER_CONFLICT                  = '2200B';
-    public const INDICATOR_OVERFLOW                         = '22022';
-    public const INTERVAL_FIELD_OVERFLOW                    = '22015';
-    public const INVALID_ARGUMENT_FOR_LOGARITHM             = '2201E';
-    public const INVALID_ARGUMENT_FOR_NTILE_FUNCTION        = '22014';
-    public const INVALID_ARGUMENT_FOR_NTH_VALUE_FUNCTION    = '22016';
-    public const INVALID_ARGUMENT_FOR_POWER_FUNCTION        = '2201F';
-    public const INVALID_ARGUMENT_FOR_WIDTH_BUCKET_FUNCTION = '2201G';
-    public const INVALID_CHARACTER_VALUE_FOR_CAST           = '22018';
-    public const INVALID_DATETIME_FORMAT                    = '22007';
-    public const INVALID_ESCAPE_CHARACTER                   = '22019';
-    public const INVALID_ESCAPE_OCTET                       = '2200D';
-    public const INVALID_ESCAPE_SEQUENCE                    = '22025';
-    public const NONSTANDARD_USE_OF_ESCAPE_CHARACTER        = '22P06';
-    public const INVALID_INDICATOR_PARAMETER_VALUE          = '22010';
-    public const INVALID_PARAMETER_VALUE                    = '22023';
-    public const INVALID_PRECEDING_OR_FOLLOWING_SIZE        = '22013';
-    public const INVALID_REGULAR_EXPRESSION                 = '2201B';
-    public const INVALID_ROW_COUNT_IN_LIMIT_CLAUSE          = '2201W';
-    public const INVALID_ROW_COUNT_IN_RESULT_OFFSET_CLAUSE  = '2201X';
-    public const INVALID_TABLESAMPLE_ARGUMENT               = '2202H';
-    public const INVALID_TABLESAMPLE_REPEAT                 = '2202G';
-    public const INVALID_TIME_ZONE_DISPLACEMENT_VALUE       = '22009';
-    public const INVALID_USE_OF_ESCAPE_CHARACTER            = '2200C';
-    public const MOST_SPECIFIC_TYPE_MISMATCH                = '2200G';
-    public const NULL_VALUE_NOT_ALLOWED                     = '22004';
-    public const NULL_VALUE_NO_INDICATOR_PARAMETER          = '22002';
-    public const NUMERIC_VALUE_OUT_OF_RANGE                 = '22003';
-    public const SEQUENCE_GENERATOR_LIMIT_EXCEEDED          = '2200H';
-    public const STRING_DATA_LENGTH_MISMATCH                = '22026';
-    //public const STRING_DATA_RIGHT_TRUNCATION               = '22001';
-    public const SUBSTRING_ERROR                            = '22011';
-    public const TRIM_ERROR                                 = '22027';
-    public const UNTERMINATED_C_STRING                      = '22024';
-    public const ZERO_LENGTH_CHARACTER_STRING               = '2200F';
-    public const FLOATING_POINT_EXCEPTION                   = '22P01';
-    public const INVALID_TEXT_REPRESENTATION                = '22P02';
-    public const INVALID_BINARY_REPRESENTATION              = '22P03';
-    public const BAD_COPY_FILE_FORMAT                       = '22P04';
-    public const UNTRANSLATABLE_CHARACTER                   = '22P05';
-    public const NOT_AN_XML_DOCUMENT                        = '2200L';
-    public const INVALID_XML_DOCUMENT                       = '2200M';
-    public const INVALID_XML_CONTENT                        = '2200N';
-    public const INVALID_XML_COMMENT                        = '2200S';
-    public const INVALID_XML_PROCESSING_INSTRUCTION         = '2200T';
+    public const DATA_EXCEPTION                                  = '22000';
+    public const ARRAY_ELEMENT_ERROR                             = '2202E';
+    public const ARRAY_SUBSCRIPT_ERROR                           = '2202E';
+    public const CHARACTER_NOT_IN_REPERTOIRE                     = '22021';
+    public const DATETIME_FIELD_OVERFLOW                         = '22008';
+    public const DATETIME_VALUE_OUT_OF_RANGE                     = '22008';
+    public const DIVISION_BY_ZERO                                = '22012';
+    public const ERROR_IN_ASSIGNMENT                             = '22005';
+    public const ESCAPE_CHARACTER_CONFLICT                       = '2200B';
+    public const INDICATOR_OVERFLOW                              = '22022';
+    public const INTERVAL_FIELD_OVERFLOW                         = '22015';
+    public const INVALID_ARGUMENT_FOR_LOGARITHM                  = '2201E';
+    public const INVALID_ARGUMENT_FOR_NTILE_FUNCTION             = '22014';
+    public const INVALID_ARGUMENT_FOR_NTH_VALUE_FUNCTION         = '22016';
+    public const INVALID_ARGUMENT_FOR_POWER_FUNCTION             = '2201F';
+    public const INVALID_ARGUMENT_FOR_WIDTH_BUCKET_FUNCTION      = '2201G';
+    public const INVALID_CHARACTER_VALUE_FOR_CAST                = '22018';
+    public const INVALID_DATETIME_FORMAT                         = '22007';
+    public const INVALID_ESCAPE_CHARACTER                        = '22019';
+    public const INVALID_ESCAPE_OCTET                            = '2200D';
+    public const INVALID_ESCAPE_SEQUENCE                         = '22025';
+    public const NONSTANDARD_USE_OF_ESCAPE_CHARACTER             = '22P06';
+    public const INVALID_INDICATOR_PARAMETER_VALUE               = '22010';
+    public const INVALID_PARAMETER_VALUE                         = '22023';
+    public const INVALID_PRECEDING_OR_FOLLOWING_SIZE             = '22013';
+    public const INVALID_REGULAR_EXPRESSION                      = '2201B';
+    public const INVALID_ROW_COUNT_IN_LIMIT_CLAUSE               = '2201W';
+    public const INVALID_ROW_COUNT_IN_RESULT_OFFSET_CLAUSE       = '2201X';
+    public const INVALID_TABLESAMPLE_ARGUMENT                    = '2202H';
+    public const INVALID_TABLESAMPLE_REPEAT                      = '2202G';
+    public const INVALID_TIME_ZONE_DISPLACEMENT_VALUE            = '22009';
+    public const INVALID_USE_OF_ESCAPE_CHARACTER                 = '2200C';
+    public const MOST_SPECIFIC_TYPE_MISMATCH                     = '2200G';
+    public const NULL_VALUE_NOT_ALLOWED                          = '22004';
+    public const NULL_VALUE_NO_INDICATOR_PARAMETER               = '22002';
+    public const NUMERIC_VALUE_OUT_OF_RANGE                      = '22003';
+    public const SEQUENCE_GENERATOR_LIMIT_EXCEEDED               = '2200H';
+    public const STRING_DATA_LENGTH_MISMATCH                     = '22026';
+    public const STRING_DATA_RIGHT_TRUNCATION                    = '22001';
+    public const SUBSTRING_ERROR                                 = '22011';
+    public const TRIM_ERROR                                      = '22027';
+    public const UNTERMINATED_C_STRING                           = '22024';
+    public const ZERO_LENGTH_CHARACTER_STRING                    = '2200F';
+    public const FLOATING_POINT_EXCEPTION                        = '22P01';
+    public const INVALID_TEXT_REPRESENTATION                     = '22P02';
+    public const INVALID_BINARY_REPRESENTATION                   = '22P03';
+    public const BAD_COPY_FILE_FORMAT                            = '22P04';
+    public const UNTRANSLATABLE_CHARACTER                        = '22P05';
+    public const NOT_AN_XML_DOCUMENT                             = '2200L';
+    public const INVALID_XML_DOCUMENT                            = '2200M';
+    public const INVALID_XML_CONTENT                             = '2200N';
+    public const INVALID_XML_COMMENT                             = '2200S';
+    public const INVALID_XML_PROCESSING_INSTRUCTION              = '2200T';
+    public const DUPLICATE_JSON_OBJECT_KEY_VALUE                 = '22030';
+    public const INVALID_ARGUMENT_FOR_SQL_JSON_DATETIME_FUNCTION = '22031';
+    public const INVALID_JSON_TEXT                               = '22032';
+    public const INVALID_SQL_JSON_SUBSCRIPT                      = '22033';
+    public const MORE_THAN_ONE_SQL_JSON_ITEM                     = '22034';
+    public const NO_SQL_JSON_ITEM                                = '22035';
+    public const NON_NUMERIC_SQL_JSON_ITEM                       = '22036';
+    public const NON_UNIQUE_KEYS_IN_A_JSON_OBJECT                = '22037';
+    public const SINGLETON_SQL_JSON_ITEM_REQUIRED                = '22038';
+    public const SQL_JSON_ARRAY_NOT_FOUND                        = '22039';
+    public const SQL_JSON_MEMBER_NOT_FOUND                       = '2203A';
+    public const SQL_JSON_NUMBER_NOT_FOUND                       = '2203B';
+    public const SQL_JSON_OBJECT_NOT_FOUND                       = '2203C';
+    public const TOO_MANY_JSON_ARRAY_ELEMENTS                    = '2203D';
+    public const TOO_MANY_JSON_OBJECT_MEMBERS                    = '2203E';
+    public const SQL_JSON_SCALAR_REQUIRED                        = '2203F';
 
     /* Class 23 - Integrity Constraint Violation */
     public const INTEGRITY_CONSTRAINT_VIOLATION = '23000';
@@ -197,16 +215,16 @@ class ServerException extends \UnexpectedValueException implements Exception
     public const INVALID_CURSOR_NAME = '34000';
 
     /* Class 38 - External Routine Exception */
-    public const EXTERNAL_ROUTINE_EXCEPTION         = '38000';
-    public const CONTAINING_SQL_NOT_PERMITTED       = '38001';
-    //public const MODIFYING_SQL_DATA_NOT_PERMITTED   = '38002';
-    //public const PROHIBITED_SQL_STATEMENT_ATTEMPTED = '38003';
-    //public const READING_SQL_DATA_NOT_PERMITTED     = '38004';
+    public const EXTERNAL_ROUTINE_EXCEPTION                  = '38000';
+    public const CONTAINING_SQL_NOT_PERMITTED                = '38001';
+    public const EXTERNAL_MODIFYING_SQL_DATA_NOT_PERMITTED   = '38002'; // name changed, code 2F002 had the same one
+    public const EXTERNAL_PROHIBITED_SQL_STATEMENT_ATTEMPTED = '38003'; // name changed, code 2F003 had the same one
+    public const EXTERNAL_READING_SQL_DATA_NOT_PERMITTED     = '38004'; // name changed, code 2F004 had the same one
 
     /* Class 39 - External Routine Invocation Exception */
     public const EXTERNAL_ROUTINE_INVOCATION_EXCEPTION = '39000';
     public const INVALID_SQLSTATE_RETURNED             = '39001';
-    //public const NULL_VALUE_NOT_ALLOWED                = '39004';
+    public const EXTERNAL_NULL_VALUE_NOT_ALLOWED       = '39004'; // name changed, code 22004 had the same one
     public const TRIGGER_PROTOCOL_VIOLATED             = '39P01';
     public const SRF_PROTOCOL_VIOLATED                 = '39P02';
     public const EVENT_TRIGGER_PROTOCOL_VIOLATED       = '39P03';
@@ -247,7 +265,11 @@ class ServerException extends \UnexpectedValueException implements Exception
     public const WRONG_OBJECT_TYPE                     = '42809';
     public const GENERATED_ALWAYS                      = '428C9';
     public const UNDEFINED_COLUMN                      = '42703';
+    public const UNDEFINED_CURSOR                      = '34000';
+    public const UNDEFINED_DATABASE                    = '3D000';
     public const UNDEFINED_FUNCTION                    = '42883';
+    public const UNDEFINED_PSTATEMENT                  = '26000';
+    public const UNDEFINED_SCHEMA                      = '3F000';
     public const UNDEFINED_TABLE                       = '42P01';
     public const UNDEFINED_PARAMETER                   = '42P02';
     public const UNDEFINED_OBJECT                      = '42704';
@@ -295,6 +317,7 @@ class ServerException extends \UnexpectedValueException implements Exception
     public const OBJECT_IN_USE                    = '55006';
     public const CANT_CHANGE_RUNTIME_PARAM        = '55P02';
     public const LOCK_NOT_AVAILABLE               = '55P03';
+    public const UNSAFE_NEW_ENUM_VALUE_USAGE      = '55P04';
 
     /* Class 57 - Operator Intervention */
     public const OPERATOR_INTERVENTION = '57000';
@@ -373,18 +396,19 @@ class ServerException extends \UnexpectedValueException implements Exception
 
         // We can only use pg_result_error_field() with async queries, so just try to parse the message
         // instead. See function pqBuildErrorMessage3() in src/interfaces/libpq/fe-protocol3.c
-        } elseif (!preg_match("/^[^\\r\\n]+:  ([A-Z0-9]{5}):/", $message, $m)) {
+        } elseif (!preg_match("/^[^\r\n]+: {2}([A-Z0-9]{5}):/", $message, $m)) {
             return new self($message);
 
         } else {
-            switch (substr($m[1], 0, 2)) {
-                case '0A':
+            // Make "generic subclass" for the current error code and create a specific exception based on that
+            switch (substr_replace($m[1], '000', 2, 3)) {
+                case self::FEATURE_NOT_SUPPORTED:
                     return new server\FeatureNotSupportedException($message, $m[1]);
 
-                case '22':
+                case self::DATA_EXCEPTION:
                     return new server\DataException($message, $m[1]);
 
-                case '23':
+                case self::INTEGRITY_CONSTRAINT_VIOLATION:
                     return new server\ConstraintViolationException($message, $m[1]);
             }
 
