@@ -9,7 +9,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2017 Alexey Borzov
+ * @copyright 2014-2020 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -19,12 +19,10 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\exceptions;
 
-use sad_spirit\pg_wrapper\Exception;
-
 /**
  * Exception thrown on failed query
  */
-class ServerException extends \UnexpectedValueException implements Exception
+class ServerException extends RuntimeException
 {
     /*
      The following is the list of PostgreSQL error codes, generated from
@@ -410,6 +408,23 @@ class ServerException extends \UnexpectedValueException implements Exception
 
                 case self::INTEGRITY_CONSTRAINT_VIOLATION:
                     return new server\ConstraintViolationException($message, $m[1]);
+
+                /** @noinspection PhpMissingBreakStatementInspection */
+                case self::SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION:
+                    //
+                    if (self::INSUFFICIENT_PRIVILEGE === $m[1]) {
+                        return new server\InsufficientPrivilegeException($message, $m[1]);
+                    }
+                    // intentional fall-through
+
+                case self::CARDINALITY_VIOLATION:
+                case self::CASE_NOT_FOUND:
+                case self::UNDEFINED_PSTATEMENT:
+                case self::UNDEFINED_CURSOR:
+                case self::UNDEFINED_DATABASE:
+                case self::UNDEFINED_SCHEMA:
+                case self::WITH_CHECK_OPTION_VIOLATION:
+                    return new server\ProgrammingException($message, $m[1]);
             }
 
             return new self($message, $m[1]);

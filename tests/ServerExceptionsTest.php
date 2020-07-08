@@ -25,10 +25,11 @@ use sad_spirit\pg_wrapper\{
 use sad_spirit\pg_wrapper\exceptions\{
     ConnectionException,
     ServerException,
-    RuntimeException,
     server\ConstraintViolationException,
     server\DataException,
-    server\FeatureNotSupportedException
+    server\FeatureNotSupportedException,
+    server\InsufficientPrivilegeException,
+    server\ProgrammingException
 };
 
 class ServerExceptionsTest extends TestCase
@@ -102,5 +103,17 @@ class ServerExceptionsTest extends TestCase
             $this::assertEquals(ServerException::UNIQUE_VIOLATION, $e->getSqlState());
             $this::assertEquals('test_exception_pkey', $e->getConstraintName());
         }
+    }
+
+    public function testInsufficientPrivilegeException()
+    {
+        $this::expectException(InsufficientPrivilegeException::class);
+        self::$conn->execute('drop table pg_class');
+    }
+
+    public function testProgrammingException()
+    {
+        $this::expectException(ProgrammingException::class);
+        self::$conn->execute('blah');
     }
 }
