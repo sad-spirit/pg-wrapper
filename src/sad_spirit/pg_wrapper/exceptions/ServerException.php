@@ -409,9 +409,11 @@ class ServerException extends RuntimeException
                 case self::INTEGRITY_CONSTRAINT_VIOLATION:
                     return new server\ConstraintViolationException($message, $m[1]);
 
+                case self::TRANSACTION_ROLLBACK:
+                    return new server\TransactionRollbackException($message, $m[1]);
+
                 /** @noinspection PhpMissingBreakStatementInspection */
                 case self::SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION:
-                    //
                     if (self::INSUFFICIENT_PRIVILEGE === $m[1]) {
                         return new server\InsufficientPrivilegeException($message, $m[1]);
                     }
@@ -425,6 +427,35 @@ class ServerException extends RuntimeException
                 case self::UNDEFINED_SCHEMA:
                 case self::WITH_CHECK_OPTION_VIOLATION:
                     return new server\ProgrammingException($message, $m[1]);
+
+                /** @noinspection PhpMissingBreakStatementInspection */
+                case self::OPERATOR_INTERVENTION:
+                    if (self::QUERY_CANCELED === $m[1]) {
+                        return new server\QueryCanceledException($message, $m[1]);
+                    }
+                    // intentional fall-through
+
+                case self::TRIGGERED_DATA_CHANGE_VIOLATION:
+                case self::INVALID_AUTHORIZATION_SPECIFICATION:
+                case self::INSUFFICIENT_RESOURCES:
+                case self::PROGRAM_LIMIT_EXCEEDED:
+                case self::OBJECT_NOT_IN_PREREQUISITE_STATE:
+                case self::SYSTEM_ERROR:
+                case self::FDW_ERROR:
+                    return new server\OperationalException($message, $m[1]);
+
+                case self::INVALID_CURSOR_STATE:
+                case self::INVALID_TRANSACTION_STATE:
+                case self::DEPENDENT_PRIVILEGE_DESCRIPTORS_STILL_EXIST:
+                case self::INVALID_TRANSACTION_TERMINATION:
+                case self::SQL_ROUTINE_EXCEPTION:
+                case self::EXTERNAL_ROUTINE_EXCEPTION:
+                case self::EXTERNAL_ROUTINE_INVOCATION_EXCEPTION:
+                case self::SAVEPOINT_EXCEPTION:
+                case self::CONFIG_FILE_ERROR:
+                case self::PLPGSQL_ERROR:
+                case self::INTERNAL_ERROR:
+                    return new server\InternalErrorException($message, $m[1]);
             }
 
             return new self($message, $m[1]);
