@@ -9,7 +9,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2017 Alexey Borzov
+ * @copyright 2014-2020 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -18,10 +18,9 @@
 namespace sad_spirit\pg_wrapper\tests;
 
 use PHPUnit\Framework\TestCase;
-use sad_spirit\pg_wrapper\{
-    Connection,
-    exceptions\ServerException,
-    exceptions\RuntimeException
+use sad_spirit\pg_wrapper\Connection;
+use sad_spirit\pg_wrapper\exceptions\{
+    server\FeatureNotSupportedException
 };
 
 /**
@@ -32,99 +31,175 @@ class ConnectionTransactionsTest extends TestCase
     /**
      * @var Connection
      */
-    protected static $conn;
+    protected $conn;
 
-    public static function setUpBeforeClass(): void
-    {
-        if (TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
-            self::$conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-            self::$conn->execute('drop table if exists test_trans');
-            self::$conn->execute('create table test_trans (id integer)');
-        }
-    }
-
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
         }
-        self::$conn->execute('truncate test_trans');
+        $this->conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $this->conn->execute('drop table if exists test_trans');
+        $this->conn->execute('create table test_trans (id integer)');
     }
 
-    protected function assertPreConditions(): void
+    protected function store(int $id): void
     {
-        $this->assertFalse(self::$conn->inTransaction());
+        $this->conn->executeParams('insert into test_trans values ($1)', [$id]);
     }
 
-    public function tearDown(): void
+    protected function assertStored(array $ids): void
     {
-        if (self::$conn && self::$conn->inTransaction()) {
-            self::$conn->rollback();
-        }
+        $this::assertEquals(
+            $ids,
+            $this->conn->execute('select id from test_trans order by 1')
+                ->fetchColumn('id')
+        );
     }
 
-    public function testBeginCommit()
+    public function testCommit(): void
     {
-        self::$conn->beginTransaction();
-        $this->assertTrue(self::$conn->inTransaction());
-        self::$conn->beginTransaction();
-        self::$conn->commit();
-        $this->assertFalse(self::$conn->inTransaction());
+        $result = $this->conn->atomic(function () {
+            $this->store(1);
+            return 'success!';
+        });
+        $this::assertEquals('success!', $result);
+        $this::assertFalse($this->conn->inTransaction());
+        $this->assertStored([1]);
     }
 
-    public function testExplicitBeginCommitQueries()
+    public function testRollback(): void
     {
-        self::$conn->execute('begin');
-        $this->assertTrue(self::$conn->inTransaction());
-        self::$conn->execute('commit');
-        $this->assertFalse(self::$conn->inTransaction());
-    }
-
-    public function testBeginRollback()
-    {
-        self::$conn->beginTransaction();
-        self::$conn->execute('insert into test_trans values (1)');
-        $result = self::$conn->execute('select count(*) as cnt from test_trans');
-        $this->assertEquals(1, $result[0]['cnt']);
-
         try {
-            self::$conn->execute("insert into test_trans values ('foo')");
-            $this->fail('Expected ServerException was not thrown');
-        } catch (ServerException $e) {
+            $this->conn->atomic(function () {
+                $this->store(1);
+                throw new FeatureNotSupportedException('Oopsie');
+            });
+            $this::fail('Expected FeatureNotSupportedException was not thrown');
+        } catch (FeatureNotSupportedException $exception) {
+            $this->assertEquals('Oopsie', $exception->getMessage());
         }
-        $this->assertTrue(self::$conn->inTransaction());
-        self::$conn->rollback();
-
-        $this->assertFalse(self::$conn->inTransaction());
-        $result = self::$conn->execute('select count(*) as cnt from test_trans');
-        $this->assertEquals(0, $result[0]['cnt']);
+        $this::assertFalse($this->conn->inTransaction());
+        $this->assertStored([]);
     }
 
-    public function testDisallowSavepointOutsideTransaction()
+    public function testNestedCommitAndCommit(): void
     {
-        $this->expectException(RuntimeException::class);
-        self::$conn->beginTransaction('foo');
+        $this->conn->atomic(function (Connection $connection) {
+            $this->store(1);
+            $connection->atomic(function () {
+                $this->store(2);
+            }, true);
+        });
+        $this->assertStored([1, 2]);
     }
 
-    public function testSavepoints()
+    public function testNestedCommitAndRollback(): void
     {
-        self::$conn->beginTransaction();
-        self::$conn->execute('insert into test_trans values (1)');
-        self::$conn->beginTransaction('first');
-        self::$conn->execute('insert into test_trans values (2)');
-        self::$conn->beginTransaction('second');
+        $this->conn->atomic(function (Connection $connection) {
+            $this->store(1);
+            try {
+                $connection->atomic(function () {
+                    $this->store(2);
+                    throw new FeatureNotSupportedException('Oopsie');
+                }, true);
+            } catch (FeatureNotSupportedException $e) {
+            }
+        });
+        $this->assertStored([1]);
+    }
 
-        self::$conn->commit('second');
+    public function testNestedRollbackAndCommit(): void
+    {
         try {
-            self::$conn->commit('third');
-            $this->fail('Expected ServerException was not thrown');
-        } catch (ServerException $e) {
+            $this->conn->atomic(function (Connection $connection) {
+                $this->store(1);
+                $connection->atomic(function () {
+                    $this->store(2);
+                }, true);
+                throw new FeatureNotSupportedException('Oopsie');
+            });
+        } catch (FeatureNotSupportedException $e) {
         }
-        self::$conn->rollback('first');
-        self::$conn->commit();
-        $this->assertFalse(self::$conn->inTransaction());
+        $this->assertStored([]);
+    }
 
-        $result = self::$conn->execute('select array_agg(id) as ids from test_trans');
-        $this->assertEquals([1], $result[0]['ids']);
+    public function testNestedRollbackAndRollback(): void
+    {
+        try {
+            $this->conn->atomic(function () {
+                $this->store(1);
+                try {
+                    $this->conn->atomic(function () {
+                        $this->store(2);
+                        throw new FeatureNotSupportedException('Oopsie');
+                    }, true);
+                } catch (FeatureNotSupportedException $e) {
+                }
+                throw new FeatureNotSupportedException('Another oopsie');
+            });
+        } catch (FeatureNotSupportedException $e) {
+        }
+        $this->assertStored([]);
+    }
+
+    public function testMergedCommitAndCommit(): void
+    {
+        $this->conn->atomic(function (Connection $connection) {
+            $this->store(1);
+            $connection->atomic(function () {
+                $this->store(2);
+            });
+        });
+        $this->assertStored([1, 2]);
+    }
+
+    public function testMergedCommitAndRollback(): void
+    {
+        $this->conn->atomic(function (Connection $connection) {
+            $this->store(1);
+            try {
+                $connection->atomic(function () {
+                    $this->store(2);
+                    throw new FeatureNotSupportedException('Oopsie');
+                });
+            } catch (FeatureNotSupportedException $e) {
+            }
+        });
+        $this->assertStored([]);
+    }
+
+    public function testMergedRollbackAndCommit(): void
+    {
+        try {
+            $this->conn->atomic(function (Connection $connection) {
+                $this->store(1);
+                $connection->atomic(function () {
+                    $this->store(2);
+                });
+                throw new FeatureNotSupportedException('Oopsie');
+            });
+        } catch (FeatureNotSupportedException $e) {
+        }
+        $this->assertStored([]);
+    }
+
+    public function testMergedRollbackAndRollback(): void
+    {
+        try {
+            $this->conn->atomic(function () {
+                $this->store(1);
+                try {
+                    $this->conn->atomic(function () {
+                        $this->store(2);
+                        throw new FeatureNotSupportedException('Oopsie');
+                    });
+                } catch (FeatureNotSupportedException $e) {
+                }
+                throw new FeatureNotSupportedException('Another oopsie');
+            });
+        } catch (FeatureNotSupportedException $e) {
+        }
+        $this->assertStored([]);
     }
 }

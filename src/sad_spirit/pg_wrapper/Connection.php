@@ -9,7 +9,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2017 Alexey Borzov
+ * @copyright 2014-2020 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -51,6 +51,56 @@ class Connection
     private $cacheItemPool;
 
     /**
+     * Marks whether the connection is in a transaction managed by {@link atomic()}
+     * @var bool
+     */
+    private $inAtomic = false;
+
+    /**
+     * Marks whether transaction should be rolled back to the next available savepoint due to error in inner block
+     * @var bool
+     */
+    private $needsRollback = false;
+
+    /**
+     * Counter used to generate unique savepoint names
+     * @var int
+     */
+    private $savepointIndex = 0;
+
+    /**
+     * Names of savepoints created by {@link atomic()}
+     * @var array
+     */
+    private $savepointNames = [];
+
+    /**
+     * Callbacks to run after successful commit of transaction
+     *
+     * Each entry is an array with two elements
+     *  - Names of savepoints active when callback was registered
+     *  - Actual callback
+     *
+     * @var array
+     */
+    private $onCommitCallbacks = [];
+
+    /**
+     * Callbacks to run after rollback of transaction
+     *
+     * Structure is similar to $onCommitCallbacks
+     *
+     * @var array
+     */
+    private $onRollbackCallbacks = [];
+
+    /**
+     * Whether a shutdown function to run outstanding onRollback() callbacks was registered
+     * @var bool
+     */
+    private $shutdownRegistered = false;
+
+    /**
      * Constructor.
      *
      * @param string $connectionString Connection string.
@@ -79,7 +129,9 @@ class Connection
      */
     public function __clone()
     {
-        $this->resource = null;
+        $this->resource           = null;
+        $this->shutdownRegistered = false;
+        $this->resetTransactionState();
     }
 
     /**
@@ -117,6 +169,8 @@ class Connection
             );
         }
         pg_set_error_verbosity($this->resource, PGSQL_ERRORS_VERBOSE);
+
+        $this->resetTransactionState();
 
         return $this;
     }
@@ -356,20 +410,77 @@ class Connection
     }
 
     /**
-     * Starts a transaction or sets a savepoint
+     * Starts a transaction
      *
-     * @param string|null $savepoint savepoint name
+     * @return $this
+     * @throws exceptions\BadMethodCallException If called within atomic() block
+     */
+    public function beginTransaction(): self
+    {
+        if ($this->inAtomic) {
+            throw new exceptions\BadMethodCallException(
+                "Methods for manual transaction handling should not be called within atomic() closures"
+            );
+        }
+
+        $this->execute('BEGIN');
+
+        return $this;
+    }
+
+    /**
+     * Commits a transaction
+     *
+     * @return $this
+     * @throws exceptions\BadMethodCallException If called within atomic() block
+     */
+    public function commit(): self
+    {
+        if ($this->inAtomic) {
+            throw new exceptions\BadMethodCallException(
+                "Methods for manual transaction handling should not be called within atomic() closures"
+            );
+        }
+
+        $this->execute('COMMIT');
+        $this->onRollbackCallbacks = [];
+        $this->runAndClearOnCommitCallbacks();
+
+        return $this;
+    }
+
+    /**
+     * Rolls back a transaction
+     *
+     * @return $this
+     * @throws exceptions\BadMethodCallException If called within atomic() block
+     */
+    public function rollback(): self
+    {
+        if ($this->inAtomic) {
+            throw new exceptions\BadMethodCallException(
+                "Methods for manual transaction handling should not be called within atomic() closures"
+            );
+        }
+
+        $this->execute('ROLLBACK');
+
+        $this->onCommitCallbacks = [];
+        $this->runAndClearOnRollbackCallbacks();
+
+        return $this;
+    }
+
+    /**
+     * Creates a new savepoint with the given name
+     *
+     * @param string $savepoint
      * @return $this
      * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
      */
-    public function beginTransaction(?string $savepoint = null): self
+    public function createSavepoint(string $savepoint): self
     {
-        if (null === $savepoint) {
-            if (!$this->inTransaction()) {
-                $this->execute('BEGIN');
-            }
-
-        } elseif (!$this->inTransaction()) {
+        if (!$this->inTransaction()) {
             throw new exceptions\RuntimeException(
                 __METHOD__ . ': Savepoints can only be used in transaction blocks'
             );
@@ -382,20 +493,15 @@ class Connection
     }
 
     /**
-     * Commits a transaction or releases a savepoint
+     * Releases the given savepoint
      *
-     * @param string|null $savepoint savepoint name
+     * @param string $savepoint
      * @return $this
-     * @throws exceptions\RuntimeException if trying to release a savepoint outside the transaction block
+     * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
      */
-    public function commit(?string $savepoint = null): self
+    public function releaseSavepoint(string $savepoint): self
     {
-        if (null === $savepoint) {
-            if ($this->inTransaction()) {
-                $this->execute('COMMIT');
-            }
-
-        } elseif (!$this->inTransaction()) {
+        if (!$this->inTransaction()) {
             throw new exceptions\RuntimeException(
                 __METHOD__ . ': Savepoints can only be used in transaction blocks'
             );
@@ -408,22 +514,17 @@ class Connection
     }
 
     /**
-     * Rolls back changes done during a transaction or since a specific savepoint
+     * Rolls back to the given savepoint
      *
-     * @param string|null $savepoint savepoint name
+     * @param string $savepoint
      * @return $this
-     * @throws exceptions\RuntimeException if trying to roll back to a savepoint outside the transaction block
+     * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
      */
-    public function rollback(?string $savepoint = null): self
+    public function rollbackToSavepoint(string $savepoint): self
     {
-        if (null === $savepoint) {
-            if ($this->inTransaction()) {
-                $this->execute('ROLLBACK');
-            }
-
-        } elseif (!$this->inTransaction()) {
+        if (!$this->inTransaction()) {
             throw new exceptions\RuntimeException(
-                __METHOD__ . 'Savepoints can only be used in transaction blocks'
+                __METHOD__ . ': Savepoints can only be used in transaction blocks'
             );
 
         } else {
@@ -443,5 +544,191 @@ class Connection
         $status = pg_transaction_status($this->getResource());
 
         return PGSQL_TRANSACTION_INTRANS === $status || PGSQL_TRANSACTION_INERROR === $status;
+    }
+
+    /**
+     * Runs a given function atomically
+     *
+     * Before running $callback atomic() ensures the transaction is started and creates a savepoint if asked. Since
+     * savepoints add a bit of overhead, their creation is disabled by default.
+     *
+     * If $callback executes normally then transaction is committed or savepoint is released. In case of exception
+     * the transaction is rolled back (to savepoint if one was created) and exception is re-thrown.
+     *
+     * $callback receives this Connection instance as an argument.
+     *
+     * It is possible to use {@link onCommit()} and {@link onRollback()} methods inside $callback to register
+     * functions that will run after a commit or a rollback of the transaction, respectively. Calling
+     * {@link beginTransaction()}, {@link commit()} or {@link rollback()} will fail with an exception to
+     * ensure atomicity.
+     *
+     * @param callable $callback  The function to execute atomically
+     * @param bool     $savepoint Whether to create a savepoint if the transaction is already in progress
+     *
+     * @return mixed The value returned by $callback
+     *
+     * @throws \Throwable
+     */
+    public function atomic(callable $callback, bool $savepoint = false)
+    {
+        if (!$this->inAtomic) {
+            $this->needsRollback = false;
+            if ($this->inTransaction()) {
+                $this->inAtomic = true;
+            }
+        }
+
+        if (!$this->inAtomic) {
+            $this->beginTransaction();
+            $this->inAtomic = true;
+        } elseif ($savepoint && !$this->needsRollback) {
+            $this->createSavepoint($savepointName = $this->generateAtomicSavepointName());
+            $this->savepointNames[] = $savepointName;
+        } else {
+            $this->savepointNames[] = null;
+        }
+
+        try {
+            return $callback($this);
+
+        } catch (\Throwable $exception) {
+            // We only need that block to know about $exception in finally {...}, just re-throw it
+            throw $exception;
+
+        } finally {
+            if (!empty($this->savepointNames)) {
+                $savepointName  = array_pop($this->savepointNames);
+            } else {
+                $this->inAtomic = false;
+            }
+
+            if (!empty($exception) || $this->needsRollback) {
+                // either current $callback errored or some nested one, do a rollback
+                $this->needsRollback = false;
+                if (!$this->inAtomic) {
+                    $this->rollback();
+                } elseif (empty($savepointName)) {
+                    $this->needsRollback = true;
+                } else {
+                    try {
+                        $this->rollbackToSavepoint($savepointName);
+                        $this->releaseSavepoint($savepointName);
+                    } catch (\Exception $rse) {
+                        $this->needsRollback = true;
+                    }
+                }
+
+            } elseif (!$this->inAtomic) {
+                // we are leaving the outermost atomic() block, commit
+                try {
+                    $this->commit();
+                } catch (\Exception $ce) {
+                    $this->rollback();
+                    throw $ce;
+                }
+
+            } elseif (!empty($savepointName)) {
+                // we are leaving the nested atomic() block and a savepoint was added in it
+                try {
+                    $this->releaseSavepoint($savepointName);
+                } catch (\Exception $se) {
+                    try {
+                        $this->rollbackToSavepoint($savepointName);
+                        $this->releaseSavepoint($savepointName);
+                    } catch (\Exception $rse) {
+                        $this->needsRollback = true;
+                    }
+                    throw $se;
+                }
+            }
+        }
+    }
+
+    /**
+     * Registers a callback that will execute when the transaction is committed
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function onCommit(callable $callback): self
+    {
+        if (!$this->inAtomic) {
+            throw new exceptions\BadMethodCallException(
+                "onCommit() can only be used within atomic() closures"
+            );
+        }
+        $this->onCommitCallbacks[] = [$this->savepointNames, $callback];
+
+        return $this;
+    }
+
+    /**
+     * Registers a callback that will execute when the transaction is rolled back
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function onRollback(callable $callback): self
+    {
+        if (!$this->inAtomic) {
+            throw new exceptions\BadMethodCallException(
+                "onRollback() can only be used within atomic() closures"
+            );
+        }
+        if (!$this->shutdownRegistered) {
+            register_shutdown_function(function () {
+                $this->runAndClearOnRollbackCallbacks();
+            });
+            $this->shutdownRegistered = true;
+        }
+        $this->onRollbackCallbacks[] = [$this->savepointNames, $callback];
+
+        return $this;
+    }
+
+    /**
+     * Resets various fields used by atomic()
+     *
+     * Generally needed when a new DB connection is established
+     */
+    private function resetTransactionState(): void
+    {
+        $this->inAtomic            = false;
+        $this->needsRollback       = false;
+        $this->savepointNames      = [];
+        $this->onCommitCallbacks   = [];
+        $this->onRollbackCallbacks = [];
+    }
+
+    /**
+     * Runs registered after-rollback callbacks and clears the list
+     */
+    private function runAndClearOnRollbackCallbacks(): void
+    {
+        [$callbacks, $this->onRollbackCallbacks] = [$this->onRollbackCallbacks, []];
+        foreach ($callbacks as [, $callback]) {
+            $callback();
+        }
+    }
+
+    /**
+     * Runs registered after-commit callbacks and clears the list
+     */
+    private function runAndClearOnCommitCallbacks(): void
+    {
+        [$callbacks, $this->onCommitCallbacks] = [$this->onCommitCallbacks, []];
+        foreach ($callbacks as [, $callback]) {
+            $callback();
+        }
+    }
+
+    /**
+     * Returns a savepoint name for use in atomic() blocks
+     *
+     * @return string
+     */
+    private function generateAtomicSavepointName(): string
+    {
+        return 'atomic_' . ++$this->savepointIndex;
     }
 }
