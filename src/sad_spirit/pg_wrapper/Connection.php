@@ -237,14 +237,14 @@ class Connection
 
         $resource = $this->getResource(); // forces connecting if not connected yet
         if (null !== $type) {
-            return "'" . pg_escape_string($resource, $this->getTypeConverter($type)->output($value)) . "'";
+            return pg_escape_literal($resource, $this->getTypeConverter($type)->output($value));
         } else {
-            return "'" . pg_escape_string(
+            return pg_escape_literal(
                 $resource,
                 $this->getTypeConverterFactory()
                     ->getConverterForPHPValue($value)
                     ->output($value)
-            ) . "'";
+            );
         }
     }
 
