@@ -249,6 +249,17 @@ class Connection
     }
 
     /**
+     * Quotes an identifier (e.g. table name) for inclusion in a query
+     *
+     * @param string $identifier
+     * @return string
+     */
+    public function quoteIdentifier(string $identifier): string
+    {
+        return pg_escape_identifier($this->getResource(), $identifier);
+    }
+
+    /**
      * Prepares a given query for execution.
      *
      * @param string $query      SQL query to prepare.

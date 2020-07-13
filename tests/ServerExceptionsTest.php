@@ -145,7 +145,7 @@ class ServerExceptionsTest extends TestCase
         $dbName = $result[0][0];
 
         self::$conn->execute(
-            "drop database " . pg_escape_identifier(self::$conn->getResource(), $dbName)
+            "drop database " . self::$conn->quoteIdentifier($dbName)
         );
     }
 
