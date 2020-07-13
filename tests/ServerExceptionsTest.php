@@ -41,26 +41,14 @@ class ServerExceptionsTest extends TestCase
     /**
      * @var Connection
      */
-    protected static $conn;
-
-    public static function setUpBeforeClass(): void
-    {
-        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
-            self::markTestSkipped('Connection string is not configured');
-
-        } else {
-            self::$conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-            self::$conn->execute('drop table if exists test_exception');
-            self::$conn->execute('create table test_exception (id integer not null, constraint test_exception_pkey primary key (id))');
-        }
-    }
+    protected $conn;
 
     public function setUp(): void
     {
-        if (self::$conn->inTransaction()) {
-            self::$conn->rollback();
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
         }
-        self::$conn->execute('truncate test_exception');
+        $this->conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
     }
 
     public function testConnectionExceptionIsThrownIfConnectionBroken()
@@ -69,7 +57,7 @@ class ServerExceptionsTest extends TestCase
 
         $this::assertInstanceOf(ResultSet::class, $connectionTwo->execute('select true'));
 
-        self::$conn->executeParams(
+        $this->conn->executeParams(
             'select pg_terminate_backend($1)',
             [pg_get_pid($connectionTwo->getResource())]
         );
@@ -82,21 +70,23 @@ class ServerExceptionsTest extends TestCase
     {
         $this::expectException(FeatureNotSupportedException::class);
         // This is the easiest way to trigger, see src\backend\utils\adt\xml.c
-        self::$conn->execute("select xmlvalidate('<foo />', 'bar')");
+        $this->conn->execute("select xmlvalidate('<foo />', 'bar')");
     }
 
     public function testDataException()
     {
         $this::expectException(DataException::class);
-        self::$conn->execute('select 0/0');
+        $this->conn->execute('select 0/0');
     }
 
     public function testConstraintViolationException()
     {
-        self::$conn->execute('insert into test_exception values (1)');
+        $this->conn->execute('drop table if exists test_exception');
+        $this->conn->execute('create table test_exception (id integer not null, constraint test_exception_pkey primary key (id))');
+        $this->conn->execute('insert into test_exception values (1)');
 
         try {
-            self::$conn->execute('insert into test_exception values (null)');
+            $this->conn->execute('insert into test_exception values (null)');
             $this::fail('Expected ConstraintViolationException was not thrown');
         } catch (ConstraintViolationException $e) {
             $this::assertEquals(ServerException::NOT_NULL_VIOLATION, $e->getSqlState());
@@ -104,7 +94,7 @@ class ServerExceptionsTest extends TestCase
         }
 
         try {
-            self::$conn->execute('insert into test_exception values (1)');
+            $this->conn->execute('insert into test_exception values (1)');
             $this::fail('Expected ConstraintViolationException was not thrown');
         } catch (ConstraintViolationException $e) {
             $this::assertEquals(ServerException::UNIQUE_VIOLATION, $e->getSqlState());
@@ -115,54 +105,54 @@ class ServerExceptionsTest extends TestCase
     public function testInsufficientPrivilegeException()
     {
         $this::expectException(InsufficientPrivilegeException::class);
-        self::$conn->execute('drop table pg_class');
+        $this->conn->execute('drop table pg_class');
     }
 
     public function testProgrammingException()
     {
         $this::expectException(ProgrammingException::class);
-        self::$conn->execute('blah');
+        $this->conn->execute('blah');
     }
 
     public function testInternalErrorException()
     {
         $this::expectException(InternalErrorException::class);
 
-        self::$conn->beginTransaction();
+        $this->conn->beginTransaction();
         try {
-            self::$conn->execute('blah');
+            $this->conn->execute('blah');
         } catch (ServerException $e) {
         }
-        self::$conn->execute('select true');
+        $this->conn->execute('select true');
     }
 
     public function testOperationalException()
     {
         $this::expectException(OperationalException::class);
 
-        $result = self::$conn->execute('select current_database()');
+        $result = $this->conn->execute('select current_database()');
         $result->setMode(PGSQL_NUM);
         $dbName = $result[0][0];
 
-        self::$conn->execute(
-            "drop database " . self::$conn->quoteIdentifier($dbName)
+        $this->conn->execute(
+            "drop database " . $this->conn->quoteIdentifier($dbName)
         );
     }
 
     public function testQueryCanceledException()
     {
         $this::expectException(QueryCanceledException::class);
-        self::$conn->beginTransaction();
-        self::$conn->execute('set local statement_timeout = 500');
-        self::$conn->execute('select pg_sleep(1)');
+        $this->conn->beginTransaction();
+        $this->conn->execute('set local statement_timeout = 500');
+        $this->conn->execute('select pg_sleep(1)');
     }
 
     public function testTransactionRollbackException()
     {
         $this::expectException(TransactionRollbackException::class);
 
-        self::$conn->execute("drop table if exists test_deadlock");
-        self::$conn->execute(<<<SQL
+        $this->conn->execute("drop table if exists test_deadlock");
+        $this->conn->execute(<<<SQL
 create table test_deadlock (
     id integer not null,
     txt text,
@@ -171,18 +161,18 @@ create table test_deadlock (
 SQL
         );
 
-        self::$conn->execute("insert into test_deadlock values (1, 'foo')");
-        self::$conn->execute("insert into test_deadlock values (2, 'bar')");
+        $this->conn->execute("insert into test_deadlock values (1, 'foo')");
+        $this->conn->execute("insert into test_deadlock values (2, 'bar')");
 
         $connectionTwo = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
 
-        self::$conn->beginTransaction();
+        $this->conn->beginTransaction();
         $connectionTwo->beginTransaction();
         // ensure that deadlock is detected in "synchronous" transaction
-        self::$conn->execute("set deadlock_timeout = '1s'");
+        $this->conn->execute("set deadlock_timeout = '1s'");
         $connectionTwo->execute("set deadlock_timeout = '10s'");
 
-        self::$conn->execute("update test_deadlock set txt = 'baz' where id = 1");
+        $this->conn->execute("update test_deadlock set txt = 'baz' where id = 1");
         $connectionTwo->execute("update test_deadlock set txt = 'quux' where id = 2");
 
         // this will wait for lock, so we execute it asynchronously
@@ -192,8 +182,8 @@ SQL
         );
 
         // this will wait for lock as well and trigger deadlock detection in 1s
-        self::$conn->execute("update test_deadlock set txt = 'baz' where id = 2");
+        $this->conn->execute("update test_deadlock set txt = 'baz' where id = 2");
 
-        self::$conn->commit();
+        $this->conn->commit();
     }
 }
