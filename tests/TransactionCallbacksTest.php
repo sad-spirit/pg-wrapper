@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\exceptions\{
     BadMethodCallException,
+    server\ConstraintViolationException,
     server\FeatureNotSupportedException
 };
 
@@ -111,6 +112,95 @@ class TransactionCallbacksTest extends TestCase
         }
 
         $this->assertStuffDone([]);
+        $this->assertStuffNotDone([1]);
+    }
+
+    public function testCommitCallbacksAfterFinalCommit(): void
+    {
+        $this->conn->atomic(function () {
+            $this->conn->atomic(function () {
+                $this->doStuff(1);
+                $this::assertEquals([], $this->committed);
+            }, true);
+            $this::assertEquals([], $this->committed);
+        }, true);
+        $this::assertEquals([1], $this->committed);
+    }
+
+    public function testCallbacksFromRolledBackSavepoints(): void
+    {
+        $this->conn->atomic(function () {
+            $this->conn->atomic(function () {
+                $this->doStuff(1);
+            }, true);
+
+            try {
+                $this->conn->atomic(function () {
+                    $this->doStuff(2);
+                    throw new FeatureNotSupportedException('Oopsie');
+                }, true);
+            } catch (FeatureNotSupportedException $e) {
+            }
+
+            // onRollback() callbacks should fire *immediately* after rollback
+            $this->assertStuffNotDone([2]);
+
+            $this->conn->atomic(function () {
+                $this->doStuff(3);
+            });
+        });
+
+        $this->assertStuffDone([1, 3]);
+        $this->assertStuffNotDone([2]);
+    }
+
+    // A deferred PK constraint will error on commit rather than immediately on insertion of duplicate value
+    public function testExceptionDuringCommit()
+    {
+        $this->conn->execute('alter table test_trans add constraint test_trans_pkey primary key (id) deferrable initially deferred');
+
+        try {
+            $this->conn->atomic(function () {
+                $this->doStuff(1);
+                $this->doStuff(1);
+                $this->doStuff(2);
+            });
+            $this->fail('Expected ConstraintViolationException was not thrown');
+        } catch (ConstraintViolationException $e) {
+        }
+
+        $this->assertStuffDone([]);
+        $this->assertStuffNotDone([1, 1, 2]);
+    }
+
+    public function testCallbacksAreClearedAfterCommit()
+    {
+        $this->conn->atomic(function () {
+            $this->doStuff(1);
+        });
+
+        $this->conn->atomic(function () {
+            $this->doStuff(2);
+        });
+
+        $this->assertStuffDone([1, 2]);
+    }
+
+    public function testCallbacksAreClearedAfterRollback()
+    {
+        try {
+            $this->conn->atomic(function () {
+                $this->doStuff(1);
+                throw new FeatureNotSupportedException('Oopsie');
+            });
+        } catch (FeatureNotSupportedException $e) {
+        }
+
+        $this->conn->atomic(function () {
+            $this->doStuff(2);
+        });
+
+        $this->assertStuffDone([2]);
         $this->assertStuffNotDone([1]);
     }
 }

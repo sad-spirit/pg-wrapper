@@ -421,6 +421,7 @@ class Connection
         }
 
         $this->execute('COMMIT');
+
         $this->onRollbackCallbacks = [];
         $this->runAndClearOnCommitCallbacks();
 
@@ -462,10 +463,9 @@ class Connection
             throw new exceptions\RuntimeException(
                 __METHOD__ . ': Savepoints can only be used in transaction blocks'
             );
-
-        } else {
-            $this->execute('SAVEPOINT ' . $savepoint);
         }
+
+        $this->execute('SAVEPOINT ' . $savepoint);
 
         return $this;
     }
@@ -483,10 +483,9 @@ class Connection
             throw new exceptions\RuntimeException(
                 __METHOD__ . ': Savepoints can only be used in transaction blocks'
             );
-
-        } else {
-            $this->execute('RELEASE SAVEPOINT ' . $savepoint);
         }
+
+        $this->execute('RELEASE SAVEPOINT ' . $savepoint);
 
         return $this;
     }
@@ -504,10 +503,14 @@ class Connection
             throw new exceptions\RuntimeException(
                 __METHOD__ . ': Savepoints can only be used in transaction blocks'
             );
-
-        } else {
-            $this->execute('ROLLBACK TO SAVEPOINT ' . $savepoint);
         }
+
+        $this->execute('ROLLBACK TO SAVEPOINT ' . $savepoint);
+
+        $this->onCommitCallbacks = array_filter($this->onCommitCallbacks, function ($value) use ($savepoint) {
+            return !in_array($savepoint, $value[0]);
+        });
+        $this->runAndClearOnRollbackCallbacks($savepoint);
 
         return $this;
     }
@@ -680,10 +683,22 @@ class Connection
 
     /**
      * Runs registered after-rollback callbacks and clears the list
+     *
+     * @param string $savepoint Name of the savepoint if rolling back to one
      */
-    private function runAndClearOnRollbackCallbacks(): void
+    private function runAndClearOnRollbackCallbacks(string $savepoint = null): void
     {
-        [$callbacks, $this->onRollbackCallbacks] = [$this->onRollbackCallbacks, []];
+        if (null === $savepoint) {
+            [$callbacks, $this->onRollbackCallbacks] = [$this->onRollbackCallbacks, []];
+        } else {
+            $callbacks = [];
+            foreach (array_keys($this->onRollbackCallbacks) as $key) {
+                if (in_array($savepoint, $this->onRollbackCallbacks[$key][0])) {
+                    $callbacks[] = $this->onRollbackCallbacks[$key];
+                    unset($this->onRollbackCallbacks[$key]);
+                }
+            }
+        }
         foreach ($callbacks as [, $callback]) {
             $callback();
         }
