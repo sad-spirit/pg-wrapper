@@ -287,27 +287,11 @@ class Connection
      */
     public function execute(string $sql, array $resultTypes = [])
     {
-        $result = @pg_query($this->getResource(), $sql);
-
-        if (false === $result) {
-            throw exceptions\ServerException::fromConnection($this->getResource());
-        }
-
-        switch (pg_result_status($result)) {
-            case PGSQL_COMMAND_OK:
-                $rows = pg_affected_rows($result);
-                pg_free_result($result);
-                return $rows;
-
-            case PGSQL_COPY_IN:
-            case PGSQL_COPY_OUT:
-                pg_free_result($result);
-                return true;
-
-            case PGSQL_TUPLES_OK:
-            default:
-                return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
-        }
+        return ResultSet::createFromResultResource(
+            @pg_query($this->getResource(), $sql),
+            $this,
+            $resultTypes
+        );
     }
 
     /**
@@ -323,9 +307,7 @@ class Connection
      */
     public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = [])
     {
-        if (!$this->isConnected()) {
-            $this->connect();
-        }
+        $resource     = $this->getResource();
         $stringParams = [];
         foreach ($params as $key => $value) {
             if (isset($paramTypes[$key])) {
@@ -337,26 +319,11 @@ class Connection
             }
         }
 
-        $result = @pg_query_params($this->getResource(), $sql, $stringParams);
-        if (false === $result) {
-            throw exceptions\ServerException::fromConnection($this->getResource());
-        }
-
-        switch (pg_result_status($result)) {
-            case PGSQL_COMMAND_OK:
-                $rows = pg_affected_rows($result);
-                pg_free_result($result);
-                return $rows;
-
-            case PGSQL_COPY_IN:
-            case PGSQL_COPY_OUT:
-                pg_free_result($result);
-                return true;
-
-            case PGSQL_TUPLES_OK:
-            default:
-                return new ResultSet($result, $this->getTypeConverterFactory(), $resultTypes);
-        }
+        return ResultSet::createFromResultResource(
+            @pg_query_params($resource, $sql, $stringParams),
+            $this,
+            $resultTypes
+        );
     }
 
     /**

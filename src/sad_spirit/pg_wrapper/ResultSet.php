@@ -79,15 +79,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param array       $types    Types information, used to convert output values (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      */
-    public function __construct($resource, TypeConverterFactory $factory, array $types = [])
+    protected function __construct($resource, TypeConverterFactory $factory, array $types = [])
     {
-        if (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource)) {
-            throw exceptions\InvalidArgumentException::unexpectedType(
-                __METHOD__,
-                'a query result resource',
-                $resource
-            );
-        }
         $this->resource         = $resource;
         $this->converterFactory = $factory;
         $this->numRows          = pg_num_rows($this->resource);
@@ -109,6 +102,43 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             if (!isset($this->converters[$i])) {
                 $this->converters[$i] = $this->converterFactory->getConverterForTypeOID($oids[$i]);
             }
+        }
+    }
+
+    /**
+     * Creates a return value for various execute*() methods from underlying query result resource
+     *
+     * @param resource|bool $resource   SQL result resource, false if query failed.
+     * @param Connection    $connection Connection, origin of result resource.
+     * @param array         $types      Types information, used to convert output values (overrides auto-generated types).
+     * @return bool|int|self
+     */
+    public static function createFromResultResource($resource, Connection $connection, array $types = [])
+    {
+        if (!$resource) {
+            throw exceptions\ServerException::fromConnection($connection->getResource());
+        } elseif (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource)) {
+            throw exceptions\InvalidArgumentException::unexpectedType(
+                __METHOD__,
+                'a query result resource',
+                $resource
+            );
+        }
+
+        switch (pg_result_status($resource)) {
+            case PGSQL_COPY_IN:
+            case PGSQL_COPY_OUT:
+                pg_free_result($resource);
+                return true;
+
+            case PGSQL_COMMAND_OK:
+                $count = pg_affected_rows($resource);
+                pg_free_result($resource);
+                return $count;
+
+            case PGSQL_TUPLES_OK:
+            default:
+                return new self($resource, $connection->getTypeConverterFactory(), $types);
         }
     }
 
@@ -273,7 +303,16 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        pg_free_result($this->resource);
+        if (isset($this->resource)) {
+            pg_free_result($this->resource);
+        }
+    }
+
+    /**
+     * Prevents cloning the ResultSet object
+     */
+    private function __clone()
+    {
     }
 
     /**

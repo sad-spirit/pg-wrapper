@@ -228,25 +228,10 @@ class PreparedStatement
             }
         }
 
-        $result = @pg_execute($this->connection->getResource(), $this->queryId, $stringParams);
-        if (!$result) {
-            throw exceptions\ServerException::fromConnection($this->connection->getResource());
-        }
-
-        switch (pg_result_status($result)) {
-            case PGSQL_COPY_IN:
-            case PGSQL_COPY_OUT:
-                pg_free_result($result);
-                return true;
-
-            case PGSQL_COMMAND_OK:
-                $count = pg_affected_rows($result);
-                pg_free_result($result);
-                return $count;
-
-            case PGSQL_TUPLES_OK:
-            default:
-                return new ResultSet($result, $this->connection->getTypeConverterFactory(), $resultTypes);
-        }
+        return ResultSet::createFromResultResource(
+            @pg_execute($this->connection->getResource(), $this->queryId, $stringParams),
+            $this->connection,
+            $resultTypes
+        );
     }
 }
