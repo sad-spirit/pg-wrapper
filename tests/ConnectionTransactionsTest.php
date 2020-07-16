@@ -19,9 +19,9 @@ namespace sad_spirit\pg_wrapper\tests;
 
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\Connection;
-use sad_spirit\pg_wrapper\exceptions\{
-    server\FeatureNotSupportedException
-};
+use sad_spirit\pg_wrapper\exceptions\{RuntimeException,
+    server\FeatureNotSupportedException,
+    server\ProgrammingException};
 
 /**
  * Unit test for transactions handling in Connection class
@@ -201,5 +201,61 @@ class ConnectionTransactionsTest extends TestCase
         } catch (FeatureNotSupportedException $e) {
         }
         $this->assertStored([]);
+    }
+
+    public function testAtomicInsideOpenTransaction()
+    {
+        $onCommitCalled = false;
+
+        $this->conn->beginTransaction();
+
+        $this->conn->atomic(function (Connection $connection) use (&$onCommitCalled) {
+            $connection->onCommit(function () use (&$onCommitCalled) {
+                $onCommitCalled = true;
+            });
+        });
+
+        $this::assertTrue($this->conn->inTransaction(), "Transaction should still be open");
+        $this::assertFalse($onCommitCalled, "onCommit callbacks should not be called yet");
+
+        $this->conn->commit();
+        $this::assertTrue($onCommitCalled);
+    }
+
+    public function testAtomicErrorInsideOpenTransaction()
+    {
+        $onRollbackCalled = false;
+
+        $this->conn->beginTransaction();
+
+        try {
+            $this->conn->atomic(function (Connection $connection) use (&$onRollbackCalled) {
+                $connection->onRollback(function () use (&$onRollbackCalled) {
+                    $onRollbackCalled = true;
+                });
+                $connection->execute('blah');
+            });
+            $this::fail('Expected ProgrammingException was not thrown');
+        } catch (ProgrammingException $e) {
+        }
+
+        $this::assertTrue($this->conn->inTransaction(), "Transaction should still be open");
+        $this::assertFalse($onRollbackCalled, "onRollback callbacks should not be called yet");
+        $this::assertTrue($this->conn->needsRollback());
+
+        // I suspect there's an error here in django: it unconditionally sets needs_rollback = false when
+        // entering the outermost atomic block. So in case when first atomic() fails and the second
+        // succeeds both can succeed
+        try {
+            $this->conn->atomic(function () {
+                // no-op
+            });
+            $this::fail('Expected RuntimeException was not thrown');
+        } catch (RuntimeException $e) {
+            $this::assertStringContainsString('marked for rollback', $e->getMessage());
+        }
+
+        $this->conn->rollback();
+        $this::assertTrue($onRollbackCalled);
     }
 }

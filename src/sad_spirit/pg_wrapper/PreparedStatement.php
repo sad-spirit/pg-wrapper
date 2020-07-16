@@ -209,6 +209,7 @@ class PreparedStatement
         if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
         }
+        $this->connection->checkRollbackNotNeeded();
 
         if (!empty($params)) {
             $this->values = [];

@@ -287,6 +287,7 @@ class Connection
      */
     public function execute(string $sql, array $resultTypes = [])
     {
+        $this->checkRollbackNotNeeded();
         return ResultSet::createFromResultResource(
             @pg_query($this->getResource(), $sql),
             $this,
@@ -307,6 +308,8 @@ class Connection
      */
     public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = [])
     {
+        $this->checkRollbackNotNeeded();
+
         $resource     = $this->getResource();
         $stringParams = [];
         foreach ($params as $key => $value) {
@@ -442,6 +445,8 @@ class Connection
             );
         }
 
+        $this->needsRollback = false;
+
         $this->execute('ROLLBACK');
 
         $this->onCommitCallbacks = [];
@@ -553,7 +558,7 @@ class Connection
     public function atomic(callable $callback, bool $savepoint = false)
     {
         if (!$this->inAtomic) {
-            $this->needsRollback = false;
+            $this->checkRollbackNotNeeded();
             if ($this->inTransaction()) {
                 $this->inAtomic = true;
             }
@@ -583,43 +588,51 @@ class Connection
                 $this->inAtomic = false;
             }
 
-            if (!empty($exception) || $this->needsRollback) {
-                // either current $callback errored or some nested one, do a rollback
-                $this->needsRollback = false;
-                if (!$this->inAtomic) {
-                    $this->rollback();
-                } elseif (empty($savepointName)) {
-                    $this->needsRollback = true;
-                } else {
-                    try {
-                        $this->rollbackToSavepoint($savepointName);
-                        $this->releaseSavepoint($savepointName);
-                    } catch (\Exception $rse) {
+            try {
+                if (!empty($exception) || $this->needsRollback) {
+                    // either current $callback errored or some nested one, do a rollback
+                    if (!$this->inAtomic) {
+                        $this->rollback();
+                    } elseif (empty($savepointName)) {
                         $this->needsRollback = true;
+                    } else {
+                        $this->needsRollback = false;
+                        try {
+                            $this->rollbackToSavepoint($savepointName);
+                            $this->releaseSavepoint($savepointName);
+                        } catch (\Exception $rse) {
+                            $this->needsRollback = true;
+                        }
+                    }
+
+                } elseif (!$this->inAtomic) {
+                    // we are leaving the outermost atomic() block, commit
+                    try {
+                        $this->commit();
+                    } catch (\Exception $ce) {
+                        $this->rollback();
+                        throw $ce;
+                    }
+
+                } elseif (!empty($savepointName)) {
+                    // we are leaving the nested atomic() block and a savepoint was added in it
+                    try {
+                        $this->releaseSavepoint($savepointName);
+                    } catch (\Exception $se) {
+                        try {
+                            $this->rollbackToSavepoint($savepointName);
+                            $this->releaseSavepoint($savepointName);
+                        } catch (\Exception $rse) {
+                            $this->needsRollback = true;
+                        }
+                        throw $se;
                     }
                 }
 
-            } elseif (!$this->inAtomic) {
-                // we are leaving the outermost atomic() block, commit
-                try {
-                    $this->commit();
-                } catch (\Exception $ce) {
-                    $this->rollback();
-                    throw $ce;
-                }
-
-            } elseif (!empty($savepointName)) {
-                // we are leaving the nested atomic() block and a savepoint was added in it
-                try {
-                    $this->releaseSavepoint($savepointName);
-                } catch (\Exception $se) {
-                    try {
-                        $this->rollbackToSavepoint($savepointName);
-                        $this->releaseSavepoint($savepointName);
-                    } catch (\Exception $rse) {
-                        $this->needsRollback = true;
-                    }
-                    throw $se;
+            } finally {
+                // Covers the case when outermost atomic() was entered with transaction already open
+                if ($this->inAtomic && 0 === count($this->savepointNames)) {
+                    $this->inAtomic = false;
                 }
             }
         }
@@ -665,6 +678,53 @@ class Connection
         $this->onRollbackCallbacks[] = [$this->savepointNames, $callback];
 
         return $this;
+    }
+
+    /**
+     * Whether transaction should be rolled back due to an error in an inner block
+     *
+     * @return bool
+     */
+    public function needsRollback(): bool
+    {
+        return $this->needsRollback;
+    }
+
+    /**
+     * Sets the $needsRollback flag for the current transaction
+     *
+     * This should *only* be used when doing some custom error handling within atomic() closures,
+     * as incorrectly setting the flag will break transaction processing
+     *
+     * @param bool $needsRollback
+     * @return $this
+     */
+    public function setNeedsRollback(bool $needsRollback): self
+    {
+        if (!$this->inAtomic) {
+            throw new exceptions\BadMethodCallException(
+                "setNeedsRollback() can only be used within atomic() closures"
+            );
+        }
+
+        $this->needsRollback = $needsRollback;
+
+        return $this;
+    }
+
+    /**
+     * Throws an exception if $needsRollback flag was previously set, preventing queries except "ROLLBACK"
+     *
+     * @throws exceptions\RuntimeException
+     */
+    public function checkRollbackNotNeeded(): void
+    {
+        if ($this->needsRollback) {
+            throw new exceptions\RuntimeException(
+                "An error occurred in current transaction and it is marked for rollback."
+                . " No queries will be accepted."
+            );
+        }
     }
 
     /**
