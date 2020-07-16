@@ -615,7 +615,7 @@ class Connection
                         try {
                             $this->rollbackToSavepoint($savepointName);
                             $this->releaseSavepoint($savepointName);
-                        } catch (\Exception $rse) {
+                        } catch (\Throwable $rse) {
                             $this->needsRollback = true;
                         }
                     }
@@ -624,7 +624,7 @@ class Connection
                     // we are leaving the outermost atomic() block, commit
                     try {
                         $this->commit();
-                    } catch (\Exception $ce) {
+                    } catch (\Throwable $ce) {
                         $this->rollback();
                         throw $ce;
                     }
@@ -633,11 +633,11 @@ class Connection
                     // we are leaving the nested atomic() block and a savepoint was added in it
                     try {
                         $this->releaseSavepoint($savepointName);
-                    } catch (\Exception $se) {
+                    } catch (\Throwable $se) {
                         try {
                             $this->rollbackToSavepoint($savepointName);
                             $this->releaseSavepoint($savepointName);
-                        } catch (\Exception $rse) {
+                        } catch (\Throwable $rse) {
                             $this->needsRollback = true;
                         }
                         throw $se;
