@@ -88,7 +88,10 @@ class Connection
     /**
      * Callbacks to run after rollback of transaction
      *
-     * Structure is similar to $onCommitCallbacks
+     * Each entry is an array with three elements
+     *  - Names of savepoints active when callback was registered
+     *  - Actual callback
+     *  - Whether it should be run on commit as well (for rolled back savepoints in committed transaction)
      *
      * @var array
      */
@@ -440,7 +443,6 @@ class Connection
 
         $this->execute('COMMIT');
 
-        $this->onRollbackCallbacks = [];
         $this->runAndClearOnCommitCallbacks();
 
         return $this;
@@ -464,7 +466,6 @@ class Connection
 
         $this->execute('ROLLBACK');
 
-        $this->onCommitCallbacks = [];
         $this->runAndClearOnRollbackCallbacks();
 
         return $this;
@@ -530,7 +531,11 @@ class Connection
         $this->onCommitCallbacks = array_filter($this->onCommitCallbacks, function ($value) use ($savepoint) {
             return !in_array($savepoint, $value[0]);
         });
-        $this->runAndClearOnRollbackCallbacks($savepoint);
+        array_walk($this->onRollbackCallbacks, function (&$value) use ($savepoint) {
+            if (in_array($savepoint, $value[0])) {
+                $value[2] = true;
+            }
+        });
 
         return $this;
     }
@@ -690,7 +695,7 @@ class Connection
             });
             $this->shutdownRegistered = true;
         }
-        $this->onRollbackCallbacks[] = [$this->savepointNames, $callback];
+        $this->onRollbackCallbacks[] = [$this->savepointNames, $callback, false];
 
         return $this;
     }
@@ -758,22 +763,11 @@ class Connection
 
     /**
      * Runs registered after-rollback callbacks and clears the list
-     *
-     * @param string $savepoint Name of the savepoint if rolling back to one
      */
-    private function runAndClearOnRollbackCallbacks(string $savepoint = null): void
+    private function runAndClearOnRollbackCallbacks(): void
     {
-        if (null === $savepoint) {
-            [$callbacks, $this->onRollbackCallbacks] = [$this->onRollbackCallbacks, []];
-        } else {
-            $callbacks = [];
-            foreach (array_keys($this->onRollbackCallbacks) as $key) {
-                if (in_array($savepoint, $this->onRollbackCallbacks[$key][0])) {
-                    $callbacks[] = $this->onRollbackCallbacks[$key];
-                    unset($this->onRollbackCallbacks[$key]);
-                }
-            }
-        }
+        $this->onCommitCallbacks = [];
+        [$callbacks, $this->onRollbackCallbacks] = [$this->onRollbackCallbacks, []];
         foreach ($callbacks as [, $callback]) {
             $callback();
         }
@@ -784,7 +778,15 @@ class Connection
      */
     private function runAndClearOnCommitCallbacks(): void
     {
-        [$callbacks, $this->onCommitCallbacks] = [$this->onCommitCallbacks, []];
+        $callbacks = array_merge(
+            $this->onCommitCallbacks,
+            array_filter($this->onRollbackCallbacks, function ($value) {
+                return $value[2];
+            })
+        );
+        $this->onCommitCallbacks   = [];
+        $this->onRollbackCallbacks = [];
+
         foreach ($callbacks as [, $callback]) {
             $callback();
         }

@@ -142,8 +142,8 @@ class TransactionCallbacksTest extends TestCase
             } catch (FeatureNotSupportedException $e) {
             }
 
-            // onRollback() callbacks should fire *immediately* after rollback
-            $this->assertStuffNotDone([2]);
+            // The callbacks should run after final commit
+            $this->assertStuffNotDone([]);
 
             $this->conn->atomic(function () {
                 $this->doStuff(3);
