@@ -19,9 +19,11 @@ namespace sad_spirit\pg_wrapper\tests;
 
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\Connection;
-use sad_spirit\pg_wrapper\exceptions\{RuntimeException,
+use sad_spirit\pg_wrapper\exceptions\{
+    RuntimeException,
     server\FeatureNotSupportedException,
-    server\ProgrammingException};
+    server\ProgrammingException
+};
 
 /**
  * Unit test for transactions handling in Connection class
