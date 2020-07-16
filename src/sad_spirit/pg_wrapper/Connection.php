@@ -101,6 +101,16 @@ class Connection
     private $shutdownRegistered = false;
 
     /**
+     * Whether disconnect() method was called
+     *
+     * We connect to the database automatically only once: on first getResource() call if $lazy = true was passed
+     * to constructor. Once disconnect() was ever called, we require manual call to connect().
+     *
+     * @var bool
+     */
+    private $disconnected = false;
+
+    /**
      * Constructor.
      *
      * @param string $connectionString Connection string.
@@ -131,6 +141,7 @@ class Connection
     {
         $this->resource           = null;
         $this->shutdownRegistered = false;
+        $this->disconnected       = false;
         $this->resetTransactionState();
     }
 
@@ -184,6 +195,7 @@ class Connection
             pg_close($this->resource);
             $this->resource = null;
         }
+        $this->disconnected = true;
 
         return $this;
     }
@@ -206,6 +218,9 @@ class Connection
     public function getResource()
     {
         if (!$this->isConnected()) {
+            if ($this->disconnected) {
+                throw new exceptions\ConnectionException("Connection has been closed");
+            }
             $this->connect();
         }
         return $this->resource;

@@ -86,6 +86,21 @@ class ConnectionTest extends TestCase
         $this->assertEquals('Unknown', get_resource_type($resource));
     }
 
+    public function testNoReconnectAfterManualDisconnect()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
+        $this::assertTrue($connection->isConnected());
+
+        $connection->disconnect();
+
+        $this::expectException(ConnectionException::class);
+        $this::expectExceptionMessage("Connection has been closed");
+        $connection->execute("select true");
+    }
+
     public function testDifferentInstancesHaveDifferentResources()
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
