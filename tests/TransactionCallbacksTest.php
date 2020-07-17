@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\exceptions\{
     BadMethodCallException,
+    ConnectionException,
     server\ConstraintViolationException,
     server\FeatureNotSupportedException
 };
@@ -52,13 +53,13 @@ class TransactionCallbacksTest extends TestCase
 
     protected function doStuff(int $stuffId): void
     {
-        $this->conn->executeParams('insert into test_trans values ($1)', [$stuffId]);
         $this->conn->onCommit(function () use ($stuffId) {
             $this->committed[] = $stuffId;
         });
         $this->conn->onRollback(function () use ($stuffId) {
             $this->rolledBack[] = $stuffId;
         });
+        $this->conn->executeParams('insert into test_trans values ($1)', [$stuffId]);
     }
 
     protected function assertStuffDone(array $stuff): void
@@ -201,6 +202,37 @@ class TransactionCallbacksTest extends TestCase
         });
 
         $this->assertStuffDone([2]);
+        $this->assertStuffNotDone([1]);
+    }
+
+    public function testBrokenConnectionInAtomic()
+    {
+        $this->conn->execute("set idle_in_transaction_session_timeout = 500");
+
+        try {
+            $this->conn->atomic(function () {
+                $this->doStuff(1);
+                sleep(1);
+                $this->doStuff(2);
+            });
+        } catch (ConnectionException $e) {
+        }
+
+        $this::assertFalse($this->conn->isConnected());
+        $this->assertStuffNotDone([1, 2]);
+    }
+
+    public function testDisconnectInAtomic()
+    {
+        try {
+            $this->conn->atomic(function () {
+                $this->doStuff(1);
+                $this->conn->disconnect();
+            });
+        } catch (ConnectionException $e) {
+        }
+
+        $this::assertFalse($this->conn->isConnected());
         $this->assertStuffNotDone([1]);
     }
 }

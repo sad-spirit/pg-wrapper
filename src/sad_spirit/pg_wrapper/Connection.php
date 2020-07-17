@@ -114,6 +114,12 @@ class Connection
     private $disconnected = false;
 
     /**
+     * Whether disconnect() was called within atomic() closure
+     * @var bool
+     */
+    private $disconnectedInAtomic = false;
+
+    /**
      * Constructor.
      *
      * @param string $connectionString Connection string.
@@ -199,6 +205,16 @@ class Connection
             $this->resource = null;
         }
         $this->disconnected = true;
+
+        // If disconnected while transaction is active, the transaction will be rolled back by the server,
+        // thus run the relevant callbacks
+        if (!$this->inAtomic) {
+            // Run callbacks immediately
+            $this->runAndClearOnRollbackCallbacks();
+        } else {
+            // Postpone running callbacks until exit from outermost atomic()
+            $this->disconnectedInAtomic = true;
+        }
 
         return $this;
     }
@@ -599,7 +615,10 @@ class Connection
             return $callback($this);
 
         } catch (\Throwable $exception) {
-            // We only need that block to know about $exception in finally {...}, just re-throw it
+            if ($exception instanceof exceptions\ConnectionException) {
+                // Connection is probably unusable anyway
+                $this->disconnect();
+            }
             throw $exception;
 
         } finally {
@@ -610,7 +629,11 @@ class Connection
             }
 
             try {
-                if (!empty($exception) || $this->needsRollback) {
+                /** @noinspection PhpStatementHasEmptyBodyInspection */
+                if ($this->disconnectedInAtomic) {
+                    // No-op
+
+                } elseif (!empty($exception) || $this->needsRollback) {
                     // either current $callback errored or some nested one, do a rollback
                     if (!$this->inAtomic) {
                         $this->rollback();
@@ -650,10 +673,19 @@ class Connection
                     }
                 }
 
+            } catch (exceptions\ConnectionException $connectionException) {
+                // Connection is probably unusable anyway
+                $this->disconnect();
+                throw $connectionException;
+
             } finally {
                 // Covers the case when outermost atomic() was entered with transaction already open
                 if (!empty($inTransaction) && 0 === count($this->savepointNames)) {
                     $this->inAtomic = false;
+                }
+                // If disconnected from DB, run callbacks on exit from outermost atomic()
+                if (!$this->inAtomic && $this->disconnectedInAtomic) {
+                    $this->runAndClearOnRollbackCallbacks();
                 }
             }
         }
@@ -755,11 +787,12 @@ class Connection
      */
     private function resetTransactionState(): void
     {
-        $this->inAtomic            = false;
-        $this->needsRollback       = false;
-        $this->savepointNames      = [];
-        $this->onCommitCallbacks   = [];
-        $this->onRollbackCallbacks = [];
+        $this->inAtomic             = false;
+        $this->needsRollback        = false;
+        $this->savepointNames       = [];
+        $this->onCommitCallbacks    = [];
+        $this->onRollbackCallbacks  = [];
+        $this->disconnectedInAtomic = false;
     }
 
     /**
