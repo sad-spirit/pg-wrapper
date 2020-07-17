@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -43,17 +44,17 @@ class IntervalConverter extends BaseConverter
     /**#@+
      * Token types used by tokenize() and createInterval()
      */
-    const TOKEN_STRING = 'string';
-    const TOKEN_NUMBER = 'number';
-    const TOKEN_DATE   = 'date';
-    const TOKEN_TIME   = 'time';
+    private const TOKEN_STRING = 'string';
+    private const TOKEN_NUMBER = 'number';
+    private const TOKEN_DATE   = 'date';
+    private const TOKEN_TIME   = 'time';
     /**#@-*/
 
     /**
      * Mapping of units used in 'postgres' and 'postgres_verbose' formats to DateInterval fields
      * @var array
      */
-    const POSTGRES_UNITS = [
+    private const POSTGRES_UNITS = [
         'd'         => 'd',
         'day'       => 'd',
         'days'      => 'd',
@@ -259,7 +260,15 @@ class IntervalConverter extends BaseConverter
                 $pos   += strlen($m[0]);
                 $type   = self::TOKEN_STRING;
 
-            } elseif (preg_match('/[+-]? \d+ (?: (:\d+)?:(\d+(\.\d+)?|\.\d+) | ([-.]) \d+ )? /Ax', $native, $m, 0, $pos)) {
+            } elseif (
+                preg_match(
+                    '/[+-]? \d+ (?: (:\d+)?:(\d+(\.\d+)?|\.\d+) | ([-.]) \d+ )? /Ax',
+                    $native,
+                    $m,
+                    0,
+                    $pos
+                )
+            ) {
                 $field  = $m[0];
                 $pos   += strlen($m[0]);
                 if (!empty($m[2])) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -59,7 +60,9 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     {
         $this->subtypeConverter = $subtypeConverter;
 
-        if ($subtypeConverter instanceof FloatConverter || $subtypeConverter instanceof NumericConverter
+        if (
+            $subtypeConverter instanceof FloatConverter
+            || $subtypeConverter instanceof NumericConverter
             || $subtypeConverter instanceof IntegerConverter
         ) {
             $this->resultClass = NumericRange::class;
@@ -138,6 +141,7 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
                 break;
 
             case 'e':
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 'E':
                 if (preg_match('/empty/Ai', $native, $m, 0, $pos)) {
                     $pos += 5;

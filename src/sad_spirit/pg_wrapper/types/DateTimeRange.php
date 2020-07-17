@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -53,7 +54,8 @@ class DateTimeRange extends Range
                     "DateTimeRange {$name} bound should be an instance of DateTime"
                 );
             }
-            if ('upper' === $name && null !== $this->lower && $this->lower > $value
+            if (
+                'upper' === $name && null !== $this->lower && $this->lower > $value
                 || 'lower' === $name && null !== $this->upper && $this->upper < $value
             ) {
                 throw new InvalidArgumentException(

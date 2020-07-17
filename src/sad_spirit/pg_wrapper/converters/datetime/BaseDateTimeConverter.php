@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -36,7 +37,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Default DateStyle setting for Postgres
      */
-    const DEFAULT_STYLE = 'ISO, MDY';
+    public const DEFAULT_STYLE = 'ISO, MDY';
 
     /**
      * Current DateStyle setting, used for input
@@ -108,7 +109,8 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
             }
         }
         // check whether datestyle setting changed
-        if ($this->connection
+        if (
+            $this->connection
             && $this->style !== ($style = pg_parameter_status($this->connection, 'DateStyle'))
         ) {
             $this->style = $style;

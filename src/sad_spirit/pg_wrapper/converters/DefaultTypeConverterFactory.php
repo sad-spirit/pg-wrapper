@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -825,12 +826,14 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     final protected function findTypeNameForOID(int $oid, string $method): array
     {
-        if (!$this->checkTypesArrayWithPossibleReload(
-            function () use ($oid) {
-                return isset($this->oidMap[$oid]);
-            },
-            $method . ': Database connection required'
-        )) {
+        if (
+            !$this->checkTypesArrayWithPossibleReload(
+                function () use ($oid) {
+                    return isset($this->oidMap[$oid]);
+                },
+                $method . ': Database connection required'
+            )
+        ) {
             throw new InvalidArgumentException(
                 sprintf('%s: could not find type information for OID %d', $method, $oid)
             );
@@ -850,17 +853,19 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     final protected function findOIDForTypeName(string $typeName, ?string $schemaName, string $method): int
     {
-        if (!$this->checkTypesArrayWithPossibleReload(
-            function () use ($typeName, $schemaName) {
-                return isset($this->dbTypes['names'][$typeName])
-                       && (null === $schemaName || isset($this->dbTypes['names'][$typeName][$schemaName]));
-            },
-            sprintf(
-                "%s: Database connection required to process type name %s",
-                $method,
-                $this->formatQualifiedName($typeName, $schemaName)
+        if (
+            !$this->checkTypesArrayWithPossibleReload(
+                function () use ($typeName, $schemaName) {
+                    return isset($this->dbTypes['names'][$typeName])
+                    && (null === $schemaName || isset($this->dbTypes['names'][$typeName][$schemaName]));
+                },
+                sprintf(
+                    "%s: Database connection required to process type name %s",
+                    $method,
+                    $this->formatQualifiedName($typeName, $schemaName)
+                )
             )
-        )) {
+        ) {
             throw new InvalidArgumentException(sprintf(
                 '%s: type %s does not exist in the database',
                 __METHOD__,
@@ -976,8 +981,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
         while ($position < $length) {
             if ('[' === $name[$position]) {
-                if (!$typeName || $isArray || $identifier
-                    || !preg_match('/\\[\\s*\\]$/A', $name, $m, 0, $position)
+                if (
+                    !$typeName || $isArray || $identifier
+                    || !preg_match('/\\[\\s*]$/A', $name, $m, 0, $position)
                 ) {
                     throw new InvalidArgumentException("Invalid array specification in type name '{$name}'");
                 }
@@ -994,7 +1000,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                 $identifier = true;
 
             } elseif ('"' === $name[$position]) {
-                if (!preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
+                if (
+                    !preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
                     || !strlen($m[1])
                 ) {
                     throw new InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
@@ -1083,7 +1090,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     private function getConverterForTypeName(string $name): TypeConverter
     {
         if (!isset($this->parsedNames[$name])) {
-            if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[\])?$/', $name, $m)) {
+            if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[])?$/', $name, $m)) {
                 list ($schemaName, $typeName, $isArray) = $this->parseTypeName(trim($name));
 
             } else {
@@ -1115,14 +1122,17 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         ?string $schemaName = null,
         bool $isArray = false
     ): TypeConverter {
-        if (isset($this->types[$typeName])
+        if (
+            isset($this->types[$typeName])
             && (null === $schemaName || isset($this->types[$typeName][$schemaName]))
         ) {
             $converter = $this->getRegisteredConverterInstance($typeName, $schemaName);
 
-        } elseif (!$this->isBaseTypeOID(
-            $oid = $this->findOIDForTypeName($typeName, $schemaName, __METHOD__)
-        )) {
+        } elseif (
+            !$this->isBaseTypeOID(
+                $oid = $this->findOIDForTypeName($typeName, $schemaName, __METHOD__)
+            )
+        ) {
             $converter = $this->getConverterForTypeOID($oid);
 
         } else {
@@ -1179,11 +1189,13 @@ where attrelid = $1 and
       attnum > 0
 order by attnum
 SQL;
-                if (!($res = @pg_query_params(
-                    $this->connection->getResource(),
-                    $sql,
-                    [$this->dbTypes['composite'][$oid]]
-                ))) {
+                if (
+                    !($res = @pg_query_params(
+                        $this->connection->getResource(),
+                        $sql,
+                        [$this->dbTypes['composite'][$oid]]
+                    ))
+                ) {
                     throw ServerException::fromConnection($this->connection->getResource());
                 }
                 $this->dbTypes['composite'][$oid] = [];

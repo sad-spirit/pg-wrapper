@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -84,9 +85,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
 
         } elseif ('(' === $char) {
             $nextPos = $pos + 1;
-            if ($pos === strrpos($native, '(')
-                || '(' === $this->nextChar($native, $nextPos)
-            ) {
+            if ($pos === strrpos($native, '(') || '(' === $this->nextChar($native, $nextPos)) {
                 $hasDelimiters = true;
                 $pos++;
             }

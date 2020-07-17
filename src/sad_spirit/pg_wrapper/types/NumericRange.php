@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -34,7 +35,8 @@ class NumericRange extends Range
             if (!is_numeric($value)) {
                 throw new InvalidArgumentException("NumericRange {$name} bound should be numeric");
             }
-            if ('upper' === $name && null !== $this->lower && floatval($this->lower) > floatval($value)
+            if (
+                'upper' === $name && null !== $this->lower && floatval($this->lower) > floatval($value)
                 || 'lower' === $name && null !== $this->upper && floatval($this->upper) < floatval($value)
             ) {
                 throw new InvalidArgumentException(

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -110,7 +111,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @param resource|bool $resource   SQL result resource, false if query failed.
      * @param Connection    $connection Connection, origin of result resource.
-     * @param array         $types      Types information, used to convert output values (overrides auto-generated types).
+     * @param array         $types      Types information, used to convert output values
+     *                                  (overrides auto-generated types).
      * @return bool|int|self
      */
     public static function createFromResultResource($resource, Connection $connection, array $types = [])

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -36,7 +37,8 @@ class ConstraintViolationException extends ServerException
         // try to extract the name
         if (self::NOT_NULL_VIOLATION !== $sqlState) {
             $parts = array_filter(explode("\n", $message), 'strlen');
-            if (count($parts) > 2
+            if (
+                count($parts) > 2
                 // last line of message points to source file and line of error?
                 && preg_match('/\.c:\d+$/', $parts[count($parts) - 1])
                 // previous line should have constraint name, unfortunately "CONSTRAINT NAME" string can be localized
