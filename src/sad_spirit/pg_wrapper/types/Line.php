@@ -25,9 +25,9 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Class representing 'line' geometric type (PostgreSQL 9.4+)
  *
- * @property float A
- * @property float B
- * @property float C
+ * @property float $A
+ * @property float $B
+ * @property float $C
  */
 class Line
 {
@@ -37,7 +37,7 @@ class Line
         'C' => 0
     ];
 
-    public function __construct($A, $B, $C)
+    public function __construct(float $A, float $B, float $C)
     {
         $this->__set('A', $A);
         $this->__set('B', $B);
@@ -79,7 +79,7 @@ class Line
      * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input)
+    public static function createFromArray(array $input): self
     {
         if (3 != count($input)) {
             throw new InvalidArgumentException(

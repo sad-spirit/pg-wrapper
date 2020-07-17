@@ -66,7 +66,7 @@ class PolygonTest extends TypeConverterTestCase
             [new InvalidArgumentException(), ['point']],
             [new InvalidArgumentException(), [[1]]],
             [new InvalidArgumentException(), [[1, 1, 1]]],
-            [new InvalidArgumentException(), [[2, 'string'], null]],
+            [new \TypeError(),               [[2, 'string'], null]],
             [new InvalidArgumentException(), [null, [[1, 2]]]],
         ];
     }

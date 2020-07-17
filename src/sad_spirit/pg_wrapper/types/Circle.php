@@ -23,19 +23,20 @@ namespace sad_spirit\pg_wrapper\types;
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
- * Represents a cirle, defined by a center point and radius
+ * Represents a circle, defined by a center point and radius
  *
  * @property Point $center
  * @property float $radius
  */
 class Circle
 {
+    /** @var array */
     private $props = [
         'center' => null,
         'radius' => 0
     ];
 
-    public function __construct(Point $center, $radius)
+    public function __construct(Point $center, float $radius)
     {
         $this->__set('center', $center);
         $this->__set('radius', $radius);

@@ -59,7 +59,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
     /**
      * DB connection object
-     * @var Connection
+     * @var Connection|null
      */
     private $connection;
 

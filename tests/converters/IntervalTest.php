@@ -90,7 +90,7 @@ class IntervalTest extends TypeConverterTestCase
         $frac->f = 0.45;
 
         $inv  = new DateInterval('P1Y2M');
-        $inv->invert = true;
+        $inv->invert = 1;
 
         $neg  = new DateInterval('PT0S');
         $neg->y = -1;

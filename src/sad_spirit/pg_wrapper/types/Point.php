@@ -35,7 +35,7 @@ class Point
         'y' => 0
     ];
 
-    public function __construct($x, $y)
+    public function __construct(float $x, float $y)
     {
         $this->__set('x', $x);
         $this->__set('y', $y);
@@ -75,7 +75,7 @@ class Point
      * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input)
+    public static function createFromArray(array $input): self
     {
         if (2 != count($input)) {
             throw new InvalidArgumentException(

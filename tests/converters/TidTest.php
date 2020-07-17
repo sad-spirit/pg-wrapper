@@ -67,7 +67,7 @@ class TidTest extends TypeConverterTestCase
             [new InvalidArgumentException(), [1]],
             [new InvalidArgumentException(), [1, 2, 3]],
             [new InvalidArgumentException(), [-1, 2]],
-            [new InvalidArgumentException(), [1, 'foo']]
+            [new \TypeError(),               [1, 'foo']]
         ];
     }
 }

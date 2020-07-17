@@ -29,7 +29,7 @@ class Connection
 {
     /**
      * Connection resource
-     * @var resource
+     * @var resource|null
      */
     private $resource;
 
@@ -41,7 +41,7 @@ class Connection
 
     /**
      * Type conversion factory for this connection
-     * @var TypeConverterFactory
+     * @var TypeConverterFactory|null
      */
     private $converterFactory;
 

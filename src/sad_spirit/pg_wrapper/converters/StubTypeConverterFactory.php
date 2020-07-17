@@ -36,7 +36,7 @@ final class StubTypeConverterFactory implements TypeConverterFactory
 {
     /** @var StubConverter */
     private $converter;
-    /** @var Connection */
+    /** @var Connection|null */
     private $connection;
 
     public function __construct()

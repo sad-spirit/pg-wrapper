@@ -52,7 +52,7 @@ class DateIntervalTest extends TestCase
     public function testOutputInverted()
     {
         $interval = new DateInterval('PT2H5M');
-        $interval->invert = true;
+        $interval->invert = 1;
         $this->assertEquals('PT-2H-5M', $interval->__toString());
     }
 }

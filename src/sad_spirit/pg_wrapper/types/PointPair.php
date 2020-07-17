@@ -78,7 +78,7 @@ abstract class PointPair
      * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input)
+    public static function createFromArray(array $input): self
     {
         if (2 != count($input)) {
             throw new InvalidArgumentException(

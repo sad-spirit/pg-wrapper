@@ -227,7 +227,7 @@ class IntervalConverter extends BaseConverter
         }
 
         if ($invert) {
-            $interval->invert = true;
+            $interval->invert = 1;
         }
 
         return $interval;

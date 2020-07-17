@@ -66,7 +66,7 @@ class PointArrayTest extends TypeConverterTestCase
             [new TypeConversionException(), ['point']],
             [new InvalidArgumentException(), [[1]]],
             [new InvalidArgumentException(), [[1, 1, 1]]],
-            [new InvalidArgumentException(), [[2, 'string'], null]],
+            [new \TypeError(),               [[2, 'string'], null]],
             [new InvalidArgumentException(), [null, [[1, 2]]]],
             // the result is accepted by Postgres but probably shouldn't be
             // http://www.postgresql.org/message-id/E1VEETa-0007KM-8O@wrigleys.postgresql.org

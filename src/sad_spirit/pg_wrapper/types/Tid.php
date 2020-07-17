@@ -39,7 +39,7 @@ class Tid
         'tuple' => 0
     ];
 
-    public function __construct($block, $tuple)
+    public function __construct(int $block, int $tuple)
     {
         $this->__set('block', $block);
         $this->__set('tuple', $tuple);
@@ -84,7 +84,7 @@ class Tid
      * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input)
+    public static function createFromArray(array $input): self
     {
         if (2 != count($input)) {
             throw new InvalidArgumentException(

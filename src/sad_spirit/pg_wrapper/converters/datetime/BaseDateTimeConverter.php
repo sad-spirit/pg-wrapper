@@ -47,7 +47,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
 
     /**
      * Connection resource, used for checking DateStyle setting
-     * @var resource
+     * @var resource|null
      */
     private $connection = null;
 

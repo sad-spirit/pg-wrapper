@@ -31,6 +31,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  */
 class Path extends PointList
 {
+    /** @var bool */
     private $openProp;
 
     public function __construct(array $points, bool $open = false)

@@ -66,8 +66,8 @@ class CircleTest extends TypeConverterTestCase
             ['<(1.2,3.4),5.6>',              [new Point(1.2, 3.4), 5.6]],
             [new TypeConversionException(),  'string'],
             [new InvalidArgumentException(), []],
-            [new InvalidArgumentException(), [[1.2, 'foo'], 3.4]],
-            [new InvalidArgumentException(), [[1.2, 3.4], 'bar']],
+            [new \TypeError(),               [[1.2, 'foo'], 3.4]],
+            [new \TypeError(),               [[1.2, 3.4], 'bar']],
             [new InvalidArgumentException(), [[1.2, 3.4]]]
         ];
     }

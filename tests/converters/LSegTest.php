@@ -65,7 +65,7 @@ class LSegTest extends TypeConverterTestCase
             ['[(1.2,3.4),(5.6,7.8)]',        [new Point(1.2, 3.4), [5.6, 7.8]]],
             [new TypeConversionException(),  'string'],
             [new InvalidArgumentException(), []],
-            [new InvalidArgumentException(), [[1.2, 'foo'], [3.4, 5.6]]],
+            [new \TypeError(),               [[1.2, 'foo'], [3.4, 5.6]]],
             [new InvalidArgumentException(), [[1.2], [3.4, 5.6]]],
             [new InvalidArgumentException(), [[1.2, 3.4]]]
         ];

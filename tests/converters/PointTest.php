@@ -68,7 +68,7 @@ class PointTest extends TypeConverterTestCase
             [new InvalidArgumentException(), [1]],
             [new InvalidArgumentException(), [1, 1, 1]],
             [new InvalidArgumentException(), []],
-            [new InvalidArgumentException(), [2, 'string']],
+            [new \TypeError(),               [2, 'string']],
         ];
     }
 }

@@ -387,6 +387,12 @@ class ServerException extends RuntimeException
      */
     private $sqlState;
 
+    /**
+     * Creates a proper exception object based on connection resource
+     *
+     * @param resource $resource
+     * @return ConnectionException|ServerException
+     */
     public static function fromConnection($resource)
     {
         $message = pg_last_error($resource);

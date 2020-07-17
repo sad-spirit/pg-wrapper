@@ -54,7 +54,7 @@ class Range
      *
      * @return self
      */
-    public static function createEmpty()
+    public static function createEmpty(): self
     {
         $range = new static();
         $range->empty = true;
@@ -68,7 +68,7 @@ class Range
      * @param array $input
      * @return self
      */
-    public static function createFromArray(array $input)
+    public static function createFromArray(array $input): self
     {
         if (!empty($input['empty'])) {
             return static::createEmpty();

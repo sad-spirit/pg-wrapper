@@ -45,7 +45,7 @@ class PreparedStatement
 
     /**
      * Statement name for pg_prepare() / pg_execute()
-     * @var string
+     * @var string|null
      */
     private $queryId;
 
@@ -146,15 +146,15 @@ class PreparedStatement
      * @param mixed $type     Type name / converter object to use for converting to DB type
      * @return $this
      *
-     * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\OutOfBoundsException
      */
     public function bindValue(int $paramNum, $value, $type = null): self
     {
-        if (!is_int($paramNum) || $paramNum < 1) {
-            throw new exceptions\InvalidArgumentException(sprintf(
-                '%s: parameter number should be an integer >= 1, %s given',
+        if ($paramNum < 1) {
+            throw new exceptions\OutOfBoundsException(sprintf(
+                '%s: parameter number should be an integer >= 1, %d given',
                 __METHOD__,
-                is_int($paramNum) ? $paramNum : gettype($paramNum)
+                $paramNum
             ));
         }
         $this->values[$paramNum - 1] = $value;
@@ -173,15 +173,15 @@ class PreparedStatement
      * @param mixed $type     Type name / converter object to use for converting to DB type
      * @return $this
      *
-     * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\OutOfBoundsException
      */
     public function bindParam(int $paramNum, &$param, $type = null): self
     {
-        if (!is_int($paramNum) || $paramNum < 1) {
-            throw new exceptions\InvalidArgumentException(sprintf(
-                '%s: parameter number should be an integer >= 1, %s given',
+        if ($paramNum < 1) {
+            throw new exceptions\OutOfBoundsException(sprintf(
+                '%s: parameter number should be an integer >= 1, %d given',
                 __METHOD__,
-                is_int($paramNum) ? $paramNum : gettype($paramNum)
+                $paramNum
             ));
         }
         $this->values[$paramNum - 1] =& $param;

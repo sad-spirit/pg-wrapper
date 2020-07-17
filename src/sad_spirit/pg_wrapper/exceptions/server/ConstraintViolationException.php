@@ -27,9 +27,13 @@ use sad_spirit\pg_wrapper\exceptions\ServerException;
  */
 class ConstraintViolationException extends ServerException
 {
+    /**
+     * Name of violated constraint
+     * @var string|null
+     */
     private $constraintName = null;
 
-    public function __construct($message = "", $sqlState = "", \Throwable $previous = null)
+    public function __construct(string $message = "", string $sqlState = "", \Throwable $previous = null)
     {
         parent::__construct($message, $sqlState, $previous);
 
