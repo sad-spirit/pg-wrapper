@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -82,7 +83,13 @@ class ServerExceptionsTest extends TestCase
     public function testConstraintViolationException()
     {
         $this->conn->execute('drop table if exists test_exception');
-        $this->conn->execute('create table test_exception (id integer not null, constraint test_exception_pkey primary key (id))');
+        $this->conn->execute(<<<SQL
+create table test_exception (
+    id integer not null,
+    constraint test_exception_pkey primary key (id)
+)
+SQL
+        );
         $this->conn->execute('insert into test_exception values (1)');
 
         try {

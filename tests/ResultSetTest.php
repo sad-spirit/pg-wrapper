@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -50,7 +51,7 @@ insert into test_resultset values
     (7, 'bar', 'second value of bar'),
     (9, 'baz', 'only value of baz')
 SQL
-);
+        );
     }
 
     public function setUp(): void

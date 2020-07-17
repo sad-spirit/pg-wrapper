@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -25,7 +26,6 @@ use sad_spirit\pg_wrapper\{
     Connection
 };
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampConverter;
-
 
 class StubTypeConverterFactoryTest extends TestCase
 {

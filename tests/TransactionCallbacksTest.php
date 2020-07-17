@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for PHP's pgsql extension providing conversion of complex DB types
  *
@@ -158,7 +159,12 @@ class TransactionCallbacksTest extends TestCase
     // A deferred PK constraint will error on commit rather than immediately on insertion of duplicate value
     public function testExceptionDuringCommit()
     {
-        $this->conn->execute('alter table test_trans add constraint test_trans_pkey primary key (id) deferrable initially deferred');
+        $this->conn->execute(<<<SQL
+alter table test_trans 
+    add constraint test_trans_pkey primary key (id) 
+        deferrable initially deferred
+SQL
+        );
 
         try {
             $this->conn->atomic(function () {
