@@ -580,6 +580,7 @@ class Connection
         if (!$this->inAtomic) {
             $this->checkRollbackNotNeeded();
             if ($this->inTransaction()) {
+                $inTransaction  = true;
                 $this->inAtomic = true;
             }
         }
@@ -651,7 +652,7 @@ class Connection
 
             } finally {
                 // Covers the case when outermost atomic() was entered with transaction already open
-                if ($this->inAtomic && 0 === count($this->savepointNames)) {
+                if (!empty($inTransaction) && 0 === count($this->savepointNames)) {
                     $this->inAtomic = false;
                 }
             }

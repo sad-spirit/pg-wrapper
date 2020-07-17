@@ -260,4 +260,32 @@ class ConnectionTransactionsTest extends TestCase
         $this->conn->rollback();
         $this::assertTrue($onRollbackCalled);
     }
+
+    public function testForceRollback()
+    {
+        $this->conn->atomic(function () {
+            $this->store(1);
+            $this::assertFalse($this->conn->needsRollback());
+            $this->conn->setNeedsRollback(true);
+        });
+        $this->assertStored([]);
+    }
+
+    public function testPreventRollback()
+    {
+        $this->conn->atomic(function () {
+            $this->store(1);
+            $this->conn->createSavepoint('manual_savepoint');
+            try {
+                $this->conn->atomic(function () {
+                    $this->conn->execute('blah');
+                });
+            } catch (ProgrammingException $e) {
+            }
+            $this::assertTrue($this->conn->needsRollback());
+            $this->conn->setNeedsRollback(false);
+            $this->conn->rollbackToSavepoint('manual_savepoint');
+        });
+        $this->assertStored([1]);
+    }
 }
