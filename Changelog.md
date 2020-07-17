@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.0.0-beta
+
+* Requires at least PHP 7.2
+* Requires at least PostgreSQL 9.3
+* Dropped support for `mbstring.func_overload`, which was deprecated in PHP 7.2
+* Split `TypeConverterFactory::getConverter()` method into
+  * `getConverterForTypeOID()` - returns a converter for the database type OID, used by `ResultSet` to
+    find converters for result columns,
+  * `getConverterForTypeSpecification()` - returns a converter for a user-supplied type specification
+    (e.g. type name or array describing fields of the composite type).
+* Removed `Connection::guessOutputFormat()`, added `TypeConverterFactory::getConverterForPHPValue()` instead.
+  Made it possible to specify mapping between PHP classes and type converters in `DefaultTypeConverterFactory`
+  so that its `getConverterForPHPValue()` implementation can process new custom types.
+* Renamed `InvalidQueryException` to `ServerException` and added several subclasses for that. If query fails:
+  * `ConnectionException` is thrown when connection to server failed.
+  * Subclass of `ServerException` is thrown based on `SQLSTATE` error code when said code is available.
+* Added `Connection::atomic()` method which accepts a callable and executes it atomically, opening a transaction
+  and creating savepoints for nested `atomic()` calls as needed. It will automatically commit if callback executes 
+  successfully and rollback if it throws an exception. It is possible to register callbacks to execute after 
+  final commit or rollback.
+  * Methods `beginTransaction()`, `commit()`, `rollback()` no longer work with savepoints, separate methods
+    `createSavepoint()`, `releaseSavepoint()`, `rollbackToSavepoint()` added
+* Types array in `DefaultTypeConverterFactory` in pre-populated with built-in data types of PostgreSQL. Loading
+  metadata from DB / cache will now only be needed if using custom types.
+* Removed `fsec` field from custom `DateInterval` class, as native `f` field for fractional seconds 
+  is available since PHP 7.1. Optimized type converter for interval fields quite a bit.
+
 ## 0.2.2
 
 * Constructor of `PreparedStatement` should skip `null` values `$paramTypes` like it did before 0.2.1

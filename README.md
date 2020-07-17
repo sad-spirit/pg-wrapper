@@ -2,9 +2,8 @@
 
 [![Build Status](https://travis-ci.org/sad-spirit/pg-wrapper.svg?branch=master)](https://travis-ci.org/sad-spirit/pg-wrapper)
 
-> Note: master branch is being rewritten. Older but working code is on legacy-0.2 branch.
-
-Wrapper around PHP's [pgsql extension] supporting transparent conversion of [PostgreSQL data types] to their PHP equivalents and back.
+Wrapper around PHP's [pgsql extension](https://php.net/manual/en/book.pgsql.php) supporting transparent conversion 
+of [PostgreSQL data types](https://www.postgresql.org/docs/current/datatype.html) to their PHP equivalents and back.
 
 PostgreSQL supports a large (and extensible) set of complex database types: arrays, ranges, geometric and date/time
 types, composite (row) types, JSON...
@@ -48,7 +47,7 @@ array(5) {
 ```
 
 And that is where this library kicks in:
-```
+```PHP
 $result = $connection->execute('select * from test');
 var_dump($result[0]);
 ```
@@ -96,20 +95,19 @@ Is in the [wiki](https://github.com/sad-spirit/pg-wrapper/wiki)
 
 Quick links:
 
-* [Connecting to a DB](https://github.com/sad-spirit/pg-wrapper/wiki/connecting)<br />
-* [Executing a query](https://github.com/sad-spirit/pg-wrapper/wiki/query)<br />
-* [Working with a query result](https://github.com/sad-spirit/pg-wrapper/wiki/result)<br />
-* [Transactions handling](https://github.com/sad-spirit/pg-wrapper/wiki/transactions)<br />
+* [Connecting to a DB](https://github.com/sad-spirit/pg-wrapper/wiki/connecting)
+* [Executing a query](https://github.com/sad-spirit/pg-wrapper/wiki/query)
+* [Working with a query result](https://github.com/sad-spirit/pg-wrapper/wiki/result)
+* [Transactions handling](https://github.com/sad-spirit/pg-wrapper/wiki/transactions)
 
 
 ## Requirements
 
-pg_wrapper requires PHP 5.3+ with [pgsql extension].
-The reason for using that instead of PDO pgsql driver is that the latter does not support something like
-[`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php).
+pg_wrapper requires PHP 7.2+ with [pgsql extension](https://php.net/manual/en/book.pgsql.php).
+The reason for using that instead of [PDO pgsql driver](https://www.php.net/manual/en/ref.pdo-pgsql.php) 
+is that the latter does not support something like [`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php).
 
-It is highly recommended to use metadata cache in production to prevent metadata lookups from database on each
+Minimum supported PostgreSQL version is 9.3
+
+It is highly recommended to use metadata cache in production to prevent possible metadata lookups from database on each
 page request.
-
-[pgsql extension]: (http://php.net/manual/en/book.pgsql.php)
-[PostgreSQL data types]: (https://www.postgresql.org/docs/current/datatype.html)
