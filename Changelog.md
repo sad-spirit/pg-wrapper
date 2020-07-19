@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0-beta.2
+
+Namespaced `BadMethodCallException` now extends  SPL's `BadMethodCallException` rather than `InvalidArgumentException`
+
 ## 1.0.0-beta
 
 * Requires at least PHP 7.2
