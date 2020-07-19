@@ -25,6 +25,6 @@ use sad_spirit\pg_wrapper\Exception;
 /**
  * Namespaced version of SPL's BadMethodCallException
  */
-class BadMethodCallException extends \InvalidArgumentException implements Exception
+class BadMethodCallException extends \BadMethodCallException implements Exception
 {
 }
