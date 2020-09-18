@@ -21,6 +21,7 @@ namespace sad_spirit\pg_wrapper\tests;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
+    converters\StubTypeConverterFactory,
     exceptions\ConnectionException,
     exceptions\TypeConversionException,
     types\Box,
@@ -185,6 +186,15 @@ class ConnectionTest extends TestCase
         );
     }
 
+    public function testClonedInstanceHasDifferentTypeConverterFactory()
+    {
+        $factory    = new StubTypeConverterFactory();
+        $connection = new Connection('does this really matter?');
+        $connection->setTypeConverterFactory($factory);
+        $cloned     = clone $connection;
+
+        $this::assertNotSame($connection->getTypeConverterFactory(), $cloned->getTypeConverterFactory());
+    }
 
     public function getImplicitTypes()
     {

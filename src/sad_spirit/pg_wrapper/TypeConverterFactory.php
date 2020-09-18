@@ -22,6 +22,7 @@ namespace sad_spirit\pg_wrapper;
 
 use sad_spirit\pg_wrapper\exceptions\{
     InvalidArgumentException,
+    RuntimeException,
     TypeConversionException
 };
 
@@ -82,8 +83,15 @@ interface TypeConverterFactory
     /**
      * Sets database connection details for this object
      *
+     * This is called by Connection::setTypeConverterFactory(). Generally only one call should be allowed
+     * so that the same Factory is not reused with two different Connections, as those may have different
+     * settings (e.g. DateStyle) and even different custom types mapping to same OIDs.
+     *
+     * Should throw RuntimeException if called with a Connection instance different from the already set one.
+     *
      * @param Connection $connection
      * @return $this
+     * @throws RuntimeException
      */
     public function setConnection(Connection $connection): self;
 }

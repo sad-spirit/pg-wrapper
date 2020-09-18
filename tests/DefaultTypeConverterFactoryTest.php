@@ -470,6 +470,40 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
+    public function testDisallowSetConnectionWithDifferentConnectionInstance()
+    {
+        $connectionOne = new Connection('does this really matter?');
+        $connectionTwo = new Connection('or this?');
+
+        $connectionOne->setTypeConverterFactory($this->factory);
+        $connectionOne->setTypeConverterFactory($this->factory);
+
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('already set');
+        $connectionTwo->setTypeConverterFactory($this->factory);
+    }
+
+    public function testSetConnectionUpdatesExistingConverters()
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $converter = $this->factory->getConverterForTypeSpecification('date');
+        try {
+            $converter->input('18.09.2020');
+            $this::fail('Expected TypeConversionException was not thrown');
+        } catch (TypeConversionException $e) {
+        }
+
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setTypeConverterFactory($this->factory);
+
+        $connection->execute("set datestyle='German'");
+
+        $this::assertEquals('2020-09-18', $converter->input('18.09.2020')->format('Y-m-d'));
+    }
+
     public function getBuiltinTypeConverters()
     {
         return [

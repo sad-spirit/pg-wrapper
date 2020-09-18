@@ -152,6 +152,7 @@ class Connection
         $this->resource           = null;
         $this->shutdownRegistered = false;
         $this->disconnected       = false;
+        $this->converterFactory   = null;
         $this->resetTransactionState();
     }
 
@@ -385,8 +386,7 @@ class Connection
      */
     public function setTypeConverterFactory(TypeConverterFactory $factory): self
     {
-        $this->converterFactory = $factory;
-        $factory->setConnection($this);
+        $this->converterFactory = $factory->setConnection($this);
 
         return $this;
     }

@@ -23,7 +23,8 @@ use sad_spirit\pg_wrapper\{
     converters\StubTypeConverterFactory,
     converters\StubConverter,
     converters\IntegerConverter,
-    Connection
+    Connection,
+    exceptions\RuntimeException
 };
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampConverter;
 
@@ -71,6 +72,19 @@ class StubTypeConverterFactoryTest extends TestCase
             ->method('setConnectionResource');
 
         $this->assertSame($mockConverter, $this->factory->getConverterForTypeSpecification($mockConverter));
+    }
+
+    public function testDisallowSetConnectionWithDifferentConnectionInstance()
+    {
+        $connectionOne = new Connection('does this really matter?');
+        $connectionTwo = new Connection('or this?');
+
+        $connectionOne->setTypeConverterFactory($this->factory);
+        $connectionOne->setTypeConverterFactory($this->factory);
+
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('already set');
+        $connectionTwo->setTypeConverterFactory($this->factory);
     }
 
     public function getTypeSpecifications()

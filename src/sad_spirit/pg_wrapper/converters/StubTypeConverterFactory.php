@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\{
+    exceptions\RuntimeException,
     TypeConverterFactory,
     TypeConverter,
     Connection
@@ -63,6 +64,9 @@ final class StubTypeConverterFactory implements TypeConverterFactory
      */
     public function setConnection(Connection $connection): TypeConverterFactory
     {
+        if ($this->connection && $connection !== $this->connection) {
+            throw new RuntimeException("Connection already set");
+        }
         $this->connection = $connection;
 
         return $this;

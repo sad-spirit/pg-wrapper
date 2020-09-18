@@ -554,21 +554,15 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      */
     public function setConnection(Connection $connection): TypeConverterFactory
     {
-        if (!empty($this->connection)) {
-            // prevent reusing old converters with new connection
-            $this->converters = [];
+        if ($this->connection && $connection !== $this->connection) {
+            throw new RuntimeException("Connection already set");
         }
 
         $this->connection = $connection;
-        foreach ($this->converters as $converter) {
-            $this->updateConnection($converter);
-        }
-
-        // If loadTypes() was not called and we are using the pre-populated $dbTypes,  then we may delay
-        // loading types when Connection changes. If it was called, we need to reload the types ASAP,
-        // as the new database may have different types using the same OIDs.
-        if (self::SOURCE_BUILTIN !== $this->dbTypesSource) {
-            $this->loadTypes();
+        foreach ($this->converters as $typeNameConverters) {
+            foreach ($typeNameConverters as $converter) {
+                $this->updateConnection($converter);
+            }
         }
 
         return $this;
