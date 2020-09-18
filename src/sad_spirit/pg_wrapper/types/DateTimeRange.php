@@ -27,14 +27,14 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * Used to convert PostgreSQL's tsrange, tstzrange, daterange types
  *
- * @property \DateTime $lower
- * @property \DateTime $upper
+ * @property \DateTimeImmutable|null $lower
+ * @property \DateTimeImmutable|null $upper
  */
 class DateTimeRange extends Range
 {
     public function __construct(
-        \DateTime $lower = null,
-        \DateTime $upper = null,
+        \DateTimeInterface $lower = null,
+        \DateTimeInterface $upper = null,
         bool $lowerInclusive = true,
         bool $upperInclusive = false
     ) {
@@ -49,9 +49,9 @@ class DateTimeRange extends Range
     public function __set($name, $value)
     {
         if (('upper' === $name || 'lower' === $name) && null !== $value) {
-            if (!($value instanceof \DateTime)) {
+            if (!($value instanceof \DateTimeInterface)) {
                 throw new InvalidArgumentException(
-                    "DateTimeRange {$name} bound should be an instance of DateTime"
+                    "DateTimeRange {$name} bound should be an instance of DateTimeInterface"
                 );
             }
             if (
@@ -63,6 +63,6 @@ class DateTimeRange extends Range
                 );
             }
         }
-        parent::__set($name, $value);
+        parent::__set($name, $value instanceof \DateTime ? \DateTimeImmutable::createFromMutable($value) : $value);
     }
 }

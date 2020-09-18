@@ -106,4 +106,14 @@ class RangeTest extends TestCase
             ['bar', new \DateTime('now')]
         ];
     }
+
+    public function testDateRangeBoundsAreImmutable()
+    {
+        $range = new DateTimeRange(new \DateTime('yesterday'), new \DateTimeImmutable('tomorrow'));
+        $this::assertInstanceOf('\DateTimeImmutable', $range->lower);
+        $this::assertInstanceOf('\DateTimeImmutable', $range->upper);
+
+        $range->upper = new \DateTime('today');
+        $this::assertInstanceOf('\DateTimeImmutable', $range->upper);
+    }
 }
