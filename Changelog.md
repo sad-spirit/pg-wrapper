@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.0-beta.3] - 2020-09-18
+
+### Changed
+* Date and time converters will return `\DateTimeImmutable` instances instead of `\DateTime`.
+* `DateTimeRange` bounds are now instances of `\DateTimeImmutable` instead of `\DateTime`.
+  It accepts all `\DateTimeInterface` implementations for bounds but will convert them to `\DateTimeImmutable`.
+* Disallow subsequent `setConnection()` calls on `TypeConverterFactory` implementations with
+  different `Connection` instances.
+
+### Fixed
+* Date and time converters will accept instances of `\DateTimeInterface`, not just `\DateTime`.
+* `StubConverter::output()` will convert a non-null value to string.
+* `DefaultTypeConverterFactory::setConnection()` properly updates the existing converters. 
+
 ## [1.0.0-beta.2] - 2020-07-19
 
 ### Fixed
@@ -89,3 +103,4 @@ Initial release on GitHub
 [0.2.2]: https://github.com/sad-spirit/pg-wrapper/compare/v0.2.1...v0.2.2
 [1.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v0.2.2...v1.0.0-beta
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta...v1.0.0-beta.2
+[1.0.0-beta.3]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.2...v1.0.0-beta.3
