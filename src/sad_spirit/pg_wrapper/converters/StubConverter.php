@@ -35,7 +35,7 @@ class StubConverter implements TypeConverter
      */
     public function output($value): ?string
     {
-        return $value;
+        return null === $value ? null : (string)$value;
     }
 
     /**
