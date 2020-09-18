@@ -409,7 +409,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @var array
      */
     private $classMapping = [
-        '\DateTime'                => ['pg_catalog', 'timestamptz'],
+        '\DateTimeInterface'       => ['pg_catalog', 'timestamptz'],
         '\DateInterval'            => ['pg_catalog', 'interval'],
 
         types\Box::class           => ['pg_catalog', 'box'],

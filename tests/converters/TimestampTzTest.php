@@ -89,6 +89,10 @@ class TimestampTzTest extends TestCase
                 '2013-01-01 02:03:04.000000+0400',
                 new \DateTime('2013-01-01 02:03:04', new \DateTimeZone('Europe/Moscow'))
             ],
+            [
+                '2013-01-01 02:03:04.000000+0400',
+                new \DateTimeImmutable('2013-01-01 02:03:04', new \DateTimeZone('Europe/Moscow'))
+            ],
             [new TypeConversionException(),     false],
             [new TypeConversionException(),     1.234],
             [new TypeConversionException(),     []],

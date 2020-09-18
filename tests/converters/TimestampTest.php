@@ -89,6 +89,7 @@ class TimestampTest extends TestCase
             ['1970-01-01 00:00:00.000000',     0],
             ['2001-02-03 04:05:06.000000',     $dateTime],
             ['2001-02-03 04:05:06.000000',     $dateTime->getTimestamp()],
+            ['2001-02-03 04:05:06.000000',     \DateTimeImmutable::createFromMutable($dateTime)],
             [new TypeConversionException(),    false],
             [new TypeConversionException(),    1.234],
             [new TypeConversionException(),    []],

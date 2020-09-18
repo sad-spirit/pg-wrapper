@@ -87,6 +87,7 @@ class DateTest extends TestCase
             ['1970-01-01',     0],
             ['2001-05-25',     $dateTime],
             ['2001-05-25',     $dateTime->getTimestamp()],
+            ['2001-05-25',     \DateTimeImmutable::createFromMutable($dateTime)],
 
             [new TypeConversionException(), false],
             [new TypeConversionException(), 1.234],

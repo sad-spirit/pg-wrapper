@@ -131,7 +131,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * class can handle. Integer will be handled using date() with an appropriate
      * format specification.
      *
-     * @param string|integer|\DateTime $value
+     * @param string|integer|\DateTimeInterface $value
      * @return string
      * @throws TypeConversionException
      */
@@ -144,7 +144,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
             $formats = $this->getFormats(self::DEFAULT_STYLE);
             return date($formats[0], $value);
 
-        } elseif ($value instanceof \DateTime) {
+        } elseif ($value instanceof \DateTimeInterface) {
             $formats = $this->getFormats(self::DEFAULT_STYLE);
             return $value->format($formats[0]);
         }
