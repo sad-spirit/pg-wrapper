@@ -104,7 +104,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     protected function inputNotNull(string $native)
     {
         foreach ($this->getFormats($this->style) as $format) {
-            if ($value = \DateTime::createFromFormat('!' . $format, $native)) {
+            if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {
                 return $value;
             }
         }
@@ -115,7 +115,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
         ) {
             $this->style = $style;
             foreach ($this->getFormats($this->style) as $format) {
-                if ($value = \DateTime::createFromFormat('!' . $format, $native)) {
+                if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {
                     return $value;
                 }
             }

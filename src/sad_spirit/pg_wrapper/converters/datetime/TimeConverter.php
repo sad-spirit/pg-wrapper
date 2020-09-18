@@ -35,7 +35,7 @@ class TimeConverter extends BaseDateTimeConverter
     protected function inputNotNull(string $native)
     {
         foreach ($this->getFormats(self::DEFAULT_STYLE) as $format) {
-            if ($value = \DateTime::createFromFormat('!' . $format, $native)) {
+            if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {
                 return $value;
             }
         }
