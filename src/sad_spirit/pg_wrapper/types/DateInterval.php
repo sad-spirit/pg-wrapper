@@ -20,14 +20,12 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\types;
 
-use DateInterval as NativeDateInterval;
-
 /**
  * Wrapper around PHP's built-in DateInterval class
  *
  * Adds a method to return the string representation of interval.
  */
-class DateInterval extends NativeDateInterval
+class DateInterval extends \DateInterval
 {
     /**
      * Returns the value of DateInterval object as an ISO 8601 time interval string
@@ -39,7 +37,7 @@ class DateInterval extends NativeDateInterval
      * @param  \DateInterval $interval
      * @return string
      */
-    public static function formatAsISO8601(NativeDateInterval $interval)
+    public static function formatAsISO8601(\DateInterval $interval)
     {
         $string = 'P';
         $mult   = $interval->invert ? -1 : 1;
