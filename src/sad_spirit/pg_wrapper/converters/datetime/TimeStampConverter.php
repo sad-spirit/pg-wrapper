@@ -31,7 +31,7 @@ class TimeStampConverter extends BaseDateTimeConverter
 
     protected function getFormats(string $style): array
     {
-        list($output, $order) = array_map('trim', explode(',', $style));
+        [$output, $order] = array_map('trim', explode(',', $style));
 
         if (0 === strcasecmp('ISO', $output)) {
             return ['Y-m-d H:i:s.u', 'Y-m-d H:i:s'];

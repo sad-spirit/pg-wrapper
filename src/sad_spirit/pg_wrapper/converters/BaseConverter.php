@@ -71,7 +71,7 @@ abstract class BaseConverter implements TypeConverter
     protected function nextChar(string $str, int &$p): ?string
     {
         $p += strspn($str, " \t\r\n", $p);
-        return isset($str[$p]) ? $str[$p] : null;
+        return $str[$p] ?? null;
     }
 
     /**

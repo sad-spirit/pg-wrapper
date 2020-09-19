@@ -32,7 +32,7 @@ class BoxConverter extends BaseGeometricConverter
 {
     protected function parseInput(string $native, int &$pos): Box
     {
-        list($start, $end) = $this->parsePoints($native, $pos, 2, false);
+        [$start, $end] = $this->parsePoints($native, $pos, 2, false);
         return new Box($start, $end);
     }
 

@@ -409,8 +409,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @var array
      */
     private $classMapping = [
-        '\DateTimeInterface'       => ['pg_catalog', 'timestamptz'],
-        '\DateInterval'            => ['pg_catalog', 'interval'],
+        \DateTimeInterface::class  => ['pg_catalog', 'timestamptz'],
+        \DateInterval::class       => ['pg_catalog', 'interval'],
 
         types\Box::class           => ['pg_catalog', 'box'],
         types\Circle::class        => ['pg_catalog', 'circle'],
@@ -686,7 +686,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                 return $this->getConverterForQualifiedName('bool', 'pg_catalog');
 
             case 'object':
-                foreach ($this->classMapping as $className => list($schemaName, $typeName)) {
+                foreach ($this->classMapping as $className => [$schemaName, $typeName]) {
                     if ($value instanceof $className) {
                         return $this->getConverterForQualifiedName($typeName, $schemaName);
                     }
@@ -801,7 +801,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             return $this->getConverterForTypeOID($baseTypeOid);
         }
 
-        list($schemaName, $typeName) = $this->findTypeNameForOID($oid, __METHOD__);
+        [$schemaName, $typeName] = $this->findTypeNameForOID($oid, __METHOD__);
 
         try {
             return $this->getConverterForQualifiedName($typeName, $schemaName);
@@ -989,7 +989,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
                 if ($schema || !$typeName || $identifier) {
                     throw new InvalidArgumentException("Extra dots in type name '{$name}'");
                 }
-                list($schema, $typeName) = [$typeName, null];
+                [$schema, $typeName] = [$typeName, null];
                 $position++;
                 $identifier = true;
 
@@ -1085,7 +1085,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     {
         if (!isset($this->parsedNames[$name])) {
             if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[])?$/', $name, $m)) {
-                list ($schemaName, $typeName, $isArray) = $this->parseTypeName(trim($name));
+                [$schemaName, $typeName, $isArray] = $this->parseTypeName(trim($name));
 
             } else {
                 $schemaName = null;

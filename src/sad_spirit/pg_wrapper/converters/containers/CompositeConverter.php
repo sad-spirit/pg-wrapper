@@ -109,7 +109,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
         }
         $parts = [];
         foreach ($this->items as $field => $type) {
-            $v       = $type->output(isset($value[$field]) ? $value[$field] : null);
+            $v       = $type->output($value[$field] ?? null);
             $parts[] = ($v === null) ? '' : ('"' . strtr($v, self::ESCAPES) . '"');
         }
         return '(' . join(',', $parts) . ')';

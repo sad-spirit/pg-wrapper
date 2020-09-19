@@ -86,7 +86,7 @@ class ByteaConverter extends BaseConverter
      */
     protected function outputNotNull($value): string
     {
-        list(, $encoded) = unpack('H*', $value);
+        [, $encoded] = unpack('H*', $value);
         return '\x' . $encoded;
     }
 }

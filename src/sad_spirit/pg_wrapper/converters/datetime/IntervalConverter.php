@@ -144,7 +144,7 @@ class IntervalConverter extends BaseConverter
         $keysHash    = [];
 
         for ($i = count($tokens) - 1; $i >= 0; $i--) {
-            list($tokenValue, $tokenType) = $tokens[$i];
+            [$tokenValue, $tokenType] = $tokens[$i];
             $keys = [];
             switch ($tokenType) {
                 case self::TOKEN_NUMBER:
@@ -188,7 +188,7 @@ class IntervalConverter extends BaseConverter
                     } else {
                         $this->parseTimeToken(substr($tokenValue, 1), $interval);
                         if ('-' === $tokenValue[0]) {
-                            list($interval->h, $interval->i, $interval->s, $interval->f) =
+                            [$interval->h, $interval->i, $interval->s, $interval->f] =
                                 [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
                         }
                     }

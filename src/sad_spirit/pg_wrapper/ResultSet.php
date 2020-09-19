@@ -260,7 +260,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
                     $key = $row[$keyColumn];
                     unset($row[$keyColumn]);
                 } else {
-                    list($key) = array_splice($row, $keyColumn, 1, []);
+                    [$key] = array_splice($row, $keyColumn, 1, []);
                 }
                 if ($killArray) {
                     $row = reset($row);

@@ -31,7 +31,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
      * Points available through ArrayAccess
      * @var Point[]
      */
-    protected $points;
+    protected $points = [];
 
     public function __construct(array $points)
     {
