@@ -56,7 +56,7 @@ class FloatConverter extends BaseConverter
             return $value > 0 ? 'Infinity' : '-Infinity';
         }
 
-        $value = str_replace(',', '.', $value);
+        $value = str_replace(',', '.', (string)$value);
         if (!is_numeric($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
         }

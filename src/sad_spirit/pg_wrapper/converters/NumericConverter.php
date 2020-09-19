@@ -47,7 +47,7 @@ class NumericConverter extends BaseConverter
             return 'NaN';
         }
 
-        $value = str_replace(',', '.', $value);
+        $value = str_replace(',', '.', (string)$value);
         if (!is_numeric($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
         }
