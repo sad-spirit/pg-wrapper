@@ -112,8 +112,7 @@ class PreparedStatementTest extends TestCase
 
     private function createMockTimestampConverter()
     {
-        $mockTimestamp = $this->getMockBuilder(TimeStampTzConverter::class)
-            ->getMock();
+        $mockTimestamp = $this->createMock(TimeStampTzConverter::class);
 
         $mockTimestamp->expects($this->once())
             ->method('setConnectionResource');

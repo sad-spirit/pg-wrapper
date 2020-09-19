@@ -380,8 +380,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
 
-        $mockConverter = $this->getMockBuilder(TimeConverter::class)
-            ->getMock();
+        $mockConverter = $this->createMock(TimeConverter::class);
         $mockConverter->expects($this->once())
             ->method('setConnectionResource');
 

@@ -170,8 +170,7 @@ class ConnectionTest extends TestCase
 
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
 
-        $mockTimestamp = $this->getMockBuilder(TimeStampTzConverter::class)
-            ->getMock();
+        $mockTimestamp = $this->createMock(TimeStampTzConverter::class);
 
         $mockTimestamp->expects($this->once())
             ->method('setConnectionResource');
