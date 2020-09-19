@@ -30,7 +30,7 @@ class IntegerConverter extends BaseConverter
     protected function inputNotNull(string $native)
     {
         $native = trim($native);
-        if (!ctype_digit($native) && !preg_match('/^-\\d+$/', $native)) {
+        if (!ctype_digit($native) && !preg_match('/^-\d+$/', $native)) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'integer value', $native);
 
         } elseif (PHP_INT_SIZE >= 8) {

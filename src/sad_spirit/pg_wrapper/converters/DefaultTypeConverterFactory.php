@@ -977,7 +977,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             if ('[' === $name[$position]) {
                 if (
                     !$typeName || $isArray || $identifier
-                    || !preg_match('/\\[\\s*]$/A', $name, $m, 0, $position)
+                    || !preg_match('/\[\s*]$/A', $name, $m, 0, $position)
                 ) {
                     throw new InvalidArgumentException("Invalid array specification in type name '{$name}'");
                 }

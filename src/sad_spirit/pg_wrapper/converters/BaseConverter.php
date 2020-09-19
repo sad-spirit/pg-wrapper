@@ -85,7 +85,7 @@ abstract class BaseConverter implements TypeConverter
     protected function expectChar(string $string, int &$pos, string $char): void
     {
         if ($char !== $this->nextChar($string, $pos)) {
-            throw TypeConversionException::parsingFailed($this, "'{$char}'", $string, $pos);
+            throw TypeConversionException::parsingFailed($this, "'" . $char . "'", $string, $pos);
         }
         $pos++;
     }

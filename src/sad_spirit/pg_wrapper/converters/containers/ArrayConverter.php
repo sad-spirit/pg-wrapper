@@ -135,7 +135,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         if (empty($requiredSizes)) {
             foreach ($value as $v) {
                 $item    = $this->itemConverter->output($v);
-                $parts[] = ($item === null) ? 'NULL' : '"' . addcslashes($item, "\"\\") . '"';
+                $parts[] = ($item === null) ? 'NULL' : '"' . addcslashes($item, '"\\') . '"';
             }
 
         } else {

@@ -44,9 +44,9 @@ class HstoreConverter extends ContainerConverter
         }
         $parts = [];
         foreach ($value as $key => $item) {
-            $parts[] =  '"' . addcslashes((string)$key, "\"\\") . '"'
+            $parts[] =  '"' . addcslashes((string)$key, '"\\') . '"'
                         . '=>'
-                        . (($item === null) ? 'NULL' : '"' . addcslashes((string)$item, "\"\\") . '"');
+                        . (($item === null) ? 'NULL' : '"' . addcslashes((string)$item, '"\\') . '"');
         }
         return implode(', ', $parts);
     }

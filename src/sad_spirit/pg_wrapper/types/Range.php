@@ -76,10 +76,10 @@ class Range
         foreach (['lower', 'upper', 'lowerInclusive', 'upperInclusive'] as $key) {
             if (array_key_exists($key, $input)) {
                 return new static(
-                    array_key_exists('lower', $input) ? $input['lower'] : null,
-                    array_key_exists('upper', $input) ? $input['upper'] : null,
-                    array_key_exists('lowerInclusive', $input) ? $input['lowerInclusive'] : true,
-                    array_key_exists('upperInclusive', $input) ? $input['upperInclusive'] : false
+                    $input['lower'] ?? null,
+                    $input['upper'] ?? null,
+                    $input['lowerInclusive'] ?? true,
+                    $input['upperInclusive'] ?? false
                 );
             }
         }

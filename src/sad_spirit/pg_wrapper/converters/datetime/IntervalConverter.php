@@ -337,8 +337,7 @@ class IntervalConverter extends BaseConverter
 
     protected function inputNotNull(string $native)
     {
-        $native = trim($native);
-        if (!strlen($native)) {
+        if ('' === ($native = trim($native))) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
 
         } elseif ('P' !== $native[0]) {

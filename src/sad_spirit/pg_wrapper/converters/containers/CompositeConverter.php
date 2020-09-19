@@ -63,7 +63,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
      */
     public function __construct(array $items)
     {
-        if (!count($items)) {
+        if (0 === count($items)) {
             throw new InvalidArgumentException(
                 __CLASS__ . " expects an array of TypeConverter instances, empty array given"
             );
@@ -112,7 +112,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
             $v       = $type->output($value[$field] ?? null);
             $parts[] = ($v === null) ? '' : ('"' . strtr($v, self::ESCAPES) . '"');
         }
-        return '(' . join(',', $parts) . ')';
+        return '(' . implode(',', $parts) . ')';
     }
 
     protected function parseInput(string $native, int &$pos): array
