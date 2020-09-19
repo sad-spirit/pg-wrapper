@@ -43,12 +43,17 @@ class NumericConverter extends BaseConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_float($value) && is_nan($value)) {
-            return 'NaN';
+        if (is_scalar($value)) {
+            if (!is_float($value)) {
+                $value = str_replace(',', '.', (string)$value);
+            } elseif (is_nan($value)) {
+                return 'NaN';
+            } else {
+                $value = (string)$value;
+            }
         }
 
-        $value = str_replace(',', '.', (string)$value);
-        if (!is_numeric($value)) {
+        if (!is_scalar($value) || !is_numeric($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
         }
         return $value;
