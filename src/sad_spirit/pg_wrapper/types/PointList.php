@@ -24,6 +24,9 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Base class for geometric types containing an arbitrary number of Points (paths and polygons)
+ *
+ * @implements \ArrayAccess<int, Point>
+ * @implements \IteratorAggregate<int, Point>
  */
 abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
 {

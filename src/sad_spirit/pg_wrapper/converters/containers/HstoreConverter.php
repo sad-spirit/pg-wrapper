@@ -82,6 +82,10 @@ class HstoreConverter extends ContainerConverter
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * @return array<string,?string>
+     */
     protected function parseInput(string $native, int &$pos): array
     {
         $result = [];

@@ -40,7 +40,7 @@ class ConstraintViolationException extends ServerException
         // NOT NULL violation messages do not contain constraint names, in case of any other violation
         // try to extract the name
         if (self::NOT_NULL_VIOLATION !== $sqlState) {
-            $parts = array_filter(explode("\n", $message), 'strlen');
+            $parts = preg_split("/\n/", $message, -1, PREG_SPLIT_NO_EMPTY);
             if (
                 count($parts) > 2
                 // last line of message points to source file and line of error?

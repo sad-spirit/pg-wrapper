@@ -22,7 +22,8 @@ namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
     exceptions\TypeConversionException,
-    converters\ContainerConverter
+    converters\ContainerConverter,
+    types\Point
 };
 
 /**
@@ -68,7 +69,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
      * @param int    $pos          position
      * @param int    $count        number of points to parse
      * @param bool   $allowSquare  whether square brackets [] are allowed around points
-     * @return array
+     * @return Point[]
      * @throws TypeConversionException
      */
     protected function parsePoints(string $native, int &$pos, int $count, bool $allowSquare = false): array

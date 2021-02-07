@@ -58,7 +58,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
     /**
      * Constructor, accepts an array of (field name => field type converter)
      *
-     * @param  array $items
+     * @param  array<string, TypeConverter> $items
      * @throws InvalidArgumentException
      */
     public function __construct(array $items)

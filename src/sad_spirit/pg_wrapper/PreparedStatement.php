@@ -51,7 +51,7 @@ class PreparedStatement
 
     /**
      * Values for input parameters
-     * @var array
+     * @var array<int, mixed>
      */
     private $values = [];
 
@@ -64,9 +64,9 @@ class PreparedStatement
     /**
      * Constructor.
      *
-     * @param Connection $connection Reference to the connection object.
-     * @param string     $query      SQL query to prepare.
-     * @param array      $paramTypes Types information used to convert input parameters.
+     * @param Connection        $connection Reference to the connection object.
+     * @param string            $query      SQL query to prepare.
+     * @param array<int, mixed> $paramTypes Types information used to convert input parameters.
      *
      * @throws exceptions\ServerException
      */
@@ -141,9 +141,9 @@ class PreparedStatement
     /**
      * Sets the value for a parameter of a prepared query
      *
-     * @param int   $paramNum Parameter number, 1-based
-     * @param mixed $value    Parameter value
-     * @param mixed $type     Type name / converter object to use for converting to DB type
+     * @param positive-int $paramNum Parameter number, 1-based
+     * @param mixed        $value    Parameter value
+     * @param mixed        $type     Type name / converter object to use for converting to DB type
      * @return $this
      *
      * @throws exceptions\OutOfBoundsException
@@ -168,9 +168,9 @@ class PreparedStatement
     /**
      * Binds a variable to a parameter of a prepared query
      *
-     * @param int   $paramNum Parameter number, 1-based
-     * @param mixed $param    Variable to bind
-     * @param mixed $type     Type name / converter object to use for converting to DB type
+     * @param positive-int $paramNum Parameter number, 1-based
+     * @param mixed        $param    Variable to bind
+     * @param mixed        $type     Type name / converter object to use for converting to DB type
      * @return $this
      *
      * @throws exceptions\OutOfBoundsException

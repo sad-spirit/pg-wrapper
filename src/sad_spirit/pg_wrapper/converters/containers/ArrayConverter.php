@@ -99,7 +99,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         }
 
         $requiredSizes = $this->calculateRequiredSizes($value);
-        // this can only happen if $_item->dimensions() > 0, i.e. it should be an array iself
+        // this can only happen if $item->dimensions() > 0, i.e. it should be an array itself
         if (count($requiredSizes) < 1) {
             throw TypeConversionException::unexpectedValue(
                 $this,
@@ -115,7 +115,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      * Builds an array literal checking the required sizes for sub-arrays
      *
      * @param array $value
-     * @param array $requiredSizes
+     * @param int[] $requiredSizes
      * @return string
      * @throws TypeConversionException
      */
@@ -154,7 +154,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      * Calculates the number of array dimensions and required sizes for sub-arrays
      *
      * @param array $value
-     * @return array
+     * @return int[]
      * @throws TypeConversionException
      */
     private function calculateRequiredSizes(array $value): array

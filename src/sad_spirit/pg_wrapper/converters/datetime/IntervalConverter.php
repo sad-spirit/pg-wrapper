@@ -52,7 +52,7 @@ class IntervalConverter extends BaseConverter
 
     /**
      * Mapping of units used in 'postgres' and 'postgres_verbose' formats to DateInterval fields
-     * @var array
+     * @var array<string, string>
      */
     private const POSTGRES_UNITS = [
         'd'         => 'd',
@@ -130,14 +130,12 @@ class IntervalConverter extends BaseConverter
      * This is used to handle 'sql_standard', 'postgres', 'postgres_verbose'
      * output formats
      *
-     * @param array $tokens
+     * @param array<int, array{string, string}> $tokens
      * @return DateInterval
      * @throws TypeConversionException
      */
     private function createInterval(array $tokens): DateInterval
     {
-        // A better approach would be to clone a prototype but cloning DateInterval
-        // objects does not quite work
         $interval    = clone $this->intervalPrototype;
         $intervalKey = null;
         $invert      = false;
@@ -237,7 +235,7 @@ class IntervalConverter extends BaseConverter
      * Splits an interval string in 'sql_standard', 'postgres', 'postgres_verbose' formats into tokens
      *
      * @param string $native
-     * @return array
+     * @return array<int, array{string, string}>
      * @throws TypeConversionException
      */
     private function tokenize(string $native): array

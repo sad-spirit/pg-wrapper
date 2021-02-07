@@ -1,0 +1,14 @@
+includes:
+	- phpstan-baseline.neon
+
+parameters:
+  level: 6
+  paths:
+    - src
+    - tests
+  bootstrapFiles:
+    - tests/config.php.dist
+  dynamicConstantNames:
+    - TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING
+  treatPhpDocTypesAsCertain: false
+  checkMissingIterableValueType: false

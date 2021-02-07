@@ -96,7 +96,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * Returns possible formats for a datetime field (usually with and without '.u') based on style
      *
      * @param string $style
-     * @return array
+     * @return string[]
      * @throws TypeConversionException
      */
     abstract protected function getFormats(string $style): array;

@@ -22,6 +22,9 @@ namespace sad_spirit\pg_wrapper;
 
 /**
  * Class representing a query result
+ *
+ * @implements \Iterator<int, array>
+ * @implements \ArrayAccess<int, array>
  */
 class ResultSet implements \Iterator, \Countable, \ArrayAccess
 {
@@ -57,7 +60,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Hash (column name => column number)
-     * @var array
+     * @var array<string, int>
      */
     private $namesHash = [];
 
@@ -75,9 +78,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Constructor.
      *
-     * @param resource    $resource SQL result resource.
+     * @param resource             $resource SQL result resource.
      * @param TypeConverterFactory $factory
-     * @param array       $types    Types information, used to convert output values (overrides auto-generated types).
+     * @param array                $types    Types information, used to convert output values (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      */
     protected function __construct($resource, TypeConverterFactory $factory, array $types = [])
@@ -227,7 +230,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false)
+    public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false): array
     {
         if (null !== $mode) {
             $oldMode = $this->mode;
@@ -283,9 +286,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Returns the names of fields in the result
      *
-     * @return array
+     * @return string[]
      */
-    public function getFieldNames()
+    public function getFieldNames(): array
     {
         return array_flip($this->namesHash);
     }
@@ -295,7 +298,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @return int
      */
-    public function getFieldCount()
+    public function getFieldCount(): int
     {
         return $this->numFields;
     }
@@ -328,7 +331,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function next()
+    public function next(): void
     {
         $this->position++;
     }
@@ -336,7 +339,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
@@ -344,7 +347,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function valid()
+    public function valid(): bool
     {
         return ($this->position >= 0) && ($this->position < $this->numRows);
     }
@@ -352,7 +355,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
@@ -362,7 +365,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return $this->numRows;
     }
@@ -370,9 +373,10 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
-        return ctype_digit((string)$offset) && $offset < $this->numRows;
+        return is_int($offset) && $offset >= 0 && $offset < $this->numRows
+               || ctype_digit((string)$offset) && (int)$offset < $this->numRows;
     }
 
     /**
@@ -380,7 +384,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return $this->offsetExists($offset) ? $this->read($offset) : false;
+        return $this->offsetExists($offset) ? $this->read((int)$offset) : false;
     }
 
     /**
@@ -390,7 +394,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param mixed $value  (not used)
      * @throws exceptions\BadMethodCallException
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new exceptions\BadMethodCallException(__CLASS__ . ' is read-only');
     }
@@ -401,7 +405,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param mixed $offset (not used)
      * @throws exceptions\BadMethodCallException
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new exceptions\BadMethodCallException(__CLASS__ . ' is read-only');
     }

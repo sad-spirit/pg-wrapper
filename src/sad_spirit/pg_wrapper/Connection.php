@@ -71,7 +71,7 @@ class Connection
 
     /**
      * Names of savepoints created by {@link atomic()}
-     * @var array
+     * @var array<int, string|null>
      */
     private $savepointNames = [];
 
@@ -82,7 +82,7 @@ class Connection
      *  - Names of savepoints active when callback was registered
      *  - Actual callback
      *
-     * @var array
+     * @var array<int, array{array<int, string|null>, callable}>
      */
     private $onCommitCallbacks = [];
 
@@ -94,7 +94,7 @@ class Connection
      *  - Actual callback
      *  - Whether it should be run on commit as well (for rolled back savepoints in committed transaction)
      *
-     * @var array
+     * @var array<int, array{array<int, string|null>, callable, bool}>
      */
     private $onRollbackCallbacks = [];
 
@@ -127,7 +127,7 @@ class Connection
      * @param bool   $lazy             Whether to postpone connecting until needed
      * @throws exceptions\ConnectionException
      */
-    public function __construct($connectionString, bool $lazy = true)
+    public function __construct(string $connectionString, bool $lazy = true)
     {
         $this->connectionString = $connectionString;
         if (!$lazy) {
@@ -298,8 +298,8 @@ class Connection
     /**
      * Prepares a given query for execution.
      *
-     * @param string $query      SQL query to prepare.
-     * @param array  $paramTypes Types information used to convert input parameters
+     * @param string             $query      SQL query to prepare.
+     * @param array<int, mixed>  $paramTypes Types information used to convert input parameters
      *
      * @return PreparedStatement Prepared statement.
      * @throws exceptions\ServerException
@@ -334,10 +334,10 @@ class Connection
     /**
      * Executes a given query with the ability to pass parameters separately
      *
-     * @param string $sql         Query
-     * @param array  $params      Parameters
-     * @param array  $paramTypes  Types information used to convert input parameters
-     * @param array  $resultTypes Result types to pass to ResultSet
+     * @param string $sql                             Query
+     * @param array<int, mixed>        $params      Parameters
+     * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters
+     * @param array<int|string, mixed> $resultTypes Result types to pass to ResultSet
      *
      * @return bool|ResultSet|int
      * @throws exceptions\ServerException

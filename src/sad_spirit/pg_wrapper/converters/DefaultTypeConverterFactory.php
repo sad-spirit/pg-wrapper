@@ -376,19 +376,19 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * This is built based on $dbTypes['names'], but not saved to cache
      *
-     * @var array
+     * @var array<int, array{string, string}>
      */
     private $oidMap = [];
 
     /**
      * Mapping of known base types to converter class names
-     * @var array
+     * @var array<string, array<string, string|callable|TypeConverter>>
      */
     private $types = [];
 
     /**
      * Converter instances
-     * @var array
+     * @var array<string, array<string, TypeConverter>>
      */
     private $converters = [];
 
@@ -400,13 +400,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
     /**
      * Mapping "type name as string" => ["type name", "schema name", "is array"]
-     * @var array
+     * @var array<string, array{string, ?string, bool}>
      */
     private $parsedNames = [];
 
     /**
      * Mapping "PHP class name" => ["schema name", "type name"]
-     * @var array
+     * @var array<class-string, array{string, string}>
      */
     private $classMapping = [
         \DateTimeInterface::class  => ['pg_catalog', 'timestamptz'],
@@ -503,7 +503,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * Registers a converter for a known named type
      *
      * @param string|callable|TypeConverter $converter
-     * @param string|array                  $type
+     * @param string|string[]               $type
      * @param string                        $schema
      * @throws InvalidArgumentException
      */
@@ -534,9 +534,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * If an instance of the given class will later be provided to getConverterForPHPValue(), that method will return
      * a converter for the given database type
      *
-     * @param string $className
-     * @param string $type
-     * @param string $schema
+     * @param class-string $className
+     * @param string       $type
+     * @param string       $schema
      */
     public function registerClassMapping(string $className, string $type, string $schema = 'pg_catalog'): void
     {
@@ -815,7 +815,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * @param int    $oid
      * @param string $method Used in Exception messages only
-     * @return array
+     * @return array{string, string}
      * @throws InvalidArgumentException
      */
     final protected function findTypeNameForOID(int $oid, string $method): array
@@ -937,7 +937,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * in sad_spirit/pg_builder package to process any type name Postgres itself understands.
      *
      * @param string $name
-     * @return array structure: array (string schema, string type, bool isArray)
+     * @return array{?string, string, bool} schema name, type name, array flag
      * @throws InvalidArgumentException
      */
     protected function parseTypeName(string $name): array
