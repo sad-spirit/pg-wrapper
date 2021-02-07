@@ -37,7 +37,9 @@ class TransactionCallbacksTest extends TestCase
      */
     protected $conn;
 
+    /** @var int[] */
     protected $committed;
+    /** @var int[] */
     protected $rolledBack;
 
     protected function setUp(): void
@@ -78,7 +80,7 @@ class TransactionCallbacksTest extends TestCase
         $this::assertEquals($stuff, $this->rolledBack);
     }
 
-    public function testDisallowOnCommitOutsideAtomic()
+    public function testDisallowOnCommitOutsideAtomic(): void
     {
         $this::expectException(BadMethodCallException::class);
         $this->conn->onCommit(function () {
@@ -86,7 +88,7 @@ class TransactionCallbacksTest extends TestCase
         });
     }
 
-    public function testDisallowOnRollbackOutsideAtomic()
+    public function testDisallowOnRollbackOutsideAtomic(): void
     {
         $this::expectException(BadMethodCallException::class);
         $this->conn->onCommit(function () {
@@ -157,7 +159,7 @@ class TransactionCallbacksTest extends TestCase
     }
 
     // A deferred PK constraint will error on commit rather than immediately on insertion of duplicate value
-    public function testExceptionDuringCommit()
+    public function testExceptionDuringCommit(): void
     {
         $this->conn->execute(<<<SQL
 alter table test_trans 
@@ -180,7 +182,7 @@ SQL
         $this->assertStuffNotDone([1, 1, 2]);
     }
 
-    public function testCallbacksAreClearedAfterCommit()
+    public function testCallbacksAreClearedAfterCommit(): void
     {
         $this->conn->atomic(function () {
             $this->doStuff(1);
@@ -193,7 +195,7 @@ SQL
         $this->assertStuffDone([1, 2]);
     }
 
-    public function testCallbacksAreClearedAfterRollback()
+    public function testCallbacksAreClearedAfterRollback(): void
     {
         try {
             $this->conn->atomic(function () {
@@ -211,7 +213,7 @@ SQL
         $this->assertStuffNotDone([1]);
     }
 
-    public function testBrokenConnectionInAtomic()
+    public function testBrokenConnectionInAtomic(): void
     {
         $this->conn->execute("set idle_in_transaction_session_timeout = 500");
 
@@ -228,7 +230,7 @@ SQL
         $this->assertStuffNotDone([1, 2]);
     }
 
-    public function testDisconnectInAtomic()
+    public function testDisconnectInAtomic(): void
     {
         try {
             $this->conn->atomic(function () {

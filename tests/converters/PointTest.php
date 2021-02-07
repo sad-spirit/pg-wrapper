@@ -37,7 +37,7 @@ class PointTest extends TypeConverterTestCase
         $this->converter = new PointConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null,        null],
@@ -47,7 +47,7 @@ class PointTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['0,3.2',       new Point(0, 3.2)],
@@ -58,7 +58,7 @@ class PointTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['(1,2)',                       ['y' => 2, 'x' => 1]],

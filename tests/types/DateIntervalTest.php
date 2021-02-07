@@ -28,20 +28,20 @@ use sad_spirit\pg_wrapper\types\DateInterval;
  */
 class DateIntervalTest extends TestCase
 {
-    public function testOutputEmpty()
+    public function testOutputEmpty(): void
     {
         $interval = new DateInterval('P0Y');
         $this->assertEquals('PT0S', $interval->__toString());
     }
 
-    public function testOutputFractionalSeconds()
+    public function testOutputFractionalSeconds(): void
     {
         $interval = new DateInterval('PT1M');
         $interval->f = 0.123;
         $this->assertEquals('PT1M0.123S', $interval->__toString());
     }
 
-    public function testOutputNegative()
+    public function testOutputNegative(): void
     {
         $interval = new DateInterval('PT0S');
         $interval->h = -2;
@@ -49,7 +49,7 @@ class DateIntervalTest extends TestCase
         $this->assertEquals('PT-2H-5M', $interval->__toString());
     }
 
-    public function testOutputInverted()
+    public function testOutputInverted(): void
     {
         $interval = new DateInterval('PT2H5M');
         $interval->invert = 1;

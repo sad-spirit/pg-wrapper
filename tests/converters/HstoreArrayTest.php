@@ -35,7 +35,7 @@ class HstoreArrayTest extends TypeConverterTestCase
         $this->converter = new ArrayConverter(new HstoreConverter());
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -48,12 +48,12 @@ class HstoreArrayTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [];
     }

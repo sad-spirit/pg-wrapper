@@ -38,7 +38,7 @@ class NumericRangeTest extends TypeConverterTestCase
         $this->converter = new RangeConverter(new NumericConverter());
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             ['empty',  NumericRange::createEmpty()],
@@ -48,7 +48,7 @@ class NumericRangeTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             [' (    2    ,   3 )', new NumericRange(2, 3, false, false)],
@@ -57,7 +57,7 @@ class NumericRangeTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['["2","3"]',                    ['upper' => 3, 'lower' => 2, 'upperInclusive' => true]],

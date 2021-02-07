@@ -47,7 +47,7 @@ class CompositeTest extends TypeConverterTestCase
         ]);
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -81,7 +81,7 @@ class CompositeTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             [
@@ -97,7 +97,7 @@ class CompositeTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             [new TypeConversionException(), 1],

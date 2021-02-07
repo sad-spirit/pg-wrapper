@@ -206,7 +206,7 @@ class ConnectionTransactionsTest extends TestCase
         $this->assertStored([]);
     }
 
-    public function testAtomicInsideOpenTransaction()
+    public function testAtomicInsideOpenTransaction(): void
     {
         $onCommitCalled = false;
 
@@ -225,7 +225,7 @@ class ConnectionTransactionsTest extends TestCase
         $this::assertTrue($onCommitCalled);
     }
 
-    public function testAtomicErrorInsideOpenTransaction()
+    public function testAtomicErrorInsideOpenTransaction(): void
     {
         $onRollbackCalled = false;
 
@@ -262,7 +262,7 @@ class ConnectionTransactionsTest extends TestCase
         $this::assertTrue($onRollbackCalled);
     }
 
-    public function testForceRollback()
+    public function testForceRollback(): void
     {
         $this->conn->atomic(function () {
             $this->store(1);
@@ -272,7 +272,7 @@ class ConnectionTransactionsTest extends TestCase
         $this->assertStored([]);
     }
 
-    public function testPreventRollback()
+    public function testPreventRollback(): void
     {
         $this->conn->atomic(function () {
             $this->store(1);

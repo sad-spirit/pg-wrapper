@@ -43,10 +43,12 @@ class ByteaTest extends TestCase
 
     /**
      * @dataProvider getValuesFrom
+     * @param string|null            $native
+     * @param string|null|\Throwable $value
      */
-    public function testCastFrom($native, $value)
+    public function testCastFrom(?string $native, $value): void
     {
-        if ($value instanceof \Exception) {
+        if ($value instanceof \Throwable) {
             $this->expectException(get_class($value));
         }
         $this->assertEquals($value, $this->caster->input($native));
@@ -54,13 +56,15 @@ class ByteaTest extends TestCase
 
     /**
      * @dataProvider getValuesToHex
+     * @param string|null $value
+     * @param string|null $hexEncoded
      */
-    public function testCastToHex($value, $hexEncoded)
+    public function testCastToHex(?string $value, ?string $hexEncoded): void
     {
         $this->assertEquals($hexEncoded, $this->caster->output($value));
     }
 
-    public function getValuesFrom()
+    public function getValuesFrom(): array
     {
         return [
             [null,                     null],
@@ -73,7 +77,7 @@ class ByteaTest extends TestCase
         ];
     }
 
-    public function getValuesToHex()
+    public function getValuesToHex(): array
     {
         return [
             [null,         null],

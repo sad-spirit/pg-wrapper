@@ -38,7 +38,7 @@ class CircleTest extends TypeConverterTestCase
         $this->converter = new CircleConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -46,7 +46,7 @@ class CircleTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['((1.2 ,3.4 ) , 5.6)',  new Circle(new Point(1.2, 3.4), 5.6)],
@@ -59,7 +59,7 @@ class CircleTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['<(1.2,3.4),5.6>',              ['radius' => 5.6, 'center' => [1.2, 3.4]]],

@@ -35,7 +35,7 @@ class IntegerTest extends TypeConverterTestCase
         $this->converter = new IntegerConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -47,7 +47,7 @@ class IntegerTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['1.0', new TypeConversionException()],
@@ -55,7 +55,7 @@ class IntegerTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             [new TypeConversionException(), ''],

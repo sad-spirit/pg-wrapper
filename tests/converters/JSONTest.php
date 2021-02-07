@@ -35,7 +35,7 @@ class JSONTest extends TypeConverterTestCase
         $this->converter = new JSONConverter();
     }
 
-    public function testJSONBigintAsString()
+    public function testJSONBigintAsString(): void
     {
         $this->assertSame(
             ['largenum' => '123456789012345678901234567890'],
@@ -43,13 +43,13 @@ class JSONTest extends TypeConverterTestCase
         );
     }
 
-    public function testInvalidUTF8Sequence()
+    public function testInvalidUTF8Sequence(): void
     {
         $this->expectException(TypeConversionException::class);
         $this->converter->output("\xB1\x31");
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null,                         null],
@@ -59,7 +59,7 @@ class JSONTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['"тест"',       'тест'],
@@ -68,7 +68,7 @@ class JSONTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         $foo = new \stdClass();
         $foo->bar = $foo;

@@ -52,7 +52,7 @@ class ServerExceptionsTest extends TestCase
         $this->conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
     }
 
-    public function testConnectionExceptionIsThrownIfConnectionBroken()
+    public function testConnectionExceptionIsThrownIfConnectionBroken(): void
     {
         $connectionTwo = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
 
@@ -67,20 +67,20 @@ class ServerExceptionsTest extends TestCase
         $connectionTwo->execute('select true');
     }
 
-    public function testFeatureNotSupportedException()
+    public function testFeatureNotSupportedException(): void
     {
         $this::expectException(FeatureNotSupportedException::class);
         // This is the easiest way to trigger, see src\backend\utils\adt\xml.c
         $this->conn->execute("select xmlvalidate('<foo />', 'bar')");
     }
 
-    public function testDataException()
+    public function testDataException(): void
     {
         $this::expectException(DataException::class);
         $this->conn->execute('select 0/0');
     }
 
-    public function testConstraintViolationException()
+    public function testConstraintViolationException(): void
     {
         $this->conn->execute('drop table if exists test_exception');
         $this->conn->execute(<<<SQL
@@ -109,19 +109,19 @@ SQL
         }
     }
 
-    public function testInsufficientPrivilegeException()
+    public function testInsufficientPrivilegeException(): void
     {
         $this::expectException(InsufficientPrivilegeException::class);
         $this->conn->execute('drop table pg_class');
     }
 
-    public function testProgrammingException()
+    public function testProgrammingException(): void
     {
         $this::expectException(ProgrammingException::class);
         $this->conn->execute('blah');
     }
 
-    public function testInternalErrorException()
+    public function testInternalErrorException(): void
     {
         $this::expectException(InternalErrorException::class);
 
@@ -133,7 +133,7 @@ SQL
         $this->conn->execute('select true');
     }
 
-    public function testOperationalException()
+    public function testOperationalException(): void
     {
         $this::expectException(OperationalException::class);
 
@@ -146,7 +146,7 @@ SQL
         );
     }
 
-    public function testQueryCanceledException()
+    public function testQueryCanceledException(): void
     {
         $this::expectException(QueryCanceledException::class);
         $this->conn->beginTransaction();
@@ -154,7 +154,7 @@ SQL
         $this->conn->execute('select pg_sleep(1)');
     }
 
-    public function testTransactionRollbackException()
+    public function testTransactionRollbackException(): void
     {
         $this::expectException(TransactionRollbackException::class);
 

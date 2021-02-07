@@ -41,10 +41,13 @@ class DateTest extends TestCase
 
     /**
      * @dataProvider getValuesFrom
+     * @param string|null    $style
+     * @param string|null    $native
+     * @param \DateTime|null $value
      */
-    public function testCastFrom($style, $native, $value)
+    public function testCastFrom(?string $style, ?string $native, ?\DateTime $value): void
     {
-        if ($value instanceof \Exception) {
+        if ($value instanceof \Throwable) {
             $this->expectException(get_class($value));
         }
         if (null !== $style) {
@@ -55,16 +58,18 @@ class DateTest extends TestCase
 
     /**
      * @dataProvider getValuesTo
+     * @param string|null|\Throwable $native
+     * @param mixed                  $value
      */
-    public function testCastTo($native, $value)
+    public function testCastTo($native, $value): void
     {
-        if ($native instanceof \Exception) {
+        if ($native instanceof \Throwable) {
             $this->expectException(get_class($native));
         }
         $this->assertEquals($native, $this->caster->output($value));
     }
 
-    public function getValuesFrom()
+    public function getValuesFrom(): array
     {
         return [
             [null,             null,         null],
@@ -79,7 +84,7 @@ class DateTest extends TestCase
         ];
     }
 
-    public function getValuesTo()
+    public function getValuesTo(): array
     {
         $dateTime = new \DateTime('2001-05-25');
         return [

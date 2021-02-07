@@ -32,7 +32,7 @@ class StringTest extends TypeConverterTestCase
         $this->converter = new StringConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -43,12 +43,12 @@ class StringTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['1', 1.0],

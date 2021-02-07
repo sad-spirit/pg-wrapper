@@ -35,13 +35,13 @@ class NumericTest extends TypeConverterTestCase
         $this->converter = new NumericConverter();
     }
     
-    public function testConvertNaN()
+    public function testConvertNaN(): void
     {
         $this->assertTrue(is_nan($this->converter->input('NAN')));
         $this->assertEquals('NaN', $this->converter->output(floatval(NAN)));
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null,   null],
@@ -51,7 +51,7 @@ class NumericTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['',     new TypeConversionException()],
@@ -59,7 +59,7 @@ class NumericTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['2.3',                         '2,3'],

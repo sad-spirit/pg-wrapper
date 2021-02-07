@@ -61,7 +61,7 @@ SQL
         }
     }
 
-    public function testSetMode()
+    public function testSetMode(): void
     {
         $res = self::$conn->execute("select * from test_resultset where one = 1");
         $this->assertEquals(['one' => 1, 'two' => 'foo', 'three' => 'first value of foo'], $res[0]);
@@ -70,7 +70,7 @@ SQL
         $this->assertEquals([1, 'foo', 'first value of foo'], $res[0]);
     }
 
-    public function testSetType()
+    public function testSetType(): void
     {
         $res = self::$conn->execute("select row(one, three) as onethree from test_resultset where two = 'baz'");
         $this->assertEquals('(9,"only value of baz")', $res[0]['onethree']);
@@ -81,7 +81,7 @@ SQL
         $this->assertEquals(['a' => 9, 'b' => 'only value of baz'], $res[0]['onethree']);
     }
 
-    public function testSetTypeMissingFieldName()
+    public function testSetTypeMissingFieldName(): void
     {
         $this::expectException(OutOfBoundsException::class);
 
@@ -89,7 +89,7 @@ SQL
         $res->setType('three', new converters\StubConverter());
     }
 
-    public function testSetTypeMissingFieldIndex()
+    public function testSetTypeMissingFieldIndex(): void
     {
         $this::expectException(OutOfBoundsException::class);
 
@@ -97,7 +97,7 @@ SQL
         $res->setType(3, new converters\StubConverter());
     }
 
-    public function testFetchColumn()
+    public function testFetchColumn(): void
     {
         $res = self::$conn->execute("select one, two from test_resultset where one > 5");
 
@@ -105,7 +105,7 @@ SQL
         $this->assertEquals(['bar', 'baz'], $res->fetchColumn('two'));
     }
 
-    public function testFetchColumnMissingFieldName()
+    public function testFetchColumnMissingFieldName(): void
     {
         $this::expectException(OutOfBoundsException::class);
 
@@ -113,7 +113,7 @@ SQL
         $res->fetchColumn('three');
     }
 
-    public function testFetchColumnMissingFieldIndex()
+    public function testFetchColumnMissingFieldIndex(): void
     {
         $this::expectException(OutOfBoundsException::class);
 
@@ -121,7 +121,7 @@ SQL
         $res->fetchColumn(3);
     }
 
-    public function testFetchAll()
+    public function testFetchAll(): void
     {
         $res = self::$conn->execute("select one, two from test_resultset where one > 5 order by one");
 
@@ -142,7 +142,7 @@ SQL
         );
     }
 
-    public function testFetchAllUsingKeyWithTwoColumns()
+    public function testFetchAllUsingKeyWithTwoColumns(): void
     {
         $res = self::$conn->execute("select one, two from test_resultset where one < 9 order by one");
 
@@ -173,7 +173,7 @@ SQL
         );
     }
 
-    public function testFetchAllUsingKey()
+    public function testFetchAllUsingKey(): void
     {
         $res = self::$conn->execute("select * from test_resultset where one > 1 order by one");
 
@@ -204,7 +204,7 @@ SQL
         );
     }
 
-    public function testConfiguresTypeConverterArgumentUsingConnection()
+    public function testConfiguresTypeConverterArgumentUsingConnection(): void
     {
         $mockTimestampOne = $this->createMock(converters\datetime\TimeStampTzConverter::class);
         $mockTimestampTwo = $this->createMock(converters\datetime\TimeStampTzConverter::class);

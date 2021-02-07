@@ -36,7 +36,7 @@ class StringArrayTest extends TypeConverterTestCase
         $this->converter = new ArrayConverter(new StringConverter());
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -50,7 +50,7 @@ class StringArrayTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['{ {NULL} ,{  NULL, "string" }}  ', [[null], [null, 'string']]],
@@ -58,7 +58,7 @@ class StringArrayTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             [new TypeConversionException(), 1],

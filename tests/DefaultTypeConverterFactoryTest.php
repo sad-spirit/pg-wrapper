@@ -27,8 +27,8 @@ use sad_spirit\pg_wrapper\{
     exceptions\InvalidArgumentException,
     exceptions\RuntimeException,
     exceptions\TypeConversionException,
-    types\DateTimeRange
-};
+    TypeConverter,
+    types\DateTimeRange};
 use sad_spirit\pg_wrapper\converters\{
     datetime\DateConverter,
     DefaultTypeConverterFactory,
@@ -66,24 +66,30 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
     /**
      * @dataProvider getBuiltinTypeConverters
+     * @param string        $typeName
+     * @param TypeConverter $converter
      */
-    public function testGetConverterForBuiltInType($typeName, $converter)
+    public function testGetConverterForBuiltInType(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals($converter, $this->factory->getConverterForTypeSpecification($typeName));
     }
 
     /**
      * @dataProvider getSqlStandardTypeConverters
+     * @param string        $typeName
+     * @param TypeConverter $converter
      */
-    public function testGetConverterForSqlStandardType($typeName, $converter)
+    public function testGetConverterForSqlStandardType(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals($converter, $this->factory->getConverterForTypeSpecification($typeName));
     }
 
     /**
      * @dataProvider getBuiltinTypeConverters
+     * @param string        $typeName
+     * @param TypeConverter $converter
      */
-    public function testGetConverterForBuiltinTypeArray($typeName, $converter)
+    public function testGetConverterForBuiltinTypeArray(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals(
             new ArrayConverter($converter),
@@ -93,8 +99,10 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
     /**
      * @dataProvider getSqlStandardTypeConverters
+     * @param string $typeName
+     * @param TypeConverter $converter
      */
-    public function testGetConverterForSqlStandardTypeArray($typeName, $converter)
+    public function testGetConverterForSqlStandardTypeArray(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals(
             new ArrayConverter($converter),
@@ -104,8 +112,10 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
     /**
      * @dataProvider getInvalidTypeNames
+     * @param string $typeName
+     * @param string $exceptionMessage
      */
-    public function testInvalidTypeNames($typeName, $exceptionMessage)
+    public function testInvalidTypeNames(string $typeName, string $exceptionMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($exceptionMessage);
@@ -113,7 +123,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForTypeSpecification($typeName);
     }
 
-    public function testGetConverterForCompositeTypeUsingArray()
+    public function testGetConverterForCompositeTypeUsingArray(): void
     {
         $this->assertEquals(
             new CompositeConverter([
@@ -131,7 +141,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testMissingConverter()
+    public function testMissingConverter(): void
     {
         $this::expectException(RuntimeException::class);
         $this::expectExceptionMessage('connection required');
@@ -139,7 +149,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForTypeSpecification('foo');
     }
 
-    public function testRequireQualifiedName()
+    public function testRequireQualifiedName(): void
     {
         $this->factory->registerConverter(IntegerConverter::class, 'foo', 'bar');
         $this->factory->registerConverter(TimeConverter::class, 'foo', 'baz');
@@ -150,7 +160,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForTypeSpecification('foo');
     }
 
-    public function testMissingTypeWithDatabaseConnection()
+    public function testMissingTypeWithDatabaseConnection(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -164,7 +174,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForTypeSpecification('missing');
     }
 
-    public function testMissingConverterWithDatabaseConnection()
+    public function testMissingConverterWithDatabaseConnection(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -178,12 +188,12 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForTypeSpecification('xml');
     }
 
-    public function testBuiltinTypeOid()
+    public function testBuiltinTypeOid(): void
     {
         $this::assertEquals(new IntegerConverter(), $this->factory->getConverterForTypeOID(23));
     }
 
-    public function testCustomTypeOidRequiresConnection()
+    public function testCustomTypeOidRequiresConnection(): void
     {
         $this::expectException(RuntimeException::class);
         $this::expectExceptionMessage('Database connection required');
@@ -191,7 +201,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForTypeOID(1000000);
     }
 
-    public function testGetConverterByTypeOid()
+    public function testGetConverterByTypeOid(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -208,7 +218,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this::assertInstanceOf(CompositeConverter::class, $this->factory->getConverterForTypeOID($result[0]['oid']));
     }
 
-    public function testArrayTypeConverterFromMetadata()
+    public function testArrayTypeConverterFromMetadata(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -221,7 +231,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testCompositeTypeConverterFromMetadata()
+    public function testCompositeTypeConverterFromMetadata(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -240,7 +250,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testRangeTypeConverterFromMetadata()
+    public function testRangeTypeConverterFromMetadata(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -256,7 +266,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testEnumTypeConverterFromMetadata()
+    public function testEnumTypeConverterFromMetadata(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -270,7 +280,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->assertSame('maybe', $result[0]['value']);
     }
 
-    public function testDomainConverterFromMetadata()
+    public function testDomainConverterFromMetadata(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -284,7 +294,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this::assertInstanceOf(StringConverter::class, $this->factory->getConverterForTypeSpecification('testdomain'));
     }
 
-    public function testMetadataIsStoredInCache()
+    public function testMetadataIsStoredInCache(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -326,7 +336,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testMetadataIsLoadedFromCache()
+    public function testMetadataIsLoadedFromCache(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -372,7 +382,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->assertEquals(new HstoreConverter(), $this->factory->getConverterForTypeOID(123456));
     }
 
-    public function testConfiguresTypeConverterArgumentUsingConnection()
+    public function testConfiguresTypeConverterArgumentUsingConnection(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -387,7 +397,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->assertSame($mockConverter, $this->factory->getConverterForTypeSpecification($mockConverter));
     }
 
-    public function testConnectionAwareSubConverterOfArrayShouldBeConfigured()
+    public function testConnectionAwareSubConverterOfArrayShouldBeConfigured(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -408,7 +418,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testConnectionAwareSubConverterOfRangeShouldBeConfigured()
+    public function testConnectionAwareSubConverterOfRangeShouldBeConfigured(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -429,7 +439,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testConnectionAwareSubConverterOfCompositeTypeShouldBeConfigured()
+    public function testConnectionAwareSubConverterOfCompositeTypeShouldBeConfigured(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -450,7 +460,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testConvertingInstanceOfUnknownClassResultsInException()
+    public function testConvertingInstanceOfUnknownClassResultsInException(): void
     {
         $this::expectException(TypeConversionException::class);
         $this::expectExceptionMessage('Failed to deduce');
@@ -458,7 +468,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this->factory->getConverterForPHPValue((object)['foo' => 'bar']);
     }
 
-    public function testCanRegisterAMappingFromPHPClassToDBType()
+    public function testCanRegisterAMappingFromPHPClassToDBType(): void
     {
         $this->factory->registerClassMapping('\stdClass', 'json');
 
@@ -469,7 +479,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testDisallowSetConnectionWithDifferentConnectionInstance()
+    public function testDisallowSetConnectionWithDifferentConnectionInstance(): void
     {
         $connectionOne = new Connection('does this really matter?');
         $connectionTwo = new Connection('or this?');
@@ -482,7 +492,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connectionTwo->setTypeConverterFactory($this->factory);
     }
 
-    public function testSetConnectionUpdatesExistingConverters()
+    public function testSetConnectionUpdatesExistingConverters(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -503,7 +513,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $this::assertEquals('2020-09-18', $converter->input('18.09.2020')->format('Y-m-d'));
     }
 
-    public function getBuiltinTypeConverters()
+    public function getBuiltinTypeConverters(): array
     {
         return [
             ['int4',                    new IntegerConverter()],
@@ -517,7 +527,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         ];
     }
 
-    public function getSqlStandardTypeConverters()
+    public function getSqlStandardTypeConverters(): array
     {
         return [
             ['integer',                    new IntegerConverter()],
@@ -527,7 +537,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         ];
     }
 
-    public function getInvalidTypeNames()
+    public function getInvalidTypeNames(): array
     {
         return [
             ['',             'Missing type name'],

@@ -43,7 +43,7 @@ class PreparedStatementTest extends TestCase
         $this->conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
     }
 
-    public function testCreatesPreparedStatement()
+    public function testCreatesPreparedStatement(): void
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
 
@@ -52,7 +52,7 @@ class PreparedStatementTest extends TestCase
         $this->assertEquals(1, count($result));
     }
 
-    public function testClonedStatementIsRePrepared()
+    public function testClonedStatementIsRePrepared(): void
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $cloned    = clone $statement;
@@ -61,7 +61,7 @@ class PreparedStatementTest extends TestCase
         $this->assertEquals(2, $result[0]['cnt']);
     }
 
-    public function testCanDeallocateStatement()
+    public function testCanDeallocateStatement(): void
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
 
@@ -71,7 +71,7 @@ class PreparedStatementTest extends TestCase
         $this->assertEquals(0, count($result));
     }
 
-    public function testCannotExecuteAfterDeallocate()
+    public function testCannotExecuteAfterDeallocate(): void
     {
         $this->expectException(RuntimeException::class);
 
@@ -81,7 +81,7 @@ class PreparedStatementTest extends TestCase
         $statement->execute(['yesterday']);
     }
 
-    public function testBindParam()
+    public function testBindParam(): void
     {
         $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
 
@@ -98,7 +98,7 @@ class PreparedStatementTest extends TestCase
         $this->assertEquals('char', $result[0]['typname']);
     }
 
-    public function testBindValue()
+    public function testBindValue(): void
     {
         $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
 
@@ -110,7 +110,7 @@ class PreparedStatementTest extends TestCase
         $this->assertEquals('bool', $result[0]['typname']);
     }
 
-    private function createMockTimestampConverter()
+    private function createMockTimestampConverter(): TimeStampTzConverter
     {
         $mockTimestamp = $this->createMock(TimeStampTzConverter::class);
 
@@ -123,7 +123,7 @@ class PreparedStatementTest extends TestCase
         return $mockTimestamp;
     }
 
-    public function testConstructorConfiguresTypeConverterArgumentUsingConnection()
+    public function testConstructorConfiguresTypeConverterArgumentUsingConnection(): void
     {
         $statement = $this->conn->prepare(
             'select * from pg_stat_activity where query_start < $1',
@@ -132,14 +132,14 @@ class PreparedStatementTest extends TestCase
         $statement->execute(['yesterday']);
     }
 
-    public function testBindValueConfiguresTypeConverterArgumentUsingConnection()
+    public function testBindValueConfiguresTypeConverterArgumentUsingConnection(): void
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $statement->bindValue(1, 'yesterday', $this->createMockTimestampConverter());
         $statement->execute();
     }
 
-    public function testBindParamConfiguresTypeConverterArgumentUsingConnection()
+    public function testBindParamConfiguresTypeConverterArgumentUsingConnection(): void
     {
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $statement->bindParam(1, $param, $this->createMockTimestampConverter());

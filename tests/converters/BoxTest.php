@@ -38,7 +38,7 @@ class BoxTest extends TypeConverterTestCase
         $this->converter = new BoxConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -46,7 +46,7 @@ class BoxTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['(1.2, 3.4) , (5.6 ,7.8 )', new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))],
@@ -58,7 +58,7 @@ class BoxTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['((1.2,3.4),(5.6,7.8))',        [[1.2, 3.4], [5.6, 7.8]]],

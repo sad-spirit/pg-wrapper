@@ -44,7 +44,7 @@ class StubTypeConverterFactoryTest extends TestCase
      * @dataProvider getTypeSpecifications
      * @param mixed $type
      */
-    public function testReturnsStubConverterForAnyType($type)
+    public function testReturnsStubConverterForAnyType($type): void
     {
         $this->assertEquals(
             new StubConverter(),
@@ -52,13 +52,13 @@ class StubTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function testReturnsTypeConverterArgument()
+    public function testReturnsTypeConverterArgument(): void
     {
         $converter = new IntegerConverter();
         $this->assertSame($converter, $this->factory->getConverterForTypeSpecification($converter));
     }
 
-    public function testConfiguresTypeConverterArgumentUsingConnection()
+    public function testConfiguresTypeConverterArgumentUsingConnection(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -73,7 +73,7 @@ class StubTypeConverterFactoryTest extends TestCase
         $this->assertSame($mockConverter, $this->factory->getConverterForTypeSpecification($mockConverter));
     }
 
-    public function testDisallowSetConnectionWithDifferentConnectionInstance()
+    public function testDisallowSetConnectionWithDifferentConnectionInstance(): void
     {
         $connectionOne = new Connection('does this really matter?');
         $connectionTwo = new Connection('or this?');
@@ -86,7 +86,7 @@ class StubTypeConverterFactoryTest extends TestCase
         $connectionTwo->setTypeConverterFactory($this->factory);
     }
 
-    public function getTypeSpecifications()
+    public function getTypeSpecifications(): array
     {
         return [
             ['foo.bar'],

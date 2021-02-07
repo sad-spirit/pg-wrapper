@@ -35,19 +35,19 @@ class FloatTest extends TypeConverterTestCase
         $this->converter = new FloatConverter();
     }
 
-    public function testConvertNaN()
+    public function testConvertNaN(): void
     {
         $this->assertTrue(is_nan($this->converter->input('NaN')));
         $this->assertEquals('NaN', $this->converter->output(floatval(NAN)));
     }
 
-    public function testConvertInfinite()
+    public function testConvertInfinite(): void
     {
         $this->assertTrue(is_infinite($this->converter->input('Infinity')));
         $this->assertEquals('-Infinity', $this->converter->output(-floatval(INF)));
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null, null],
@@ -59,7 +59,7 @@ class FloatTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['1', 1.0],
@@ -72,7 +72,7 @@ class FloatTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             ['2.3', '2,3'],

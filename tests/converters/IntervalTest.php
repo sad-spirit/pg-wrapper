@@ -36,12 +36,12 @@ class IntervalTest extends TypeConverterTestCase
         $this->converter = new IntervalConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             [null,                                                 null],
@@ -84,7 +84,7 @@ class IntervalTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         $frac = new DateInterval('PT1H2M3S');
         $frac->f = 0.45;

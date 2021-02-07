@@ -33,7 +33,7 @@ class HstoreTest extends TypeConverterTestCase
         $this->converter = new HstoreConverter();
     }
 
-    protected function valuesBoth()
+    public function valuesBoth(): array
     {
         return [
             [null,                      null],
@@ -46,7 +46,7 @@ class HstoreTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesFrom()
+    public function valuesFrom(): array
     {
         return [
             ['a=>b',                                  ['a' => 'b']],
@@ -61,7 +61,7 @@ class HstoreTest extends TypeConverterTestCase
         ];
     }
 
-    protected function valuesTo()
+    public function valuesTo(): array
     {
         return [
             [new TypeConversionException(),       1],

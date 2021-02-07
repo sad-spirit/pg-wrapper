@@ -42,19 +42,19 @@ use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
  */
 class ConnectionTest extends TestCase
 {
-    public function testDefaultConnectionIsLazy()
+    public function testDefaultConnectionIsLazy(): void
     {
         $connection = new Connection('this will probably fail');
         $this->assertFalse($connection->isConnected());
     }
 
-    public function testInvalidConnectionString()
+    public function testInvalidConnectionString(): void
     {
         $this->expectException(ConnectionException::class);
         $connection = new Connection('blah=blah duh=oh', false);
     }
 
-    public function testUndefinedPhpErrorMsg()
+    public function testUndefinedPhpErrorMsg(): void
     {
         set_error_handler(function ($errno, $errstr) {
             return true;
@@ -67,7 +67,7 @@ class ConnectionTest extends TestCase
         restore_error_handler();
     }
 
-    public function testCanConnect()
+    public function testCanConnect(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -77,7 +77,7 @@ class ConnectionTest extends TestCase
         $this->assertStringContainsString('pgsql link', get_resource_type($connection->getResource()));
     }
 
-    public function testDestructorDisconnects()
+    public function testDestructorDisconnects(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -88,7 +88,7 @@ class ConnectionTest extends TestCase
         $this->assertEquals('Unknown', get_resource_type($resource));
     }
 
-    public function testNoReconnectAfterManualDisconnect()
+    public function testNoReconnectAfterManualDisconnect(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');
@@ -103,7 +103,7 @@ class ConnectionTest extends TestCase
         $connection->execute("select true");
     }
 
-    public function testDifferentInstancesHaveDifferentResources()
+    public function testDifferentInstancesHaveDifferentResources(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -113,7 +113,7 @@ class ConnectionTest extends TestCase
         $this->assertNotSame($conn1->getResource(), $conn2->getResource());
     }
 
-    public function testClonedInstanceIsDisconnected()
+    public function testClonedInstanceIsDisconnected(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -127,8 +127,10 @@ class ConnectionTest extends TestCase
 
     /**
      * @dataProvider getImplicitTypes
+     * @param mixed  $value
+     * @param string $expected
      */
-    public function testQuoteImplicitTypes($value, $expected)
+    public function testQuoteImplicitTypes($value, string $expected): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -139,8 +141,9 @@ class ConnectionTest extends TestCase
 
     /**
      * @dataProvider getImplicitTypesFail
+     * @param mixed $value
      */
-    public function testFailToQuoteImplicitTypes($value)
+    public function testFailToQuoteImplicitTypes($value): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -152,8 +155,11 @@ class ConnectionTest extends TestCase
 
     /**
      * @dataProvider getExplicitTypes
+     * @param mixed  $value
+     * @param string $type
+     * @param string $expected
      */
-    public function testQuoteExplicitTypes($value, $type, $expected)
+    public function testQuoteExplicitTypes($value, string $type, string $expected): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -162,7 +168,7 @@ class ConnectionTest extends TestCase
         $this->assertSame($expected, $connection->quote($value, $type));
     }
 
-    public function testExecuteParamsConfiguresTypeConverterArgumentUsingConnection()
+    public function testExecuteParamsConfiguresTypeConverterArgumentUsingConnection(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -185,7 +191,7 @@ class ConnectionTest extends TestCase
         );
     }
 
-    public function testClonedInstanceHasDifferentTypeConverterFactory()
+    public function testClonedInstanceHasDifferentTypeConverterFactory(): void
     {
         $factory    = new StubTypeConverterFactory();
         $connection = new Connection('does this really matter?');
@@ -195,7 +201,7 @@ class ConnectionTest extends TestCase
         $this::assertNotSame($connection->getTypeConverterFactory(), $cloned->getTypeConverterFactory());
     }
 
-    public function getImplicitTypes()
+    public function getImplicitTypes(): array
     {
         return [
             [null,                         'NULL'],
@@ -234,7 +240,7 @@ class ConnectionTest extends TestCase
         ];
     }
 
-    public function getImplicitTypesFail()
+    public function getImplicitTypesFail(): array
     {
         return [
             [[]],
@@ -242,7 +248,7 @@ class ConnectionTest extends TestCase
         ];
     }
 
-    public function getExplicitTypes()
+    public function getExplicitTypes(): array
     {
         return [
             [['foo' => 'bar'],    'hstore',   '\'"foo"=>"bar"\''],

@@ -33,7 +33,7 @@ use sad_spirit\pg_wrapper\types\{
  */
 class RangeTest extends TestCase
 {
-    public function testDisallowExtraProperties()
+    public function testDisallowExtraProperties(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -41,7 +41,7 @@ class RangeTest extends TestCase
         $range->foo = 'bar';
     }
 
-    public function testCreateEmpty()
+    public function testCreateEmpty(): void
     {
         $range = NumericRange::createEmpty();
         $this->assertInstanceOf(NumericRange::class, $range);
@@ -50,8 +50,10 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider getInvalidNumericRanges
+     * @param mixed $lower
+     * @param mixed $upper
      */
-    public function testInvalidNumericRangesViaConstructor($lower, $upper)
+    public function testInvalidNumericRangesViaConstructor($lower, $upper): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -60,8 +62,10 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider getInvalidNumericRanges
+     * @param mixed $lower
+     * @param mixed $upper
      */
-    public function testInvalidNumericRangesViaProperties($lower, $upper)
+    public function testInvalidNumericRangesViaProperties($lower, $upper): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -70,7 +74,7 @@ class RangeTest extends TestCase
         $range->upper = $upper;
     }
 
-    public function getInvalidNumericRanges()
+    public function getInvalidNumericRanges(): array
     {
         return [
             [2, 1],
@@ -79,7 +83,7 @@ class RangeTest extends TestCase
         ];
     }
 
-    public function testInvalidDateTimeRangesViaConstructor()
+    public function testInvalidDateTimeRangesViaConstructor(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -88,8 +92,10 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider getInvalidDateTimeRanges
+     * @param mixed $lower
+     * @param mixed $upper
      */
-    public function testInvalidDateTimeRangesViaProperties($lower, $upper)
+    public function testInvalidDateTimeRangesViaProperties($lower, $upper): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -98,7 +104,7 @@ class RangeTest extends TestCase
         $range->upper = $upper;
     }
 
-    public function getInvalidDateTimeRanges()
+    public function getInvalidDateTimeRanges(): array
     {
         return [
             [new \DateTime('tomorrow'), new \DateTime('yesterday')],
@@ -107,7 +113,7 @@ class RangeTest extends TestCase
         ];
     }
 
-    public function testDateRangeBoundsAreImmutable()
+    public function testDateRangeBoundsAreImmutable(): void
     {
         $range = new DateTimeRange(new \DateTime('yesterday'), new \DateTimeImmutable('tomorrow'));
         $this::assertInstanceOf('\DateTimeImmutable', $range->lower);
