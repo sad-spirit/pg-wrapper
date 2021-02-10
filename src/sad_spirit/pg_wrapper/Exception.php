@@ -21,6 +21,6 @@ namespace sad_spirit\pg_wrapper;
 /**
  * Interface that should be implemented by all package exceptions
  */
-interface Exception
+interface Exception extends \Throwable
 {
 }
