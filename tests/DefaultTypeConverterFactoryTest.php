@@ -239,8 +239,12 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
         // this one has few columns, let's hope none are added later
+        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        $oidColumn     = version_compare($serverVersion, '12', '<')
+                         ? []
+                         : ['oid' => new IntegerConverter()];
         $this->assertEquals(
-            new CompositeConverter([
+            new CompositeConverter($oidColumn + [
                 'cfgname'      => new StringConverter(),
                 'cfgnamespace' => new IntegerConverter(),
                 'cfgowner'     => new IntegerConverter(),
