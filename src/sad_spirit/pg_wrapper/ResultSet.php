@@ -80,7 +80,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @param resource             $resource SQL result resource.
      * @param TypeConverterFactory $factory
-     * @param array                $types    Types information, used to convert output values (overrides auto-generated types).
+     * @param array                $types    Types information, used to convert output values
+     *                                       (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      */
     protected function __construct($resource, TypeConverterFactory $factory, array $types = [])
