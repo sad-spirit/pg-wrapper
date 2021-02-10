@@ -64,7 +64,7 @@ jobs:
           composer update --no-interaction --prefer-dist --no-progress ${{ matrix.composer-flags }}
 
       - name: Create test database
-        run: psql -c 'create database pgwrapper_test' -U postgres -h localhost
+        run: psql -c 'create database pgwrapper_test' -U postgres -h 127.0.0.1
         env:
           PGPASSWORD: password
 
