@@ -23,6 +23,6 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing 'lseg' (line segment) geometric type
  */
-class LineSegment extends PointPair
+final class LineSegment extends PointPair
 {
 }

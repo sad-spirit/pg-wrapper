@@ -21,8 +21,15 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\types;
 
 /**
- * Class representing 'box' geometric type
+ * Interface for types that can be created from arrays
  */
-final class Box extends PointPair
+interface ArrayRepresentable
 {
+    /**
+     * Creates an object based on the contents of the array
+     *
+     * @param array $input
+     * @return self
+     */
+    public static function createFromArray(array $input);
 }

@@ -25,59 +25,54 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Represents a point in two-dimensional space
  *
- * @property float $x
- * @property float $y
+ * @property-read float $x
+ * @property-read float $y
  */
-class Point
+final class Point implements ArrayRepresentable
 {
-    private $coordinates = [
-        'x' => 0,
-        'y' => 0
-    ];
+    use ReadOnlyProperties;
+
+    /** @var float */
+    private $p_x;
+    /** @var float */
+    private $p_y;
 
     public function __construct(float $x, float $y)
     {
-        $this->__set('x', $x);
-        $this->__set('y', $y);
+        $this->p_x = $x;
+        $this->p_y = $y;
     }
 
-    public function __get($name)
+    /**
+     * Returns the point's X coordinate
+     *
+     * @return float
+     */
+    public function getX(): float
     {
-        if ('x' === $name || 'y' === $name) {
-            return $this->coordinates[$name];
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
+        return $this->p_x;
     }
 
-    public function __set($name, $value)
+    /**
+     * Returns the point's Y coordinate
+     *
+     * @return float
+     */
+    public function getY(): float
     {
-        if ('x' !== $name && 'y' !== $name) {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-
-        } elseif (!is_numeric($value)) {
-            throw new InvalidArgumentException("Point '{$name}' coordinate should be numeric");
-        }
-
-        $this->coordinates[$name] = (double)$value;
-    }
-
-    public function __isset($name)
-    {
-        return 'x' === $name || 'y' === $name;
+        return $this->p_y;
     }
 
     /**
      * Creates a Point from a given array
      *
-     * @param array $input
+     * @param float[] $input
      * @return self
      * @throws InvalidArgumentException
      */
     public static function createFromArray(array $input): self
     {
-        if (2 != count($input)) {
+        if (2 !== count($input)) {
             throw new InvalidArgumentException(
                 sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );

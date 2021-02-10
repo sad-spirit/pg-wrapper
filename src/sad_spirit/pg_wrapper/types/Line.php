@@ -25,63 +25,70 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Class representing 'line' geometric type (PostgreSQL 9.4+)
  *
- * @property float $A
- * @property float $B
- * @property float $C
+ * Lines are represented by the linear equation Ax + By + C = 0
+ *
+ * @property-read float $A
+ * @property-read float $B
+ * @property-read float $C
  */
-class Line
+final class Line implements ArrayRepresentable
 {
-    private $coeffs = [
-        'A' => 0,
-        'B' => 0,
-        'C' => 0
-    ];
+    use ReadOnlyProperties;
+
+    /** @var float */
+    private $p_A;
+    /** @var float */
+    private $p_B;
+    /** @var float */
+    private $p_C;
 
     public function __construct(float $A, float $B, float $C)
     {
-        $this->__set('A', $A);
-        $this->__set('B', $B);
-        $this->__set('C', $C);
+        $this->p_A = $A;
+        $this->p_B = $B;
+        $this->p_C = $C;
     }
 
-    public function __get($name)
+    /**
+     * Returns the A coefficient of linear equation
+     *
+     * @return float
+     */
+    public function getA(): float
     {
-        if (array_key_exists($name, $this->coeffs)) {
-            return $this->coeffs[$name];
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
+        return $this->p_A;
     }
 
-    public function __set($name, $value)
+    /**
+     * Returns the B coefficient of linear equation
+     *
+     * @return float
+     */
+    public function getB(): float
     {
-        if (array_key_exists($name, $this->coeffs)) {
-            if (!is_numeric($value)) {
-                throw new InvalidArgumentException("Line coefficient '{$name}' should be numeric");
-            }
-            $this->coeffs[$name] = (double)$value;
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
+        return $this->p_B;
     }
 
-    public function __isset($name)
+    /**
+     * Returns the C coefficient of linear equation
+     *
+     * @return float
+     */
+    public function getC(): float
     {
-        return array_key_exists($name, $this->coeffs);
+        return $this->p_C;
     }
 
     /**
      * Creates a Line from a given array
      *
-     * @param array $input
+     * @param float[] $input
      * @return self
      * @throws InvalidArgumentException
      */
     public static function createFromArray(array $input): self
     {
-        if (3 != count($input)) {
+        if (3 !== count($input)) {
             throw new InvalidArgumentException(
                 sprintf("%s() expects an array with exactly three elements", __METHOD__)
             );

@@ -23,6 +23,16 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing 'polygon' geometric type
  */
-class Polygon extends PointList
+final class Polygon extends PointList implements ArrayRepresentable
 {
+    /**
+     * Creates a Polygon from a given array
+     *
+     * @param array<int, Point|array{float, float}|array{x: float, y: float}> $input
+     * @return self
+     */
+    public static function createFromArray(array $input): self
+    {
+        return new self(...self::createPointArray($input));
+    }
 }

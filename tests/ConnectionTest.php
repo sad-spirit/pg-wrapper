@@ -221,12 +221,12 @@ class ConnectionTest extends TestCase
                 "'[(1,2),(3,4)]'"
             ],
             [
-                new Path([new Point(1, 2), new Point(3, 4), new Point(5, 6)], true),
+                new Path(true, new Point(1, 2), new Point(3, 4), new Point(5, 6)),
                 "'[(1,2),(3,4),(5,6)]'"
             ],
             [new Point(5.6, 7.8), "'(5.6,7.8)'"],
             [
-                new Polygon([new Point(0, 0), new Point(0, 1), new Point(1, 0)]),
+                new Polygon(new Point(0, 0), new Point(0, 1), new Point(1, 0)),
                 "'((0,0),(0,1),(1,0))'"
             ],
 

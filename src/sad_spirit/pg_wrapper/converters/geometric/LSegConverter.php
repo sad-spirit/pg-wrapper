@@ -32,9 +32,7 @@ class LSegConverter extends BaseGeometricConverter
 {
     protected function parseInput(string $native, int &$pos): LineSegment
     {
-        $points = $this->parsePoints($native, $pos, 2, true);
-        unset($points['open']);
-        return new LineSegment(array_shift($points), array_shift($points));
+        return new LineSegment(...$this->parsePoints($native, $pos, 2, true));
     }
 
     protected function outputNotNull($value): string

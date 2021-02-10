@@ -32,7 +32,7 @@ class PolygonConverter extends BaseGeometricConverter
 {
     protected function parseInput(string $native, int &$pos): Polygon
     {
-        return new Polygon($this->parsePoints($native, $pos, $this->countPoints($native), false));
+        return new Polygon(...$this->parsePoints($native, $pos, $this->countPoints($native)));
     }
 
     protected function outputNotNull($value): string

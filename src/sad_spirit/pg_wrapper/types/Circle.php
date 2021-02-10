@@ -25,55 +25,42 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Represents a circle, defined by a center point and radius
  *
- * @property Point $center
- * @property float $radius
+ * @property-read Point $center
+ * @property-read float $radius
  */
-class Circle
+final class Circle implements ArrayRepresentable
 {
-    /** @var array */
-    private $props = [
-        'center' => null,
-        'radius' => 0
-    ];
+    use ReadOnlyProperties;
+
+    /** @var Point */
+    private $p_center;
+    /** @var float */
+    private $p_radius;
 
     public function __construct(Point $center, float $radius)
     {
-        $this->__set('center', $center);
-        $this->__set('radius', $radius);
+        $this->p_center = $center;
+        $this->p_radius = $radius;
     }
 
-    public function __get($name)
+    /**
+     * Returns the circle's central Point
+     *
+     * @return Point
+     */
+    public function getCenter(): Point
     {
-        if ('center' === $name || 'radius' === $name) {
-            return $this->props[$name];
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
+        return $this->p_center;
     }
 
-    public function __set($name, $value)
+    /**
+     * Returns the circle's radius
+     *
+     * @return float
+     */
+    public function getRadius(): float
     {
-        if ('center' === $name) {
-            if (!($value instanceof Point)) {
-                throw new InvalidArgumentException("Circle center should be a Point");
-            }
-            $this->props[$name] = $value;
-
-        } elseif ('radius' === $name) {
-            if (!is_numeric($value)) {
-                throw new InvalidArgumentException("Circle radius should be numeric");
-            }
-            $this->props[$name] = (double)$value;
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
-    }
-
-    public function __isset($name)
-    {
-        return 'center' === $name || 'radius' === $name;
+        return $this->p_radius;
     }
 
     /**
@@ -85,7 +72,7 @@ class Circle
      */
     public static function createFromArray(array $input): self
     {
-        if (2 != count($input)) {
+        if (2 !== count($input)) {
             throw new InvalidArgumentException(
                 sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );

@@ -65,15 +65,21 @@ abstract class BaseGeometricConverter extends ContainerConverter
     /**
      * Parses given number of points from native database value
      *
-     * @param string $native       native database value
-     * @param int    $pos          position
-     * @param int    $count        number of points to parse
-     * @param bool   $allowSquare  whether square brackets [] are allowed around points
+     * @param string    $native          native database value
+     * @param int       $pos             position
+     * @param int       $count           number of points to parse
+     * @param bool      $allowSquare     whether square brackets [] are allowed around points
+     * @param bool|null $squareDelimiter whether square brackets were actually used
      * @return Point[]
      * @throws TypeConversionException
      */
-    protected function parsePoints(string $native, int &$pos, int $count, bool $allowSquare = false): array
-    {
+    protected function parsePoints(
+        string $native,
+        int &$pos,
+        int $count,
+        bool $allowSquare = false,
+        ?bool &$squareDelimiter = null
+    ): array {
         $hasDelimiters = $squareDelimiter = false;
 
         $char = $this->nextChar($native, $pos);
@@ -102,10 +108,6 @@ abstract class BaseGeometricConverter extends ContainerConverter
 
         if ($hasDelimiters) {
             $this->expectChar($native, $pos, $squareDelimiter ? ']' : ')');
-        }
-
-        if ($allowSquare) {
-            $points['open'] = $squareDelimiter;
         }
 
         return $points;

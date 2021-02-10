@@ -42,16 +42,16 @@ class PathTest extends TypeConverterTestCase
     {
         return [
             [null,                null],
-            ['[(1,2)]',           new Path([new Point(1, 2)], true)],
-            ['[(1,2),(1.2,2.3)]', new Path([new Point(1, 2), new Point(1.2, 2.3)], true)],
-            ['((1,2),(1.2,2.3))', new Path([new Point(1, 2), new Point(1.2, 2.3)], false)]
+            ['[(1,2)]',           new Path(true, new Point(1, 2))],
+            ['[(1,2),(1.2,2.3)]', new Path(true, new Point(1, 2), new Point(1.2, 2.3))],
+            ['((1,2),(1.2,2.3))', new Path(false, new Point(1, 2), new Point(1.2, 2.3))]
         ];
     }
 
     public function valuesFrom(): array
     {
         return [
-            ['1,2,3,4',     new Path([new Point(1, 2), new Point(3, 4)], false)],
+            ['1,2,3,4',     new Path(false, new Point(1, 2), new Point(3, 4))],
             ['(1,2,3,4,5)', new TypeConversionException()],
             ['([1,2],3,4)', new TypeConversionException()],
         ];
@@ -61,7 +61,7 @@ class PathTest extends TypeConverterTestCase
     {
         return [
             ['((1,2),(1.2,2.3))',            [[1, 2], [1.2, 2.3]]],
-            ['[(3,4),(5,6)]',                ['open' => true, [3, 4], [5, 6]]],
+            ['[(3,4),(5,6)]',                [true, [3, 4], [5, 6]]],
             [new TypeConversionException(),  1],
             [new InvalidArgumentException(), ['point']],
             [new InvalidArgumentException(), [[1]]],

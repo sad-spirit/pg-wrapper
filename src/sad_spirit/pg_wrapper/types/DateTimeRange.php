@@ -27,42 +27,34 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * Used to convert PostgreSQL's tsrange, tstzrange, daterange types
  *
- * @property \DateTimeImmutable|null $lower
- * @property \DateTimeImmutable|null $upper
+ * @property-read \DateTimeImmutable|null $lower
+ * @property-read \DateTimeImmutable|null $upper
  */
-class DateTimeRange extends Range
+final class DateTimeRange extends Range
 {
     public function __construct(
-        \DateTimeInterface $lower = null,
-        \DateTimeInterface $upper = null,
+        $lower = null,
+        $upper = null,
         bool $lowerInclusive = true,
         bool $upperInclusive = false
     ) {
+        // As we can't add typehints due to interface, check bounds in constructor
+        foreach (['lower', 'upper'] as $bound) {
+            if (null !== $$bound && !$$bound instanceof \DateTimeInterface) {
+                throw new InvalidArgumentException(
+                    "DateTimeRange {$bound} bound should be an instance of DateTimeInterface"
+                );
+            }
+            if ($$bound instanceof \DateTime) {
+                $$bound = \DateTimeImmutable::createFromMutable($$bound);
+            }
+        }
         if (null !== $lower && null !== $upper && $lower > $upper) {
             throw new InvalidArgumentException(
                 "Range lower bound must be less than or equal to range upper bound"
             );
         }
-        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive);
-    }
 
-    public function __set($name, $value)
-    {
-        if (('upper' === $name || 'lower' === $name) && null !== $value) {
-            if (!($value instanceof \DateTimeInterface)) {
-                throw new InvalidArgumentException(
-                    "DateTimeRange {$name} bound should be an instance of DateTimeInterface"
-                );
-            }
-            if (
-                'upper' === $name && null !== $this->lower && $this->lower > $value
-                || 'lower' === $name && null !== $this->upper && $this->upper < $value
-            ) {
-                throw new InvalidArgumentException(
-                    "Range lower bound must be less than or equal to range upper bound"
-                );
-            }
-        }
-        parent::__set($name, $value instanceof \DateTime ? \DateTimeImmutable::createFromMutable($value) : $value);
+        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive);
     }
 }

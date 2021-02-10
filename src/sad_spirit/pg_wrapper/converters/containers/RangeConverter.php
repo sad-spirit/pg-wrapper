@@ -47,7 +47,7 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
 
     /**
      * input() will return instances of this class
-     * @var string
+     * @var class-string<Range>
      */
     protected $resultClass = Range::class;
 
@@ -130,6 +130,7 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
      *
      * @return Range
      * @throws TypeConversionException
+     * @noinspection PhpMissingBreakStatementInspection
      */
     protected function parseInput(string $native, int &$pos): Range
     {
@@ -141,13 +142,13 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
                 break;
 
             case 'e':
-            /** @noinspection PhpMissingBreakStatementInspection */
             case 'E':
                 if (preg_match('/empty/Ai', $native, $m, 0, $pos)) {
                     $pos += 5;
                     return call_user_func([$this->resultClass, 'createEmpty']);
                 }
                 // fall-through is intentional
+
             default:
                 throw TypeConversionException::parsingFailed($this, '[ or (', $native, $pos);
         }

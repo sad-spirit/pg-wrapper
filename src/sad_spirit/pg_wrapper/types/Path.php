@@ -20,58 +20,50 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\types;
 
-use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
-
 /**
  * Class representing a 'path' geometric type
  *
  * Contains a list of points and 'open' property
  *
- * @property boolean $open
+ * @property-read boolean $open
  */
-class Path extends PointList
+final class Path extends PointList implements ArrayRepresentable
 {
+    use ReadOnlyProperties;
+
     /** @var bool */
     private $openProp;
 
-    public function __construct(array $points, bool $open = false)
+    public function __construct(bool $open, Point ...$points)
     {
-        parent::__construct($points);
-        $this->__set('open', $open);
+        parent::__construct(...$points);
+        $this->openProp = $open;
     }
 
-    public function __get($name)
+    /**
+     * Returns whether path is open
+     *
+     * @return bool
+     */
+    public function isOpen(): bool
     {
-        if ('open' === $name) {
-            return $this->openProp;
+        return $this->openProp;
+    }
 
+    /**
+     * Creates a Path from a given array
+     *
+     * @param array $input
+     * @return self
+     */
+    public static function createFromArray(array $input): self
+    {
+        if (is_bool(reset($input))) {
+            $open = array_shift($input);
         } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
+            $open = false;
         }
-    }
 
-    public function __set($name, $value)
-    {
-        if ('open' === $name) {
-            $this->openProp = (bool)$value;
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
-    }
-
-    public function __isset($name)
-    {
-        return 'open' === $name;
-    }
-
-    public static function createFromArray(array $input)
-    {
-        $open = !empty($input['open']);
-        unset($input['open']);
-        $path = parent::createFromArray($input);
-        $path->open = $open;
-
-        return $path;
+        return new self($open, ...self::createPointArray($input));
     }
 }

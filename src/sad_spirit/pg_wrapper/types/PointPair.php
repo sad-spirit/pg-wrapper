@@ -25,50 +25,42 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Base class for geometric types containing exactly two Points (boxes and line segments)
  *
- * @property Point $start
- * @property Point $end
+ * @property-read Point $start
+ * @property-read Point $end
  */
-abstract class PointPair
+abstract class PointPair implements ArrayRepresentable
 {
-    private $points = [
-        'start' => null,
-        'end'   => null
-    ];
+    use ReadOnlyProperties;
 
-    public function __construct(Point $start, Point $end)
+    /** @var Point */
+    private $p_start;
+    /** @var Point */
+    private $p_end;
+
+    final public function __construct(Point $start, Point $end)
     {
-        $this->points['start'] = $start;
-        $this->points['end']   = $end;
+        $this->p_start = $start;
+        $this->p_end   = $end;
     }
 
-    public function __get($name)
+    /**
+     * Returns the first Point of line segment (or first corner of Box)
+     *
+     * @return Point
+     */
+    public function getStart(): Point
     {
-        if ('start' === $name || 'end' === $name) {
-            return $this->points[$name];
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
+        return $this->p_start;
     }
 
-    public function __set($name, $value)
+    /**
+     * Returns the last Point of line segment (or second corner of Box)
+     *
+     * @return Point
+     */
+    public function getEnd(): Point
     {
-        if ('start' === $name || 'end' === $name) {
-            if (!($value instanceof Point)) {
-                throw new InvalidArgumentException(
-                    sprintf("%s '%s' property should be a Point", __CLASS__, $name)
-                );
-            }
-            $this->points[$name] = $value;
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
-    }
-
-    public function __isset($name)
-    {
-        return 'start' === $name || 'end' === $name;
+        return $this->p_end;
     }
 
     /**
@@ -80,7 +72,7 @@ abstract class PointPair
      */
     public static function createFromArray(array $input): self
     {
-        if (2 != count($input)) {
+        if (2 !== count($input)) {
             throw new InvalidArgumentException(
                 sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );

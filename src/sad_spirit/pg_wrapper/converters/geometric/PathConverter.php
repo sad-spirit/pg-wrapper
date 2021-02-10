@@ -32,7 +32,8 @@ class PathConverter extends BaseGeometricConverter
 {
     protected function parseInput(string $native, int &$pos): Path
     {
-        return Path::createFromArray($this->parsePoints($native, $pos, $this->countPoints($native), true));
+        $points = $this->parsePoints($native, $pos, $this->countPoints($native), true, $usedSquare);
+        return new Path($usedSquare, ...$points);
     }
 
     protected function outputNotNull($value): string

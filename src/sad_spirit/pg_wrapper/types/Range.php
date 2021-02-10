@@ -20,45 +20,109 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\types;
 
-use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
-
 /**
  * Class representing a range value from Postgres on PHP side
  *
- * @property mixed $lower
- * @property mixed $upper
- * @property bool  $lowerInclusive
- * @property bool  $upperInclusive
- * @property bool  $empty
+ * @property-read mixed $lower
+ * @property-read mixed $upper
+ * @property-read bool  $lowerInclusive
+ * @property-read bool  $upperInclusive
+ * @property-read bool  $empty
  */
-class Range
+class Range implements ArrayRepresentable, RangeConstructor
 {
-    private $props = [
-        'lower'          => null,
-        'upper'          => null,
-        'lowerInclusive' => true,
-        'upperInclusive' => false,
-        'empty'          => false
-    ];
+    use ReadOnlyProperties;
 
-    public function __construct($lower = null, $upper = null, bool $lowerInclusive = true, bool $upperInclusive = false)
+    /** @var mixed|null */
+    private $p_lower = null;
+    /** @var mixed|null */
+    private $p_upper = null;
+    /** @var bool */
+    private $p_lowerInclusive = true;
+    /** @var bool */
+    private $p_upperInclusive = false;
+    /** @var bool */
+    private $p_empty = false;
+
+    public function __construct(
+        $lower = null,
+        $upper = null,
+        bool $lowerInclusive = true,
+        bool $upperInclusive = false
+    ) {
+        $this->p_lower          = $lower;
+        $this->p_upper          = $upper;
+        $this->p_lowerInclusive = $lowerInclusive;
+        $this->p_upperInclusive = $upperInclusive;
+    }
+
+    /**
+     * Returns the range's lower bound
+     *
+     * @return mixed|null
+     */
+    public function getLower()
     {
-        $this->__set('lower', $lower);
-        $this->__set('upper', $upper);
-        $this->__set('lowerInclusive', $lowerInclusive);
-        $this->__set('upperInclusive', $upperInclusive);
+        return $this->p_lower;
+    }
+
+    /**
+     * Returns the range's upper bound
+     *
+     * @return mixed|null
+     */
+    public function getUpper()
+    {
+        return $this->p_upper;
+    }
+
+    /**
+     * Returns whether the range's lower bound is inclusive
+     *
+     * @return bool
+     */
+    public function isLowerInclusive(): bool
+    {
+        return $this->p_lowerInclusive;
+    }
+
+    /**
+     * Returns whether the range's upper bound is inclusive
+     *
+     * @return bool
+     */
+    public function isUpperInclusive(): bool
+    {
+        return $this->p_upperInclusive;
+    }
+
+    /**
+     * Returns whether the range is empty
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return $this->p_empty;
+    }
+
+    /**
+     * Sets range as empty
+     */
+    final protected function setEmpty(): void
+    {
+        $this->p_empty = true;
     }
 
     /**
      * Creates an empty Range
      *
-     * @return self
+     * @return static
      */
     public static function createEmpty(): self
     {
         $range = new static();
-        $range->empty = true;
-
+        $range->setEmpty();
         return $range;
     }
 
@@ -66,7 +130,7 @@ class Range
      * Creates a Range from a given array
      *
      * @param array $input
-     * @return self
+     * @return static
      */
     public static function createFromArray(array $input): self
     {
@@ -84,39 +148,5 @@ class Range
             }
         }
         return new static(array_shift($input), array_shift($input));
-    }
-
-    public function __get($name)
-    {
-        if (array_key_exists($name, $this->props)) {
-            return $this->props[$name];
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
-    }
-
-    public function __set($name, $value)
-    {
-        switch ($name) {
-            case 'upper':
-            case 'lower':
-                $this->props[$name] = $value;
-                break;
-
-            case 'upperInclusive':
-            case 'lowerInclusive':
-            case 'empty':
-                $this->props[$name] = (bool)$value;
-                break;
-
-            default:
-                throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
-    }
-
-    public function __isset($name)
-    {
-        return array_key_exists($name, $this->props);
     }
 }

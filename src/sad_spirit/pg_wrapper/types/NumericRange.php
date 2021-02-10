@@ -26,24 +26,28 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * Class representing a range with numeric bounds
  *
  * Used to convert PostgreSQL's int4range, int8range, numrange types
+ *
+ * @property-read int|float|numeric-string|null $lower
+ * @property-read int|float|numeric-string|null $upper
  */
-class NumericRange extends Range
+final class NumericRange extends Range
 {
-    public function __set($name, $value)
-    {
-        if (('lower' === $name || 'upper' === $name) && null !== $value) {
-            if (!is_numeric($value)) {
-                throw new InvalidArgumentException("NumericRange {$name} bound should be numeric");
-            }
-            if (
-                'upper' === $name && null !== $this->lower && floatval($this->lower) > floatval($value)
-                || 'lower' === $name && null !== $this->upper && floatval($this->upper) < floatval($value)
-            ) {
-                throw new InvalidArgumentException(
-                    "Range lower bound must be less than or equal to range upper bound"
-                );
+    public function __construct(
+        $lower = null,
+        $upper = null,
+        bool $lowerInclusive = true,
+        bool $upperInclusive = false
+    ) {
+        foreach (['lower', 'upper'] as $bound) {
+            if (null !== $$bound && !is_numeric($$bound)) {
+                throw new InvalidArgumentException("NumericRange {$bound} bound should be numeric");
             }
         }
-        parent::__set($name, $value);
+        if (null !== $lower && null !== $upper && floatval($upper) < floatval($lower)) {
+            throw new InvalidArgumentException(
+                "Range lower bound must be less than or equal to range upper bound"
+            );
+        }
+        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive);
     }
 }

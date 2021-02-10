@@ -72,6 +72,10 @@ class LineConverter extends ContainerConverter
         );
     }
 
+    /**
+     * {@inheritDoc}
+     * @param Line|float[] $value
+     */
     protected function outputNotNull($value): string
     {
         if (is_array($value)) {

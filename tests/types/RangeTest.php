@@ -33,14 +33,6 @@ use sad_spirit\pg_wrapper\types\{
  */
 class RangeTest extends TestCase
 {
-    public function testDisallowExtraProperties(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $range = new Range();
-        $range->foo = 'bar';
-    }
-
     public function testCreateEmpty(): void
     {
         $range = NumericRange::createEmpty();
@@ -60,20 +52,6 @@ class RangeTest extends TestCase
         $range = new NumericRange($lower, $upper);
     }
 
-    /**
-     * @dataProvider getInvalidNumericRanges
-     * @param mixed $lower
-     * @param mixed $upper
-     */
-    public function testInvalidNumericRangesViaProperties($lower, $upper): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $range = new NumericRange();
-        $range->lower = $lower;
-        $range->upper = $upper;
-    }
-
     public function getInvalidNumericRanges(): array
     {
         return [
@@ -90,20 +68,6 @@ class RangeTest extends TestCase
         $range = new DateTimeRange(new \DateTime('tomorrow'), new \DateTime('yesterday'));
     }
 
-    /**
-     * @dataProvider getInvalidDateTimeRanges
-     * @param mixed $lower
-     * @param mixed $upper
-     */
-    public function testInvalidDateTimeRangesViaProperties($lower, $upper): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $range = new DateTimeRange();
-        $range->lower = $lower;
-        $range->upper = $upper;
-    }
-
     public function getInvalidDateTimeRanges(): array
     {
         return [
@@ -117,9 +81,6 @@ class RangeTest extends TestCase
     {
         $range = new DateTimeRange(new \DateTime('yesterday'), new \DateTimeImmutable('tomorrow'));
         $this::assertInstanceOf('\DateTimeImmutable', $range->lower);
-        $this::assertInstanceOf('\DateTimeImmutable', $range->upper);
-
-        $range->upper = new \DateTime('today');
         $this::assertInstanceOf('\DateTimeImmutable', $range->upper);
     }
 }

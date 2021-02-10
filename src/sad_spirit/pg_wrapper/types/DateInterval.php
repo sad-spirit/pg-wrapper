@@ -37,7 +37,7 @@ class DateInterval extends \DateInterval
      * @param  \DateInterval $interval
      * @return string
      */
-    public static function formatAsISO8601(\DateInterval $interval)
+    public static function formatAsISO8601(\DateInterval $interval): string
     {
         $string = 'P';
         $mult   = $interval->invert ? -1 : 1;

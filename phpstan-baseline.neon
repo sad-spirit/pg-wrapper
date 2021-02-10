@@ -20,13 +20,3 @@ parameters:
 			count: 1
 			path: src/sad_spirit/pg_wrapper/converters/containers/RangeConverter.php
 
-		-
-			message: "#^Access to an undefined property sad_spirit\\\\pg_wrapper\\\\types\\\\Range\\:\\:\\$foo\\.$#"
-			count: 1
-			path: tests/types/RangeTest.php
-
-		-
-			message: "#^Property sad_spirit\\\\pg_wrapper\\\\types\\\\DateTimeRange\\:\\:\\$upper \\(DateTimeImmutable\\|null\\) does not accept DateTime\\.$#"
-			count: 1
-			path: tests/types/RangeTest.php
-

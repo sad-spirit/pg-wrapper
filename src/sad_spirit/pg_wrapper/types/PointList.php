@@ -20,7 +20,10 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\types;
 
-use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
+use sad_spirit\pg_wrapper\exceptions\{
+    BadMethodCallException,
+    InvalidArgumentException
+};
 
 /**
  * Base class for geometric types containing an arbitrary number of Points (paths and polygons)
@@ -36,18 +39,23 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     protected $points = [];
 
-    public function __construct(array $points)
+    public function __construct(Point ...$points)
     {
-        foreach ($points as $point) {
-            $this[] = $point;
-        }
+        $this->points = $points;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function offsetExists($offset)
     {
         return array_key_exists($offset, $this->points);
     }
 
+    /**
+     * {@inheritDoc}
+     * @return Point
+     */
     public function offsetGet($offset)
     {
         if (array_key_exists($offset, $this->points)) {
@@ -57,51 +65,63 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
         throw new InvalidArgumentException("Undefined offset '{$offset}'");
     }
 
+    /**
+     * Prohibits changing the array
+     * {@inheritDoc}
+     * @throws BadMethodCallException
+     */
     public function offsetSet($offset, $value)
     {
-        if (null !== $offset && !ctype_digit((string)$offset)) {
-            throw new InvalidArgumentException("Nonnegative numeric offsets expected, '{$offset}' given");
-        }
-        if (!($value instanceof Point)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s can contain only instances of Point, %s given',
-                __CLASS__,
-                is_object($value) ? 'object(' . get_class($value) . ')' : gettype($value)
-            ));
-        }
-
-        if (null === $offset) {
-            $this->points[] = $value;
-        } else {
-            $this->points[(int)$offset] = $value;
-        }
+        throw new BadMethodCallException(__CLASS__ . " objects are immutable");
     }
 
+    /**
+     * Prohibits changing the array
+     * {@inheritDoc}
+     * @throws BadMethodCallException
+     */
     public function offsetUnset($offset)
     {
-        unset($this->points[$offset]);
+        throw new BadMethodCallException(__CLASS__ . " objects are immutable");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getIterator()
     {
         return new \ArrayIterator($this->points);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function count()
     {
         return count($this->points);
     }
 
-    public static function createFromArray(array $input)
+    /**
+     * Converts an array containing Points
+     *
+     * @param array<array-key, Point|array{float, float}|array{x: float, y: float}> $input
+     * @return Point[]
+     */
+    protected static function createPointArray(array $input): array
     {
         $points = [];
         foreach ($input as $point) {
             if (is_array($point)) {
                 $point = Point::createFromArray($point);
+            } elseif (!$point instanceof Point) {
+                throw new InvalidArgumentException(sprintf(
+                    "%s() expects an array containing Points or arrays convertible to Point, %s found",
+                    __METHOD__,
+                    is_object($point) ? 'object(' . get_class($point) . ')' : gettype($point)
+                ));
             }
             $points[] = $point;
         }
-
-        return new static($points);
+        return $points;
     }
 }

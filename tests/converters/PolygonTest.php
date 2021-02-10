@@ -42,16 +42,16 @@ class PolygonTest extends TypeConverterTestCase
     {
         return [
             [null, null],
-            ['((1,2))', new Polygon([new Point(1, 2)])],
-            ['((1,2),(1.2,2.3))', new Polygon([new Point(1, 2), new Point(1.2, 2.3)])],
+            ['((1,2))', new Polygon(new Point(1, 2))],
+            ['((1,2),(1.2,2.3))', new Polygon(new Point(1, 2), new Point(1.2, 2.3))],
         ];
     }
 
     public function valuesFrom(): array
     {
         return [
-            ['1, 2,  3  , 4 ', new Polygon([new Point(1, 2), new Point(3, 4)])],
-            ['(1, 2, 3,4)',    new Polygon([new Point(1, 2), new Point(3, 4)])],
+            ['1, 2,  3  , 4 ', new Polygon(new Point(1, 2), new Point(3, 4))],
+            ['(1, 2, 3,4)',    new Polygon(new Point(1, 2), new Point(3, 4))],
             ['(1, 2',          new TypeConversionException()],
             ['[(1,2)]',        new TypeConversionException()]
         ];

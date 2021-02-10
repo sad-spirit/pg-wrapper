@@ -27,66 +27,62 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * tid describes the physical location of a tuple (row) within a table and
  * consists of a block number and tuple index within that block. Both of these
- * are nonnegative integers.
+ * are non-negative integers.
  *
- * @property integer $block
- * @property integer $tuple
+ * @property-read integer $block
+ * @property-read integer $tuple
  */
-class Tid
+final class Tid implements ArrayRepresentable
 {
-    private $props = [
-        'block' => 0,
-        'tuple' => 0
-    ];
+    use ReadOnlyProperties;
+
+    /** @var int */
+    private $p_block;
+    /** @var int */
+    private $p_tuple;
 
     public function __construct(int $block, int $tuple)
     {
-        $this->__set('block', $block);
-        $this->__set('tuple', $tuple);
-    }
-
-    public function __get($name)
-    {
-        if (array_key_exists($name, $this->props)) {
-            return $this->props[$name];
-
-        } else {
-            throw new InvalidArgumentException("Unknown property '{$name}'");
+        foreach (['block', 'tuple'] as $name) {
+            if (0 > $$name) {
+                throw new InvalidArgumentException("Tid {$name} field should be a non-negative integer");
+            }
         }
+
+        $this->p_block = $block;
+        $this->p_tuple = $tuple;
     }
 
-    public function __set($name, $value)
+    /**
+     * Returns the block's number within a table
+     *
+     * @return int
+     */
+    public function getBlock(): int
     {
-        switch ($name) {
-            case 'block':
-            case 'tuple':
-                if (ctype_digit((string)$value)) {
-                    $this->props[$name] = $value;
-                } else {
-                    throw new InvalidArgumentException("Tid {$name} field should be a nonnegative integer");
-                }
-                break;
-
-            default:
-                throw new InvalidArgumentException("Unknown property '{$name}'");
-        }
+        return $this->p_block;
     }
 
-    public function __isset($name)
+    /**
+     * Returns the tuple's index within a block
+     *
+     * @return int
+     */
+    public function getTuple(): int
     {
-        return array_key_exists($name, $this->props);
+        return $this->p_tuple;
     }
 
     /**
      * Creates a Tid from a given array
      *
-     * @param array $input
+     * @param int[] $input
      * @return self
      * @throws InvalidArgumentException
      */
     public static function createFromArray(array $input): self
     {
-        if (2 != count($input)) {
+        if (2 !== count($input)) {
             throw new InvalidArgumentException(
                 sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );
