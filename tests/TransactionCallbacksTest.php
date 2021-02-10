@@ -24,7 +24,8 @@ use sad_spirit\pg_wrapper\exceptions\{
     BadMethodCallException,
     ConnectionException,
     server\ConstraintViolationException,
-    server\FeatureNotSupportedException
+    server\FeatureNotSupportedException,
+    server\ProgrammingException
 };
 
 /**
@@ -215,7 +216,11 @@ SQL
 
     public function testBrokenConnectionInAtomic(): void
     {
-        $this->conn->execute("set idle_in_transaction_session_timeout = 500");
+        try {
+            $this->conn->execute("set idle_in_transaction_session_timeout = 500");
+        } catch (ProgrammingException $e) {
+            $this::markTestSkipped("Postgres 9.6+ required to run this test");
+        }
 
         try {
             $this->conn->atomic(function () {
