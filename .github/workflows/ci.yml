@@ -66,7 +66,7 @@ jobs:
       - name: Create test database
         run: psql -c 'create database pgwrapper_test' -U postgres -h 127.0.0.1
         env:
-          PGPASSWORD: password
+          PGPASSWORD: postgres
 
       - name: Run PHPUnit
         run: |
