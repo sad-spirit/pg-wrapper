@@ -30,17 +30,16 @@ interface TypeConverter
      *
      * @param mixed $value
      * @return string|null
+     * @throws exceptions\TypeConversionException if converter doesn't know how to process $value
      */
     public function output($value): ?string;
 
     /**
      * Parses a native value into PHP variable
      *
-     * Throws exception if parsing process is finished
-     * before the string is ended.
-     *
      * @param string|null $native
      * @return mixed
+     * @throws exceptions\TypeConversionException if converter cannot parse the incoming string
      */
     public function input(?string $native);
 
