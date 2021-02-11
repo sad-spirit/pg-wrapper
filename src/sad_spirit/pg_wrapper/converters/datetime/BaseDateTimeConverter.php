@@ -23,6 +23,7 @@ namespace sad_spirit\pg_wrapper\converters\datetime;
 use sad_spirit\pg_wrapper\{
     converters\BaseConverter,
     converters\ConnectionAware,
+    exceptions\InvalidArgumentException,
     exceptions\TypeConversionException
 };
 
@@ -77,9 +78,36 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     public function setConnectionResource($resource): void
     {
+        if (!is_resource($resource) || 'pgsql link' !== get_resource_type($resource)) {
+            throw InvalidArgumentException::unexpectedType(
+                __METHOD__,
+                'a database connection resource',
+                $resource
+            );
+        }
+
         $this->connection = $resource;
 
-        $this->setDateStyle(pg_parameter_status($resource, 'DateStyle'));
+        $this->updateDateStyleFromConnection();
+    }
+
+    /**
+     * Tries to update date style from current connection resource, if available
+     *
+     * @return bool Whether $style actually changed
+     */
+    private function updateDateStyleFromConnection(): bool
+    {
+        if (
+            !is_resource($this->connection)
+            || false === ($style = pg_parameter_status($this->connection, 'DateStyle'))
+            || $style === $this->style
+        ) {
+            return false;
+        }
+
+        $this->style = $style;
+        return true;
     }
 
     /**
@@ -109,11 +137,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
             }
         }
         // check whether datestyle setting changed
-        if (
-            $this->connection
-            && $this->style !== ($style = pg_parameter_status($this->connection, 'DateStyle'))
-        ) {
-            $this->style = $style;
+        if ($this->updateDateStyleFromConnection()) {
             foreach ($this->getFormats($this->style) as $format) {
                 if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {
                     return $value;
@@ -126,14 +150,16 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Converts PHP variable not identical to null into native format
      *
+     * Actually accepts strings, integers and instances of \DateTimeInterface
+     *
      * Note: a passed string will be returned as-is without any attempts to parse it.
      * PostgreSQL's date and time parser accepts a lot more possible formats than this
      * class can handle. Integer will be handled using date() with an appropriate
      * format specification.
      *
-     * @param string|integer|\DateTimeInterface $value
+     * @param mixed $value
      * @return string
-     * @throws TypeConversionException
+     * @throws TypeConversionException if given a $value of unexpected type
      */
     protected function outputNotNull($value): string
     {
