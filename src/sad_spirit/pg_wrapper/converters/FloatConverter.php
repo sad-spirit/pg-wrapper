@@ -49,21 +49,22 @@ class FloatConverter extends BaseConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_scalar($value)) {
-            if (!is_float($value)) {
-                $value = str_replace(',', '.', (string)$value);
-            } elseif (is_nan($value)) {
+        if (is_float($value)) {
+            if (is_nan($value)) {
                 return 'NaN';
             } elseif (is_infinite($value)) {
                 return $value > 0 ? 'Infinity' : '-Infinity';
             } else {
-                $value = (string)$value;
+                return strtr((string)$value, ',', '.');
             }
+        }
+        if (is_string($value)) {
+            $value = strtr($value, ',', '.');
         }
 
         if (!is_scalar($value) || !is_numeric($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
         }
-        return $value;
+        return (string)$value;
     }
 }

@@ -47,6 +47,16 @@ class FloatTest extends TypeConverterTestCase
         $this->assertEquals('-Infinity', $this->converter->output(-floatval(INF)));
     }
 
+    public function testLocaleIndependentConversion(): void
+    {
+        try {
+            setlocale(LC_NUMERIC, 'Russian', 'ru_RU', 'ru_RU.UTF-8');
+            $this::assertEquals('1.234', $this->converter->output(1.234));
+        } finally {
+            setlocale(LC_NUMERIC, 'C');
+        }
+    }
+
     public function valuesBoth(): array
     {
         return [
