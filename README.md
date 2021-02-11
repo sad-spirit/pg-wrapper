@@ -1,9 +1,15 @@
 # sad_spirit\pg_wrapper
 
-[![Build Status](https://travis-ci.org/sad-spirit/pg-wrapper.svg?branch=master)](https://travis-ci.org/sad-spirit/pg-wrapper)
+[![Build Status](https://github.com/sad-spirit/pg-wrapper/workflows/Continuous%20Integration/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions?query=branch%3Amaster+workflow%3A%22Continuous+Integration%22)
 
-Wrapper around PHP's [pgsql extension](https://php.net/manual/en/book.pgsql.php) supporting transparent conversion 
-of [PostgreSQL data types](https://www.postgresql.org/docs/current/datatype.html) to their PHP equivalents and back.
+This package has two parts and purposes
+* Converter of [PostgreSQL data types](https://www.postgresql.org/docs/current/datatype.html) to their PHP equivalents and back and
+* An OO wrapper around PHP's native [pgsql extension](https://php.net/manual/en/book.pgsql.php).
+
+While the converter part can be used separately e.g. with [PDO](https://www.php.net/manual/en/book.pdo.php), 
+features like transparent conversion of query results work only with the wrapper.
+
+## Why type conversion?
 
 PostgreSQL supports a large (and extensible) set of complex database types: arrays, ranges, geometric and date/time
 types, composite (row) types, JSON...
@@ -89,11 +95,56 @@ array(5) {
 }
 ```
 
+## Why another OO wrapper when we have PDO, Doctrine DBAL, etc?
+
+The goal of an abstraction layer is to target the Lowest Common Denominator and thus it intentionally hides some low-level
+APIs that we can use with the native extension and / or adds another level of complexity.
+
+* PDO does not expose [`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php), so you have
+  to `prepare()` / `execute()` each query even if you `execute()` it only once. Doctrine DBAL has `Connection::executeQuery()`
+  but it has PDO's `prepare()` / `execute()` under the hood.
+* Postgres only supports `$1` positional parameters natively, while PDO has positional `?` and named `:foo` parameters.
+  PDO actually rewrites the query to convert the latter to the former, which ([before PHP 7.4](https://wiki.php.net/rfc/pdo_escape_placeholders)) 
+  prevented using [Postgres operators containing `?`](https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE) with
+  PDO and can still lead to problems when using dollar quoting for strings.
+* PDO does not expose [`pg_field_type_oid()`](https://www.php.net/manual/en/function.pg-field-type-oid.php) and its
+  [`PDOStatement::getColumnMeta()`](https://www.php.net/manual/en/pdostatement.getcolumnmeta.php) returns type name
+  without a schema name **and** may run a metadata query each time to get that.
+
+Another example: a very common problem for database abstraction is providing a list of parameters to a query with an `IN` clause
+```SQL
+SELECT * FROM stuff WHERE id IN (?)
+```
+where `?` actually represents a variable number of parameters.
+
+On the one hand, Postgres has native array types and this can be easily achieved with the following query
+```SQL
+-- in case of using PDO just replace $1 with a PDO-compatible placeholder
+SELECT * FROM stuff WHERE id = ANY($1::INTEGER[])
+```
+passing an array literal as its parameter value
+```PHP
+$factory      = new DefaultTypeConverterFactory();
+$arrayLiteral = $factory->getConverterForTypeSpecification('INTEGER[]')->output([1, 2, 3]);
+```
+
+On the other hand, Doctrine DBAL [has its own solution for parameter lists](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/data-retrieval-and-manipulation.html#list-of-parameters-conversion)
+which once again depends on rewriting SQL and does not work with `prepare()` / `execute()`. It also has ["support" for array
+types](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#array-types), 
+but that just (un)serializes PHP arrays rather than converts them from/to native DB representation, 
+which will obviously not work with the above query.
+
+
+
 ## Documentation
 
 Is in the [wiki](https://github.com/sad-spirit/pg-wrapper/wiki)
 
-Quick links:
+Type conversion:
+* [`TypeConverter` interface](https://github.com/sad-spirit/pg-wrapper/wiki/TypeConverter) and [its implementations](https://github.com/sad-spirit/pg-wrapper/wiki/types)
+* [`TypeConverterFactory` interface](https://github.com/sad-spirit/pg-wrapper/wiki/TypeConverterFactory) and [its default implementation](https://github.com/sad-spirit/pg-wrapper/wiki/DefaultTypeConverterFactory)
+
+Working with PostgreSQL:
 
 * [Connecting to a DB](https://github.com/sad-spirit/pg-wrapper/wiki/connecting)
 * [Executing a query](https://github.com/sad-spirit/pg-wrapper/wiki/query)
@@ -103,9 +154,7 @@ Quick links:
 
 ## Requirements
 
-pg_wrapper requires PHP 7.2+ with [pgsql extension](https://php.net/manual/en/book.pgsql.php).
-The reason for using that instead of [PDO pgsql driver](https://www.php.net/manual/en/ref.pdo-pgsql.php) 
-is that the latter does not support something like [`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php).
+pg_wrapper requires at least PHP 7.2. [pgsql extension](https://php.net/manual/en/book.pgsql.php) should be enabled to use classes that actually work with the DB.
 
 Minimum supported PostgreSQL version is 9.3
 

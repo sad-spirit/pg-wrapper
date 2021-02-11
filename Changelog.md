@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+* Objects representing Postgres types are now immutable.
+
+### Added
+* Tested and supported on PHP 8
+* Package `Exception` interface now extends `\Throwable`
+
+### Fixed
+* Lots of minor issues caught by static analysis
+
 ## [1.0.0-beta.3] - 2020-09-18
 
 ### Changed
@@ -104,3 +116,4 @@ Initial release on GitHub
 [1.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v0.2.2...v1.0.0-beta
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta...v1.0.0-beta.2
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.2...v1.0.0-beta.3
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...HEAD
