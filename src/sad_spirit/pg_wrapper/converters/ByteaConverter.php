@@ -81,11 +81,16 @@ class ByteaConverter extends BaseConverter
      *
      * This always uses 'hex' encoding
      *
-     * @param string $value
+     * @param mixed $value
      * @return string
+     * @throws TypeConversionException if $value is not a string
      */
     protected function outputNotNull($value): string
     {
+        if (!is_string($value)) {
+            throw TypeConversionException::unexpectedValue($this, 'output', 'string', $value);
+        }
+
         [, $encoded] = unpack('H*', $value);
         return '\x' . $encoded;
     }

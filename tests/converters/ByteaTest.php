@@ -42,6 +42,18 @@ class ByteaTest extends TestCase
     }
 
     /**
+     * ByteaConverter should only accept strings
+     *
+     * @param mixed $value
+     * @dataProvider invalidPHPValuesProvider
+     */
+    public function testInvalidPHPValue($value): void
+    {
+        $this::expectException(TypeConversionException::class);
+        $this->caster->output($value);
+    }
+
+    /**
      * @dataProvider getValuesFrom
      * @param string|null            $native
      * @param string|null|\Throwable $value
@@ -84,6 +96,15 @@ class ByteaTest extends TestCase
             ['',           '\x'],
             ["\000'\\",    '\x00275c'],
             ['ABC',        '\x414243']
+        ];
+    }
+
+    public function invalidPHPValuesProvider(): array
+    {
+        return [
+            [[]],
+            [1.234],
+            [new \stdClass()]
         ];
     }
 }
