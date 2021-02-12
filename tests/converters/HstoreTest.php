@@ -57,7 +57,9 @@ class HstoreTest extends TypeConverterTestCase
             ['a=>b=>c',                               ['a' => 'b=>c']],
             ['a',                                     new TypeConversionException()],
             ['a,b',                                   new TypeConversionException()],
-            ['a=>b,,,,,,',                            new TypeConversionException()]
+            ['a=>b,,,,,,',                            new TypeConversionException()],
+            ['a=>',                                   new TypeConversionException()],
+            [' =>b',                                  new TypeConversionException()]
         ];
     }
 

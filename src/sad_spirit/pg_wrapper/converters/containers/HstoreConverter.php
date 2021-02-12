@@ -52,33 +52,74 @@ class HstoreConverter extends ContainerConverter
     }
 
     /**
-     * Reads a (quoted or unquoted) string from input
+     * Reads a quoted string from input
      *
      * @param string $string
      * @param int    $pos
-     * @param string $delimiters  Delimiters for unquoted string
-     * @param bool   $convertNull Whether to convert unquoted string 'null' to null
-     * @return null|string
-     * @throws TypeConversionException
+     * @return string
+     * @throws TypeConversionException in case of unterminated string
      */
-    private function readString(string $string, int &$pos, string $delimiters, bool $convertNull): ?string
+    private function readQuoted(string $string, int &$pos): string
+    {
+        if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
+            throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
+        }
+        $pos += strlen($m[0]);
+        return stripcslashes($m[1]);
+    }
+
+    /**
+     * Reads an unquoted string from input
+     *
+     * @param string $string
+     * @param int    $pos
+     * @param string $delimiter Delimiter for a string, either '=' or ','
+     * @return string
+     * @throws TypeConversionException in case of empty string, those should always be quoted
+     */
+    private function readUnquoted(string $string, int &$pos, string $delimiter): string
+    {
+        if (0 === ($length = strcspn($string, " \t\r\n" . $delimiter, $pos))) {
+            throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
+        }
+        $value  = substr($string, $pos, $length);
+        $pos   += $length;
+
+        return $value;
+    }
+
+    /**
+     * Reads a hstore key from input
+     *
+     * @param string $string
+     * @param int    $pos
+     * @return string
+     */
+    private function readKey(string $string, int &$pos): string
     {
         if ('"' === $string[$pos]) {
-            if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
-                throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
-            }
-            $pos += strlen($m[0]);
-            return stripcslashes($m[1]);
-
+            return $this->readQuoted($string, $pos);
         } else {
-            $length  = strcspn($string, " \t\r\n" . $delimiters, $pos);
-            $value   = substr($string, $pos, $length);
-            $pos    += $length;
-            if ($convertNull && 0 === strcasecmp($value, 'NULL')) {
-                return null;
-            } else {
-                return stripcslashes($value);
-            }
+            return stripcslashes($this->readUnquoted($string, $pos, '='));
+        }
+    }
+
+    /**
+     * Reads a hstore value from input
+     *
+     * This converts an unquoted string 'null' to an actual null value
+     *
+     * @param string $string
+     * @param int    $pos
+     * @return string|null
+     */
+    private function readValue(string $string, int &$pos): ?string
+    {
+        if ('"' === $string[$pos]) {
+            return $this->readQuoted($string, $pos);
+        } else {
+            $value = $this->readUnquoted($string, $pos, ',');
+            return 0 === strcasecmp($value, 'NULL') ? null : stripcslashes($value);
         }
     }
 
@@ -91,7 +132,7 @@ class HstoreConverter extends ContainerConverter
         $result = [];
 
         while (null !== ($char = $this->nextChar($native, $pos))) {
-            $key = $this->readString($native, $pos, '=', false);
+            $key = $this->readKey($native, $pos);
 
             $this->expectChar($native, $pos, '=');
             // don't use expectChar as there can be no whitespace
@@ -100,9 +141,11 @@ class HstoreConverter extends ContainerConverter
             }
             $pos++;
             // skip possible whitespace before value
-            $this->nextChar($native, $pos);
+            if (null === $this->nextChar($native, $pos)) {
+                throw TypeConversionException::parsingFailed($this, 'value', $native, $pos - 1);
+            }
 
-            $result[$key] = $this->readString($native, $pos, ',', true);
+            $result[$key] = $this->readValue($native, $pos);
 
             // skip one comma after the pair
             if (',' === $this->nextChar($native, $pos)) {
