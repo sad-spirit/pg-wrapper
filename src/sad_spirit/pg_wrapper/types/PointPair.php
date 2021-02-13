@@ -66,7 +66,7 @@ abstract class PointPair implements ArrayRepresentable
     /**
      * Creates an instance of PointPair from a given array
      *
-     * @param array $input
+     * @param array $input Expects an array with two Point-compatible values
      * @return self
      * @throws InvalidArgumentException
      */

@@ -66,7 +66,7 @@ final class Point implements ArrayRepresentable
     /**
      * Creates a Point from a given array
      *
-     * @param float[] $input
+     * @param array $input Expects an array of two floats
      * @return self
      * @throws InvalidArgumentException
      */

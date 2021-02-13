@@ -66,7 +66,7 @@ final class Circle implements ArrayRepresentable
     /**
      * Creates a Circle from a given array
      *
-     * @param array $input
+     * @param array $input Expects an array with two arguments, one Point-compatible and one float
      * @return self
      * @throws InvalidArgumentException
      */

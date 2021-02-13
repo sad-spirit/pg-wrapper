@@ -82,7 +82,7 @@ final class Line implements ArrayRepresentable
     /**
      * Creates a Line from a given array
      *
-     * @param float[] $input
+     * @param array $input Expects an array of three floats
      * @return self
      * @throws InvalidArgumentException
      */

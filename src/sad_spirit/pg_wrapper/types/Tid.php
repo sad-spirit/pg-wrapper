@@ -76,7 +76,7 @@ final class Tid implements ArrayRepresentable
     /**
      * Creates a Tid from a given array
      *
-     * @param int[] $input
+     * @param array $input Expects an array of two integers
      * @return self
      * @throws InvalidArgumentException
      */

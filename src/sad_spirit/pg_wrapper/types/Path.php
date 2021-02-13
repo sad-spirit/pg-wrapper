@@ -53,7 +53,8 @@ final class Path extends PointList implements ArrayRepresentable
     /**
      * Creates a Path from a given array
      *
-     * @param array $input
+     * @param array $input Expects an array of Points or Point-compatible arrays (=two floats), first item
+     *                     can also be a bool for $open property of created Path
      * @return self
      */
     public static function createFromArray(array $input): self

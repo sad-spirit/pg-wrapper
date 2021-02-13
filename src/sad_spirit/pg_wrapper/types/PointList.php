@@ -104,7 +104,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Converts an array containing Points
      *
-     * @param array<array-key, Point|array{float, float}|array{x: float, y: float}> $input
+     * @param array $input Expects an array of Points or Point-compatible arrays (=two floats)
      * @return Point[]
      */
     protected static function createPointArray(array $input): array

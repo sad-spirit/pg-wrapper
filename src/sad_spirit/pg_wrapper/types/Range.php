@@ -28,6 +28,8 @@ namespace sad_spirit\pg_wrapper\types;
  * @property-read bool  $lowerInclusive
  * @property-read bool  $upperInclusive
  * @property-read bool  $empty
+ *
+ * @psalm-consistent-constructor
  */
 class Range implements ArrayRepresentable, RangeConstructor
 {
@@ -129,7 +131,7 @@ class Range implements ArrayRepresentable, RangeConstructor
     /**
      * Creates a Range from a given array
      *
-     * @param array $input
+     * @param array $input Expects an array of two bounds or array with the keys named as Range properties
      * @return static
      */
     public static function createFromArray(array $input): self
