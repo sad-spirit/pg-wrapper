@@ -47,7 +47,7 @@ class Connection
 
     /**
      * Cache for database metadata
-     * @var CacheItemPoolInterface
+     * @var CacheItemPoolInterface|null
      */
     private $cacheItemPool;
 
@@ -164,30 +164,31 @@ class Connection
      */
     public function connect(): self
     {
-        if ($this->resource) {
+        if ($this->isConnected()) {
             return $this;
         }
 
         $connectionWarnings = [];
-        set_error_handler(function ($errno, $errstr) use (&$connectionWarnings) {
+        set_error_handler(function (int $errno, string $errstr) use (&$connectionWarnings) {
             $connectionWarnings[] = $errstr;
             return true;
         }, E_WARNING);
 
-        $this->resource = pg_connect($this->connectionString, PGSQL_CONNECT_FORCE_NEW);
+        $resource = pg_connect($this->connectionString, PGSQL_CONNECT_FORCE_NEW);
 
         restore_error_handler();
-        if (false === $this->resource) {
+        if (false === $resource) {
             throw new exceptions\ConnectionException(
                 __METHOD__ . ': ' . implode("\n", $connectionWarnings)
             );
         }
-        $serverVersion = pg_parameter_status($this->resource, 'server_version');
-        if (version_compare($serverVersion, '9.3', '<')) {
+        $this->resource = $resource;
+        $serverVersion  = pg_parameter_status($this->resource, 'server_version');
+        if (!$serverVersion || version_compare($serverVersion, '9.3', '<')) {
             $this->disconnect();
             throw new exceptions\ConnectionException(
                 __METHOD__ . ': PostgreSQL versions earlier than 9.3 are no longer supported, '
-                . 'connected server reports version ' . $serverVersion
+                . 'connected server reports ' . ($serverVersion ? 'version ' . $serverVersion : 'unknown version')
             );
         }
         pg_set_error_verbosity($this->resource, PGSQL_ERRORS_VERBOSE);
@@ -202,10 +203,10 @@ class Connection
      */
     public function disconnect(): self
     {
-        if ($this->isConnected()) {
+        if (is_resource($this->resource)) {
             pg_close($this->resource);
-            $this->resource = null;
         }
+        $this->resource     = null;
         $this->disconnected = true;
 
         // If disconnected while transaction is active, the transaction will be rolled back by the server,
@@ -235,14 +236,15 @@ class Connection
      * Returns database connection resource
      *
      * @return resource
+     * @throws exceptions\ConnectionException
      */
     public function getResource()
     {
-        if (!$this->isConnected()) {
-            if ($this->disconnected) {
-                throw new exceptions\ConnectionException("Connection has been closed");
-            }
+        if (!is_resource($this->resource) && !$this->disconnected) {
             $this->connect();
+        }
+        if (!is_resource($this->resource)) {
+            throw new exceptions\ConnectionException("Connection has been closed");
         }
         return $this->resource;
     }
@@ -264,6 +266,7 @@ class Connection
      * @param mixed $type
      * @return string
      * @throws exceptions\TypeConversionException
+     * @throws exceptions\RuntimeException
      */
     public function quote($value, $type = null): string
     {
@@ -271,16 +274,18 @@ class Connection
             return 'NULL';
         }
 
-        $resource = $this->getResource(); // forces connecting if not connected yet
-        if (null !== $type) {
-            return pg_escape_literal($resource, $this->getTypeConverter($type)->output($value));
+        $resource  = $this->getResource(); // forces connecting if not connected yet
+        $converted = null !== $type
+                     ? $this->getTypeConverter($type)->output($value)
+                     : $this->getTypeConverterFactory()->getConverterForPHPValue($value)->output($value);
+        $escaped   = null === $converted ? 'NULL' : @pg_escape_literal($resource, $converted);
+
+        // PHP docs and psalm claim that pg_escape_literal() cannot return false,
+        // phpstan and source of ext/pgsql think otherwise; let's take the side of caution
+        if (false !== $escaped) {
+            return $escaped;
         } else {
-            return pg_escape_literal(
-                $resource,
-                $this->getTypeConverterFactory()
-                    ->getConverterForPHPValue($value)
-                    ->output($value)
-            );
+            throw new exceptions\RuntimeException(__METHOD__ . "(): pg_escape_literal() call failed");
         }
     }
 
@@ -292,7 +297,13 @@ class Connection
      */
     public function quoteIdentifier(string $identifier): string
     {
-        return pg_escape_identifier($this->getResource(), $identifier);
+        // PHP docs and psalm claim that pg_escape_identifier() cannot return false,
+        // phpstan and source of ext/pgsql think otherwise; let's take the side of caution
+        if (false !== ($escaped = @pg_escape_identifier($this->getResource(), $identifier))) {
+            return $escaped;
+        } else {
+            throw new exceptions\RuntimeException(__METHOD__ . "(): pg_escape_identifier() call failed");
+        }
     }
 
     /**
@@ -373,7 +384,8 @@ class Connection
     public function getTypeConverterFactory(): TypeConverterFactory
     {
         if (!$this->converterFactory) {
-            $this->setTypeConverterFactory(new converters\DefaultTypeConverterFactory());
+            $this->setTypeConverterFactory($factory = new converters\DefaultTypeConverterFactory());
+            return $factory;
         }
         return $this->converterFactory;
     }
@@ -548,7 +560,7 @@ class Connection
         $this->onCommitCallbacks = array_filter($this->onCommitCallbacks, function ($value) use ($savepoint) {
             return !in_array($savepoint, $value[0]);
         });
-        array_walk($this->onRollbackCallbacks, function (&$value) use ($savepoint) {
+        array_walk($this->onRollbackCallbacks, function (array &$value) use ($savepoint) {
             if (in_array($savepoint, $value[0])) {
                 $value[2] = true;
             }

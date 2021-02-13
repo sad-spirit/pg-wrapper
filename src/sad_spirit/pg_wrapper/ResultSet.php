@@ -83,6 +83,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param array                $types    Types information, used to convert output values
      *                                       (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\RuntimeException
      */
     protected function __construct($resource, TypeConverterFactory $factory, array $types = [])
     {
@@ -94,7 +95,11 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         $oids = [];
         for ($i = 0; $i < $this->numFields; $i++) {
             $this->namesHash[pg_field_name($this->resource, $i)] = $i;
-            $oids[$i] = pg_field_type_oid($this->resource, $i);
+            if (false !== ($oid = pg_field_type_oid($this->resource, $i))) {
+                $oids[$i] = $oid;
+            } else {
+                throw new exceptions\RuntimeException(sprintf("Failed to get type OID for field %d", $i));
+            }
         }
 
         // first set the explicitly given types...
@@ -160,12 +165,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function setType($fieldIndex, $type): self
     {
-        $this->checkFieldIndex($fieldIndex);
-        if (is_string($fieldIndex)) {
-            $fieldIndex = $this->namesHash[$fieldIndex];
-        }
-
-        $this->converters[$fieldIndex] = $this->converterFactory->getConverterForTypeSpecification($type);
+        $this->converters[$this->checkFieldIndex($fieldIndex)] =
+            $this->converterFactory->getConverterForTypeSpecification($type);
 
         return $this;
     }
@@ -201,10 +202,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function fetchColumn($fieldIndex): array
     {
-        $this->checkFieldIndex($fieldIndex);
-        if (is_string($fieldIndex)) {
-            $fieldIndex = $this->namesHash[$fieldIndex];
-        }
+        $fieldIndex = $this->checkFieldIndex($fieldIndex);
 
         $result = [];
         for ($i = 0; $i < $this->numRows; $i++) {
@@ -233,21 +231,25 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false): array
     {
-        if (null !== $mode) {
-            $oldMode = $this->mode;
-            $this->setMode($mode);
+        if (null === $mode) {
+            $mode = $this->mode;
+        } elseif (PGSQL_ASSOC !== $mode && PGSQL_NUM !== $mode) {
+            throw new exceptions\InvalidArgumentException(
+                __METHOD__ . ' accepts either of PGSQL_ASSOC or PGSQL_NUM constants for $mode'
+            );
         }
+
         if (null !== $keyColumn) {
             if ($this->numFields < 2) {
                 throw new exceptions\OutOfBoundsException(
                     __METHOD__ . ': at least two columns needed for associative array result'
                 );
             }
-            $this->checkFieldIndex($keyColumn);
-            if (PGSQL_ASSOC === $this->mode && ctype_digit((string)$keyColumn)) {
-                $keyColumn = pg_field_name($this->resource, $keyColumn);
-            } elseif (PGSQL_NUM === $this->mode && !ctype_digit((string)$keyColumn)) {
-                $keyColumn = $this->namesHash[$keyColumn];
+            $fieldIndex = $this->checkFieldIndex($keyColumn);
+            if (PGSQL_NUM === $mode) {
+                $keyColumn = $fieldIndex;
+            } elseif (!is_string($keyColumn) || $keyColumn === (string)$fieldIndex) {
+                $keyColumn = pg_field_name($this->resource, $fieldIndex);
             }
         }
         $killArray = (!$forceArray && 2 === $this->numFields);
@@ -255,12 +257,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         $result = [];
 
         for ($i = 0; $i < $this->numRows; $i++) {
-            $row = $this->read($i);
+            $row = $this->read($i, $mode);
             if (null === $keyColumn) {
                 $result[] = $row;
 
             } else {
-                if (PGSQL_ASSOC === $this->mode) {
+                if (!is_int($keyColumn)) {
                     $key = $row[$keyColumn];
                     unset($row[$keyColumn]);
                 } else {
@@ -275,10 +277,6 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
                     $result[$key] = $row;
                 }
             }
-        }
-
-        if (isset($oldMode)) {
-            $this->setMode($oldMode);
         }
 
         return $result;
@@ -309,9 +307,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        if (isset($this->resource)) {
-            pg_free_result($this->resource);
-        }
+        pg_free_result($this->resource);
     }
 
     /**
@@ -324,9 +320,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function current()
+    public function current(): ?array
     {
-        return $this->valid() ? $this->read($this->position) : false;
+        return $this->valid() ? $this->read($this->position, $this->mode) : null;
     }
 
     /**
@@ -385,7 +381,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return $this->offsetExists($offset) ? $this->read((int)$offset) : false;
+        return $this->offsetExists($offset) ? $this->read((int)$offset, $this->mode) : null;
     }
 
     /**
@@ -415,13 +411,16 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Sanity check for field index
      *
      * @param string|int $fieldIndex
+     * @return int Numeric index of field in result set
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    private function checkFieldIndex($fieldIndex): void
+    private function checkFieldIndex($fieldIndex): int
     {
-        if (ctype_digit((string)$fieldIndex)) {
-            if ($fieldIndex < 0 || $fieldIndex >= $this->numFields) {
+        if (is_int($fieldIndex) || ctype_digit((string)$fieldIndex)) {
+            if ($fieldIndex >= 0 && $fieldIndex < $this->numFields) {
+                return (int)$fieldIndex;
+            } else {
                 throw new exceptions\OutOfBoundsException(sprintf(
                     "%s: field number %d is not within range 0..%d",
                     __METHOD__,
@@ -431,7 +430,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             }
 
         } elseif (is_string($fieldIndex)) {
-            if (!isset($this->namesHash[$fieldIndex])) {
+            if (isset($this->namesHash[$fieldIndex])) {
+                return $this->namesHash[$fieldIndex];
+            } else {
                 throw new exceptions\OutOfBoundsException(
                     sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
                 );
@@ -450,13 +451,16 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Retrieves the row from result and performs type conversion on it
      *
      * @param int $position row number
+     * @param int $mode     fetch mode, either of PGSQL_ASSOC or PGSQL_NUM
      * @return array
      */
-    private function read(int $position): array
+    private function read(int $position, int $mode): array
     {
-        $row = pg_fetch_array($this->resource, $position, $this->mode);
+        if (false === ($row = pg_fetch_array($this->resource, $position, $mode))) {
+            throw new exceptions\RuntimeException(sprintf("Failed to fetch row %d in result set", $position));
+        }
         foreach ($row as $key => &$value) {
-            if (PGSQL_ASSOC === $this->mode) {
+            if (PGSQL_ASSOC === $mode) {
                 $value = $this->converters[$this->namesHash[$key]]->input($value);
             } else {
                 $value = $this->converters[$key]->input($value);
