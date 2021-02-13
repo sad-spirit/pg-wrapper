@@ -190,10 +190,10 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
         }
         return ($value->lowerInclusive ? '[' : '(')
                . (null === $value->lower
-                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->lower), '"\\') . '"')
+                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->lower) ?? '', '"\\') . '"')
                . ','
                . (null === $value->upper
-                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->upper), '"\\') . '"')
+                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->upper) ?? '', '"\\') . '"')
                . ($value->upperInclusive ? ']' : ')');
     }
 }
