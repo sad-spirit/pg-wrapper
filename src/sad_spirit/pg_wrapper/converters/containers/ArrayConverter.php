@@ -85,7 +85,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      * This method calculates the sizes to match based on first elements of the given
      * array and then checks that all other subarrays match these sizes.
      *
-     * @param array $value
+     * @param mixed $value Will throw an exception on anything but array
      * @return string
      * @throws TypeConversionException
      */

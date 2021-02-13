@@ -363,9 +363,9 @@ class IntervalConverter extends BaseConverter
      * PostgreSQL's interval parser accepts a lot more possible formats than this
      * class can handle.
      *
-     * @param string|number|\DateInterval $value
+     * @param mixed $value Actually accepts strings, numbers and instances of \DateInterval
      * @return string
-     * @throws TypeConversionException
+     * @throws TypeConversionException if $value is of unexpected type
      */
     protected function outputNotNull($value): string
     {
