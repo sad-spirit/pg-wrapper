@@ -141,9 +141,9 @@ class PreparedStatement
     /**
      * Sets the value for a parameter of a prepared query
      *
-     * @param positive-int $paramNum Parameter number, 1-based
-     * @param mixed        $value    Parameter value
-     * @param mixed        $type     Type name / converter object to use for converting to DB type
+     * @param int   $paramNum Parameter number, 1-based
+     * @param mixed $value    Parameter value
+     * @param mixed $type     Type name / converter object to use for converting to DB type
      * @return $this
      *
      * @throws exceptions\OutOfBoundsException
@@ -168,9 +168,9 @@ class PreparedStatement
     /**
      * Binds a variable to a parameter of a prepared query
      *
-     * @param positive-int $paramNum Parameter number, 1-based
-     * @param mixed        $param    Variable to bind
-     * @param mixed        $type     Type name / converter object to use for converting to DB type
+     * @param int   $paramNum Parameter number, 1-based
+     * @param mixed $param    Variable to bind
+     * @param mixed $type     Type name / converter object to use for converting to DB type
      * @return $this
      *
      * @throws exceptions\OutOfBoundsException
