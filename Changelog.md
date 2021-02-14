@@ -4,6 +4,7 @@
 
 ### Changed
 * Objects representing Postgres types are now immutable.
+* `ResultSet::current()` and `ResultSet::offsetGet()` will return `null` rather than `false` for non-existent offsets.
 
 ### Added
 * Tested and supported on PHP 8
@@ -11,6 +12,11 @@
 
 ### Fixed
 * Lots of minor issues caught by static analysis
+  * Added sanity checks to `BaseDateTimeConverter` when working with connection resource (e.g. it will no longer try to get `DateStyle` setting from closed connection).
+  * Added tests for `FloatConverter` and `NumericConverter` that check behaviour with locales having `','` as a decimal separator.
+  * `ByteaConverter` will reject non-strings.
+  * `HstoreConverter` will properly error on invalid input.
+  * Additional checks for `pg_*()` functions returning `false`.
 
 ## [1.0.0-beta.3] - 2020-09-18
 
