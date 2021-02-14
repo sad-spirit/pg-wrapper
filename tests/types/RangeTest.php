@@ -80,7 +80,7 @@ class RangeTest extends TestCase
     public function testDateRangeBoundsAreImmutable(): void
     {
         $range = new DateTimeRange(new \DateTime('yesterday'), new \DateTimeImmutable('tomorrow'));
-        $this::assertInstanceOf('\DateTimeImmutable', $range->lower);
-        $this::assertInstanceOf('\DateTimeImmutable', $range->upper);
+        $this::assertInstanceOf(\DateTimeImmutable::class, $range->lower);
+        $this::assertInstanceOf(\DateTimeImmutable::class, $range->upper);
     }
 }

@@ -474,7 +474,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
     public function testCanRegisterAMappingFromPHPClassToDBType(): void
     {
-        $this->factory->registerClassMapping('\stdClass', 'json');
+        $this->factory->registerClassMapping(\stdClass::class, 'json');
 
         $value = (object)['foo' => 'bar'];
         $this::assertEquals(
