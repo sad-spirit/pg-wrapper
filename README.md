@@ -2,6 +2,8 @@
 
 [![Build Status](https://github.com/sad-spirit/pg-wrapper/workflows/Continuous%20Integration/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions?query=branch%3Amaster+workflow%3A%22Continuous+Integration%22)
 
+[![Static Analysis](https://github.com/sad-spirit/pg-wrapper/workflows/Static%20Analysis/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions?query=branch%3Amaster+workflow%3A%22Static+Analysis%22)
+
 This package has two parts and purposes
 * Converter of [PostgreSQL data types](https://www.postgresql.org/docs/current/datatype.html) to their PHP equivalents and back and
 * An OO wrapper around PHP's native [pgsql extension](https://php.net/manual/en/book.pgsql.php).
