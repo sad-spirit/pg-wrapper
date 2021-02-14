@@ -329,10 +329,10 @@ class Connection
      * @param string $sql         SQL query to execute
      * @param array  $resultTypes Type converters to pass to ResultSet
      *
-     * @return ResultSet|int|bool Execution result.
+     * @return ResultSet Execution result.
      * @throws exceptions\ServerException
      */
-    public function execute(string $sql, array $resultTypes = [])
+    public function execute(string $sql, array $resultTypes = []): ResultSet
     {
         $this->checkRollbackNotNeeded();
         return ResultSet::createFromResultResource(
@@ -350,10 +350,10 @@ class Connection
      * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters
      * @param array<int|string, mixed> $resultTypes Result types to pass to ResultSet
      *
-     * @return bool|ResultSet|int
+     * @return ResultSet
      * @throws exceptions\ServerException
      */
-    public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = [])
+    public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = []): ResultSet
     {
         $this->checkRollbackNotNeeded();
 

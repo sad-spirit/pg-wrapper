@@ -5,9 +5,12 @@
 ### Changed
 * Objects representing Postgres types are now immutable.
 * `ResultSet::current()` and `ResultSet::offsetGet()` will return `null` rather than `false` for non-existent offsets.
+* `Connection::execute()`, `Connection::executeParams()`, `PreparedStatement::execute()` will now consistently return `ResultSet` instead of
+  `ResultSet|int|bool`. Number of affected rows for DML queries is available via new `ResultSet::getAffectedRows()` method.
 
 ### Added
 * Tested and supported on PHP 8
+* Static analysis with phpstan and psalm
 * Package `Exception` interface now extends `\Throwable`
 
 ### Fixed

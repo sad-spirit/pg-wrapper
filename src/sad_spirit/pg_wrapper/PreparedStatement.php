@@ -200,12 +200,12 @@ class PreparedStatement
      *                           bindValue() and bindParam() methods when provided.
      * @param array $resultTypes Types information for result fields, passed to ResultSet
      *
-     * @return ResultSet|int|bool Execution result.
+     * @return ResultSet Execution result.
      * @throws exceptions\TypeConversionException
      * @throws exceptions\ServerException
      * @throws exceptions\RuntimeException
      */
-    public function execute(array $params = [], array $resultTypes = [])
+    public function execute(array $params = [], array $resultTypes = []): ResultSet
     {
         if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');

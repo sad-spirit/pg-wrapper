@@ -61,6 +61,17 @@ SQL
         }
     }
 
+    public function testAffectedRows(): void
+    {
+        $resultDML = self::$conn->execute("insert into test_resultset values (10, 'last', 'this is temporary')");
+        $this::assertEquals(1, $resultDML->getAffectedRows());
+        $this::assertCount(0, $resultDML);
+
+        $resultReturning = self::$conn->execute("delete from test_resultset where one = 10 returning *");
+        $this::assertEquals(1, $resultReturning->getAffectedRows());
+        $this::assertCount(1, $resultReturning);
+    }
+
     public function testSetMode(): void
     {
         $res = self::$conn->execute("select * from test_resultset where one = 1");

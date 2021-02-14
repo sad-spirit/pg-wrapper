@@ -47,16 +47,22 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     private $converters = [];
 
     /**
+     * Number of affected rows for DML query
+     * @var int
+     */
+    private $affectedRows;
+
+    /**
      * Number of rows in result
      * @var int
      */
-    private $numRows;
+    private $numRows = 0;
 
     /**
      * Number of columns in result
      * @var int
      */
-    private $numFields;
+    private $numFields = 0;
 
     /**
      * Hash (column name => column number)
@@ -89,14 +95,28 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     {
         $this->resource         = $resource;
         $this->converterFactory = $factory;
-        $this->numRows          = pg_num_rows($this->resource);
-        $this->numFields        = pg_num_fields($this->resource);
+        $this->affectedRows     = pg_affected_rows($this->resource);
 
-        $oids = [];
+        if (PGSQL_TUPLES_OK === pg_result_status($this->resource)) {
+            $this->setupResultFields($types);
+        }
+    }
+
+    /**
+     * Sets up type converters and field name -> field index mapping for results returning rows
+     *
+     * @param array $types Types information, used to convert output values (overrides auto-generated types).
+     */
+    private function setupResultFields(array $types): void
+    {
+        $this->numRows   = pg_num_rows($this->resource);
+        $this->numFields = pg_num_fields($this->resource);
+
+        $OIDs = [];
         for ($i = 0; $i < $this->numFields; $i++) {
             $this->namesHash[pg_field_name($this->resource, $i)] = $i;
             if (false !== ($oid = pg_field_type_oid($this->resource, $i))) {
-                $oids[$i] = $oid;
+                $OIDs[$i] = $oid;
             } else {
                 throw new exceptions\RuntimeException(sprintf("Failed to get type OID for field %d", $i));
             }
@@ -110,7 +130,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         // ...then use type factory to create default converters
         for ($i = 0; $i < $this->numFields; $i++) {
             if (!isset($this->converters[$i])) {
-                $this->converters[$i] = $this->converterFactory->getConverterForTypeOID($oids[$i]);
+                $this->converters[$i] = $this->converterFactory->getConverterForTypeOID($OIDs[$i]);
             }
         }
     }
@@ -122,9 +142,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param Connection    $connection Connection, origin of result resource.
      * @param array         $types      Types information, used to convert output values
      *                                  (overrides auto-generated types).
-     * @return bool|int|self
+     * @return self
+     * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\RuntimeException
+     * @throws exceptions\ServerException
      */
-    public static function createFromResultResource($resource, Connection $connection, array $types = [])
+    public static function createFromResultResource($resource, Connection $connection, array $types = []): self
     {
         if (!$resource) {
             throw exceptions\ServerException::fromConnection($connection->getResource());
@@ -136,21 +159,22 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             );
         }
 
-        switch (pg_result_status($resource)) {
-            case PGSQL_COPY_IN:
-            case PGSQL_COPY_OUT:
-                pg_free_result($resource);
-                return true;
+        // Methods we use in Connection and PreparedStatement (pg_query(), etc) can only return results
+        // where status is one of PGSQL_COMMAND_OK, PGSQL_TUPLES_OK, PGSQL_COPY_OUT, PGSQL_COPY_IN.
+        // All of these will allow at least pg_affected_rows()
+        return new self($resource, $connection->getTypeConverterFactory(), $types);
+    }
 
-            case PGSQL_COMMAND_OK:
-                $count = pg_affected_rows($resource);
-                pg_free_result($resource);
-                return $count;
-
-            case PGSQL_TUPLES_OK:
-            default:
-                return new self($resource, $connection->getTypeConverterFactory(), $types);
-        }
+    /**
+     * Returns number of rows affected by INSERT, UPDATE, and DELETE queries
+     *
+     * In case of SELECT queries this will be equal to what count() returns
+     *
+     * @return int
+     */
+    public function getAffectedRows(): int
+    {
+        return $this->affectedRows;
     }
 
     /**
