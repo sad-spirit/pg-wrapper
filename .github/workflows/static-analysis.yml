@@ -63,8 +63,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Psalm
-        uses: docker://vimeo/psalm-github-actions
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
-          composer_require_dev: true
-          composer_ignore_platform_reqs: true
+          coverage: none
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ matrix.php-version }}-${{ hashFiles('composer.*') }}-${{ matrix.composer-flags }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ matrix.php-version }}-${{ hashFiles('composer.*') }}-
+            composer-${{ runner.os }}-${{ matrix.php-version }}-
+            composer-${{ runner.os }}-
+            composer-
+
+      - name: Install dependencies with Composer
+        run: |
+          composer update --no-interaction --prefer-dist --no-progress ${{ matrix.composer-flags }}
+
+      - name: Run a static analysis with vimeo/psalm
+        run: |
+          vendor/bin/psalm --output-format=github
