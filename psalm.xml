@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="3"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="src" />
+        <directory name="tests" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <!--
+                    Documentation for pg_escape_literal() and pg_escape_identifier() is incorrect,
+                    those can return false, not only string
+                -->
+                <file name="src/sad_spirit/pg_wrapper/Connection.php"/>
+            </errorLevel>
+        </RedundantCondition>
+        <InaccessibleMethod>
+            <errorLevel type="suppress">
+                <!-- https://github.com/vimeo/psalm/issues/5009 -->
+                <file name="src/sad_spirit/pg_wrapper/converters/geometric/BaseGeometricConverter.php"/>
+                <file name="src/sad_spirit/pg_wrapper/converters/geometric/CircleConverter.php"/>
+                <referencedMethod name="\sad_spirit\pg_wrapper\converters\geometric\PointConverter::parseInput"/>
+            </errorLevel>
+        </InaccessibleMethod>
+        <InvalidCatch>
+            <errorLevel type="suppress">
+                <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
+                <file name="src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php"/>
+                <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
+            </errorLevel>
+        </InvalidCatch>
+    </issueHandlers>
+
+    <stubs>
+      <file name="tests/config.php.dist" />
+    </stubs>
+</psalm>

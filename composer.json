@@ -25,7 +25,8 @@
     "require-dev":  {
         "phpunit/phpunit":  "^8.0|^9.0",
         "psr/cache":        "^1.0",
-        "phpstan/phpstan":  "^0.12"
+        "phpstan/phpstan":  "^0.12",
+        "vimeo/psalm":      "^4.5"
     },
     "autoload":     {
         "psr-4":    {
