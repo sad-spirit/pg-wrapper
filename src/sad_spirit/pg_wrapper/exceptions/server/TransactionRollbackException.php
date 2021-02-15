@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Wrapper for PHP's pgsql extension providing conversion of complex DB types
+ * Converter of complex PostgreSQL types and an OO wrapper for PHP's pgsql extension
  *
  * LICENSE
  *
@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2020 Alexey Borzov
+ * @copyright 2014-2021 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper

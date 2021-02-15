@@ -1,6 +1,6 @@
 {
     "name":         "sad_spirit/pg_wrapper",
-    "description":  "Wrapper for PHP's pgsql extension providing conversion of complex DB types",
+    "description":  "Converter of complex PostgreSQL types and an OO wrapper for PHP's pgsql extension",
     "type":         "library",
     "keywords":     ["PostgreSQL", "Postgres", "database", "conversion", "geometric", "datetime", "array", "range", "composite"],
     "license":      "BSD-2-Clause",
