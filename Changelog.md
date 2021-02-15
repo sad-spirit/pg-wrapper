@@ -1,12 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0-beta.4] - 2021-02-15
 
 ### Changed
 * Objects representing Postgres types are now immutable.
 * `ResultSet::current()` and `ResultSet::offsetGet()` will return `null` rather than `false` for non-existent offsets.
 * `Connection::execute()`, `Connection::executeParams()`, `PreparedStatement::execute()` will now consistently return `ResultSet` instead of
   `ResultSet|int|bool`. Number of affected rows for DML queries is available via new `ResultSet::getAffectedRows()` method.
+* `ext-pgsql` is a suggested dependency rather than required, so that type converters may be used with e.g. PDO
 
 ### Added
 * Tested and supported on PHP 8
@@ -125,4 +126,4 @@ Initial release on GitHub
 [1.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v0.2.2...v1.0.0-beta
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta...v1.0.0-beta.2
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.2...v1.0.0-beta.3
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...HEAD
+[1.0.0-beta.4]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...v1.0.0-beta.4
