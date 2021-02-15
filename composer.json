@@ -15,14 +15,15 @@
     },
     "require" : {
         "php":          ">=7.2.0",
-        "ext-pgsql":    "*",
         "ext-ctype":    "*",
         "ext-json":     "*"
     },
     "suggest": {
-        "psr/cache-implementation": "Used for DB metadata caching"
+        "psr/cache-implementation": "Used for DB metadata caching",
+        "ext-pgsql":                "Used for communicating with PostgreSQL"
     },
     "require-dev":  {
+        "ext-pgsql":        "*",
         "phpunit/phpunit":  "^8.0|^9.0",
         "psr/cache":        "^1.0",
         "phpstan/phpstan":  "^0.12",

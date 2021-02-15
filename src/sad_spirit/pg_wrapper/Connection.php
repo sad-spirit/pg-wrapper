@@ -126,9 +126,13 @@ class Connection
      * @param string $connectionString Connection string.
      * @param bool   $lazy             Whether to postpone connecting until needed
      * @throws exceptions\ConnectionException
+     * @throws exceptions\RuntimeException
      */
     public function __construct(string $connectionString, bool $lazy = true)
     {
+        if (!function_exists('pg_connect')) {
+            throw new exceptions\RuntimeException("PHP's pgsql extension should be enabled");
+        }
         $this->connectionString = $connectionString;
         if (!$lazy) {
             $this->connect();
