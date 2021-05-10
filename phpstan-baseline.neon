@@ -3,10 +3,5 @@ parameters:
 		-
 			message: "#^If condition is always false\\.$#"
 			count: 1
-			path: src/sad_spirit/pg_wrapper/converters/ByteaConverter.php
-
-		-
-			message: "#^If condition is always false\\.$#"
-			count: 1
 			path: src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php
 
