@@ -465,14 +465,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         $this->registerConverter(datetime\TimeConverter::class, 'time');
         $this->registerConverter(datetime\TimeTzConverter::class, 'timetz');
         $this->registerConverter(datetime\TimeStampConverter::class, 'timestamp');
-        $this->registerConverter(
-            datetime\TimeStampTzConverter::class,
-            ['timestamptz', 'abstime']
-        );
-        $this->registerConverter(
-            datetime\IntervalConverter::class,
-            ['interval', 'reltime']
-        );
+        $this->registerConverter(datetime\TimeStampTzConverter::class, 'timestamptz');
+        $this->registerConverter(datetime\IntervalConverter::class, 'interval');
         $this->registerConverter(
             StringConverter::class,
             ['cstring', 'text', 'char', 'varchar', 'bpchar', 'name']
