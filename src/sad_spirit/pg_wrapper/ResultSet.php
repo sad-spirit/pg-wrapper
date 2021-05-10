@@ -82,6 +82,18 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     private $mode = PGSQL_ASSOC;
 
     /**
+     * Arguments for last call to read() method
+     * @var array{int,int}|null
+     */
+    private $lastReadParams = null;
+
+    /**
+     * Result of last read() call
+     * @var array
+     */
+    private $lastReadResult;
+
+    /**
      * Constructor.
      *
      * @param resource             $resource SQL result resource.
@@ -191,6 +203,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     {
         $this->converters[$this->checkFieldIndex($fieldIndex)] =
             $this->converterFactory->getConverterForTypeSpecification($type);
+        $this->lastReadParams = null;
 
         return $this;
     }
@@ -480,6 +493,10 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     private function read(int $position, int $mode): array
     {
+        if ([$position, $mode] === $this->lastReadParams) {
+            return $this->lastReadResult;
+        }
+
         if (false === ($row = pg_fetch_array($this->resource, $position, $mode))) {
             throw new exceptions\RuntimeException(sprintf("Failed to fetch row %d in result set", $position));
         }
@@ -490,6 +507,8 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
                 $value = $this->converters[$key]->input($value);
             }
         }
+        $this->lastReadParams = [$position, $mode];
+        $this->lastReadResult = $row;
         return $row;
     }
 }

@@ -232,4 +232,19 @@ SQL
         );
         $res->setType(1, $mockTimestampTwo);
     }
+
+    public function testRemembersLastReadRow(): void
+    {
+        $mockString = $this->createMock(converters\StringConverter::class);
+
+        $mockString->expects($this->once())
+            ->method('input')
+            ->willReturn('not foo');
+
+        $res = self::$conn->execute("select * from test_resultset where one = 1");
+        $res->setType('two', $mockString);
+        $this::assertEquals(1, $res[0]['one']);
+        $this::assertEquals('not foo', $res[0]['two']);
+        $this::assertEquals('first value of foo', $res[0]['three']);
+    }
 }
