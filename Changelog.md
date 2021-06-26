@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0] - 2021-06-26
 
 ### Changed
 `ResultSet` caches the last fetched row: e.g. accessing `$result[0]['field2']` after `$result[0]['field1']`
@@ -137,4 +137,4 @@ Initial release on GitHub
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta...v1.0.0-beta.2
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.2...v1.0.0-beta.3
 [1.0.0-beta.4]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...v1.0.0-beta.4
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.4...HEAD
+[1.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.4...v1.0.0
