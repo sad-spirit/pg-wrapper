@@ -30,7 +30,7 @@ interface ConnectionAware
     /**
      * Sets the connection resource this converter works with
      *
-     * @param resource $resource
+     * @param resource|\Pgsql\Connection $resource
      * @return void
      */
     public function setConnectionResource($resource): void;

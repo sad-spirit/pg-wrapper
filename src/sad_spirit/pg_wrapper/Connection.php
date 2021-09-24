@@ -29,7 +29,7 @@ class Connection
 {
     /**
      * Connection resource
-     * @var resource|null
+     * @var resource|null|\Pgsql\Connection
      */
     private $resource;
 
@@ -207,8 +207,11 @@ class Connection
      */
     public function disconnect(): self
     {
-        if (is_resource($this->resource)) {
-            pg_close($this->resource);
+        if (null !== $this->resource) {
+            try {
+                pg_close($this->resource);
+            } catch (\Throwable $e) {
+            }
         }
         $this->resource     = null;
         $this->disconnected = true;
@@ -233,21 +236,34 @@ class Connection
      */
     public function isConnected(): bool
     {
-        return is_resource($this->resource);
+        try {
+            return null !== $this->resource
+                   && \PGSQL_CONNECTION_OK === \pg_connection_status($this->resource);
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
      * Returns database connection resource
      *
-     * @return resource
+     * @return resource|\Pgsql\Connection
      * @throws exceptions\ConnectionException
      */
     public function getResource()
     {
         if (!is_resource($this->resource) && !$this->disconnected) {
-            $this->connect();
+            if (!$this->resource instanceof \Pgsql\Connection) {
+                $this->connect();
+            } else {
+                try {
+                    $status = \pg_connection_status($this->resource);
+                } catch (\Throwable $e) {
+                    throw new exceptions\ConnectionException("Connection has been closed");
+                }
+            }
         }
-        if (!is_resource($this->resource)) {
+        if (!is_resource($this->resource) && !$this->resource instanceof \Pgsql\Connection) {
             throw new exceptions\ConnectionException("Connection has been closed");
         }
         return $this->resource;

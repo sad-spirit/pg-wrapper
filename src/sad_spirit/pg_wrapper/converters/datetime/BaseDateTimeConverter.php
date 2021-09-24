@@ -73,12 +73,15 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Sets the connection resource this converter works with
      *
-     * @param resource $resource
+     * @param resource|\Pgsql\Connection $resource
      * @return void
      */
     public function setConnectionResource($resource): void
     {
-        if (!is_resource($resource) || 'pgsql link' !== get_resource_type($resource)) {
+        if (
+            (!is_resource($resource) || 'pgsql link' !== get_resource_type($resource))
+            && !$resource instanceof \Pgsql\Connection
+        ) {
             throw InvalidArgumentException::unexpectedType(
                 __METHOD__,
                 'a database connection resource',
@@ -98,11 +101,15 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     private function updateDateStyleFromConnection(): bool
     {
-        if (
-            !is_resource($this->connection)
-            || false === ($style = pg_parameter_status($this->connection, 'DateStyle'))
-            || $style === $this->style
-        ) {
+        $style = false;
+        if (null !== $this->connection) {
+            try {
+                $style = pg_parameter_status($this->connection, 'DateStyle');
+            } catch (\Throwable $e) {
+                return false;
+            }
+        }
+        if (false === $style || $style === $this->style) {
             return false;
         }
 

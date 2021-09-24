@@ -89,7 +89,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
     /**
      * Propagates $resource to ConnectionAware converters for fields
      *
-     * @param resource $resource
+     * @param resource|\Pgsql\Connection $resource
      */
     public function setConnectionResource($resource): void
     {

@@ -64,7 +64,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
     /**
      * Propagates $resource to ConnectionAware converters of base type
      *
-     * @param resource $resource
+     * @param resource|\Pgsql\Connection $resource
      */
     public function setConnectionResource($resource): void
     {

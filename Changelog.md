@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+As `pgsql` functions in PHP 8.1 now return and accept objects instead of resources, added checks for these objects alongside `is_resource` checks for earlier PHP versions.
+
 ## [1.0.0] - 2021-06-26
 
 ### Changed
@@ -138,3 +143,4 @@ Initial release on GitHub
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.2...v1.0.0-beta.3
 [1.0.0-beta.4]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...v1.0.0-beta.4
 [1.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.4...v1.0.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0...HEAD

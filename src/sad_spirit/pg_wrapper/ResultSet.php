@@ -150,10 +150,10 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Creates a return value for various execute*() methods from underlying query result resource
      *
-     * @param resource|bool $resource   SQL result resource, false if query failed.
-     * @param Connection    $connection Connection, origin of result resource.
-     * @param array         $types      Types information, used to convert output values
-     *                                  (overrides auto-generated types).
+     * @param resource|bool|\Pgsql\Result $resource   SQL result resource, false if query failed.
+     * @param Connection                  $connection Connection, origin of result resource.
+     * @param array                       $types      Types information, used to convert output values
+     *                                                (overrides auto-generated types).
      * @return self
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
@@ -161,9 +161,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public static function createFromResultResource($resource, Connection $connection, array $types = []): self
     {
-        if (!$resource) {
+        if (false === $resource) {
             throw exceptions\ServerException::fromConnection($connection->getResource());
-        } elseif (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource)) {
+        } elseif (
+            (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource))
+            && !$resource instanceof \Pgsql\Result
+        ) {
             throw exceptions\InvalidArgumentException::unexpectedType(
                 __METHOD__,
                 'a query result resource',

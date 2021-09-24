@@ -390,7 +390,7 @@ class ServerException extends RuntimeException
     /**
      * Creates a proper exception object based on connection resource
      *
-     * @param resource $resource
+     * @param resource|\Pgsql\Connection $resource
      * @return ConnectionException|ServerException
      */
     public static function fromConnection($resource)
