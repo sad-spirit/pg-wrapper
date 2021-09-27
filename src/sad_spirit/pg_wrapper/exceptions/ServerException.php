@@ -325,6 +325,7 @@ class ServerException extends RuntimeException
     public const CRASH_SHUTDOWN        = '57P02';
     public const CANNOT_CONNECT_NOW    = '57P03';
     public const DATABASE_DROPPED      = '57P04';
+    public const IDLE_SESSION_TIMEOUT  = '57P05';
 
     /* Class 58 - System Error (errors external to PostgreSQL itself) */
     public const SYSTEM_ERROR   = '58000';
