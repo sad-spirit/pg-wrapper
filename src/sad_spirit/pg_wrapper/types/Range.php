@@ -54,8 +54,8 @@ class Range implements ArrayRepresentable, RangeConstructor
     ) {
         $this->p_lower          = $lower;
         $this->p_upper          = $upper;
-        $this->p_lowerInclusive = $lowerInclusive;
-        $this->p_upperInclusive = $upperInclusive;
+        $this->p_lowerInclusive = $lowerInclusive && null !== $lower;
+        $this->p_upperInclusive = $upperInclusive && null !== $upper;
     }
 
     /**

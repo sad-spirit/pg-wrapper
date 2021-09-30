@@ -83,4 +83,33 @@ class RangeTest extends TestCase
         $this::assertInstanceOf(\DateTimeImmutable::class, $range->lower);
         $this::assertInstanceOf(\DateTimeImmutable::class, $range->upper);
     }
+
+    /**
+     * @dataProvider missingBoundsProvider
+     * @param ?string $lowerBound
+     * @param ?string $upperBound
+     */
+    public function testMissingBoundIsExclusive(?string $lowerBound, ?string $upperBound): void
+    {
+        $range = new Range($lowerBound, $upperBound, true, true);
+        if (null === $lowerBound) {
+            $this::assertFalse($range->lowerInclusive);
+        } else {
+            $this::assertTrue($range->lowerInclusive);
+        }
+        if (null === $upperBound) {
+            $this::assertFalse($range->upperInclusive);
+        } else {
+            $this::assertTrue($range->upperInclusive);
+        }
+    }
+
+    public function missingBoundsProvider(): array
+    {
+        return [
+            ['a', null],
+            [null, 'z'],
+            [null, null]
+        ];
+    }
 }
