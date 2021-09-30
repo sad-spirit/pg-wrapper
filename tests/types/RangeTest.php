@@ -112,4 +112,43 @@ class RangeTest extends TestCase
             [null, null]
         ];
     }
+
+    /**
+     * @dataProvider arrayProvider
+     * @param array $input
+     * @param NumericRange $expected
+     */
+    public function testCreateFromArray(array $input, NumericRange $expected): void
+    {
+        $this::assertEquals(
+            $expected,
+            NumericRange::createFromArray($input)
+        );
+    }
+
+    public function arrayProvider(): array
+    {
+        return [
+            [
+                ['empty' => true],
+                NumericRange::createEmpty()
+            ],
+            [
+                [],
+                new NumericRange()
+            ],
+            [
+                [2],
+                new NumericRange(2)
+            ],
+            [
+                [2, 3],
+                new NumericRange(2, 3)
+            ],
+            [
+                ['upper' => 2, 'upperInclusive' => true],
+                new NumericRange(null, 2, false, true)
+            ]
+        ];
+    }
 }
