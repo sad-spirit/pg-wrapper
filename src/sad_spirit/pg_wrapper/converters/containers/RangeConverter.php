@@ -52,7 +52,7 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     protected $resultClass = Range::class;
 
     /**
-     * Constructor, sets converter for the
+     * Constructor, sets converter for the base type
      *
      * @param TypeConverter $subtypeConverter
      */
