@@ -7,6 +7,9 @@
 * New error code defined in Postgres 14
 * Support for multirange types added in Postgres 14
 
+### Fixed
+Missing bounds in range types are always marked as exclusive, this follows PostgreSQL's behaviour.
+
 ## [1.0.0] - 2021-06-26
 
 ### Changed
