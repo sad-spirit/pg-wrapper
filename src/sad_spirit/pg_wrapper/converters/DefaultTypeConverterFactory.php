@@ -66,7 +66,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Types list for current database, loaded from pg_catalog.pg_type
      *
-     * The array is pre-populated with known builtin types of Postgres 13.
+     * The array is pre-populated with known builtin types of Postgres 14.
      * Only types with OIDs below 10000 are used since those OIDs are assigned manually
      * (see src/include/access/transam.h) and don't change between versions and
      * installations.
@@ -80,184 +80,204 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *                                        several schemas may contain types having the same name
      */
     private $typeNames = [
-        'bool'                  => ['pg_catalog' => 16],
-        'bytea'                 => ['pg_catalog' => 17],
-        'char'                  => ['pg_catalog' => 18],
-        'name'                  => ['pg_catalog' => 19],
-        'int8'                  => ['pg_catalog' => 20],
-        'int2'                  => ['pg_catalog' => 21],
-        'int2vector'            => ['pg_catalog' => 22],
-        'int4'                  => ['pg_catalog' => 23],
-        'regproc'               => ['pg_catalog' => 24],
-        'text'                  => ['pg_catalog' => 25],
-        'oid'                   => ['pg_catalog' => 26],
-        'tid'                   => ['pg_catalog' => 27],
-        'xid'                   => ['pg_catalog' => 28],
-        'cid'                   => ['pg_catalog' => 29],
-        'oidvector'             => ['pg_catalog' => 30],
-        'pg_ddl_command'        => ['pg_catalog' => 32],
-        'pg_type'               => ['pg_catalog' => 71],
-        'pg_attribute'          => ['pg_catalog' => 75],
-        'pg_proc'               => ['pg_catalog' => 81],
-        'pg_class'              => ['pg_catalog' => 83],
-        'json'                  => ['pg_catalog' => 114],
-        'xml'                   => ['pg_catalog' => 142],
-        '_xml'                  => ['pg_catalog' => 143],
-        'pg_node_tree'          => ['pg_catalog' => 194],
-        '_json'                 => ['pg_catalog' => 199],
-        'table_am_handler'      => ['pg_catalog' => 269],
-        '_xid8'                 => ['pg_catalog' => 271],
-        'index_am_handler'      => ['pg_catalog' => 325],
-        'point'                 => ['pg_catalog' => 600],
-        'lseg'                  => ['pg_catalog' => 601],
-        'path'                  => ['pg_catalog' => 602],
-        'box'                   => ['pg_catalog' => 603],
-        'polygon'               => ['pg_catalog' => 604],
-        'line'                  => ['pg_catalog' => 628],
-        '_line'                 => ['pg_catalog' => 629],
-        'cidr'                  => ['pg_catalog' => 650],
-        '_cidr'                 => ['pg_catalog' => 651],
-        'float4'                => ['pg_catalog' => 700],
-        'float8'                => ['pg_catalog' => 701],
-        'unknown'               => ['pg_catalog' => 705],
-        'circle'                => ['pg_catalog' => 718],
-        '_circle'               => ['pg_catalog' => 719],
-        'macaddr8'              => ['pg_catalog' => 774],
-        '_macaddr8'             => ['pg_catalog' => 775],
-        'money'                 => ['pg_catalog' => 790],
-        '_money'                => ['pg_catalog' => 791],
-        'macaddr'               => ['pg_catalog' => 829],
-        'inet'                  => ['pg_catalog' => 869],
-        '_bool'                 => ['pg_catalog' => 1000],
-        '_bytea'                => ['pg_catalog' => 1001],
-        '_char'                 => ['pg_catalog' => 1002],
-        '_name'                 => ['pg_catalog' => 1003],
-        '_int2'                 => ['pg_catalog' => 1005],
-        '_int2vector'           => ['pg_catalog' => 1006],
-        '_int4'                 => ['pg_catalog' => 1007],
-        '_regproc'              => ['pg_catalog' => 1008],
-        '_text'                 => ['pg_catalog' => 1009],
-        '_tid'                  => ['pg_catalog' => 1010],
-        '_xid'                  => ['pg_catalog' => 1011],
-        '_cid'                  => ['pg_catalog' => 1012],
-        '_oidvector'            => ['pg_catalog' => 1013],
-        '_bpchar'               => ['pg_catalog' => 1014],
-        '_varchar'              => ['pg_catalog' => 1015],
-        '_int8'                 => ['pg_catalog' => 1016],
-        '_point'                => ['pg_catalog' => 1017],
-        '_lseg'                 => ['pg_catalog' => 1018],
-        '_path'                 => ['pg_catalog' => 1019],
-        '_box'                  => ['pg_catalog' => 1020],
-        '_float4'               => ['pg_catalog' => 1021],
-        '_float8'               => ['pg_catalog' => 1022],
-        '_polygon'              => ['pg_catalog' => 1027],
-        '_oid'                  => ['pg_catalog' => 1028],
-        'aclitem'               => ['pg_catalog' => 1033],
-        '_aclitem'              => ['pg_catalog' => 1034],
-        '_macaddr'              => ['pg_catalog' => 1040],
-        '_inet'                 => ['pg_catalog' => 1041],
-        'bpchar'                => ['pg_catalog' => 1042],
-        'varchar'               => ['pg_catalog' => 1043],
-        'date'                  => ['pg_catalog' => 1082],
-        'time'                  => ['pg_catalog' => 1083],
-        'timestamp'             => ['pg_catalog' => 1114],
-        '_timestamp'            => ['pg_catalog' => 1115],
-        '_date'                 => ['pg_catalog' => 1182],
-        '_time'                 => ['pg_catalog' => 1183],
-        'timestamptz'           => ['pg_catalog' => 1184],
-        '_timestamptz'          => ['pg_catalog' => 1185],
-        'interval'              => ['pg_catalog' => 1186],
-        '_interval'             => ['pg_catalog' => 1187],
-        '_numeric'              => ['pg_catalog' => 1231],
-        'pg_database'           => ['pg_catalog' => 1248],
-        '_cstring'              => ['pg_catalog' => 1263],
-        'timetz'                => ['pg_catalog' => 1266],
-        '_timetz'               => ['pg_catalog' => 1270],
-        'bit'                   => ['pg_catalog' => 1560],
-        '_bit'                  => ['pg_catalog' => 1561],
-        'varbit'                => ['pg_catalog' => 1562],
-        '_varbit'               => ['pg_catalog' => 1563],
-        'numeric'               => ['pg_catalog' => 1700],
-        'refcursor'             => ['pg_catalog' => 1790],
-        '_refcursor'            => ['pg_catalog' => 2201],
-        'regprocedure'          => ['pg_catalog' => 2202],
-        'regoper'               => ['pg_catalog' => 2203],
-        'regoperator'           => ['pg_catalog' => 2204],
-        'regclass'              => ['pg_catalog' => 2205],
-        'regtype'               => ['pg_catalog' => 2206],
-        '_regprocedure'         => ['pg_catalog' => 2207],
-        '_regoper'              => ['pg_catalog' => 2208],
-        '_regoperator'          => ['pg_catalog' => 2209],
-        '_regclass'             => ['pg_catalog' => 2210],
-        '_regtype'              => ['pg_catalog' => 2211],
-        'record'                => ['pg_catalog' => 2249],
-        'cstring'               => ['pg_catalog' => 2275],
-        'any'                   => ['pg_catalog' => 2276],
-        'anyarray'              => ['pg_catalog' => 2277],
-        'void'                  => ['pg_catalog' => 2278],
-        'trigger'               => ['pg_catalog' => 2279],
-        'language_handler'      => ['pg_catalog' => 2280],
-        'internal'              => ['pg_catalog' => 2281],
-        'anyelement'            => ['pg_catalog' => 2283],
-        '_record'               => ['pg_catalog' => 2287],
-        'anynonarray'           => ['pg_catalog' => 2776],
-        'pg_authid'             => ['pg_catalog' => 2842],
-        'pg_auth_members'       => ['pg_catalog' => 2843],
-        '_txid_snapshot'        => ['pg_catalog' => 2949],
-        'uuid'                  => ['pg_catalog' => 2950],
-        '_uuid'                 => ['pg_catalog' => 2951],
-        'txid_snapshot'         => ['pg_catalog' => 2970],
-        'fdw_handler'           => ['pg_catalog' => 3115],
-        'pg_lsn'                => ['pg_catalog' => 3220],
-        '_pg_lsn'               => ['pg_catalog' => 3221],
-        'tsm_handler'           => ['pg_catalog' => 3310],
-        'pg_ndistinct'          => ['pg_catalog' => 3361],
-        'pg_dependencies'       => ['pg_catalog' => 3402],
-        'anyenum'               => ['pg_catalog' => 3500],
-        'tsvector'              => ['pg_catalog' => 3614],
-        'tsquery'               => ['pg_catalog' => 3615],
-        'gtsvector'             => ['pg_catalog' => 3642],
-        '_tsvector'             => ['pg_catalog' => 3643],
-        '_gtsvector'            => ['pg_catalog' => 3644],
-        '_tsquery'              => ['pg_catalog' => 3645],
-        'regconfig'             => ['pg_catalog' => 3734],
-        '_regconfig'            => ['pg_catalog' => 3735],
-        'regdictionary'         => ['pg_catalog' => 3769],
-        '_regdictionary'        => ['pg_catalog' => 3770],
-        'jsonb'                 => ['pg_catalog' => 3802],
-        '_jsonb'                => ['pg_catalog' => 3807],
-        'anyrange'              => ['pg_catalog' => 3831],
-        'event_trigger'         => ['pg_catalog' => 3838],
-        'int4range'             => ['pg_catalog' => 3904],
-        '_int4range'            => ['pg_catalog' => 3905],
-        'numrange'              => ['pg_catalog' => 3906],
-        '_numrange'             => ['pg_catalog' => 3907],
-        'tsrange'               => ['pg_catalog' => 3908],
-        '_tsrange'              => ['pg_catalog' => 3909],
-        'tstzrange'             => ['pg_catalog' => 3910],
-        '_tstzrange'            => ['pg_catalog' => 3911],
-        'daterange'             => ['pg_catalog' => 3912],
-        '_daterange'            => ['pg_catalog' => 3913],
-        'int8range'             => ['pg_catalog' => 3926],
-        '_int8range'            => ['pg_catalog' => 3927],
-        'pg_shseclabel'         => ['pg_catalog' => 4066],
-        'jsonpath'              => ['pg_catalog' => 4072],
-        '_jsonpath'             => ['pg_catalog' => 4073],
-        'regnamespace'          => ['pg_catalog' => 4089],
-        '_regnamespace'         => ['pg_catalog' => 4090],
-        'regrole'               => ['pg_catalog' => 4096],
-        '_regrole'              => ['pg_catalog' => 4097],
-        'regcollation'          => ['pg_catalog' => 4191],
-        '_regcollation'         => ['pg_catalog' => 4192],
-        'pg_mcv_list'           => ['pg_catalog' => 5017],
-        'pg_snapshot'           => ['pg_catalog' => 5038],
-        '_pg_snapshot'          => ['pg_catalog' => 5039],
-        'xid8'                  => ['pg_catalog' => 5069],
-        'anycompatible'         => ['pg_catalog' => 5077],
-        'anycompatiblearray'    => ['pg_catalog' => 5078],
-        'anycompatiblenonarray' => ['pg_catalog' => 5079],
-        'anycompatiblerange'    => ['pg_catalog' => 5080],
-        'pg_subscription'       => ['pg_catalog' => 6101]
+        'bool'                         => ['pg_catalog' => 16],
+        'bytea'                        => ['pg_catalog' => 17],
+        'char'                         => ['pg_catalog' => 18],
+        'name'                         => ['pg_catalog' => 19],
+        'int8'                         => ['pg_catalog' => 20],
+        'int2'                         => ['pg_catalog' => 21],
+        'int2vector'                   => ['pg_catalog' => 22],
+        'int4'                         => ['pg_catalog' => 23],
+        'regproc'                      => ['pg_catalog' => 24],
+        'text'                         => ['pg_catalog' => 25],
+        'oid'                          => ['pg_catalog' => 26],
+        'tid'                          => ['pg_catalog' => 27],
+        'xid'                          => ['pg_catalog' => 28],
+        'cid'                          => ['pg_catalog' => 29],
+        'oidvector'                    => ['pg_catalog' => 30],
+        'pg_ddl_command'               => ['pg_catalog' => 32],
+        'pg_type'                      => ['pg_catalog' => 71],
+        'pg_attribute'                 => ['pg_catalog' => 75],
+        'pg_proc'                      => ['pg_catalog' => 81],
+        'pg_class'                     => ['pg_catalog' => 83],
+        'json'                         => ['pg_catalog' => 114],
+        'xml'                          => ['pg_catalog' => 142],
+        '_xml'                         => ['pg_catalog' => 143],
+        'pg_node_tree'                 => ['pg_catalog' => 194],
+        '_json'                        => ['pg_catalog' => 199],
+        '_pg_type'                     => ['pg_catalog' => 210],
+        'table_am_handler'             => ['pg_catalog' => 269],
+        '_pg_attribute'                => ['pg_catalog' => 270],
+        '_xid8'                        => ['pg_catalog' => 271],
+        '_pg_proc'                     => ['pg_catalog' => 272],
+        '_pg_class'                    => ['pg_catalog' => 273],
+        'index_am_handler'             => ['pg_catalog' => 325],
+        'point'                        => ['pg_catalog' => 600],
+        'lseg'                         => ['pg_catalog' => 601],
+        'path'                         => ['pg_catalog' => 602],
+        'box'                          => ['pg_catalog' => 603],
+        'polygon'                      => ['pg_catalog' => 604],
+        'line'                         => ['pg_catalog' => 628],
+        '_line'                        => ['pg_catalog' => 629],
+        'cidr'                         => ['pg_catalog' => 650],
+        '_cidr'                        => ['pg_catalog' => 651],
+        'float4'                       => ['pg_catalog' => 700],
+        'float8'                       => ['pg_catalog' => 701],
+        'unknown'                      => ['pg_catalog' => 705],
+        'circle'                       => ['pg_catalog' => 718],
+        '_circle'                      => ['pg_catalog' => 719],
+        'macaddr8'                     => ['pg_catalog' => 774],
+        '_macaddr8'                    => ['pg_catalog' => 775],
+        'money'                        => ['pg_catalog' => 790],
+        '_money'                       => ['pg_catalog' => 791],
+        'macaddr'                      => ['pg_catalog' => 829],
+        'inet'                         => ['pg_catalog' => 869],
+        '_bool'                        => ['pg_catalog' => 1000],
+        '_bytea'                       => ['pg_catalog' => 1001],
+        '_char'                        => ['pg_catalog' => 1002],
+        '_name'                        => ['pg_catalog' => 1003],
+        '_int2'                        => ['pg_catalog' => 1005],
+        '_int2vector'                  => ['pg_catalog' => 1006],
+        '_int4'                        => ['pg_catalog' => 1007],
+        '_regproc'                     => ['pg_catalog' => 1008],
+        '_text'                        => ['pg_catalog' => 1009],
+        '_tid'                         => ['pg_catalog' => 1010],
+        '_xid'                         => ['pg_catalog' => 1011],
+        '_cid'                         => ['pg_catalog' => 1012],
+        '_oidvector'                   => ['pg_catalog' => 1013],
+        '_bpchar'                      => ['pg_catalog' => 1014],
+        '_varchar'                     => ['pg_catalog' => 1015],
+        '_int8'                        => ['pg_catalog' => 1016],
+        '_point'                       => ['pg_catalog' => 1017],
+        '_lseg'                        => ['pg_catalog' => 1018],
+        '_path'                        => ['pg_catalog' => 1019],
+        '_box'                         => ['pg_catalog' => 1020],
+        '_float4'                      => ['pg_catalog' => 1021],
+        '_float8'                      => ['pg_catalog' => 1022],
+        '_polygon'                     => ['pg_catalog' => 1027],
+        '_oid'                         => ['pg_catalog' => 1028],
+        'aclitem'                      => ['pg_catalog' => 1033],
+        '_aclitem'                     => ['pg_catalog' => 1034],
+        '_macaddr'                     => ['pg_catalog' => 1040],
+        '_inet'                        => ['pg_catalog' => 1041],
+        'bpchar'                       => ['pg_catalog' => 1042],
+        'varchar'                      => ['pg_catalog' => 1043],
+        'date'                         => ['pg_catalog' => 1082],
+        'time'                         => ['pg_catalog' => 1083],
+        'timestamp'                    => ['pg_catalog' => 1114],
+        '_timestamp'                   => ['pg_catalog' => 1115],
+        '_date'                        => ['pg_catalog' => 1182],
+        '_time'                        => ['pg_catalog' => 1183],
+        'timestamptz'                  => ['pg_catalog' => 1184],
+        '_timestamptz'                 => ['pg_catalog' => 1185],
+        'interval'                     => ['pg_catalog' => 1186],
+        '_interval'                    => ['pg_catalog' => 1187],
+        '_numeric'                     => ['pg_catalog' => 1231],
+        'pg_database'                  => ['pg_catalog' => 1248],
+        '_cstring'                     => ['pg_catalog' => 1263],
+        'timetz'                       => ['pg_catalog' => 1266],
+        '_timetz'                      => ['pg_catalog' => 1270],
+        'bit'                          => ['pg_catalog' => 1560],
+        '_bit'                         => ['pg_catalog' => 1561],
+        'varbit'                       => ['pg_catalog' => 1562],
+        '_varbit'                      => ['pg_catalog' => 1563],
+        'numeric'                      => ['pg_catalog' => 1700],
+        'refcursor'                    => ['pg_catalog' => 1790],
+        '_refcursor'                   => ['pg_catalog' => 2201],
+        'regprocedure'                 => ['pg_catalog' => 2202],
+        'regoper'                      => ['pg_catalog' => 2203],
+        'regoperator'                  => ['pg_catalog' => 2204],
+        'regclass'                     => ['pg_catalog' => 2205],
+        'regtype'                      => ['pg_catalog' => 2206],
+        '_regprocedure'                => ['pg_catalog' => 2207],
+        '_regoper'                     => ['pg_catalog' => 2208],
+        '_regoperator'                 => ['pg_catalog' => 2209],
+        '_regclass'                    => ['pg_catalog' => 2210],
+        '_regtype'                     => ['pg_catalog' => 2211],
+        'record'                       => ['pg_catalog' => 2249],
+        'cstring'                      => ['pg_catalog' => 2275],
+        'any'                          => ['pg_catalog' => 2276],
+        'anyarray'                     => ['pg_catalog' => 2277],
+        'void'                         => ['pg_catalog' => 2278],
+        'trigger'                      => ['pg_catalog' => 2279],
+        'language_handler'             => ['pg_catalog' => 2280],
+        'internal'                     => ['pg_catalog' => 2281],
+        'anyelement'                   => ['pg_catalog' => 2283],
+        '_record'                      => ['pg_catalog' => 2287],
+        'anynonarray'                  => ['pg_catalog' => 2776],
+        'pg_authid'                    => ['pg_catalog' => 2842],
+        'pg_auth_members'              => ['pg_catalog' => 2843],
+        '_txid_snapshot'               => ['pg_catalog' => 2949],
+        'uuid'                         => ['pg_catalog' => 2950],
+        '_uuid'                        => ['pg_catalog' => 2951],
+        'txid_snapshot'                => ['pg_catalog' => 2970],
+        'fdw_handler'                  => ['pg_catalog' => 3115],
+        'pg_lsn'                       => ['pg_catalog' => 3220],
+        '_pg_lsn'                      => ['pg_catalog' => 3221],
+        'tsm_handler'                  => ['pg_catalog' => 3310],
+        'pg_ndistinct'                 => ['pg_catalog' => 3361],
+        'pg_dependencies'              => ['pg_catalog' => 3402],
+        'anyenum'                      => ['pg_catalog' => 3500],
+        'tsvector'                     => ['pg_catalog' => 3614],
+        'tsquery'                      => ['pg_catalog' => 3615],
+        'gtsvector'                    => ['pg_catalog' => 3642],
+        '_tsvector'                    => ['pg_catalog' => 3643],
+        '_gtsvector'                   => ['pg_catalog' => 3644],
+        '_tsquery'                     => ['pg_catalog' => 3645],
+        'regconfig'                    => ['pg_catalog' => 3734],
+        '_regconfig'                   => ['pg_catalog' => 3735],
+        'regdictionary'                => ['pg_catalog' => 3769],
+        '_regdictionary'               => ['pg_catalog' => 3770],
+        'jsonb'                        => ['pg_catalog' => 3802],
+        '_jsonb'                       => ['pg_catalog' => 3807],
+        'anyrange'                     => ['pg_catalog' => 3831],
+        'event_trigger'                => ['pg_catalog' => 3838],
+        'int4range'                    => ['pg_catalog' => 3904],
+        '_int4range'                   => ['pg_catalog' => 3905],
+        'numrange'                     => ['pg_catalog' => 3906],
+        '_numrange'                    => ['pg_catalog' => 3907],
+        'tsrange'                      => ['pg_catalog' => 3908],
+        '_tsrange'                     => ['pg_catalog' => 3909],
+        'tstzrange'                    => ['pg_catalog' => 3910],
+        '_tstzrange'                   => ['pg_catalog' => 3911],
+        'daterange'                    => ['pg_catalog' => 3912],
+        '_daterange'                   => ['pg_catalog' => 3913],
+        'int8range'                    => ['pg_catalog' => 3926],
+        '_int8range'                   => ['pg_catalog' => 3927],
+        'pg_shseclabel'                => ['pg_catalog' => 4066],
+        'jsonpath'                     => ['pg_catalog' => 4072],
+        '_jsonpath'                    => ['pg_catalog' => 4073],
+        'regnamespace'                 => ['pg_catalog' => 4089],
+        '_regnamespace'                => ['pg_catalog' => 4090],
+        'regrole'                      => ['pg_catalog' => 4096],
+        '_regrole'                     => ['pg_catalog' => 4097],
+        'regcollation'                 => ['pg_catalog' => 4191],
+        '_regcollation'                => ['pg_catalog' => 4192],
+        'int4multirange'               => ['pg_catalog' => 4451],
+        'nummultirange'                => ['pg_catalog' => 4532],
+        'tsmultirange'                 => ['pg_catalog' => 4533],
+        'tstzmultirange'               => ['pg_catalog' => 4534],
+        'datemultirange'               => ['pg_catalog' => 4535],
+        'int8multirange'               => ['pg_catalog' => 4536],
+        'anymultirange'                => ['pg_catalog' => 4537],
+        'anycompatiblemultirange'      => ['pg_catalog' => 4538],
+        'pg_brin_bloom_summary'        => ['pg_catalog' => 4600],
+        'pg_brin_minmax_multi_summary' => ['pg_catalog' => 4601],
+        'pg_mcv_list'                  => ['pg_catalog' => 5017],
+        'pg_snapshot'                  => ['pg_catalog' => 5038],
+        '_pg_snapshot'                 => ['pg_catalog' => 5039],
+        'xid8'                         => ['pg_catalog' => 5069],
+        'anycompatible'                => ['pg_catalog' => 5077],
+        'anycompatiblearray'           => ['pg_catalog' => 5078],
+        'anycompatiblenonarray'        => ['pg_catalog' => 5079],
+        'anycompatiblerange'           => ['pg_catalog' => 5080],
+        'pg_subscription'              => ['pg_catalog' => 6101],
+        '_int4multirange'              => ['pg_catalog' => 6150],
+        '_nummultirange'               => ['pg_catalog' => 6151],
+        '_tsmultirange'                => ['pg_catalog' => 6152],
+        '_tstzmultirange'              => ['pg_catalog' => 6153],
+        '_datemultirange'              => ['pg_catalog' => 6155],
+        '_int8multirange'              => ['pg_catalog' => 6157]
     ];
 
     /**
@@ -280,6 +300,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         1011 => 28,
         1012 => 29,
         1013 => 30,
+        210  => 71,
+        270  => 75,
+        272  => 81,
+        273  => 83,
         199  => 114,
         143  => 142,
         1017 => 600,
@@ -335,6 +359,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         4090 => 4089,
         4097 => 4096,
         4192 => 4191,
+        6150 => 4451,
+        6151 => 4532,
+        6152 => 4533,
+        6153 => 4534,
+        6155 => 4535,
+        6157 => 4536,
         5039 => 5038,
         271  => 5069
     ];
@@ -377,6 +407,19 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         3910 => 1184,
         3912 => 1082,
         3926 => 20
+    ];
+
+    /**
+     * Mapping of multirange type OIDs to their base type OIDs (Postgres 14+)
+     * @var array<int, int>
+     */
+    private $multiRangeTypes = [
+        4451 => 23,
+        4532 => 1700,
+        4533 => 1114,
+        4534 => 1184,
+        4535 => 1082,
+        4536 => 20
     ];
 
     /**
@@ -423,19 +466,21 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @var array<class-string, array{string, string}>
      */
     private $classMapping = [
-        \DateTimeInterface::class  => ['pg_catalog', 'timestamptz'],
-        \DateInterval::class       => ['pg_catalog', 'interval'],
+        \DateTimeInterface::class       => ['pg_catalog', 'timestamptz'],
+        \DateInterval::class            => ['pg_catalog', 'interval'],
 
-        types\Box::class           => ['pg_catalog', 'box'],
-        types\Circle::class        => ['pg_catalog', 'circle'],
-        types\Line::class          => ['pg_catalog', 'line'],
-        types\LineSegment::class   => ['pg_catalog', 'lseg'],
-        types\Path::class          => ['pg_catalog', 'path'],
-        types\Point::class         => ['pg_catalog', 'point'],
-        types\Polygon::class       => ['pg_catalog', 'polygon'],
-        types\DateTimeRange::class => ['pg_catalog', 'tstzrange'],
-        types\NumericRange::class  => ['pg_catalog', 'numrange'],
-        types\Tid::class           => ['pg_catalog', 'tid']
+        types\Box::class                => ['pg_catalog', 'box'],
+        types\Circle::class             => ['pg_catalog', 'circle'],
+        types\Line::class               => ['pg_catalog', 'line'],
+        types\LineSegment::class        => ['pg_catalog', 'lseg'],
+        types\Path::class               => ['pg_catalog', 'path'],
+        types\Point::class              => ['pg_catalog', 'point'],
+        types\Polygon::class            => ['pg_catalog', 'polygon'],
+        types\DateTimeRange::class      => ['pg_catalog', 'tstzrange'],
+        types\DateTimeMultiRange::class => ['pg_catalog', 'tstzmultirange'],
+        types\NumericRange::class       => ['pg_catalog', 'numrange'],
+        types\NumericMultiRange::class  => ['pg_catalog', 'nummultirange'],
+        types\Tid::class                => ['pg_catalog', 'tid']
     ];
 
 
@@ -503,6 +548,22 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
         $this->registerConverter(function () {
             return new containers\RangeConverter(new datetime\TimeStampTzConverter());
         }, 'tstzrange');
+
+        $this->registerConverter(function () {
+            return new containers\MultiRangeConverter(new IntegerConverter());
+        }, ['int4multirange', 'int8multirange']);
+        $this->registerConverter(function () {
+            return new containers\MultiRangeConverter(new NumericConverter());
+        }, 'nummultirange');
+        $this->registerConverter(function () {
+            return new containers\MultiRangeConverter(new datetime\DateConverter());
+        }, 'datemultirange');
+        $this->registerConverter(function () {
+            return new containers\MultiRangeConverter(new datetime\TimeStampConverter());
+        }, 'tsmultirange');
+        $this->registerConverter(function () {
+            return new containers\MultiRangeConverter(new datetime\TimeStampTzConverter());
+        }, 'tstzmultirange');
 
         $this->buildOIDMap();
     }
@@ -747,6 +808,27 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     }
 
     /**
+     * Checks whether given OID corresponds to multirange type (available since Postgres 14)
+     *
+     * $baseTypeOid will be set to OID of the multirange base type
+     *
+     * @param int      $oid
+     * @param int|null $baseTypeOid
+     * @return bool
+     *
+     * @psalm-assert-if-true int $baseTypeOid
+     */
+    final protected function isMultiRangeTypeOID(int $oid, ?int &$baseTypeOid = null): bool
+    {
+        if (!isset($this->multiRangeTypes[$oid])) {
+            return false;
+        } else {
+            $baseTypeOid = $this->multiRangeTypes[$oid];
+            return true;
+        }
+    }
+
+    /**
      * Checks whether given OID corresponds to domain type
      *
      * $baseTypeOid will be set to OID of the underlying data type
@@ -788,6 +870,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     {
         return !isset($this->arrayTypes[$oid])
                && !isset($this->rangeTypes[$oid])
+               && !isset($this->multiRangeTypes[$oid])
                && !isset($this->compositeTypes[$oid])
                && !isset($this->domainTypes[$oid]);
     }
@@ -805,6 +888,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
         } elseif ($this->isRangeTypeOID($oid, $baseTypeOid)) {
             return new containers\RangeConverter(
+                $this->getConverterForTypeOID($baseTypeOid)
+            );
+
+        } elseif ($this->isMultiRangeTypeOID($oid, $baseTypeOid)) {
+            return new containers\MultiRangeConverter(
                 $this->getConverterForTypeOID($baseTypeOid)
             );
 
@@ -1252,20 +1340,22 @@ SQL;
         }
 
         if (!$force && null !== $cacheItem && $cacheItem->isHit()) {
-            $cached               = $cacheItem->get();
-            $this->dbTypesSource  = self::SOURCE_CACHE;
-            $this->arrayTypes     = $cached['array'] ?? [];
-            $this->compositeTypes = $cached['composite'] ?? [];
-            $this->domainTypes    = $cached['domain'] ?? [];
-            $this->rangeTypes     = $cached['range'] ?? [];
-            $this->typeNames      = $cached['names'] ?? [];
+            $cached                = $cacheItem->get();
+            $this->dbTypesSource   = self::SOURCE_CACHE;
+            $this->arrayTypes      = $cached['array'] ?? [];
+            $this->compositeTypes  = $cached['composite'] ?? [];
+            $this->domainTypes     = $cached['domain'] ?? [];
+            $this->rangeTypes      = $cached['range'] ?? [];
+            $this->multiRangeTypes = $cached['multirange'] ?? [];
+            $this->typeNames       = $cached['names'] ?? [];
 
         } else {
-            $this->arrayTypes     = [];
-            $this->compositeTypes = [];
-            $this->domainTypes    = [];
-            $this->rangeTypes     = [];
-            $this->typeNames      = [];
+            $this->arrayTypes      = [];
+            $this->compositeTypes  = [];
+            $this->domainTypes     = [];
+            $this->rangeTypes      = [];
+            $this->multiRangeTypes = [];
+            $this->typeNames       = [];
             $sql = <<<SQL
 select t.oid, nspname, typname, typarray, typrelid, typbasetype
 from pg_catalog.pg_type as t, pg_catalog.pg_namespace as s
@@ -1317,21 +1407,25 @@ SQL;
                 pg_free_result($res);
             }
 
-            if (!($res = @pg_query($this->connection->getResource(), "select rngtypid, rngsubtype from pg_range"))) {
+            if (!($res = @pg_query($this->connection->getResource(), "select * from pg_range"))) {
                 throw ServerException::fromConnection($this->connection->getResource());
             }
             while ($row = pg_fetch_assoc($res)) {
+                if (array_key_exists('rngmultitypid', $row)) {
+                    $this->multiRangeTypes[$row['rngmultitypid']] = (int)$row['rngsubtype'];
+                }
                 $this->rangeTypes[$row['rngtypid']] = (int)$row['rngsubtype'];
             }
             pg_free_result($res);
 
             if ($cache && $cacheItem) {
                 $cache->save($cacheItem->set([
-                    'array'     => $this->arrayTypes,
-                    'composite' => $this->compositeTypes,
-                    'domain'    => $this->domainTypes,
-                    'range'     => $this->rangeTypes,
-                    'names'     => $this->typeNames
+                    'array'      => $this->arrayTypes,
+                    'composite'  => $this->compositeTypes,
+                    'domain'     => $this->domainTypes,
+                    'range'      => $this->rangeTypes,
+                    'multirange' => $this->multiRangeTypes,
+                    'names'      => $this->typeNames
                 ]));
             }
 

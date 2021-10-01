@@ -28,7 +28,9 @@ use sad_spirit\pg_wrapper\{
     exceptions\RuntimeException,
     exceptions\TypeConversionException,
     TypeConverter,
-    types\DateTimeRange};
+    types\DateTimeMultiRange,
+    types\DateTimeRange
+};
 use sad_spirit\pg_wrapper\converters\{
     datetime\DateConverter,
     DefaultTypeConverterFactory,
@@ -38,6 +40,7 @@ use sad_spirit\pg_wrapper\converters\{
     containers\ArrayConverter,
     containers\CompositeConverter,
     containers\HstoreConverter,
+    containers\MultiRangeConverter,
     containers\RangeConverter,
     datetime\TimeConverter,
     datetime\TimeStampConverter,
@@ -270,6 +273,29 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
+    public function testMultiRangeTypeConverterFromMetadata(): void
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+        $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
+        $connection->setTypeConverterFactory($this->factory);
+        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        if (version_compare($serverVersion, '13', '<=')) {
+            $this::markTestSkipped('Postgres version 14 is required for multirange support');
+        }
+
+        $connection->execute("drop type if exists textrange");
+        $connection->execute(
+            "create type textrange as range (subtype=text, collation=\"C\", multirange_type_name=textmultirange)"
+        );
+
+        $this::assertEquals(
+            new MultiRangeConverter(new StringConverter()),
+            $this->factory->getConverterForTypeSpecification('textmultirange')
+        );
+    }
+
     public function testEnumTypeConverterFromMetadata(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -443,6 +469,32 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
+    public function testConnectionAwareSubConverterOfMultiRangeShouldBeConfigured(): void
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection    = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $connection->setTypeConverterFactory($this->factory);
+        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        if (version_compare($serverVersion, '13', '<=')) {
+            $this::markTestSkipped('Postgres version 14 is required for multirange support');
+        }
+
+        $result = $connection->execute(
+            "select datemultirange(daterange('2019-04-26', '2019-04-27', '[]'))",
+            ['datemultirange']
+        );
+
+        $this->assertEquals(
+            [new DateTimeMultiRange(
+                new DateTimeRange(new \DateTime('2019-04-26'), new \DateTime('2019-04-28'), true, false)
+            )],
+            $result->fetchColumn(0)
+        );
+    }
+
     public function testConnectionAwareSubConverterOfCompositeTypeShouldBeConfigured(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -527,7 +579,8 @@ class DefaultTypeConverterFactoryTest extends TestCase
             ['pUblic.hstore',           new HstoreConverter()],
             [' "public" . "hstore"',    new HstoreConverter()],
             ['tsrange',                 new RangeConverter(new TimeStampConverter())],
-            ['pg_catalog.int4range',    new RangeConverter(new IntegerConverter())]
+            ['pg_catalog.int4range',    new RangeConverter(new IntegerConverter())],
+            ['pg_catalog.tsmultirange', new MultiRangeConverter(new TimeStampConverter())]
         ];
     }
 
