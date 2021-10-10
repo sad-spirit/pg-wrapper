@@ -97,7 +97,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    final public function offsetSet($offset, $value)
+    final public function offsetSet($offset, $value): void
     {
         throw new BadMethodCallException(__CLASS__ . " objects are immutable");
     }
@@ -107,7 +107,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    final public function offsetUnset($offset)
+    final public function offsetUnset($offset): void
     {
         throw new BadMethodCallException(__CLASS__ . " objects are immutable");
     }

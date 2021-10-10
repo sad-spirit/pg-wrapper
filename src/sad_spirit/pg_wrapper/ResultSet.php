@@ -419,7 +419,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?array
     {
         return $this->offsetExists($offset) ? $this->read((int)$offset, $this->mode) : null;
     }

@@ -47,7 +47,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * {@inheritDoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->points);
     }
@@ -56,7 +56,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
      * {@inheritDoc}
      * @return Point
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): Point
     {
         if (array_key_exists($offset, $this->points)) {
             return $this->points[$offset];
@@ -70,7 +70,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new BadMethodCallException(__CLASS__ . " objects are immutable");
     }
@@ -80,7 +80,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new BadMethodCallException(__CLASS__ . " objects are immutable");
     }
@@ -88,7 +88,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * {@inheritDoc}
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->points);
     }
@@ -96,7 +96,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * {@inheritDoc}
      */
-    public function count()
+    public function count(): int
     {
         return count($this->points);
     }
