@@ -76,7 +76,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * columns (pg_catalog.pg_statistic has several "anyarray" columns). It's easier just
      * to keep all of them than to cherry-pick.
      *
-     * @var array<string, array<string, int>> Mapping "type name" => ["schema name" => "type OID", ...],
+     * @var array<string, array<string, int|numeric-string>> Mapping "type name" => ["schema name" => "type OID", ...],
      *                                        several schemas may contain types having the same name
      */
     private $typeNames = [
@@ -282,7 +282,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
     /**
      * Mapping of array type OIDs to their base type OIDs
-     * @var array<int, int>
+     * @var array<int|numeric-string>
      */
     private $arrayTypes = [
         1000 => 16,
@@ -376,7 +376,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * afterwards it contains type specification of the form
      * ['field name' => 'field type OID', ...]
      *
-     * @var array<int, int|array<string, int>>
+     * @var array<int|numeric-string|array<string, int|numeric-string>>
      */
     private $compositeTypes = [
         71   => 1247,
@@ -392,13 +392,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
     /**
      * Mapping of domain type OIDs to their base type OIDs
-     * @var array<int, int>
+     * @var array<int|numeric-string>
      */
     private $domainTypes = [];
 
     /**
      * Mapping of range type OIDs to their base type OIDs
-     * @var array<int, int>
+     * @var array<int|numeric-string>
      */
     private $rangeTypes = [
         3904 => 23,
@@ -411,7 +411,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
 
     /**
      * Mapping of multirange type OIDs to their base type OIDs (Postgres 14+)
-     * @var array<int, int>
+     * @var array<int|numeric-string>
      */
     private $multiRangeTypes = [
         4451 => 23,
@@ -433,7 +433,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * This is built based on $typeNames, but not saved to cache
      *
-     * @var array<int, array{string, string}>
+     * @var array<array{string, string}>
      */
     private $oidMap = [];
 
@@ -770,13 +770,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * $baseTypeOid will be set to OID of the array base type
      *
-     * @param int      $oid
-     * @param int|null $baseTypeOid
+     * @param int|numeric-string      $oid
+     * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
-     * @psalm-assert-if-true int $baseTypeOid
+     * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    final protected function isArrayTypeOID(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isArrayTypeOID($oid, &$baseTypeOid = null): bool
     {
         if (!isset($this->arrayTypes[$oid])) {
             return false;
@@ -791,13 +791,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * $baseTypeOid will be set to OID of the range base type
      *
-     * @param int      $oid
-     * @param int|null $baseTypeOid
+     * @param int|numeric-string      $oid
+     * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
-     * @psalm-assert-if-true int $baseTypeOid
+     * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    final protected function isRangeTypeOID(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isRangeTypeOID($oid, &$baseTypeOid = null): bool
     {
         if (!isset($this->rangeTypes[$oid])) {
             return false;
@@ -812,13 +812,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * $baseTypeOid will be set to OID of the multirange base type
      *
-     * @param int      $oid
-     * @param int|null $baseTypeOid
+     * @param int|numeric-string      $oid
+     * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
-     * @psalm-assert-if-true int $baseTypeOid
+     * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    final protected function isMultiRangeTypeOID(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isMultiRangeTypeOID($oid, &$baseTypeOid = null): bool
     {
         if (!isset($this->multiRangeTypes[$oid])) {
             return false;
@@ -833,13 +833,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      *
      * $baseTypeOid will be set to OID of the underlying data type
      *
-     * @param int      $oid
-     * @param int|null $baseTypeOid
+     * @param int|numeric-string      $oid
+     * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
-     * @psalm-assert-if-true int $baseTypeOid
+     * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    final protected function isDomainTypeOID(int $oid, ?int &$baseTypeOid = null): bool
+    final protected function isDomainTypeOID($oid, &$baseTypeOid = null): bool
     {
         if (!isset($this->domainTypes[$oid])) {
             return false;
@@ -852,10 +852,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Checks whether given OID corresponds to composite type
      *
-     * @param int $oid
+     * @param int|numeric-string $oid
      * @return bool
      */
-    final protected function isCompositeTypeOID(int $oid): bool
+    final protected function isCompositeTypeOID($oid): bool
     {
         return isset($this->compositeTypes[$oid]);
     }
@@ -863,10 +863,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Checks whether given OID corresponds to base type
      *
-     * @param int $oid
+     * @param int|numeric-string $oid
      * @return bool
      */
-    final protected function isBaseTypeOID(int $oid): bool
+    final protected function isBaseTypeOID($oid): bool
     {
         return !isset($this->arrayTypes[$oid])
                && !isset($this->rangeTypes[$oid])
@@ -879,7 +879,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    final public function getConverterForTypeOID(int $oid): TypeConverter
+    final public function getConverterForTypeOID($oid): TypeConverter
     {
         if ($this->isArrayTypeOID($oid, $baseTypeOid)) {
             return new containers\ArrayConverter(
@@ -915,12 +915,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Searches for a type name corresponding to the given OID in loaded type metadata
      *
-     * @param int    $oid
-     * @param string $method Used in Exception messages only
+     * @param int|numeric-string $oid
+     * @param string             $method Used in Exception messages only
      * @return array{string, string}
      * @throws InvalidArgumentException
      */
-    final protected function findTypeNameForOID(int $oid, string $method): array
+    final protected function findTypeNameForOID($oid, string $method): array
     {
         if (
             !$this->checkTypesArrayWithPossibleReload(
@@ -944,10 +944,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
      * @param string      $typeName
      * @param string|null $schemaName
      * @param string      $method     Used in Exception messages only
-     * @return int
+     * @return int|numeric-string
      * @throws InvalidArgumentException
      */
-    final protected function findOIDForTypeName(string $typeName, ?string $schemaName, string $method): int
+    final protected function findOIDForTypeName(string $typeName, ?string $schemaName, string $method)
     {
         if (
             !$this->checkTypesArrayWithPossibleReload(
@@ -1260,11 +1260,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Returns a converter for a database-specific composite type
      *
-     * @param int $oid
+     * @param int|numeric-string $oid
      * @return TypeConverter
      * @throws ServerException
      */
-    private function getConverterForCompositeTypeOID(int $oid): TypeConverter
+    private function getConverterForCompositeTypeOID($oid): TypeConverter
     {
         if (null === $this->connection) {
             throw new RuntimeException(__METHOD__ . '(): Database connection required');
@@ -1300,8 +1300,9 @@ SQL;
                     throw ServerException::fromConnection($this->connection->getResource());
                 }
                 $this->compositeTypes[$oid] = [];
+                $converter = new IntegerConverter();
                 while ($row = pg_fetch_assoc($res)) {
-                    $this->compositeTypes[$oid][$row['attname']] = (int)$row['atttypid'];
+                    $this->compositeTypes[$oid][$row['attname']] = $converter->input($row['atttypid']);
                 }
                 pg_free_result($res);
 
@@ -1365,20 +1366,21 @@ SQL;
             if (!($res = @pg_query($this->connection->getResource(), $sql))) {
                 throw ServerException::fromConnection($this->connection->getResource());
             }
+            $converter = new IntegerConverter();
             while ($row = pg_fetch_assoc($res)) {
                 if (!isset($this->typeNames[$row['typname']])) {
-                    $this->typeNames[$row['typname']] = [$row['nspname'] => (int)$row['oid']];
+                    $this->typeNames[$row['typname']] = [$row['nspname'] => $converter->input($row['oid'])];
                 } else {
-                    $this->typeNames[$row['typname']][$row['nspname']] = (int)$row['oid'];
+                    $this->typeNames[$row['typname']][$row['nspname']] = $converter->input($row['oid']);
                 }
                 if ('0' !== $row['typarray']) {
-                    $this->arrayTypes[$row['typarray']] = (int)$row['oid'];
+                    $this->arrayTypes[$row['typarray']] = $converter->input($row['oid']);
                 }
                 if ('0' !== $row['typrelid']) {
-                    $this->compositeTypes[$row['oid']] = (int)$row['typrelid'];
+                    $this->compositeTypes[$row['oid']] = $converter->input($row['typrelid']);
                 }
                 if ('0' !== $row['typbasetype']) {
-                    $this->domainTypes[$row['oid']] = (int)$row['typbasetype'];
+                    $this->domainTypes[$row['oid']] = $converter->input($row['typbasetype']);
                 }
             }
             pg_free_result($res);
@@ -1398,11 +1400,11 @@ SQL;
                     throw ServerException::fromConnection($this->connection->getResource());
                 }
                 while ($row = pg_fetch_assoc($res)) {
-                    $relTypeId = (int)$row['reltype'];
+                    $relTypeId = $converter->input($row['reltype']);
                     if (!isset($this->compositeTypes[$relTypeId]) || !is_array($this->compositeTypes[$relTypeId])) {
                         $this->compositeTypes[$relTypeId] = [];
                     }
-                    $this->compositeTypes[$relTypeId][$row['attname']] = (int)$row['atttypid'];
+                    $this->compositeTypes[$relTypeId][$row['attname']] = $converter->input($row['atttypid']);
                 }
                 pg_free_result($res);
             }
@@ -1412,9 +1414,9 @@ SQL;
             }
             while ($row = pg_fetch_assoc($res)) {
                 if (array_key_exists('rngmultitypid', $row)) {
-                    $this->multiRangeTypes[$row['rngmultitypid']] = (int)$row['rngsubtype'];
+                    $this->multiRangeTypes[$row['rngmultitypid']] = $converter->input($row['rngsubtype']);
                 }
-                $this->rangeTypes[$row['rngtypid']] = (int)$row['rngsubtype'];
+                $this->rangeTypes[$row['rngtypid']] = $converter->input($row['rngsubtype']);
             }
             pg_free_result($res);
 

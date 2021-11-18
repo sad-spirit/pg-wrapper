@@ -83,7 +83,7 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function getConverterForTypeOID(int $oid): TypeConverter
+    public function getConverterForTypeOID($oid): TypeConverter
     {
         return $this->converter;
     }

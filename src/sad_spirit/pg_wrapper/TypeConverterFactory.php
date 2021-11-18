@@ -62,10 +62,15 @@ interface TypeConverterFactory
      * for a specific base type, returning e.g. an instance of StubConverter instead. It may throw an exception
      * if the database does not have a type with the given OID.
      *
-     * @param int $oid
+     * NB: this method accepts strings for the following reason: OIDs are _unsigned_ 32-bit integers and may be
+     * out of range of PHP's _signed_ int type on 32-bit builds. For this same reason PHP itself does not
+     * unconditionally convert OIDs to int, see
+     * https://github.com/php/php-src/blob/2b32cafd880786b038767d5d7a56ed117a47ed51/ext/pgsql/pgsql.c#L64-L73
+     *
+     * @param int|numeric-string $oid
      * @return TypeConverter
      */
-    public function getConverterForTypeOID(int $oid): TypeConverter;
+    public function getConverterForTypeOID($oid): TypeConverter;
 
     /**
      * Tries to return a converter based on type of $value
