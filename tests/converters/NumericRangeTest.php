@@ -44,7 +44,8 @@ class NumericRangeTest extends TypeConverterTestCase
             ['empty',  NumericRange::createEmpty()],
             ['(,)',    new NumericRange()],
             ['("1",)', new NumericRange(1, null, false, true)],
-            ['(,"2")', new NumericRange(null, 2, false, false)]
+            ['(,"2")', new NumericRange(null, 2, false, false)],
+            ['["0","Infinity"]', new NumericRange(0, INF, true, true)]
         ];
     }
 

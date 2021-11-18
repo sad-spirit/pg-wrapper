@@ -23,7 +23,7 @@ namespace sad_spirit\pg_wrapper\converters;
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
- * Converter for arbitrary precision numbers, keeps them as strings, handles NaN
+ * Converter for arbitrary precision numbers, keeps them as strings, handles NaN and Infinity
  */
 class NumericConverter extends BaseConverter
 {
@@ -36,6 +36,12 @@ class NumericConverter extends BaseConverter
         } elseif (0 === strcasecmp($native, 'NaN')) {
             return NAN;
 
+        } elseif (0 === strcasecmp($native, 'Infinity')) {
+            return INF;
+
+        } elseif (0 === strcasecmp($native, '-Infinity')) {
+            return -INF;
+
         } else {
             throw TypeConversionException::unexpectedValue($this, 'input', 'numeric value', $native);
         }
@@ -46,6 +52,8 @@ class NumericConverter extends BaseConverter
         if (is_float($value)) {
             if (is_nan($value)) {
                 return 'NaN';
+            } elseif (is_infinite($value)) {
+                return $value > 0 ? 'Infinity' : '-Infinity';
             } else {
                 return strtr((string)$value, ',', '.');
             }

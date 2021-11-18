@@ -16,6 +16,7 @@
 * As `pgsql` functions in PHP 8.1 now return and accept objects instead of resources, added checks for these objects alongside `is_resource` checks for earlier PHP versions.
 * New error code defined in Postgres 14.
 * Support for multirange types added in Postgres 14.
+* Support for infinite values in `NumericConverter` (numeric type in Postgres 14 allows these).
 * `Connection::getLastError()` method.
 
 ### Fixed
