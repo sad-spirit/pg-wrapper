@@ -27,8 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * Used to convert PostgreSQL's int4range, int8range, numrange types
  *
- * @property-read int|float|numeric-string|null $lower
- * @property-read int|float|numeric-string|null $upper
+ * @extends Range<int|float|numeric-string>
  */
 final class NumericRange extends Range
 {

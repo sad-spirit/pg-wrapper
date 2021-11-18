@@ -23,11 +23,12 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing a range value from Postgres on PHP side
  *
- * @property-read mixed $lower
- * @property-read mixed $upper
- * @property-read bool  $lowerInclusive
- * @property-read bool  $upperInclusive
- * @property-read bool  $empty
+ * @template Bound
+ * @property-read Bound|null $lower
+ * @property-read Bound|null $upper
+ * @property-read bool       $lowerInclusive
+ * @property-read bool       $upperInclusive
+ * @property-read bool       $empty
  *
  * @psalm-consistent-constructor
  */
@@ -35,9 +36,9 @@ class Range implements ArrayRepresentable, RangeConstructor
 {
     use ReadOnlyProperties;
 
-    /** @var mixed|null */
+    /** @var Bound|null */
     private $p_lower = null;
-    /** @var mixed|null */
+    /** @var Bound|null */
     private $p_upper = null;
     /** @var bool */
     private $p_lowerInclusive = true;
@@ -61,7 +62,7 @@ class Range implements ArrayRepresentable, RangeConstructor
     /**
      * Returns the range's lower bound
      *
-     * @return mixed|null
+     * @return Bound|null
      */
     public function getLower()
     {
@@ -71,7 +72,7 @@ class Range implements ArrayRepresentable, RangeConstructor
     /**
      * Returns the range's upper bound
      *
-     * @return mixed|null
+     * @return Bound|null
      */
     public function getUpper()
     {

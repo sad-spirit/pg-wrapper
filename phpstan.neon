@@ -13,3 +13,4 @@ parameters:
     - TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING
   treatPhpDocTypesAsCertain: false
   checkMissingIterableValueType: false
+  checkGenericClassInNonGenericObjectType: false

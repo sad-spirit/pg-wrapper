@@ -42,7 +42,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
     /**
      * Only instances of this class will be allowed as items
      *
-     * @return class-string<Range>
+     * @return class-string<T>
      */
     public static function getItemClass(): string
     {

@@ -27,8 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * Used to convert PostgreSQL's tsrange, tstzrange, daterange types
  *
- * @property-read \DateTimeImmutable|null $lower
- * @property-read \DateTimeImmutable|null $upper
+ * @extends Range<\DateTimeImmutable>
  */
 final class DateTimeRange extends Range
 {
