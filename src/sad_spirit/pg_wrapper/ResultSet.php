@@ -173,7 +173,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     public static function createFromResultResource($resource, Connection $connection, array $types = []): self
     {
         if (false === $resource) {
-            throw exceptions\ServerException::fromConnection($connection->getResource());
+            throw exceptions\ServerException::fromConnection($connection);
         } elseif (
             (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource))
             && !$resource instanceof \Pgsql\Result

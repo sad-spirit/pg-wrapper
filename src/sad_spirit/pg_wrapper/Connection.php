@@ -247,6 +247,22 @@ class Connection
     }
 
     /**
+     * Returns the last error message for this connection, null if none present
+     *
+     * @return string|null
+     */
+    public function getLastError(): ?string
+    {
+        try {
+            /** @psalm-suppress PossiblyInvalidArgument */
+            return null !== $this->resource && ($error = \pg_last_error($this->resource))
+                   ? $error : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
      * Returns database connection resource
      *
      * @return resource|\Pgsql\Connection

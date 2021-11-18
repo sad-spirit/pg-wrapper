@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\exceptions;
 
+use sad_spirit\pg_wrapper\Connection;
+
 /**
  * Exception thrown on failed query
  */
@@ -391,19 +393,16 @@ class ServerException extends RuntimeException
     /**
      * Creates a proper exception object based on connection resource
      *
-     * @param resource|\Pgsql\Connection $resource
-     * @return ConnectionException|ServerException
+     * @param Connection $connection
+     * @return self
      */
-    public static function fromConnection($resource)
+    public static function fromConnection(Connection $connection): self
     {
-        $message = pg_last_error($resource);
-        if (PGSQL_CONNECTION_OK !== pg_connection_status($resource)) {
-            return new ConnectionException($message);
-
+        $message = $connection->getLastError() ?? 'Unknown error';
         // We can only use pg_result_error_field() with async queries, so just try to parse the message
         // instead. See function pqBuildErrorMessage3() in src/interfaces/libpq/fe-protocol3.c
-        } elseif (!preg_match("/^[^\r\n]+: {2}([A-Z0-9]{5}):/", $message, $m)) {
-            return new self($message);
+        if (!preg_match("/^[^\r\n]+: {2}([A-Z0-9]{5}):/", $message, $m)) {
+            return $connection->isConnected() ? new self($message) : new ConnectionException($message);
 
         } else {
             // Make "generic subclass" for the current error code and create a specific exception based on that
@@ -441,7 +440,7 @@ class ServerException extends RuntimeException
                     if (self::QUERY_CANCELED === $m[1]) {
                         return new server\QueryCanceledException($message, $m[1]);
                     }
-                    // intentional fall-through
+                    return new ConnectionException($message, $m[1]);
 
                 case self::TRIGGERED_DATA_CHANGE_VIOLATION:
                 case self::INVALID_AUTHORIZATION_SPECIFICATION:

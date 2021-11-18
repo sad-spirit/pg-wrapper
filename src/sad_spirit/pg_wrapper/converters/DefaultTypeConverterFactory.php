@@ -1297,7 +1297,7 @@ SQL;
                         [$this->compositeTypes[$oid]]
                     ))
                 ) {
-                    throw ServerException::fromConnection($this->connection->getResource());
+                    throw ServerException::fromConnection($this->connection);
                 }
                 $this->compositeTypes[$oid] = [];
                 $converter = new IntegerConverter();
@@ -1364,7 +1364,7 @@ where t.typnamespace = s.oid
 order by 1
 SQL;
             if (!($res = @pg_query($this->connection->getResource(), $sql))) {
-                throw ServerException::fromConnection($this->connection->getResource());
+                throw ServerException::fromConnection($this->connection);
             }
             $converter = new IntegerConverter();
             while ($row = pg_fetch_assoc($res)) {
@@ -1397,7 +1397,7 @@ where a.attrelid = c.oid and
 order by attrelid, attnum
 SQL;
                 if (!($res = @pg_query($this->connection->getResource(), $sql))) {
-                    throw ServerException::fromConnection($this->connection->getResource());
+                    throw ServerException::fromConnection($this->connection);
                 }
                 while ($row = pg_fetch_assoc($res)) {
                     $relTypeId = $converter->input($row['reltype']);
@@ -1410,7 +1410,7 @@ SQL;
             }
 
             if (!($res = @pg_query($this->connection->getResource(), "select * from pg_range"))) {
-                throw ServerException::fromConnection($this->connection->getResource());
+                throw ServerException::fromConnection($this->connection);
             }
             while ($row = pg_fetch_assoc($res)) {
                 if (array_key_exists('rngmultitypid', $row)) {
