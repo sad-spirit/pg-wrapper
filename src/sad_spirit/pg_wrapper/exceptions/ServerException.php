@@ -405,6 +405,10 @@ class ServerException extends RuntimeException
             return $connection->isConnected() ? new self($message) : new ConnectionException($message);
 
         } else {
+            // Always throw ConnectionException if connection is broken, no matter what code
+            if (!$connection->isConnected()) {
+                throw new ConnectionException($message, $m[1]);
+            }
             // Make "generic subclass" for the current error code and create a specific exception based on that
             switch (substr_replace($m[1], '000', 2, 3)) {
                 case self::FEATURE_NOT_SUPPORTED:
