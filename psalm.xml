@@ -16,15 +16,6 @@
     </projectFiles>
 
     <issueHandlers>
-        <RedundantCondition>
-            <errorLevel type="suppress">
-                <!--
-                    Documentation for pg_escape_literal() and pg_escape_identifier() is incorrect,
-                    those can return false, not only string
-                -->
-                <file name="src/sad_spirit/pg_wrapper/Connection.php"/>
-            </errorLevel>
-        </RedundantCondition>
         <InvalidCatch>
             <errorLevel type="suppress">
                 <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
@@ -32,9 +23,22 @@
                 <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
             </errorLevel>
         </InvalidCatch>
+
+        <!-- Ignore these in tests, whatever we access is guaranteed to be not null -->
+        <PossiblyNullArrayAccess>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </PossiblyNullArrayAccess>
+        <PossiblyNullArgument>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </PossiblyNullArgument>
     </issueHandlers>
 
     <stubs>
-      <file name="tests/config.php.dist" />
+      <file name="tests/config.php.psalm" />
+      <file name="pgsql-stubs.php" />
     </stubs>
 </psalm>

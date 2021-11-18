@@ -1,0 +1,5 @@
+<?php
+
+// This should prevent psalm from ASSuming something about the constant's value.
+// Until https://github.com/vimeo/psalm/issues/4024 is implemented
+define('TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING', mt_rand(1, 10) > 5 ? 'a string' : false);
