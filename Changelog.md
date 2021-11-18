@@ -8,11 +8,15 @@
   may be out of range of PHP's *signed* `int` type on 32-bit builds.
 * `converters\ConnectionAware` interface now defines a `setConnection()` method accepting an instance of 
   `Connection` instead of `setConnectionResource()` method accepting an underlying resource.
+* `ServerException::fromConnection()` now accepts an instance of `Connection` rather than an underlying resource.
+* `ConnectionException` extends `ServerException` so that it is now possible to specify `SQLSTATE` error code for it
+  (e.g. `ServerException::ADMIN_SHUTDOWN`).
 
 ### Added
 * As `pgsql` functions in PHP 8.1 now return and accept objects instead of resources, added checks for these objects alongside `is_resource` checks for earlier PHP versions.
-* New error code defined in Postgres 14
-* Support for multirange types added in Postgres 14
+* New error code defined in Postgres 14.
+* Support for multirange types added in Postgres 14.
+* `Connection::getLastError()` method.
 
 ### Fixed
 Missing bounds in range types are always marked as exclusive, this follows PostgreSQL's behaviour.
