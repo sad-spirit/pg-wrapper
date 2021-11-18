@@ -73,11 +73,12 @@ class ConnectionTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+        $resource   = $connection->getResource();
         if (version_compare(phpversion(), '8.1', '>=')) {
-            $this->assertInstanceOf(\Pgsql\Connection::class, $connection->getResource());
+            $this->assertInstanceOf(\Pgsql\Connection::class, $resource);
         } else {
-            $this->assertIsResource($connection->getResource());
-            $this->assertStringContainsString('pgsql link', get_resource_type($connection->getResource()));
+            $this->assertIsResource($resource);
+            $this->assertStringContainsString('pgsql link', get_resource_type($resource));
         }
     }
 
@@ -88,13 +89,15 @@ class ConnectionTest extends TestCase
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $resource   = $connection->getResource();
-        unset($connection);
-        if (version_compare(phpversion(), '8.1', '<')) {
+        if (is_resource($resource)) {
+            unset($connection);
             $this->assertEquals('Unknown', get_resource_type($resource));
         } else {
+            unset($connection);
             $this::expectError();
             $this::expectErrorMessage('already been closed');
-            $status = pg_connection_status($resource);
+            /* @phpstan-ignore-next-line */
+            pg_connection_status($resource);
         }
     }
 

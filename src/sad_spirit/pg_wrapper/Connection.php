@@ -209,6 +209,7 @@ class Connection
     {
         if (null !== $this->resource) {
             try {
+                /** @psalm-suppress PossiblyInvalidArgument */
                 pg_close($this->resource);
             } catch (\Throwable $e) {
             }
@@ -237,6 +238,7 @@ class Connection
     public function isConnected(): bool
     {
         try {
+            /** @psalm-suppress PossiblyInvalidArgument */
             return null !== $this->resource
                    && \PGSQL_CONNECTION_OK === \pg_connection_status($this->resource);
         } catch (\Throwable $e) {
@@ -248,6 +250,7 @@ class Connection
      * Returns database connection resource
      *
      * @return resource|\Pgsql\Connection
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Connection : resource)
      * @throws exceptions\ConnectionException
      */
     public function getResource()
@@ -257,7 +260,11 @@ class Connection
                 $this->connect();
             } else {
                 try {
-                    $status = \pg_connection_status($this->resource);
+                    /**
+                     * @psalm-suppress InvalidArgument
+                     * @phpstan-ignore-next-line
+                     */
+                    \pg_connection_status($this->resource);
                 } catch (\Throwable $e) {
                     throw new exceptions\ConnectionException("Connection has been closed");
                 }

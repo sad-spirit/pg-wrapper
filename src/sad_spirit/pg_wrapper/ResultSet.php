@@ -24,13 +24,13 @@ namespace sad_spirit\pg_wrapper;
  * Class representing a query result
  *
  * @implements \Iterator<int, array>
- * @implements \ArrayAccess<int, array>
+ * @implements \ArrayAccess<int, ?array>
  */
 class ResultSet implements \Iterator, \Countable, \ArrayAccess
 {
     /**
      * PostgreSQL result resource
-     * @var resource
+     * @var resource|\Pgsql\Result
      */
     private $resource;
 
@@ -96,12 +96,14 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Constructor.
      *
-     * @param resource             $resource SQL result resource.
-     * @param TypeConverterFactory $factory
-     * @param array                $types    Types information, used to convert output values
-     *                                       (overrides auto-generated types).
+     * @param resource|\Pgsql\Result $resource SQL result resource.
+     * @param TypeConverterFactory   $factory
+     * @param array                  $types    Types information, used to convert output values
+     *                                         (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
+     *
+     * @psalm-suppress PossiblyInvalidArgument
      */
     protected function __construct($resource, TypeConverterFactory $factory, array $types = [])
     {
@@ -115,23 +117,31 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
+     * Returns the result resource
+     *
+     * @return \Pgsql\Result|resource
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Result : resource)
+     */
+    protected function getResource()
+    {
+        return $this->resource;
+    }
+
+    /**
      * Sets up type converters and field name -> field index mapping for results returning rows
      *
      * @param array $types Types information, used to convert output values (overrides auto-generated types).
      */
     private function setupResultFields(array $types): void
     {
-        $this->numRows   = pg_num_rows($this->resource);
-        $this->numFields = pg_num_fields($this->resource);
+        $resource        = $this->getResource();
+        $this->numRows   = pg_num_rows($resource);
+        $this->numFields = pg_num_fields($resource);
 
         $OIDs = [];
         for ($i = 0; $i < $this->numFields; $i++) {
-            $this->namesHash[pg_field_name($this->resource, $i)] = $i;
-            if (false !== ($oid = pg_field_type_oid($this->resource, $i))) {
-                $OIDs[$i] = $oid;
-            } else {
-                throw new exceptions\RuntimeException(sprintf("Failed to get type OID for field %d", $i));
-            }
+            $this->namesHash[pg_field_name($resource, $i)] = $i;
+            $OIDs[$i] = pg_field_type_oid($resource, $i);
         }
 
         // first set the explicitly given types...
@@ -139,6 +149,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             $this->setType($index, $type);
         }
 
+        /** @var array<int|numeric-string> $OIDs */
         // ...then use type factory to create default converters
         for ($i = 0; $i < $this->numFields; $i++) {
             if (!isset($this->converters[$i])) {
@@ -244,11 +255,10 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     {
         $fieldIndex = $this->checkFieldIndex($fieldIndex);
 
-        $result = [];
+        $result   = [];
+        $resource = $this->getResource();
         for ($i = 0; $i < $this->numRows; $i++) {
-            $result[] = $this->converters[$fieldIndex]->input(
-                pg_fetch_result($this->resource, $i, $fieldIndex)
-            );
+            $result[] = $this->converters[$fieldIndex]->input(pg_fetch_result($resource, $i, $fieldIndex));
         }
         return $result;
     }
@@ -289,7 +299,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             if (PGSQL_NUM === $mode) {
                 $keyColumn = $fieldIndex;
             } elseif (!is_string($keyColumn) || $keyColumn === (string)$fieldIndex) {
-                $keyColumn = pg_field_name($this->resource, $fieldIndex);
+                $keyColumn = pg_field_name($this->getResource(), $fieldIndex);
             }
         }
         $killArray = (!$forceArray && 2 === $this->numFields);
@@ -347,7 +357,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        pg_free_result($this->resource);
+        pg_free_result($this->getResource());
     }
 
     /**
@@ -418,6 +428,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * {@inheritdoc}
+     * @psalm-return array|null
      */
     public function offsetGet($offset): ?array
     {
@@ -500,7 +511,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             return $this->lastReadResult;
         }
 
-        if (false === ($row = pg_fetch_array($this->resource, $position, $mode))) {
+        if (false === ($row = pg_fetch_array($this->getResource(), $position, $mode))) {
             throw new exceptions\RuntimeException(sprintf("Failed to fetch row %d in result set", $position));
         }
         foreach ($row as $key => &$value) {
