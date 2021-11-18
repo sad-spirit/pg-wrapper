@@ -1,21 +1,29 @@
 # Changelog
 
-## [Unreleased]
+## [2.0.0-beta] - 2021-11-18
+
+Updated for Postgres 14 and PHP 8.1. The major version is incremented due to a few BC breaks.
 
 ### Changed
 * Methods working with OIDs (e.g. `TypeConverterFactory::getConverterForTypeOID()`) 
   no longer have `int` typehints: OIDs are *unsigned* 32-bit integers and 
   may be out of range of PHP's *signed* `int` type on 32-bit builds.
 * `converters\ConnectionAware` interface now defines a `setConnection()` method accepting an instance of 
-  `Connection` instead of `setConnectionResource()` method accepting an underlying resource.
-* `ServerException::fromConnection()` now accepts an instance of `Connection` rather than an underlying resource.
+  `Connection` instead of `setConnectionResource()` method accepting an underlying resource. This was done to
+  prevent the need for boilerplate code checking whether the passed value is a resource (before PHP 8.1) or
+  an instance of `\Pgsql\Connection` (PHP 8.1+) in implementations of `ConnectionAware`.
+* `ServerException::fromConnection()` now accepts an instance of `Connection` rather than an underlying resource,
+  this was done mostly for the same reasons as above.
 * `ConnectionException` extends `ServerException` so that it is now possible to specify `SQLSTATE` error code for it
   (e.g. `ServerException::ADMIN_SHUTDOWN`).
 
 ### Added
-* As `pgsql` functions in PHP 8.1 now return and accept objects instead of resources, added checks for these objects alongside `is_resource` checks for earlier PHP versions.
+* As `pgsql` functions in PHP 8.1 now return and accept objects instead of resources, added checks for these objects 
+  alongside `is_resource` checks for earlier PHP versions.
+* Full support for multirange types added in Postgres 14, with `types\Multirange` and its descendants to
+  represent the values on PHP side and `converters\containers\MultiRangeConverter` to transform the values
+  to and from DB string representation.
 * New error code defined in Postgres 14.
-* Support for multirange types added in Postgres 14.
 * Support for infinite values in `NumericConverter` (numeric type in Postgres 14 allows these).
 * `Connection::getLastError()` method.
 
@@ -160,4 +168,4 @@ Initial release on GitHub
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.2...v1.0.0-beta.3
 [1.0.0-beta.4]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...v1.0.0-beta.4
 [1.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.4...v1.0.0
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0...HEAD
+[2.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0...v2.0.0-beta
