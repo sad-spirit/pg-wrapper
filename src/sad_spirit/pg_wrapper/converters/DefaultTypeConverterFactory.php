@@ -1048,10 +1048,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
             // can be an SQL standard type, try known aliases
             $regexp = '(?:(' . implode('|', array_keys(self::SIMPLE_ALIASES)) . ')' // 1
                       . '|(double\\s+precision)' // 2
-                      . '|(?:(time|timestamp)(?:\\s+(with|without)\\s+time\\s+zone)?)' // 3,4
+                      . '|(time|timestamp)(?:\\s+(with|without)\\s+time\\s+zone)?' // 3,4
                       . '|(national\\s+(?:character|char)(?:\\s*varying)?)' // 5
-                      . '|(?:(bit|character|char|nchar)(?:\\s*varying)?))' // 6
-                      . '\\s*(\\[\\s*\\])?'; // 7
+                      . '|(bit|character|char|nchar)(?:\\s*varying)?)' // 6
+                      . '\\s*(\\[\\s*])?'; // 7
             if (preg_match('/^' . $regexp . '$/i', $name, $matches)) {
                 $isArray = !empty($matches[7]);
                 if (!empty($matches[1])) {
