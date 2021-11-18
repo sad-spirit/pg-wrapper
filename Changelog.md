@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+* Methods working with OIDs (e.g. `TypeConverterFactory::getConverterForTypeOID()`) 
+  no longer have `int` typehints: OIDs are *unsigned* 32-bit integers and 
+  may be out of range of PHP's *signed* `int` type on 32-bit builds.
+* `converters\ConnectionAware` interface now defines a `setConnection()` method accepting an instance of 
+  `Connection` instead of `setConnectionResource()` method accepting an underlying resource.
+
 ### Added
 * As `pgsql` functions in PHP 8.1 now return and accept objects instead of resources, added checks for these objects alongside `is_resource` checks for earlier PHP versions.
 * New error code defined in Postgres 14
