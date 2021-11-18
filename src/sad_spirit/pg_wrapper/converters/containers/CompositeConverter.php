@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
+    Connection,
     TypeConverter,
     exceptions\InvalidArgumentException,
     exceptions\TypeConversionException,
@@ -87,15 +88,15 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
     }
 
     /**
-     * Propagates $resource to ConnectionAware converters for fields
+     * Propagates $connection to ConnectionAware converters for fields
      *
-     * @param resource|\Pgsql\Connection $resource
+     * @param Connection $connection
      */
-    public function setConnectionResource($resource): void
+    public function setConnection(Connection $connection): void
     {
         foreach ($this->items as $converter) {
             if ($converter instanceof ConnectionAware) {
-                $converter->setConnectionResource($resource);
+                $converter->setConnection($connection);
             }
         }
     }

@@ -192,7 +192,7 @@ class ConnectionTest extends TestCase
         $mockTimestamp = $this->createMock(TimeStampTzConverter::class);
 
         $mockTimestamp->expects($this->once())
-            ->method('setConnectionResource');
+            ->method('setConnection');
         $mockTimestamp->expects($this->once())
             ->method('output')
             ->willReturnArgument(0);

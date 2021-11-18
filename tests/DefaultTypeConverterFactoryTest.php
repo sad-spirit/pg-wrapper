@@ -422,7 +422,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
         $mockConverter = $this->createMock(TimeConverter::class);
         $mockConverter->expects($this->once())
-            ->method('setConnectionResource');
+            ->method('setConnection');
 
         $this->assertSame($mockConverter, $this->factory->getConverterForTypeSpecification($mockConverter));
     }

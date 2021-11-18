@@ -645,7 +645,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     private function updateConnection(TypeConverter $converter): void
     {
         if ($this->connection && $converter instanceof ConnectionAware) {
-            $converter->setConnectionResource($this->connection->getResource());
+            $converter->setConnection($this->connection);
         }
     }
 

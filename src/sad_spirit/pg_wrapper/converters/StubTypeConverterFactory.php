@@ -52,7 +52,7 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     {
         if ($type instanceof TypeConverter) {
             if ($this->connection && $type instanceof ConnectionAware) {
-                $type->setConnectionResource($this->connection->getResource());
+                $type->setConnection($this->connection);
             }
             return $type;
         }

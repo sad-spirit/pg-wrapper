@@ -21,9 +21,9 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
 use sad_spirit\pg_wrapper\{
+    Connection,
     converters\BaseConverter,
     converters\ConnectionAware,
-    exceptions\InvalidArgumentException,
     exceptions\TypeConversionException
 };
 
@@ -47,8 +47,8 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     private $style = self::DEFAULT_STYLE;
 
     /**
-     * Connection resource, used for checking DateStyle setting
-     * @var resource|null
+     * Connection, used for checking DateStyle setting
+     * @var Connection|null
      */
     private $connection = null;
 
@@ -61,54 +61,35 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Constructor, possibly sets the connection this converter works with
      *
-     * @param resource|null $resource Connection resource
+     * @param Connection|null $connection Connection resource
      */
-    public function __construct($resource = null)
+    public function __construct(Connection $connection = null)
     {
-        if (null !== $resource) {
-            $this->setConnectionResource($resource);
+        if (null !== $connection) {
+            $this->setConnection($connection);
         }
     }
 
     /**
-     * Sets the connection resource this converter works with
-     *
-     * @param resource|\Pgsql\Connection $resource
-     * @return void
+     * {@inheritDoc}
      */
-    public function setConnectionResource($resource): void
+    public function setConnection(Connection $connection): void
     {
-        if (
-            (!is_resource($resource) || 'pgsql link' !== get_resource_type($resource))
-            && !$resource instanceof \Pgsql\Connection
-        ) {
-            throw InvalidArgumentException::unexpectedType(
-                __METHOD__,
-                'a database connection resource',
-                $resource
-            );
-        }
-
-        $this->connection = $resource;
+        $this->connection = $connection;
 
         $this->updateDateStyleFromConnection();
     }
 
     /**
-     * Tries to update date style from current connection resource, if available
+     * Tries to update date style from current connection, if available
      *
      * @return bool Whether $style actually changed
      */
     private function updateDateStyleFromConnection(): bool
     {
-        $style = false;
-        if (null !== $this->connection) {
-            try {
-                $style = pg_parameter_status($this->connection, 'DateStyle');
-            } catch (\Throwable $e) {
-                return false;
-            }
-        }
+        $style = null !== $this->connection && $this->connection->isConnected()
+                 ? pg_parameter_status($this->connection->getResource(), 'DateStyle')
+                 : false;
         if (false === $style || $style === $this->style) {
             return false;
         }

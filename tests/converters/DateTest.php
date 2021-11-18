@@ -41,18 +41,6 @@ class DateTest extends TestCase
         $this->caster = new DateConverter();
     }
 
-    /**
-     * We cannot type hint a resource, so check that the method does not accept anything but
-     *
-     * @param mixed $bogusResource
-     * @dataProvider bogusResourceProvider
-     */
-    public function testSetConnectionResourceAcceptsOnlyPostgreSQLConnections($bogusResource): void
-    {
-        $this::expectException(InvalidArgumentException::class);
-        $this->caster->setConnectionResource($bogusResource);
-    }
-
     public function testIgnoresClosedConnection(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -61,7 +49,7 @@ class DateTest extends TestCase
 
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $connection->execute("set datestyle to 'German'");
-        $this->caster->setConnectionResource($connection->getResource());
+        $this->caster->setConnection($connection);
 
         $this::assertEquals('2021-02-11', $this->caster->input('11.02.2021')->format('Y-m-d'));
         $connection->disconnect();
@@ -129,14 +117,6 @@ class DateTest extends TestCase
             [new TypeConversionException(), 1.234],
             [new TypeConversionException(), []],
             [new TypeConversionException(), new \stdClass()]
-        ];
-    }
-
-    public function bogusResourceProvider(): array
-    {
-        return [
-            ['resource'],
-            [fopen(__DIR__ . '/../../phpstan.neon', 'r')]
         ];
     }
 }

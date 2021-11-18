@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
+    Connection,
     converters\ConnectionAware,
     converters\ContainerConverter,
     converters\FloatConverter,
@@ -72,14 +73,14 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     }
 
     /**
-     * Propagates $resource to ConnectionAware converters of base type
+     * Propagates $connection to ConnectionAware converters of base type
      *
-     * @param resource|\Pgsql\Connection $resource
+     * @param Connection $connection
      */
-    public function setConnectionResource($resource): void
+    public function setConnection(Connection $connection): void
     {
         if ($this->subtypeConverter instanceof ConnectionAware) {
-            $this->subtypeConverter->setConnectionResource($resource);
+            $this->subtypeConverter->setConnection($connection);
         }
     }
 

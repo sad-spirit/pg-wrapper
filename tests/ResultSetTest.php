@@ -221,10 +221,10 @@ SQL
         $mockTimestampTwo = $this->createMock(converters\datetime\TimeStampTzConverter::class);
 
         $mockTimestampOne->expects($this->once())
-            ->method('setConnectionResource');
+            ->method('setConnection');
 
         $mockTimestampTwo->expects($this->once())
-            ->method('setConnectionResource');
+            ->method('setConnection');
 
         $res = self::$conn->execute(
             "select now() as tztest, now() + '1 day'::interval as moretest",

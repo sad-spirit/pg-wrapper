@@ -20,18 +20,20 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\converters;
 
+use sad_spirit\pg_wrapper\Connection;
+
 /**
  * Interface for type converters whose behaviour may change according to connection properties
  *
- * Currently implemented by date and time converters to check server's DateStyle setting
+ * This is currently implemented by date and time converters to check server's DateStyle setting
  */
 interface ConnectionAware
 {
     /**
-     * Sets the connection resource this converter works with
+     * Sets the connection this converter works with
      *
-     * @param resource|\Pgsql\Connection $resource
+     * @param Connection $connection
      * @return void
      */
-    public function setConnectionResource($resource): void;
+    public function setConnection(Connection $connection): void;
 }

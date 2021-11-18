@@ -33,6 +33,7 @@ use sad_spirit\pg_wrapper\types\{
     MultiRange,
     NumericMultiRange
 };
+use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 use sad_spirit\pg_wrapper\TypeConverter;
 
@@ -74,14 +75,14 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
     }
 
     /**
-     * Propagates $resource to ConnectionAware converters of base type
+     * Propagates $connection to ConnectionAware converters of base type
      *
-     * @param resource|\Pgsql\Connection $resource
+     * @param Connection $connection
      */
-    public function setConnectionResource($resource): void
+    public function setConnection(Connection $connection): void
     {
         if ($this->subtypeConverter instanceof ConnectionAware) {
-            $this->subtypeConverter->setConnectionResource($resource);
+            $this->subtypeConverter->setConnection($connection);
         }
     }
 
