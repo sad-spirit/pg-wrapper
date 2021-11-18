@@ -87,6 +87,7 @@ abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * {@inheritDoc}
+     * @return \ArrayIterator<int, Point>
      */
     public function getIterator(): \ArrayIterator
     {
