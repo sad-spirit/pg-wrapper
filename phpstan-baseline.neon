@@ -11,3 +11,8 @@ parameters:
 			count: 1
 			path: src/sad_spirit/pg_wrapper/types/MultiRange.php
 
+		-
+			# https://github.com/phpstan/phpstan/issues/6262
+			message: "#^Dead catch \\- Exception is never thrown in the try block\\.$#"
+			count: 1
+			path: src/sad_spirit/pg_wrapper/converters/datetime/IntervalConverter.php

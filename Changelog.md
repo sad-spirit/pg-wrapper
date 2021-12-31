@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.0] - 2021-12-31
+
+Updated static analyzers, no code changes.
+
 ## [2.0.0-beta] - 2021-11-18
 
 Updated for Postgres 14 and PHP 8.1. The major version is incremented due to a few BC breaks.
@@ -169,3 +173,4 @@ Initial release on GitHub
 [1.0.0-beta.4]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.3...v1.0.0-beta.4
 [1.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.4...v1.0.0
 [2.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0...v2.0.0-beta
+[2.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0-beta...v2.0.0

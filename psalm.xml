@@ -27,11 +27,15 @@
         <!-- Ignore these in tests, whatever we access is guaranteed to be not null -->
         <PossiblyNullArrayAccess>
             <errorLevel type="suppress">
+                <!-- https://github.com/vimeo/psalm/issues/7221 -->
+                <file name="src/sad_spirit/pg_wrapper/converters/datetime/IntervalConverter.php"/>
                 <directory name="tests"/>
             </errorLevel>
         </PossiblyNullArrayAccess>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
+                <!-- https://github.com/vimeo/psalm/issues/7221 -->
+                <file name="src/sad_spirit/pg_wrapper/converters/datetime/IntervalConverter.php"/>
                 <directory name="tests"/>
             </errorLevel>
         </PossiblyNullArgument>
