@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -28,7 +28,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * @property-read Point $start
  * @property-read Point $end
  */
-abstract class PointPair implements ArrayRepresentable
+abstract class PointPair implements ArrayRepresentable, \JsonSerializable
 {
     use ReadOnlyProperties;
 
@@ -61,6 +61,19 @@ abstract class PointPair implements ArrayRepresentable
     public function getEnd(): Point
     {
         return $this->p_end;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'start' => $this->p_start,
+            'end'   => $this->p_end
+        ];
     }
 
     /**

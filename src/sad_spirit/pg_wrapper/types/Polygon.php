@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -23,8 +23,18 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing 'polygon' geometric type
  */
-final class Polygon extends PointList implements ArrayRepresentable
+final class Polygon extends PointList implements ArrayRepresentable, \JsonSerializable
 {
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->points;
+    }
+
     /**
      * Creates a Polygon from a given array
      *

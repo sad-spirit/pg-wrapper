@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -27,7 +27,7 @@ namespace sad_spirit\pg_wrapper\types;
  *
  * @property-read boolean $open
  */
-final class Path extends PointList implements ArrayRepresentable
+final class Path extends PointList implements ArrayRepresentable, \JsonSerializable
 {
     use ReadOnlyProperties;
 
@@ -48,6 +48,18 @@ final class Path extends PointList implements ArrayRepresentable
     public function isOpen(): bool
     {
         return $this->openProp;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        $points = $this->points;
+        array_unshift($points, $this->openProp);
+        return $points;
     }
 
     /**

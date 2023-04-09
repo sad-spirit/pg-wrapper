@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -31,7 +31,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * @property-read float $B
  * @property-read float $C
  */
-final class Line implements ArrayRepresentable
+final class Line implements ArrayRepresentable, \JsonSerializable
 {
     use ReadOnlyProperties;
 
@@ -77,6 +77,20 @@ final class Line implements ArrayRepresentable
     public function getC(): float
     {
         return $this->p_C;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'A' => $this->p_A,
+            'B' => $this->p_B,
+            'C' => $this->p_C
+        ];
     }
 
     /**

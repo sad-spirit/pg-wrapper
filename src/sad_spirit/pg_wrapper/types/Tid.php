@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -32,7 +32,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * @property-read integer $block
  * @property-read integer $tuple
  */
-final class Tid implements ArrayRepresentable
+final class Tid implements ArrayRepresentable, \JsonSerializable
 {
     use ReadOnlyProperties;
 
@@ -71,6 +71,19 @@ final class Tid implements ArrayRepresentable
     public function getTuple(): int
     {
         return $this->p_tuple;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'block' => $this->p_block,
+            'tuple' => $this->p_tuple
+        ];
     }
 
     /**

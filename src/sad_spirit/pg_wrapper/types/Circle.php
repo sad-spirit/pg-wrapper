@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -28,7 +28,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * @property-read Point $center
  * @property-read float $radius
  */
-final class Circle implements ArrayRepresentable
+final class Circle implements ArrayRepresentable, \JsonSerializable
 {
     use ReadOnlyProperties;
 
@@ -61,6 +61,19 @@ final class Circle implements ArrayRepresentable
     public function getRadius(): float
     {
         return $this->p_radius;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'center' => $this->p_center,
+            'radius' => $this->p_radius
+        ];
     }
 
     /**
