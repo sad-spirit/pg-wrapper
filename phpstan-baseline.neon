@@ -6,13 +6,11 @@ parameters:
 			path: src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php
 
 		-
-			# This is the expected behaviour: https://github.com/phpstan/phpstan/issues/6041
-			message: "#^Method sad_spirit\\\\pg_wrapper\\\\types\\\\MultiRange\\:\\:getItemClass\\(\\) should return class\\-string\\<T of sad_spirit\\\\pg_wrapper\\\\types\\\\Range\\> but returns string\\.$#"
+			message: "#^Conditional return type uses subject type#"
 			count: 1
-			path: src/sad_spirit/pg_wrapper/types/MultiRange.php
+			path: src/sad_spirit/pg_wrapper/ResultSet.php
 
 		-
-			# https://github.com/phpstan/phpstan/issues/6262
-			message: "#^Dead catch \\- Exception is never thrown in the try block\\.$#"
+			message: "#^Conditional return type uses subject type#"
 			count: 1
-			path: src/sad_spirit/pg_wrapper/converters/datetime/IntervalConverter.php
+			path: src/sad_spirit/pg_wrapper/Connection.php

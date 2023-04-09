@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -422,8 +422,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetExists($offset): bool
     {
-        return is_int($offset) && $offset >= 0 && $offset < $this->numRows
-               || ctype_digit((string)$offset) && (int)$offset < $this->numRows;
+        if (is_string($offset) && ctype_digit($offset)) {
+            $offset = (int)$offset;
+        } elseif (!is_int($offset)) {
+            return false;
+        }
+        return $offset >= 0 && $offset < $this->numRows;
     }
 
     /**
