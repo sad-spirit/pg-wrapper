@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0] - 2023-04-10
+
+### Added
+ * Classes that represent complex Postgres types now implement `\JsonSerializable` interface 
+   (see [request #11](https://github.com/sad-spirit/pg-wrapper/issues/11)).
+ * `SQL_JSON_ITEM_CANNOT_BE_CAST_TO_TARGET_TYPE` error code added in Postgres 15
+ * Tested on PHP 8.2 and Postgres 15
+
 ## [2.0.0] - 2021-12-31
 
 Updated static analyzers, no code changes.
@@ -174,3 +182,4 @@ Initial release on GitHub
 [1.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0-beta.4...v1.0.0
 [2.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0...v2.0.0-beta
 [2.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0-beta...v2.0.0
+[2.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0...v2.1.0
