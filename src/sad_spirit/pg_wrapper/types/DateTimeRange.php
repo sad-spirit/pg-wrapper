@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -55,5 +55,21 @@ final class DateTimeRange extends Range
         }
 
         parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive);
+    }
+
+    protected static function convertBound($bound)
+    {
+        if (null === $bound || $bound instanceof \DateTimeImmutable) {
+            return $bound;
+        } elseif ($bound instanceof \DateTime) {
+            return \DateTimeImmutable::createFromMutable($bound);
+        } elseif (is_array($bound)) {
+            return \DateTimeImmutable::__set_state($bound);
+        }
+        throw InvalidArgumentException::unexpectedType(
+            __METHOD__,
+            "a null or an instance of \DateTimeInterface (possibly JSON-encoded)",
+            $bound
+        );
     }
 }

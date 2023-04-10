@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -32,7 +32,7 @@ use sad_spirit\pg_wrapper\exceptions\{
  * @implements \ArrayAccess<int, T>
  * @implements \IteratorAggregate<int, T>
  */
-class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \IteratorAggregate
+class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
     /**
      * @var array<int, T>
@@ -153,5 +153,17 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
             $ranges[] = $range;
         }
         return new static(...$ranges);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    final public function jsonSerialize(): array
+    {
+        return array_map(function (Range $item) {
+            return $item->jsonSerialize();
+        }, $this->items);
     }
 }

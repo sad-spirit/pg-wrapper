@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -32,7 +32,7 @@ namespace sad_spirit\pg_wrapper\types;
  *
  * @psalm-consistent-constructor
  */
-class Range implements ArrayRepresentable, RangeConstructor
+class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
 {
     use ReadOnlyProperties;
 
@@ -130,6 +130,38 @@ class Range implements ArrayRepresentable, RangeConstructor
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     */
+    public function jsonSerialize(): array
+    {
+        if ($this->p_empty) {
+            return [
+                'empty' => true
+            ];
+        } else {
+            return [
+                'lower'          => $this->p_lower,
+                'upper'          => $this->p_upper,
+                'lowerInclusive' => $this->p_lowerInclusive,
+                'upperInclusive' => $this->p_upperInclusive
+            ];
+        }
+    }
+
+    /**
+     * Converts the (possibly JSON-encoded) bound passed to {@see createFromArray()}
+     *
+     * @param mixed $bound
+     * @return Bound|null
+     */
+    protected static function convertBound($bound)
+    {
+        return $bound;
+    }
+
+    /**
      * Creates a Range from a given array
      *
      * @param array $input Expects an array of two bounds or array with the keys named as Range properties
@@ -143,13 +175,16 @@ class Range implements ArrayRepresentable, RangeConstructor
         foreach (['lower', 'upper', 'lowerInclusive', 'upperInclusive'] as $key) {
             if (array_key_exists($key, $input)) {
                 return new static(
-                    $input['lower'] ?? null,
-                    $input['upper'] ?? null,
+                    static::convertBound($input['lower'] ?? null),
+                    static::convertBound($input['upper'] ?? null),
                     $input['lowerInclusive'] ?? true,
                     $input['upperInclusive'] ?? false
                 );
             }
         }
-        return new static(array_shift($input), array_shift($input));
+        return new static(
+            static::convertBound(array_shift($input)),
+            static::convertBound(array_shift($input))
+        );
     }
 }

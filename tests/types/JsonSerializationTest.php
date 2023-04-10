@@ -25,8 +25,11 @@ use sad_spirit\pg_wrapper\types\{
     ArrayRepresentable,
     Box,
     Circle,
+    DateTimeMultiRange,
+    DateTimeRange,
     Line,
     LineSegment,
+    NumericRange,
     Path,
     Point,
     Polygon,
@@ -67,7 +70,25 @@ class JsonSerializationTest extends TestCase
             [new Path(true, new Point(1, 2), new Point(1.2, 2.3))],
             [new Point(1.2, 3.4)],
             [new Polygon(new Point(1, 2), new Point(3, 4))],
-            [new Tid(3, 4)]
+            [new Tid(3, 4)],
+            [NumericRange::createEmpty()],
+            [new NumericRange(1.2, 3.4, false, true)],
+            [DateTimeRange::createEmpty()],
+            [new DateTimeRange(
+                new \DateTimeImmutable('2022-11-29T17:17:32Z'),
+                new \DateTimeImmutable('now'),
+                true,
+                true
+            )],
+            [new DateTimeMultiRange(
+                DateTimeRange::createEmpty(),
+                new DateTimeRange(
+                    new \DateTimeImmutable('2022-11-29T17:17:32Z'),
+                    new \DateTimeImmutable('now'),
+                    true,
+                    true
+                )
+            )]
         ];
     }
 }
