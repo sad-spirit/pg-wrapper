@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
