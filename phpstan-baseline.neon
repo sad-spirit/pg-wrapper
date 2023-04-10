@@ -7,10 +7,13 @@ parameters:
 
 		-
 			message: "#^Conditional return type uses subject type#"
-			count: 1
-			path: src/sad_spirit/pg_wrapper/ResultSet.php
+			paths:
+				- src/sad_spirit/pg_wrapper/ResultSet.php
+				- src/sad_spirit/pg_wrapper/Connection.php
 
 		-
-			message: "#^Conditional return type uses subject type#"
-			count: 1
-			path: src/sad_spirit/pg_wrapper/Connection.php
+			message: "#^Parameter \\#1 \\$connection of function pg_connection_status expects resource, Pgsql\\\\Connection given\\.$#"
+			paths:
+				- src/sad_spirit/pg_wrapper/Connection.php
+				- tests/ConnectionTest.php
+			reportUnmatched: false
