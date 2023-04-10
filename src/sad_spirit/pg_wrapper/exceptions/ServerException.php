@@ -10,7 +10,7 @@
  * https://raw.githubusercontent.com/sad-spirit/pg-wrapper/master/LICENSE
  *
  * @package   sad_spirit\pg_wrapper
- * @copyright 2014-2021 Alexey Borzov
+ * @copyright 2014-2023 Alexey Borzov
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
@@ -161,6 +161,7 @@ class ServerException extends RuntimeException
     public const TOO_MANY_JSON_ARRAY_ELEMENTS                    = '2203D';
     public const TOO_MANY_JSON_OBJECT_MEMBERS                    = '2203E';
     public const SQL_JSON_SCALAR_REQUIRED                        = '2203F';
+    public const SQL_JSON_ITEM_CANNOT_BE_CAST_TO_TARGET_TYPE     = '2203G';
 
     /* Class 23 - Integrity Constraint Violation */
     public const INTEGRITY_CONSTRAINT_VIOLATION = '23000';
