@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1] - 2023-05-10
+
+### Fixed
+* Added forgotten `declare(strict_types=1)` to the files containing PHP classes
+* Added annotations to `ResultSet` that prevent psalm from triggering errors when iterating / getting offsets,
+  see [psalm issue #9698](https://github.com/vimeo/psalm/issues/9698)
+
 ## [2.1.0] - 2023-04-10
 
 ### Added
@@ -183,3 +190,4 @@ Initial release on GitHub
 [2.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v1.0.0...v2.0.0-beta
 [2.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0-beta...v2.0.0
 [2.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0...v2.1.0
+[2.1.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.0...v2.1.1
