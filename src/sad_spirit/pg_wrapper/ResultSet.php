@@ -369,6 +369,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * {@inheritdoc}
+     * @psalm-ignore-nullable-return
      */
     public function current(): ?array
     {
@@ -433,6 +434,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      * @psalm-return array|null
+     * @psalm-ignore-nullable-return
      */
     public function offsetGet($offset): ?array
     {
