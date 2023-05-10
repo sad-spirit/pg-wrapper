@@ -66,7 +66,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory
     /**
      * Types list for current database, loaded from pg_catalog.pg_type
      *
-     * The array is pre-populated with known builtin types of Postgres 14.
+     * The array is pre-populated with known builtin types of Postgres 15.
      * Only types with OIDs below 10000 are used since those OIDs are assigned manually
      * (see src/include/access/transam.h) and don't change between versions and
      * installations.
