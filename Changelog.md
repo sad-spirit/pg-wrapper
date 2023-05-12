@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.2.0] - 2023-05-12
+
+### Changed
+* Code that deals with loading type data from DB / cache and mapping type names to type OIDs was extracted
+  from `DefaultTypeConverterFactory` into a new `CachedTypeOIDMapper` class implementing a new `TypeOIDMapper` interface.
+  `DefaultTypeConverterFactory` accepts an implementation of that interface via `setOIDMapper()` method, defaulting
+  to the old implementation.
+
+### Deprecated
+* `setCompositeTypesCaching()` and `getCompositeTypesCaching()` methods of `DefaultTypeConverterFactory`.
+  While they will continue to work if an instance of `CachedTypeOIDMapper` is used by the factory for OID mapping,
+  their usage should be switched to the same methods of `CachedTypeOIDMapper` instance:
+  ```php
+  // before
+  $factory->setCompositeTypesCaching(true);
+  // after
+  $factory->getOIDMapper()->setCompositeTypesCaching(true);
+  ```
+
 ## [2.1.1] - 2023-05-10
 
 ### Fixed
@@ -191,3 +210,4 @@ Initial release on GitHub
 [2.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0-beta...v2.0.0
 [2.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0...v2.1.0
 [2.1.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.0...v2.1.1
+[2.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.1...v2.2.0
