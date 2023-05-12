@@ -19,7 +19,7 @@
         <InvalidCatch>
             <errorLevel type="suppress">
                 <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
-                <file name="src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php"/>
+                <file name="src/sad_spirit/pg_wrapper/converters/CachedTypeOIDMapper.php"/>
                 <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
             </errorLevel>
         </InvalidCatch>

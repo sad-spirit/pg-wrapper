@@ -3,7 +3,7 @@ parameters:
 		-
 			message: "#^If condition is always false\\.$#"
 			count: 1
-			path: src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php
+			path: src/sad_spirit/pg_wrapper/converters/CachedTypeOIDMapper.php
 
 		-
 			message: "#^Conditional return type uses subject type#"

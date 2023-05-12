@@ -48,4 +48,17 @@ class InvalidArgumentException extends \InvalidArgumentException implements Exce
             self::stringify($given)
         ));
     }
+
+    /**
+     * Formats qualified type name (for usage in exception messages)
+     *
+     * @param string      $typeName
+     * @param string|null $schemaName
+     * @return string
+     */
+    public static function formatQualifiedName(string $typeName, ?string $schemaName): string
+    {
+        return (null === $schemaName ? '' : '"' . strtr($schemaName, ['"' => '""']) . '".')
+               . '"' . strtr($typeName, ['"' => '""']) . '"';
+    }
 }
