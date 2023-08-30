@@ -33,6 +33,8 @@ use sad_spirit\pg_wrapper\{
  * Unit test for a string-based range type converter
  *
  * Postgres does not have a built-in string range type, but one can be created with "create type"
+ *
+ * @extends TypeConverterTestCase<RangeConverter>
  */
 class StringRangeTest extends TypeConverterTestCase
 {

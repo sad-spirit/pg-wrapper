@@ -31,6 +31,8 @@ use sad_spirit\pg_wrapper\converters\containers\MultiRangeConverter;
 
 /**
  * Unit test for nummultirange type converter
+ *
+ * @extends TypeConverterTestCase<MultiRangeConverter>
  */
 class NumericMultiRangeTest extends TypeConverterTestCase
 {

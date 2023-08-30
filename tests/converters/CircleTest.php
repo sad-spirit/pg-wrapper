@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'circle' geometric type converter
+ *
+ * @extends TypeConverterTestCase<CircleConverter>
  */
 class CircleTest extends TypeConverterTestCase
 {

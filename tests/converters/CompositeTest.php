@@ -34,6 +34,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for composite (row) type converter
+ *
+ * @extends TypeConverterTestCase<CompositeConverter>
  */
 class CompositeTest extends TypeConverterTestCase
 {

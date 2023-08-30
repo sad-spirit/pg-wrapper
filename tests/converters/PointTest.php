@@ -29,6 +29,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'point' geometric type converter
+ *
+ * @extends TypeConverterTestCase<PointConverter>
  */
 class PointTest extends TypeConverterTestCase
 {

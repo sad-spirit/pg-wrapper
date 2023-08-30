@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'polygon' geometric type converter
+ *
+ * @extends TypeConverterTestCase<PolygonConverter>
  */
 class PolygonTest extends TypeConverterTestCase
 {

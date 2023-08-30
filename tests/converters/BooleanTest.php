@@ -24,6 +24,8 @@ use sad_spirit\pg_wrapper\converters\BooleanConverter;
 
 /**
  * Unit test for boolean type converter
+ *
+ * @extends TypeConverterTestCase<BooleanConverter>
  */
 class BooleanTest extends TypeConverterTestCase
 {

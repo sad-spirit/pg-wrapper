@@ -28,6 +28,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for interval type converter
+ *
+ * @extends TypeConverterTestCase<IntervalConverter>
  */
 class IntervalTest extends TypeConverterTestCase
 {

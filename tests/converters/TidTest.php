@@ -29,6 +29,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for tid type converter
+ *
+ * @extends TypeConverterTestCase<TidConverter>
  */
 class TidTest extends TypeConverterTestCase
 {

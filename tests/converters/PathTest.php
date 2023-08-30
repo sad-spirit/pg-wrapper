@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'path' geometric type converter
+ *
+ * @extends TypeConverterTestCase<PathConverter>
  */
 class PathTest extends TypeConverterTestCase
 {

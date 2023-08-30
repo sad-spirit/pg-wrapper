@@ -27,6 +27,8 @@ use sad_spirit\pg_wrapper\converters\{
 
 /**
  * Unit test for a combination of array and hstore type converters
+ *
+ * @extends TypeConverterTestCase<ArrayConverter>
  */
 class HstoreArrayTest extends TypeConverterTestCase
 {

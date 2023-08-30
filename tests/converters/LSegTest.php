@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'lseg' geometric type converter
+ *
+ * @extends TypeConverterTestCase<LSegConverter>
  */
 class LSegTest extends TypeConverterTestCase
 {

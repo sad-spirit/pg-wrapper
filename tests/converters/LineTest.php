@@ -29,6 +29,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'line' geometric type (9.4+) converter
+ *
+ * @extends TypeConverterTestCase<LineConverter>
  */
 class LineTest extends TypeConverterTestCase
 {

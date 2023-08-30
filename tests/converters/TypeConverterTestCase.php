@@ -25,11 +25,13 @@ use sad_spirit\pg_wrapper\TypeConverter;
 
 /**
  * Base class for type converter tests
+ *
+ * @template T of TypeConverter
  */
 abstract class TypeConverterTestCase extends TestCase
 {
     /**
-     * @var TypeConverter
+     * @var T
      */
     protected $converter;
 

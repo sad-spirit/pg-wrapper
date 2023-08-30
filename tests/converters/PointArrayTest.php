@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for a combination of array and point type converters
+ *
+ * @extends TypeConverterTestCase<ArrayConverter>
  */
 class PointArrayTest extends TypeConverterTestCase
 {

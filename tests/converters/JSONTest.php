@@ -27,6 +27,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for JSON (and JSONB) type converter
+ *
+ * @extends TypeConverterTestCase<JSONConverter>
  */
 class JSONTest extends TypeConverterTestCase
 {

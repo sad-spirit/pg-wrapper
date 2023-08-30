@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for numrange type converter
+ *
+ * @extends TypeConverterTestCase<RangeConverter>
  */
 class NumericRangeTest extends TypeConverterTestCase
 {

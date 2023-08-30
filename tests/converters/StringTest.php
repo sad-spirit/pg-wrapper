@@ -24,6 +24,8 @@ use sad_spirit\pg_wrapper\converters\StringConverter;
 
 /**
  * Unit test for string type(s) converter
+ *
+ * @extends TypeConverterTestCase<StringConverter>
  */
 class StringTest extends TypeConverterTestCase
 {

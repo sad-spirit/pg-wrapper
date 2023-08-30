@@ -28,6 +28,8 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Unit test for an array of strings type converter
+ *
+ * @extends TypeConverterTestCase<ArrayConverter>
  */
 class StringArrayTest extends TypeConverterTestCase
 {

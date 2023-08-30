@@ -27,6 +27,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for integer type converter
+ *
+ * @extends TypeConverterTestCase<IntegerConverter>
  */
 class IntegerTest extends TypeConverterTestCase
 {

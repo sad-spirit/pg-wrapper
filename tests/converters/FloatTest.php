@@ -27,6 +27,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for float type converter
+ *
+ * @extends TypeConverterTestCase<FloatConverter>
  */
 class FloatTest extends TypeConverterTestCase
 {

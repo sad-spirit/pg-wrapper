@@ -30,6 +30,8 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * Unit test for 'box' geometric type converter
+ *
+ * @extends TypeConverterTestCase<BoxConverter>
  */
 class BoxTest extends TypeConverterTestCase
 {

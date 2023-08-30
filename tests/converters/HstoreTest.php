@@ -25,6 +25,8 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Unit test for hstore type (from contrib) converter
+ *
+ * @extends TypeConverterTestCase<HstoreConverter>
  */
 class HstoreTest extends TypeConverterTestCase
 {
