@@ -25,7 +25,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Converter for arbitrary precision numbers, keeps them as strings, handles NaN and Infinity
  */
-class NumericConverter extends BaseConverter
+class NumericConverter extends BaseNumericConverter
 {
     protected function inputNotNull(string $native)
     {
@@ -62,9 +62,19 @@ class NumericConverter extends BaseConverter
             $value = strtr($value, ',', '.');
         }
 
-        if (!is_scalar($value) || !is_numeric($value)) {
-            throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
+        if (\is_scalar($value) && \is_numeric($value)) {
+            return (string)$value;
+        } elseif (
+            \is_string($value)
+            && $this->allowNonDecimalLiteralsAndUnderscores()
+            && (
+                \preg_match(self::REGEXP_INTEGER, $value)
+                || \preg_match(self::REGEXP_REAL, $value)
+            )
+        ) {
+            return $value;
         }
-        return (string)$value;
+
+        throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
     }
 }

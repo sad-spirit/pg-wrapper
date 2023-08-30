@@ -25,7 +25,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Converter for integer types (int2, int4, int8)
  */
-class IntegerConverter extends BaseConverter
+class IntegerConverter extends BaseNumericConverter
 {
     protected function inputNotNull(string $native)
     {
@@ -46,8 +46,14 @@ class IntegerConverter extends BaseConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_numeric($value)) {
+        if (\is_numeric($value)) {
             return (string)$value;
+        } elseif (
+            \is_string($value)
+            && $this->allowNonDecimalLiteralsAndUnderscores()
+            && \preg_match(self::REGEXP_INTEGER, $value)
+        ) {
+            return $value;
         }
         throw TypeConversionException::unexpectedValue($this, 'output', 'numeric value', $value);
     }

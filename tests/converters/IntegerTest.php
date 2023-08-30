@@ -37,6 +37,33 @@ class IntegerTest extends TypeConverterTestCase
         $this->converter = new IntegerConverter();
     }
 
+    /**
+     * Tests for non-decimal literals and underscore separators
+     *
+     * @param string $literal
+     * @return void
+     * @dataProvider postgres16ValidIntegerLiterals
+     */
+    public function testAllowNonDecimalLiteralsAndUnderscores(string $literal): void
+    {
+        $this->converter->setAllowNonDecimalLiteralsAndUnderscores(true);
+        $this::assertEquals($literal, $this->converter->output($literal));
+    }
+
+    /**
+     * Invalid non-decimal literals and underscore separators
+     *
+     * @param string $literal
+     * @return void
+     * @dataProvider postgres16InvalidIntegerLiterals
+     */
+    public function testInvalidNonDecimalLiteralsAndUnderscores(string $literal): void
+    {
+        $this->converter->setAllowNonDecimalLiteralsAndUnderscores(true);
+        $this::expectException(TypeConversionException::class);
+        $this->converter->output($literal);
+    }
+
     public function valuesBoth(): array
     {
         return [
@@ -63,6 +90,42 @@ class IntegerTest extends TypeConverterTestCase
             [new TypeConversionException(), ''],
             [new TypeConversionException(), 'string'],
             [new TypeConversionException(), [1]],
+        ];
+    }
+
+    public function postgres16ValidIntegerLiterals(): array
+    {
+        return [
+            ['0b100101'],
+            ['0o273'],
+            ['0x42F'],
+            ['1_000_000'],
+            ['1_2_3'],
+            ['0x1EEE_FFFF'],
+            ['0o2_73'],
+            ['0b_10_0101']
+        ];
+    }
+
+    public function postgres16InvalidIntegerLiterals(): array
+    {
+        return [
+            ['123abc'],
+            ['0x0o'],
+
+            ['0b'],
+            ['1b'],
+            ['0b0x'],
+
+            ['0o'],
+            ['1o'],
+            ['0o0x'],
+
+            ['0x'],
+            ['1x'],
+            ['0x0y'],
+            ['100_'],
+            ['100__000']
         ];
     }
 }

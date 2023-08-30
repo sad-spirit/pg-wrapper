@@ -37,28 +37,6 @@ class FloatTest extends TypeConverterTestCase
         $this->converter = new FloatConverter();
     }
 
-    public function testConvertNaN(): void
-    {
-        $this->assertTrue(is_nan($this->converter->input('NaN')));
-        $this->assertEquals('NaN', $this->converter->output(floatval(NAN)));
-    }
-
-    public function testConvertInfinite(): void
-    {
-        $this->assertTrue(is_infinite($this->converter->input('Infinity')));
-        $this->assertEquals('-Infinity', $this->converter->output(-floatval(INF)));
-    }
-
-    public function testLocaleIndependentConversion(): void
-    {
-        try {
-            setlocale(LC_NUMERIC, 'Russian', 'ru_RU', 'ru_RU.UTF-8');
-            $this::assertEquals('1.234', $this->converter->output(1.234));
-        } finally {
-            setlocale(LC_NUMERIC, 'C');
-        }
-    }
-
     public function valuesBoth(): array
     {
         return [

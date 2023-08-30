@@ -231,8 +231,8 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
         $this->assertEquals(
-            new ArrayConverter(new IntegerConverter()),
-            $this->factory->getConverterForTypeSpecification('_int4')
+            new ArrayConverter(new StringConverter()),
+            $this->factory->getConverterForTypeSpecification('_text')
         );
     }
 
@@ -247,13 +247,13 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
         $oidColumn     = version_compare($serverVersion, '12', '<')
                          ? []
-                         : ['oid' => new IntegerConverter()];
+                         : ['oid' => new IntegerConverter($connection)];
         $this->assertEquals(
             new CompositeConverter($oidColumn + [
                 'cfgname'      => new StringConverter(),
-                'cfgnamespace' => new IntegerConverter(),
-                'cfgowner'     => new IntegerConverter(),
-                'cfgparser'    => new IntegerConverter()
+                'cfgnamespace' => new IntegerConverter($connection),
+                'cfgowner'     => new IntegerConverter($connection),
+                'cfgparser'    => new IntegerConverter($connection)
             ]),
             $this->factory->getConverterForTypeSpecification('pg_ts_config')
         );
@@ -363,7 +363,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
             ->setTypeConverterFactory($this->factory);
 
         $this->assertEquals(
-            new IntegerConverter(),
+            new IntegerConverter($connection),
             $this->factory->getConverterForTypeSpecification('information_schema.cardinal_number')
         );
     }
@@ -569,6 +569,24 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection->execute("set datestyle='German'");
 
         $this::assertEquals('2020-09-18', $converter->input('18.09.2020')->format('Y-m-d'));
+    }
+
+    public function testConfigureIntegerConverterFromConnection(): void
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection    = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
+        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        $connection->setTypeConverterFactory($this->factory);
+        /** @var IntegerConverter $converter */
+        $converter     = $this->factory->getConverterForTypeSpecification('integer');
+
+        $this->assertSame(
+            version_compare($serverVersion, '16-beta', '>='),
+            $converter->allowNonDecimalLiteralsAndUnderscores()
+        );
     }
 
     public function getBuiltinTypeConverters(): array
