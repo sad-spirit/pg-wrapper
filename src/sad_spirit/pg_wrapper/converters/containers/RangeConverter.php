@@ -22,18 +22,18 @@ namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
     Connection,
-    converters\ConnectionAware,
-    converters\ContainerConverter,
-    converters\FloatConverter,
-    converters\IntegerConverter,
-    converters\NumericConverter,
     TypeConverter,
-    types\Range,
-    types\NumericRange,
+    exceptions\TypeConversionException,
     types\DateTimeRange,
-    exceptions\TypeConversionException
+    types\NumericRange,
+    types\Range
 };
-use sad_spirit\pg_wrapper\converters\datetime\BaseDateTimeConverter;
+use sad_spirit\pg_wrapper\converters\{
+    BaseNumericConverter,
+    ConnectionAware,
+    ContainerConverter,
+    datetime\BaseDateTimeConverter
+};
 
 /**
  * Converter for range types of PostgreSQL 9.2+
@@ -61,11 +61,7 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     {
         $this->subtypeConverter = $subtypeConverter;
 
-        if (
-            $subtypeConverter instanceof FloatConverter
-            || $subtypeConverter instanceof NumericConverter
-            || $subtypeConverter instanceof IntegerConverter
-        ) {
+        if ($subtypeConverter instanceof BaseNumericConverter) {
             $this->resultClass = NumericRange::class;
         } elseif ($subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeRange::class;
@@ -185,7 +181,6 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
         } elseif (!($value instanceof Range)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Range or an array', $value);
         }
-        /* @var $value Range */
         if ($value->empty) {
             return 'empty';
         }

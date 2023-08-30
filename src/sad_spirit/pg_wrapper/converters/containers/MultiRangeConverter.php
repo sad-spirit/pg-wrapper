@@ -21,12 +21,10 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\converters\{
+    BaseNumericConverter,
     ConnectionAware,
     ContainerConverter,
-    datetime\BaseDateTimeConverter,
-    FloatConverter,
-    IntegerConverter,
-    NumericConverter
+    datetime\BaseDateTimeConverter
 };
 use sad_spirit\pg_wrapper\types\{
     DateTimeMultiRange,
@@ -63,11 +61,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
     {
         $this->subtypeConverter = $subtypeConverter;
 
-        if (
-            $subtypeConverter instanceof FloatConverter
-            || $subtypeConverter instanceof NumericConverter
-            || $subtypeConverter instanceof IntegerConverter
-        ) {
+        if ($subtypeConverter instanceof BaseNumericConverter) {
             $this->resultClass = NumericMultiRange::class;
         } elseif ($subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeMultiRange::class;
