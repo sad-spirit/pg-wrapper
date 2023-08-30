@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.0-beta] - 2023-08-30
+
+Updated for Postgres 16.
+
+### Added
+When connected to Postgres 16+, `output()` method of numeric type converters will accept non-decimal integer literals 
+and numeric literals with underscores for digit separators, allowing to use those as query parameter values.
+
 ## [2.2.0] - 2023-05-12
 
 ### Changed
@@ -211,3 +219,4 @@ Initial release on GitHub
 [2.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.0.0...v2.1.0
 [2.1.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.0...v2.1.1
 [2.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.1...v2.2.0
+[2.3.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.2.0...v2.3.0-beta
