@@ -88,7 +88,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     private function updateDateStyleFromConnection(): bool
     {
         $style = null !== $this->connection && $this->connection->isConnected()
-                 ? pg_parameter_status($this->connection->getResource(), 'DateStyle')
+                 ? pg_parameter_status($this->connection->getNative(), 'DateStyle')
                  : false;
         if (false === $style || $style === $this->style) {
             return false;

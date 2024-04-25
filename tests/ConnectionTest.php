@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\tests;
 
 use PHPUnit\Framework\TestCase;
+use Pgsql\Connection as NativeConnection;
 use sad_spirit\pg_wrapper\{
     Connection,
     converters\StubTypeConverterFactory,
@@ -75,12 +76,12 @@ class ConnectionTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-        $resource   = $connection->getResource();
+        $native     = $connection->getNative();
         if (version_compare(phpversion(), '8.1', '>=')) {
-            $this->assertInstanceOf(\Pgsql\Connection::class, $resource);
+            $this->assertInstanceOf(NativeConnection::class, $native);
         } else {
-            $this->assertIsResource($resource);
-            $this->assertStringContainsString('pgsql link', get_resource_type($resource));
+            $this->assertIsResource($native);
+            $this->assertStringContainsString('pgsql link', get_resource_type($native));
         }
     }
 
@@ -90,15 +91,15 @@ class ConnectionTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-        $resource   = $connection->getResource();
-        if (is_resource($resource)) {
+        $native     = $connection->getNative();
+        if (is_resource($native)) {
             unset($connection);
-            $this->assertEquals('Unknown', get_resource_type($resource));
+            $this->assertEquals('Unknown', get_resource_type($native));
         } else {
             unset($connection);
             $this::expectError();
             $this::expectErrorMessage('already been closed');
-            pg_connection_status($resource);
+            pg_connection_status($native);
         }
     }
 
@@ -124,7 +125,7 @@ class ConnectionTest extends TestCase
         }
         $conn1 = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $conn2 = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-        $this->assertNotSame($conn1->getResource(), $conn2->getResource());
+        $this->assertNotSame($conn1->getNative(), $conn2->getNative());
     }
 
     public function testClonedInstanceIsDisconnected(): void

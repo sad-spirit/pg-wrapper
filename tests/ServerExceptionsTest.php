@@ -62,7 +62,7 @@ class ServerExceptionsTest extends TestCase
 
         $this->conn->executeParams(
             'select pg_terminate_backend($1)',
-            [pg_get_pid($connectionTwo->getResource())]
+            [pg_get_pid($connectionTwo->getNative())]
         );
 
         $this::expectException(ConnectionException::class);
@@ -186,7 +186,7 @@ SQL
 
         // this will wait for lock, so we execute it asynchronously
         pg_send_query(
-            $connectionTwo->getResource(),
+            $connectionTwo->getNative(),
             "update test_deadlock set txt = 'quux' where id = 1"
         );
 

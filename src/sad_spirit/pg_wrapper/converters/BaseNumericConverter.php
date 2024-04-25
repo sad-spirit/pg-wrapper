@@ -80,7 +80,7 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
         }
 
         return \version_compare(
-            \pg_parameter_status($this->connection->getResource(), 'server_version'),
+            \pg_parameter_status($this->connection->getNative(), 'server_version'),
             '15.999',
             '>='
         );

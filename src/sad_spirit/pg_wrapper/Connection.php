@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper;
 
+use Pgsql\Connection as NativeConnection;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
@@ -29,9 +30,9 @@ class Connection
 {
     /**
      * Connection resource
-     * @var resource|null|\Pgsql\Connection
+     * @var resource|null|NativeConnection
      */
-    private $resource;
+    private $native;
 
     /**
      * Connection string (as used for pg_connect())
@@ -153,7 +154,7 @@ class Connection
      */
     public function __clone()
     {
-        $this->resource           = null;
+        $this->native             = null;
         $this->shutdownRegistered = false;
         $this->disconnected       = false;
         $this->converterFactory   = null;
@@ -178,16 +179,16 @@ class Connection
             return true;
         }, E_WARNING);
 
-        $resource = pg_connect($this->connectionString, PGSQL_CONNECT_FORCE_NEW);
+        $native = pg_connect($this->connectionString, PGSQL_CONNECT_FORCE_NEW);
 
         restore_error_handler();
-        if (false === $resource) {
+        if (false === $native) {
             throw new exceptions\ConnectionException(
                 __METHOD__ . ': ' . implode("\n", $connectionWarnings)
             );
         }
-        $this->resource = $resource;
-        $serverVersion  = pg_parameter_status($this->resource, 'server_version');
+        $this->native  = $native;
+        $serverVersion = pg_parameter_status($this->native, 'server_version');
         if (!$serverVersion || version_compare($serverVersion, '9.3', '<')) {
             $this->disconnect();
             throw new exceptions\ConnectionException(
@@ -195,7 +196,7 @@ class Connection
                 . 'connected server reports ' . ($serverVersion ? 'version ' . $serverVersion : 'unknown version')
             );
         }
-        pg_set_error_verbosity($this->resource, PGSQL_ERRORS_VERBOSE);
+        pg_set_error_verbosity($this->native, PGSQL_ERRORS_VERBOSE);
 
         $this->resetTransactionState();
 
@@ -207,14 +208,14 @@ class Connection
      */
     public function disconnect(): self
     {
-        if (null !== $this->resource) {
+        if (null !== $this->native) {
             try {
                 /** @psalm-suppress PossiblyInvalidArgument */
-                pg_close($this->resource);
+                pg_close($this->native);
             } catch (\Throwable $e) {
             }
         }
-        $this->resource     = null;
+        $this->native       = null;
         $this->disconnected = true;
 
         // If disconnected while transaction is active, the transaction will be rolled back by the server,
@@ -239,8 +240,8 @@ class Connection
     {
         try {
             /** @psalm-suppress PossiblyInvalidArgument */
-            return null !== $this->resource
-                   && \PGSQL_CONNECTION_OK === \pg_connection_status($this->resource);
+            return null !== $this->native
+                   && \PGSQL_CONNECTION_OK === \pg_connection_status($this->native);
         } catch (\Throwable $e) {
             return false;
         }
@@ -255,40 +256,60 @@ class Connection
     {
         try {
             /** @psalm-suppress PossiblyInvalidArgument */
-            return null !== $this->resource && ($error = \pg_last_error($this->resource))
-                   ? $error : null;
+            if (null !== $this->native && ($error = \pg_last_error($this->native))) {
+                return $error;
+            }
         } catch (\Throwable $e) {
-            return null;
         }
+        return null;
     }
 
     /**
-     * Returns database connection resource
+     * Returns the native object (or resource) representing database connection
      *
-     * @return resource|\Pgsql\Connection
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Connection : resource)
+     * @return resource|NativeConnection
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? NativeConnection : resource)
      * @throws exceptions\ConnectionException
      */
-    public function getResource()
+    public function getNative()
     {
-        if (!is_resource($this->resource) && !$this->disconnected) {
-            if (!$this->resource instanceof \Pgsql\Connection) {
+        if (!is_resource($this->native) && !$this->disconnected) {
+            if (!$this->native instanceof NativeConnection) {
                 $this->connect();
             } else {
                 try {
                     /**
                      * @psalm-suppress InvalidArgument
                      */
-                    \pg_connection_status($this->resource);
+                    \pg_connection_status($this->native);
                 } catch (\Throwable $e) {
                     throw new exceptions\ConnectionException("Connection has been closed");
                 }
             }
         }
-        if (!is_resource($this->resource) && !$this->resource instanceof \Pgsql\Connection) {
+        if (!is_resource($this->native) && !$this->native instanceof NativeConnection) {
             throw new exceptions\ConnectionException("Connection has been closed");
         }
-        return $this->resource;
+        return $this->native;
+    }
+
+    /**
+     * Returns database connection resource
+     *
+     * @return resource|NativeConnection
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? NativeConnection : resource)
+     * @throws exceptions\ConnectionException
+     * @deprecated Since 2.4.0, use {@see Connection::getNative()} instead
+     */
+    public function getResource()
+    {
+        @trigger_error(sprintf(
+            'The "%s()" method is deprecated since release 2.4.0, '
+            . 'use "Connection::getNative()" instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
+
+        return $this->getNative();
     }
 
     /**
@@ -316,11 +337,11 @@ class Connection
             return 'NULL';
         }
 
-        $resource  = $this->getResource(); // forces connecting if not connected yet
+        $native    = $this->getNative(); // forces connecting if not connected yet
         $converted = null !== $type
                      ? $this->getTypeConverter($type)->output($value)
                      : $this->getTypeConverterFactory()->getConverterForPHPValue($value)->output($value);
-        $escaped   = null === $converted ? 'NULL' : @pg_escape_literal($resource, $converted);
+        $escaped   = null === $converted ? 'NULL' : @pg_escape_literal($native, $converted);
 
         // PHP docs and psalm claim that pg_escape_literal() cannot return false,
         // phpstan and source of ext/pgsql think otherwise; let's take the side of caution
@@ -341,7 +362,7 @@ class Connection
     {
         // PHP docs and psalm claim that pg_escape_identifier() cannot return false,
         // phpstan and source of ext/pgsql think otherwise; let's take the side of caution
-        if (false !== ($escaped = @pg_escape_identifier($this->getResource(), $identifier))) {
+        if (false !== ($escaped = @pg_escape_identifier($this->getNative(), $identifier))) {
             return $escaped;
         } else {
             throw new exceptions\RuntimeException(__METHOD__ . "(): pg_escape_identifier() call failed");
@@ -378,7 +399,7 @@ class Connection
     {
         $this->checkRollbackNotNeeded();
         return ResultSet::createFromResultResource(
-            @pg_query($this->getResource(), $sql),
+            @pg_query($this->getNative(), $sql),
             $this,
             $resultTypes
         );
@@ -399,7 +420,7 @@ class Connection
     {
         $this->checkRollbackNotNeeded();
 
-        $resource     = $this->getResource();
+        $native       = $this->getNative();
         $stringParams = [];
         foreach ($params as $key => $value) {
             if (isset($paramTypes[$key])) {
@@ -412,7 +433,7 @@ class Connection
         }
 
         return ResultSet::createFromResultResource(
-            @pg_query_params($resource, $sql, $stringParams),
+            @pg_query_params($native, $sql, $stringParams),
             $this,
             $resultTypes
         );
@@ -618,7 +639,7 @@ class Connection
      */
     public function inTransaction(): bool
     {
-        $status = pg_transaction_status($this->getResource());
+        $status = pg_transaction_status($this->getNative());
 
         return PGSQL_TRANSACTION_INTRANS === $status || PGSQL_TRANSACTION_INERROR === $status;
     }

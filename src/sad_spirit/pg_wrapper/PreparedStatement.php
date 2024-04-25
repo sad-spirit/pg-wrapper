@@ -108,7 +108,7 @@ class PreparedStatement
         }
 
         $this->queryId = 'statement' . ++self::$statementIdx;
-        if (!@pg_prepare($this->connection->getResource(), $this->queryId, $this->query)) {
+        if (!@pg_prepare($this->connection->getNative(), $this->queryId, $this->query)) {
             throw exceptions\ServerException::fromConnection($this->connection);
         }
 
@@ -231,7 +231,7 @@ class PreparedStatement
         }
 
         return ResultSet::createFromResultResource(
-            @pg_execute($this->connection->getResource(), $this->queryId, $stringParams),
+            @pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
             $resultTypes
         );

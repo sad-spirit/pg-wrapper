@@ -657,7 +657,7 @@ from pg_catalog.pg_type as t, pg_catalog.pg_namespace as s
 where t.typnamespace = s.oid
 order by 1
 SQL;
-            if (!($res = @pg_query($this->connection->getResource(), $sql))) {
+            if (!($res = @pg_query($this->connection->getNative(), $sql))) {
                 throw ServerException::fromConnection($this->connection);
             }
             $converter = new IntegerConverter();
@@ -690,7 +690,7 @@ where a.attrelid = c.oid and
       a.attnum > 0
 order by attrelid, attnum
 SQL;
-                if (!($res = @pg_query($this->connection->getResource(), $sql))) {
+                if (!($res = @pg_query($this->connection->getNative(), $sql))) {
                     throw ServerException::fromConnection($this->connection);
                 }
                 while ($row = pg_fetch_assoc($res)) {
@@ -703,7 +703,7 @@ SQL;
                 pg_free_result($res);
             }
 
-            if (!($res = @pg_query($this->connection->getResource(), "select * from pg_range"))) {
+            if (!($res = @pg_query($this->connection->getNative(), "select * from pg_range"))) {
                 throw ServerException::fromConnection($this->connection);
             }
             while ($row = pg_fetch_assoc($res)) {
@@ -768,7 +768,7 @@ order by attnum
 SQL;
                 if (
                     !($res = @pg_query_params(
-                        $this->connection->getResource(),
+                        $this->connection->getNative(),
                         $sql,
                         [$this->compositeTypes[$oid]]
                     ))

@@ -244,7 +244,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
         // this one has few columns, let's hope none are added later
-        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        $serverVersion = pg_parameter_status($connection->getNative(), 'server_version');
         $oidColumn     = version_compare($serverVersion, '12', '<')
                          ? []
                          : ['oid' => new IntegerConverter($connection)];
@@ -282,7 +282,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
-        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        $serverVersion = pg_parameter_status($connection->getNative(), 'server_version');
         if (version_compare($serverVersion, '14-beta', '<')) {
             $this::markTestSkipped('Postgres version 14 is required for multirange support');
         }
@@ -479,7 +479,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
         $connection    = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $connection->setTypeConverterFactory($this->factory);
-        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        $serverVersion = pg_parameter_status($connection->getNative(), 'server_version');
         if (version_compare($serverVersion, '14-beta', '<')) {
             $this::markTestSkipped('Postgres version 14 is required for multirange support');
         }
@@ -578,7 +578,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         }
 
         $connection    = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
-        $serverVersion = pg_parameter_status($connection->getResource(), 'server_version');
+        $serverVersion = pg_parameter_status($connection->getNative(), 'server_version');
         $connection->setTypeConverterFactory($this->factory);
         /** @var IntegerConverter $converter */
         $converter     = $this->factory->getConverterForTypeSpecification('integer');
