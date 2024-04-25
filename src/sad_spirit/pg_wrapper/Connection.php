@@ -397,7 +397,7 @@ class Connection
      */
     public function execute(string $sql, array $resultTypes = []): ResultSet
     {
-        $this->checkRollbackNotNeeded();
+        $this->assertRollbackNotNeeded();
         return ResultSet::createFromReturnValue(
             @pg_query($this->getNative(), $sql),
             $this,
@@ -418,7 +418,7 @@ class Connection
      */
     public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = []): ResultSet
     {
-        $this->checkRollbackNotNeeded();
+        $this->assertRollbackNotNeeded();
 
         $native       = $this->getNative();
         $stringParams = [];
@@ -670,7 +670,7 @@ class Connection
     public function atomic(callable $callback, bool $savepoint = false)
     {
         if (!$this->inAtomic) {
-            $this->checkRollbackNotNeeded();
+            $this->assertRollbackNotNeeded();
             if ($this->inTransaction()) {
                 $inTransaction  = true;
                 $this->inAtomic = true;
@@ -846,7 +846,7 @@ class Connection
      *
      * @throws exceptions\RuntimeException
      */
-    public function checkRollbackNotNeeded(): void
+    public function assertRollbackNotNeeded(): void
     {
         if ($this->needsRollback) {
             throw new exceptions\RuntimeException(
@@ -854,6 +854,23 @@ class Connection
                 . " No queries will be accepted."
             );
         }
+    }
+
+    /**
+     * Throws an exception if $needsRollback flag was previously set, preventing queries except "ROLLBACK"
+     *
+     * @throws exceptions\RuntimeException
+     * @deprecated Since 2.4.0, use {@see Connection::assertRollbackNotNeeded()} instead
+     */
+    public function checkRollbackNotNeeded(): void
+    {
+        @trigger_error(sprintf(
+            'The "%s()" method is deprecated since release 2.4.0, '
+            . 'use "Connection::assertRollbackNotNeeded()" instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
+
+        $this->assertRollbackNotNeeded();
     }
 
     /**
