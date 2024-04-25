@@ -398,7 +398,7 @@ class Connection
     public function execute(string $sql, array $resultTypes = []): ResultSet
     {
         $this->checkRollbackNotNeeded();
-        return ResultSet::createFromResultResource(
+        return ResultSet::createFromReturnValue(
             @pg_query($this->getNative(), $sql),
             $this,
             $resultTypes
@@ -432,7 +432,7 @@ class Connection
             }
         }
 
-        return ResultSet::createFromResultResource(
+        return ResultSet::createFromReturnValue(
             @pg_query_params($native, $sql, $stringParams),
             $this,
             $resultTypes

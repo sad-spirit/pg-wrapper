@@ -230,7 +230,7 @@ class PreparedStatement
             }
         }
 
-        return ResultSet::createFromResultResource(
+        return ResultSet::createFromReturnValue(
             @pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
             $resultTypes

@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper;
 
+use Pgsql\Result as NativeResult;
+
 /**
  * Class representing a query result
  *
@@ -30,9 +32,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
 {
     /**
      * PostgreSQL result resource
-     * @var resource|\Pgsql\Result
+     * @var resource|NativeResult
      */
-    private $resource;
+    private $native;
 
     /**
      * Factory for database type converters (mostly needed for setType())
@@ -96,35 +98,53 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Constructor.
      *
-     * @param resource|\Pgsql\Result $resource SQL result resource.
-     * @param TypeConverterFactory   $factory
-     * @param array                  $types    Types information, used to convert output values
-     *                                         (overrides auto-generated types).
+     * @param resource|NativeResult $native  SQL result resource.
+     * @param TypeConverterFactory  $factory
+     * @param array                 $types   Types information, used to convert output values
+     *                                       (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      *
      * @psalm-suppress PossiblyInvalidArgument
      */
-    protected function __construct($resource, TypeConverterFactory $factory, array $types = [])
+    protected function __construct($native, TypeConverterFactory $factory, array $types = [])
     {
-        $this->resource         = $resource;
+        $this->native           = $native;
         $this->converterFactory = $factory;
-        $this->affectedRows     = pg_affected_rows($this->resource);
+        $this->affectedRows     = pg_affected_rows($this->native);
 
-        if (PGSQL_TUPLES_OK === pg_result_status($this->resource)) {
+        if (PGSQL_TUPLES_OK === pg_result_status($this->native)) {
             $this->setupResultFields($types);
         }
     }
 
     /**
+     * Returns the native object (or resource) representing query result
+     *
+     * @return NativeResult|resource
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Result : resource)
+     */
+    protected function getNative()
+    {
+        return $this->native;
+    }
+
+    /**
      * Returns the result resource
      *
-     * @return \Pgsql\Result|resource
+     * @return NativeResult|resource
      * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Result : resource)
+     * @deprecated Since 2.4.0, use {@see ResultSet::getNative()} instead
      */
     protected function getResource()
     {
-        return $this->resource;
+        @trigger_error(sprintf(
+            'The "%s()" method is deprecated since release 2.4.0, '
+            . 'use "ResultSet::getNative()" instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
+
+        return $this->getNative();
     }
 
     /**
@@ -134,14 +154,14 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     private function setupResultFields(array $types): void
     {
-        $resource        = $this->getResource();
-        $this->numRows   = pg_num_rows($resource);
-        $this->numFields = pg_num_fields($resource);
+        $native          = $this->getNative();
+        $this->numRows   = pg_num_rows($native);
+        $this->numFields = pg_num_fields($native);
 
         $OIDs = [];
         for ($i = 0; $i < $this->numFields; $i++) {
-            $this->namesHash[pg_field_name($resource, $i)] = $i;
-            $OIDs[$i] = pg_field_type_oid($resource, $i);
+            $this->namesHash[pg_field_name($native, $i)] = $i;
+            $OIDs[$i] = pg_field_type_oid($native, $i);
         }
 
         // first set the explicitly given types...
@@ -159,36 +179,60 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
-     * Creates a return value for various execute*() methods from underlying query result resource
+     * Converts a return value of native query execution methods into either a ResultSet instance or an Exception
      *
-     * @param resource|bool|\Pgsql\Result $resource   SQL result resource, false if query failed.
-     * @param Connection                  $connection Connection, origin of result resource.
-     * @param array                       $types      Types information, used to convert output values
+     * @param resource|bool|NativeResult $returnValue Value returned by native query execution method.
+     * @param Connection                 $connection  Connection used to execute the query.
+     * @param array                      $types       Types information, used to convert output values
      *                                                (overrides auto-generated types).
      * @return self
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      * @throws exceptions\ServerException
      */
-    public static function createFromResultResource($resource, Connection $connection, array $types = []): self
+    public static function createFromReturnValue($returnValue, Connection $connection, array $types = []): self
     {
-        if (false === $resource) {
+        if (false === $returnValue) {
             throw exceptions\ServerException::fromConnection($connection);
         } elseif (
-            (!is_resource($resource) || 'pgsql result' !== get_resource_type($resource))
-            && !$resource instanceof \Pgsql\Result
+            (!is_resource($returnValue) || 'pgsql result' !== get_resource_type($returnValue))
+            && !$returnValue instanceof NativeResult
         ) {
             throw exceptions\InvalidArgumentException::unexpectedType(
                 __METHOD__,
                 'a query result resource',
-                $resource
+                $returnValue
             );
         }
 
         // Methods we use in Connection and PreparedStatement (pg_query(), etc) can only return results
         // where status is one of PGSQL_COMMAND_OK, PGSQL_TUPLES_OK, PGSQL_COPY_OUT, PGSQL_COPY_IN.
         // All of these will allow at least pg_affected_rows()
-        return new self($resource, $connection->getTypeConverterFactory(), $types);
+        return new self($returnValue, $connection->getTypeConverterFactory(), $types);
+    }
+
+    /**
+     * Creates a return value for various execute*() methods from underlying query result resource
+     *
+     * @param resource|bool|NativeResult $resource   SQL result resource, false if query failed.
+     * @param Connection                 $connection Connection, origin of result resource.
+     * @param array                      $types      Types information, used to convert output values
+     *                                               (overrides auto-generated types).
+     * @return self
+     * @throws exceptions\InvalidArgumentException
+     * @throws exceptions\RuntimeException
+     * @throws exceptions\ServerException
+     * @deprecated Since 2.4.0, use {@see ResultSet::createFromReturnValue()} instead
+     */
+    public static function createFromResultResource($resource, Connection $connection, array $types = []): self
+    {
+        @trigger_error(sprintf(
+            'The "%s()" method is deprecated since release 2.4.0, '
+            . 'use "ResultSet::createFromReturnValue()" instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
+
+        return self::createFromReturnValue($resource, $connection, $types);
     }
 
     /**
@@ -255,10 +299,10 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     {
         $fieldIndex = $this->checkFieldIndex($fieldIndex);
 
-        $result   = [];
-        $resource = $this->getResource();
+        $result = [];
+        $native = $this->getNative();
         for ($i = 0; $i < $this->numRows; $i++) {
-            $result[] = $this->converters[$fieldIndex]->input(pg_fetch_result($resource, $i, $fieldIndex));
+            $result[] = $this->converters[$fieldIndex]->input(pg_fetch_result($native, $i, $fieldIndex));
         }
         return $result;
     }
@@ -299,7 +343,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             if (PGSQL_NUM === $mode) {
                 $keyColumn = $fieldIndex;
             } elseif (!is_string($keyColumn) || $keyColumn === (string)$fieldIndex) {
-                $keyColumn = pg_field_name($this->getResource(), $fieldIndex);
+                $keyColumn = pg_field_name($this->getNative(), $fieldIndex);
             }
         }
         $killArray = (!$forceArray && 2 === $this->numFields);
@@ -357,7 +401,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        pg_free_result($this->getResource());
+        pg_free_result($this->getNative());
     }
 
     /**
@@ -517,7 +561,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             return $this->lastReadResult;
         }
 
-        if (false === ($row = pg_fetch_array($this->getResource(), $position, $mode))) {
+        if (false === ($row = pg_fetch_array($this->getNative(), $position, $mode))) {
             throw new exceptions\RuntimeException(sprintf("Failed to fetch row %d in result set", $position));
         }
         foreach ($row as $key => &$value) {
