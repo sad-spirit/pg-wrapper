@@ -59,11 +59,11 @@ class PreparedStatementTest extends TestCase
 
     public function testCreatesPreparedStatement(): void
     {
-        $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
+        $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
 
         $result = $this->conn->execute('select * from pg_prepared_statements where not from_sql');
 
-        $this->assertEquals(1, count($result));
+        $this::assertCount(1, $result);
     }
 
     public function testClonedStatementIsRePrepared(): void
@@ -82,17 +82,30 @@ class PreparedStatementTest extends TestCase
         $statement->deallocate();
 
         $result = $this->conn->execute('select * from pg_prepared_statements where not from_sql');
-        $this->assertEquals(0, count($result));
+        $this::assertCount(0, $result);
     }
 
     public function testCannotExecuteAfterDeallocate(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('deallocated');
+
+        $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
+        $statement->bindValue(1, 'yesterday');
+        $statement->deallocate();
+
+        $statement->execute();
+    }
+
+    public function testCannotExecuteParamsAfterDeallocate(): void
+    {
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('deallocated');
 
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $statement->deallocate();
 
-        $statement->execute(['yesterday']);
+        $statement->executeParams(['yesterday']);
     }
 
     public function testBindParam(): void
@@ -107,9 +120,6 @@ class PreparedStatementTest extends TestCase
         $param = 16;
         $result = $statement->execute();
         $this->assertEquals('bool', $result[0]['typname']);
-
-        $result = $statement->execute([18]);
-        $this->assertEquals('char', $result[0]['typname']);
     }
 
     public function testBindValue(): void
@@ -120,7 +130,8 @@ class PreparedStatementTest extends TestCase
         $result = $statement->execute();
         $this->assertEquals('int4', $result[0]['typname']);
 
-        $result = $statement->execute([16]);
+        $statement->bindValue(1, 16);
+        $result = $statement->execute();
         $this->assertEquals('bool', $result[0]['typname']);
     }
 
@@ -143,7 +154,7 @@ class PreparedStatementTest extends TestCase
             'select * from pg_stat_activity where query_start < $1',
             [$this->createMockTimestampConverter()]
         );
-        $statement->execute(['yesterday']);
+        $statement->executeParams(['yesterday']);
     }
 
     public function testBindValueConfiguresTypeConverterArgumentUsingConnection(): void
@@ -185,7 +196,26 @@ class PreparedStatementTest extends TestCase
         $this::expectExceptionMessage('$resultTypes');
 
         $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
-        $statement->bindValue(1,23);
+        $statement->bindValue(1, 23);
         $statement->execute([], ['typname' => 'text']);
+    }
+
+    public function testExecuteParamsDisallowsBoundValues(): void
+    {
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('bound values');
+
+        $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
+        $statement->bindValue(1, 'yesterday');
+        $statement->executeParams(['tomorrow']);
+    }
+
+    public function testExecuteParamsRequiresParameterTypes(): void
+    {
+        $this::expectException(RuntimeException::class);
+        $this::expectExceptionMessage('did not have its type specified');
+
+        $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
+        $statement->executeParams(['yesterday']);
     }
 }

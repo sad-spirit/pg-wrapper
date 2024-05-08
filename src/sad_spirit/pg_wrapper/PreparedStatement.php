@@ -88,8 +88,10 @@ class PreparedStatement
         $this->resultTypes = $resultTypes;
 
         foreach ($paramTypes as $key => $type) {
-            if (null !== $type) {
-                $this->converters[$key] = $this->connection->getTypeConverter($type);
+            if (!\is_int($key)) {
+                throw new exceptions\InvalidArgumentException('$paramTypes array should contain only integer keys');
+            } elseif (null !== $type) {
+                $this->setParameterType($key + 1, $type);
             }
         }
 
@@ -168,6 +170,25 @@ class PreparedStatement
     }
 
     /**
+     * Sets the type for a parameter of a prepared query
+     *
+     * @param int   $parameterNumber Parameter number, 1-based
+     * @param mixed $type            Type name / converter object
+     * @return $this
+     *
+     * @throws exceptions\OutOfBoundsException
+     * @throws exceptions\InvalidArgumentException
+     */
+    public function setParameterType(int $parameterNumber, $type): self
+    {
+        $this->assertValidParameterNumber($parameterNumber, __METHOD__);
+
+        $this->converters[$parameterNumber - 1] = $this->connection->getTypeConverter($type);
+
+        return $this;
+    }
+
+    /**
      * Sets the value for a parameter of a prepared query
      *
      * @param int   $paramNum Parameter number, 1-based
@@ -179,13 +200,8 @@ class PreparedStatement
      */
     public function bindValue(int $paramNum, $value, $type = null): self
     {
-        if ($paramNum < 1) {
-            throw new exceptions\OutOfBoundsException(sprintf(
-                '%s: parameter number should be an integer >= 1, %d given',
-                __METHOD__,
-                $paramNum
-            ));
-        }
+        $this->assertValidParameterNumber($paramNum, __METHOD__);
+
         $this->values[$paramNum - 1] = $value;
         if (null !== $type) {
             $this->converters[$paramNum - 1] = $this->connection->getTypeConverter($type);
@@ -206,13 +222,8 @@ class PreparedStatement
      */
     public function bindParam(int $paramNum, &$param, $type = null): self
     {
-        if ($paramNum < 1) {
-            throw new exceptions\OutOfBoundsException(sprintf(
-                '%s: parameter number should be an integer >= 1, %d given',
-                __METHOD__,
-                $paramNum
-            ));
-        }
+        $this->assertValidParameterNumber($paramNum, __METHOD__);
+
         $this->values[$paramNum - 1] =& $param;
         if (null !== $type) {
             $this->converters[$paramNum - 1] = $this->connection->getTypeConverter($type);
@@ -221,6 +232,25 @@ class PreparedStatement
         return $this;
     }
 
+    /**
+     * Checks that a given parameter number is valid for this prepared statement
+     *
+     * @param int    $parameterNumber
+     * @param string $method          Name of the calling method, used in exception message
+     * @return void
+     *
+     * @throws exceptions\OutOfBoundsException
+     */
+    private function assertValidParameterNumber(int $parameterNumber, string $method): void
+    {
+        if ($parameterNumber < 1) {
+            throw new exceptions\OutOfBoundsException(\sprintf(
+                "%s: parameter number should be an integer >= 1, %d given",
+                $method,
+                $parameterNumber
+            ));
+        }
+    }
 
     /**
      * Executes a prepared query
@@ -242,6 +272,12 @@ class PreparedStatement
         $this->connection->assertRollbackNotNeeded();
 
         if (!empty($params)) {
+            @\trigger_error(
+                'Passing $params to PreparedStatement::execute() is deprecated since release 2.4.0. '
+                . 'Either bind the parameters with bindParam() / bindValue() beforehand or use executeParams().',
+                \E_USER_DEPRECATED
+            );
+
             $this->values = [];
             foreach (array_values($params) as $i => $value) {
                 $this->bindValue($i + 1, $value);
@@ -272,6 +308,46 @@ class PreparedStatement
             @pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
             $resultTypes
+        );
+    }
+
+    /**
+     * Executes the prepared query using (only) the given parameters
+     *
+     * This will throw an exception if some parameter values were bound previously
+     *
+     * @param array $params
+     * @return ResultSet
+     */
+    public function executeParams(array $params): ResultSet
+    {
+        if (!$this->queryId) {
+            throw new exceptions\RuntimeException('The statement has already been deallocated');
+        }
+        if ([] !== $this->values) {
+            throw new exceptions\RuntimeException(
+                "Some parameters already have bound values, use execute() method "
+                . "to execute the statement with these."
+            );
+        }
+        $this->connection->assertRollbackNotNeeded();
+
+        $stringParams = [];
+        foreach (\array_values($params) as $key => $value) {
+            if (!isset($this->converters[$key])) {
+                throw new exceptions\RuntimeException(\sprintf(
+                    'Parameter $%d did not have its type specified. Either pass type specifications to constructor '
+                    . 'or use setParameterType() method.',
+                    $key + 1
+                ));
+            }
+            $stringParams[$key] = $this->converters[$key]->output($value);
+        }
+
+        return ResultSet::createFromReturnValue(
+            @\pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
+            $this->connection,
+            $this->resultTypes
         );
     }
 }
