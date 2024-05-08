@@ -62,18 +62,30 @@ class PreparedStatement
     private $converters = [];
 
     /**
+     * Types information for output values, passed on to ResultSet
+     * @var array
+     */
+    private $resultTypes;
+
+    /**
      * Constructor.
      *
-     * @param Connection        $connection Reference to the connection object.
-     * @param string            $query      SQL query to prepare.
-     * @param array<int, mixed> $paramTypes Types information used to convert input parameters.
+     * @param Connection               $connection  DB connection object.
+     * @param string                   $query       SQL query to prepare.
+     * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters.
+     * @param array<int|string, mixed> $resultTypes Result types to pass to created ResultSet instances.
      *
      * @throws exceptions\ServerException
      */
-    public function __construct(Connection $connection, string $query, array $paramTypes = [])
-    {
-        $this->connection = $connection;
-        $this->query      = $query;
+    public function __construct(
+        Connection $connection,
+        string $query,
+        array $paramTypes = [],
+        array $resultTypes = []
+    ) {
+        $this->connection  = $connection;
+        $this->query       = $query;
+        $this->resultTypes = $resultTypes;
 
         foreach ($paramTypes as $key => $type) {
             if (null !== $type) {
@@ -92,6 +104,23 @@ class PreparedStatement
         $this->queryId = null;
         $this->values  = [];
         $this->prepare();
+    }
+
+    /**
+     * Sets result types that will be passed to created ResultSet instances
+     *
+     * We can theoretically check whether the array keys correspond to correct column numbers,
+     * but we cannot know the result column names until actually executing the statement.
+     * Therefore, don't bother checking array keys, ResultSet will complain if something is not right with them.
+     *
+     * @param array $resultTypes
+     * @return $this
+     */
+    public function setResultTypes(array $resultTypes): self
+    {
+        $this->resultTypes = $resultTypes;
+
+        return $this;
     }
 
     /**
@@ -217,6 +246,15 @@ class PreparedStatement
             foreach (array_values($params) as $i => $value) {
                 $this->bindValue($i + 1, $value);
             }
+        }
+        if ([] === $resultTypes) {
+            $resultTypes = $this->resultTypes;
+        } else {
+            @\trigger_error(
+                'Passing $resultTypes to PreparedStatement::execute() is deprecated since release 2.4.0. '
+                . 'Set these either via constructor or setResultTypes() method.',
+                \E_USER_DEPRECATED
+            );
         }
 
         $stringParams = [];

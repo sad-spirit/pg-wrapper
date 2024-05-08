@@ -43,6 +43,18 @@ class PreparedStatementTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $this->conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
+
+        \set_error_handler(
+            static function (int $errno, string $errstr) {
+                throw new \ErrorException($errstr, $errno);
+            },
+            \E_USER_DEPRECATED
+        );
+    }
+
+    public function tearDown(): void
+    {
+        \restore_error_handler();
     }
 
     public function testCreatesPreparedStatement(): void
@@ -148,5 +160,32 @@ class PreparedStatementTest extends TestCase
 
         $param = 'yesterday';
         $statement->execute();
+    }
+
+    public function testPassesResultTypes(): void
+    {
+        $statement = $this->conn->prepare(
+            'select parameter_types from pg_prepared_statements where name ~* $1',
+            [],
+            ['parameter_types' => 'text']
+        );
+
+        $statement->bindValue(1, 'statement[0-9]+');
+        $result = $statement->execute();
+        $this::assertIsString($result->current()['parameter_types']);
+
+        $statement->setResultTypes(['parameter_types' => 'text[]']);
+        $result = $statement->execute();
+        $this::assertIsArray($result->current()['parameter_types']);
+    }
+
+    public function testPassingResultTypesToExecuteIsDeprecated(): void
+    {
+        $this::expectException(\ErrorException::class);
+        $this::expectExceptionMessage('$resultTypes');
+
+        $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
+        $statement->bindValue(1,23);
+        $statement->execute([], ['typname' => 'text']);
     }
 }

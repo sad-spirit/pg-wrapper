@@ -372,15 +372,16 @@ class Connection
     /**
      * Prepares a given query for execution.
      *
-     * @param string             $query      SQL query to prepare.
-     * @param array<int, mixed>  $paramTypes Types information used to convert input parameters
+     * @param string                   $query       SQL query to prepare.
+     * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters
+     * @param array<int|string, mixed> $resultTypes Result types to pass to ResultSet
      *
      * @return PreparedStatement Prepared statement.
      * @throws exceptions\ServerException
      */
-    public function prepare(string $query, array $paramTypes = []): PreparedStatement
+    public function prepare(string $query, array $paramTypes = [], array $resultTypes = []): PreparedStatement
     {
-        return new PreparedStatement($this, $query, $paramTypes);
+        return new PreparedStatement($this, $query, $paramTypes, $resultTypes);
     }
 
     /**
