@@ -191,20 +191,26 @@ class PreparedStatement
     /**
      * Sets the value for a parameter of a prepared query
      *
-     * @param int   $paramNum Parameter number, 1-based
-     * @param mixed $value    Parameter value
-     * @param mixed $type     Type name / converter object to use for converting to DB type
+     * @param int   $parameterNumber Parameter number, 1-based
+     * @param mixed $value           Parameter value
+     * @param mixed $type            Type name / converter object to use for converting to DB type
      * @return $this
      *
      * @throws exceptions\OutOfBoundsException
      */
-    public function bindValue(int $paramNum, $value, $type = null): self
+    public function bindValue(int $parameterNumber, $value, $type = null): self
     {
-        $this->assertValidParameterNumber($paramNum, __METHOD__);
+        $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
-        $this->values[$paramNum - 1] = $value;
+        $this->values[$parameterNumber - 1] = $value;
         if (null !== $type) {
-            $this->converters[$paramNum - 1] = $this->connection->getTypeConverter($type);
+            $this->setParameterType($parameterNumber, $type);
+        } elseif (!isset($this->converters[$parameterNumber - 1])) {
+            @\trigger_error(
+                'Not specifying bound value type is deprecated since release 2.4.0. '
+                . 'Either pass $type to bindValue() or specify the type beforehand using e.g. setParameterType().',
+                \E_USER_DEPRECATED
+            );
         }
 
         return $this;
@@ -213,20 +219,26 @@ class PreparedStatement
     /**
      * Binds a variable to a parameter of a prepared query
      *
-     * @param int   $paramNum Parameter number, 1-based
-     * @param mixed $param    Variable to bind
-     * @param mixed $type     Type name / converter object to use for converting to DB type
+     * @param int   $parameterNumber Parameter number, 1-based
+     * @param mixed $param           Variable to bind
+     * @param mixed $type            Type name / converter object to use for converting to DB type
      * @return $this
      *
      * @throws exceptions\OutOfBoundsException
      */
-    public function bindParam(int $paramNum, &$param, $type = null): self
+    public function bindParam(int $parameterNumber, &$param, $type = null): self
     {
-        $this->assertValidParameterNumber($paramNum, __METHOD__);
+        $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
-        $this->values[$paramNum - 1] =& $param;
+        $this->values[$parameterNumber - 1] =& $param;
         if (null !== $type) {
-            $this->converters[$paramNum - 1] = $this->connection->getTypeConverter($type);
+            $this->setParameterType($parameterNumber, $type);
+        } elseif (!isset($this->converters[$parameterNumber - 1])) {
+            @\trigger_error(
+                'Not specifying type for a bound variable is deprecated since release 2.4.0. '
+                . 'Either pass $type to bindParam() or specify the type beforehand using e.g. setParameterType().',
+                \E_USER_DEPRECATED
+            );
         }
 
         return $this;

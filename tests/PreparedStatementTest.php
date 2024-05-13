@@ -91,7 +91,7 @@ class PreparedStatementTest extends TestCase
         $this::expectExceptionMessage('deallocated');
 
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
-        $statement->bindValue(1, 'yesterday');
+        $statement->bindValue(1, 'yesterday', 'timestamptz');
         $statement->deallocate();
 
         $statement->execute();
@@ -112,7 +112,7 @@ class PreparedStatementTest extends TestCase
     {
         $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
 
-        $statement->bindParam(1, $param);
+        $statement->bindParam(1, $param, 'oid');
         $param = 23;
         $result = $statement->execute();
         $this->assertEquals('int4', $result[0]['typname']);
@@ -126,7 +126,7 @@ class PreparedStatementTest extends TestCase
     {
         $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
 
-        $statement->bindValue(1, 23);
+        $statement->bindValue(1, 23, 'oid');
         $result = $statement->execute();
         $this->assertEquals('int4', $result[0]['typname']);
 
@@ -181,7 +181,7 @@ class PreparedStatementTest extends TestCase
             ['parameter_types' => 'text']
         );
 
-        $statement->bindValue(1, 'statement[0-9]+');
+        $statement->bindValue(1, 'statement[0-9]+', 'text');
         $result = $statement->execute();
         $this::assertIsString($result->current()['parameter_types']);
 
@@ -196,7 +196,7 @@ class PreparedStatementTest extends TestCase
         $this::expectExceptionMessage('$resultTypes');
 
         $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
-        $statement->bindValue(1, 23);
+        $statement->bindValue(1, 23, 'oid');
         $statement->execute([], ['typname' => 'text']);
     }
 
@@ -206,7 +206,7 @@ class PreparedStatementTest extends TestCase
         $this::expectExceptionMessage('bound values');
 
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
-        $statement->bindValue(1, 'yesterday');
+        $statement->bindValue(1, 'yesterday', 'timestamptz');
         $statement->executeParams(['tomorrow']);
     }
 
