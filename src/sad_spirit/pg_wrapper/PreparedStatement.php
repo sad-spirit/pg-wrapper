@@ -62,6 +62,12 @@ class PreparedStatement
     private $converters = [];
 
     /**
+     * Number of parameters in the prepared statement
+     * @var int|null
+     */
+    private $numberOfParameters = null;
+
+    /**
      * Types information for output values, passed on to ResultSet
      * @var array
      */
@@ -170,6 +176,30 @@ class PreparedStatement
     }
 
     /**
+     * Sets number of parameters used in the query
+     *
+     * Parameter symbols should start with $1 and have no gaps in numbers, otherwise Postgres will throw an error,
+     * so setting their number is sufficient.
+     *
+     * @param int $numberOfParameters
+     * @return $this
+     */
+    public function setNumberOfParameters(int $numberOfParameters): self
+    {
+        if ($numberOfParameters < 0) {
+            throw new exceptions\InvalidArgumentException(\sprintf(
+                "%s: number of parameters should be a non-negative integer, %d given",
+                __METHOD__,
+                $numberOfParameters
+            ));
+        }
+
+        $this->numberOfParameters = $numberOfParameters;
+
+        return $this;
+    }
+
+    /**
      * Sets the type for a parameter of a prepared query
      *
      * @param int   $parameterNumber Parameter number, 1-based
@@ -255,10 +285,22 @@ class PreparedStatement
      */
     private function assertValidParameterNumber(int $parameterNumber, string $method): void
     {
-        if ($parameterNumber < 1) {
+        if (0 === $this->numberOfParameters) {
+            throw new exceptions\OutOfBoundsException(\sprintf(
+                "%s: the prepared statement has no parameters",
+                $method
+            ));
+        } elseif ($parameterNumber < 1) {
             throw new exceptions\OutOfBoundsException(\sprintf(
                 "%s: parameter number should be an integer >= 1, %d given",
                 $method,
+                $parameterNumber
+            ));
+        } elseif (null !== $this->numberOfParameters && $parameterNumber > $this->numberOfParameters) {
+            throw new exceptions\OutOfBoundsException(\sprintf(
+                '%s: parameter number should be <= %d, %d given',
+                $method,
+                $this->numberOfParameters,
                 $parameterNumber
             ));
         }

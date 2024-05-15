@@ -23,6 +23,7 @@ namespace sad_spirit\pg_wrapper\tests;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
+    exceptions\OutOfBoundsException,
     exceptions\RuntimeException
 };
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
@@ -217,5 +218,34 @@ class PreparedStatementTest extends TestCase
 
         $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
         $statement->executeParams(['yesterday']);
+    }
+
+    public function testSetNumberOfParametersToZero(): void
+    {
+        $statement = $this->conn->prepare('select * from pg_stat_activity limit 1');
+
+        $statement->bindValue(1, 'something', 'text');
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage('no parameters');
+
+        $statement->setNumberOfParameters(0);
+        $statement->bindValue(1, 'a string');
+    }
+
+    public function testSetNumberOfParametersToNonZero(): void
+    {
+        $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
+
+        $statement->setParameterType(2, 'text');
+
+        $statement->setNumberOfParameters(1);
+
+        $statement->setParameterType(1, 'timestamptz');
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage('should be <= 1');
+
+        $statement->setParameterType(2, 'integer');
     }
 }
