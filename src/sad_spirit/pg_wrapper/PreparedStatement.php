@@ -347,6 +347,8 @@ class PreparedStatement
             );
         }
 
+        ksort($this->values);
+
         $stringParams = [];
         foreach ($this->values as $key => $value) {
             if (isset($this->converters[$key])) {

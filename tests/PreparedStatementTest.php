@@ -248,4 +248,18 @@ class PreparedStatementTest extends TestCase
 
         $statement->setParameterType(2, 'integer');
     }
+
+    public function testBindValueAnyOrder(): void
+    {
+        $statement = $this->conn->prepare(
+            'select typname from pg_type where oid = $1 or typname = $2 order by 1',
+            ['oid', 'text']
+        );
+
+        $statement->bindValue(2, 'int4');
+        $statement->bindValue(1, 21);
+
+        $result = $statement->execute();
+        $this->assertEquals('int2', $result[0]['typname']);
+    }
 }
