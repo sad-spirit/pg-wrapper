@@ -262,4 +262,44 @@ class PreparedStatementTest extends TestCase
         $result = $statement->execute();
         $this->assertEquals('int2', $result[0]['typname']);
     }
+
+    public function testExecuteParamsRespectsArrayKeys(): void
+    {
+        $statement = $this->conn->prepare(
+            'select typname from pg_type where oid = $1 or typname = $2 order by 1',
+            ['oid', 'text']
+        );
+
+        $result = $statement->executeParams([1 => 'int4', 0 => 21]);
+        $this->assertEquals('int2', $result[0]['typname']);
+    }
+
+    public function testCheckArrayKeysWithoutSettingNumberOfParameters(): void
+    {
+        $statement = $this->conn->prepare(
+            'select typname from pg_type where oid = $1 or typname = $2 order by 1',
+            ['oid', 'text']
+        );
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage('missing values for parameters: $1, $3');
+
+        $statement->executeParams([1 => 21, 3 => 'int4']);
+    }
+
+    public function testCheckArrayKeysWithNumberOfParameters(): void
+    {
+        $statement = $this->conn->prepare(
+            'select typname from pg_type where oid = $1 or typname = $2 order by 1',
+            ['oid', 'text']
+        );
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage(
+            'missing values for parameters: $1, containing values for nonexistent parameters: $4'
+        );
+
+        $statement->setNumberOfParameters(2);
+        $statement->executeParams([1 => 21, 3 => 'int4']);
+    }
 }

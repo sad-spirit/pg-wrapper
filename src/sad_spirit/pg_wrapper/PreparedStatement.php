@@ -307,6 +307,68 @@ class PreparedStatement
     }
 
     /**
+     * A polyfill for array_key_last()
+     *
+     * @param array<int, mixed> $array
+     * @return int|null
+     */
+    private function lastKey(array $array): ?int
+    {
+        if ([] === $array) {
+            return null;
+        } elseif (function_exists('array_key_last')) {
+            return \array_key_last($array);
+        } else {
+            return \key(\array_slice($array, -1, 1, true));
+        }
+    }
+
+    /**
+     * Checks that the array keys correspond to statement placeholders
+     *
+     * @param array<int, mixed> $params
+     * @param string            $prefix Prefix for exception message
+     * @return void
+     *
+     * @throws exceptions\OutOfBoundsException
+     */
+    private function assertArrayKeysMatchPlaceholders(array $params, string $prefix): void
+    {
+        if (null !== $this->numberOfParameters) {
+            $numberOfParameters = $this->numberOfParameters;
+        } elseif (null !== ($lastKey = $this->lastKey($params))) {
+            $numberOfParameters = $lastKey + 1;
+        } else {
+            $numberOfParameters = 0;
+        }
+
+        if (
+            0 === $numberOfParameters && [] === $params
+            || $numberOfParameters === \count($params) && $params === \array_values($params)
+        ) {
+            return;
+        }
+
+        $expectedKeys = \range(0, $numberOfParameters - 1);
+        $actualKeys   = \array_keys($params);
+        $message      = $prefix . ' do not match statement placeholders';
+
+        if ([] !== ($missing = \array_diff($expectedKeys, $actualKeys))) {
+            $message .= ', missing values for parameters: $' . \implode(', $', \array_map(function ($key) {
+                return $key + 1;
+            }, $missing));
+        }
+        if ([] !== ($extra = \array_diff($actualKeys, $expectedKeys))) {
+            $message .= ', containing values for nonexistent parameters: $'
+                . \implode(', $', \array_map(function ($key) {
+                    return $key + 1;
+                }, $extra));
+        }
+
+        throw new exceptions\OutOfBoundsException($message);
+    }
+
+    /**
      * Executes a prepared query
      *
      * @param array $params      Input parameters for query, will override those bound by
@@ -348,6 +410,7 @@ class PreparedStatement
         }
 
         ksort($this->values);
+        $this->assertArrayKeysMatchPlaceholders($this->values, 'Bound values');
 
         $stringParams = [];
         foreach ($this->values as $key => $value) {
@@ -370,9 +433,14 @@ class PreparedStatement
     /**
      * Executes the prepared query using (only) the given parameters
      *
-     * This will throw an exception if some parameter values were bound previously
+     * $params should have integer keys with (0-based) key N corresponding to (1-based) statement placeholder $(N + 1).
+     * Unlike native pg_execute(), array keys will be respected and values mapped by keys rather than in "array order":
+     * passing ['foo', 'bar'] will use 'foo' for $1 and 'bar' for $2, while [1 => 'foo', 0 => 'bar'] will use
+     * 'bar' for $1 and 'foo' for $2.
      *
-     * @param array $params
+     * This method will throw an exception if some parameter values were bound previously.
+     *
+     * @param array<int, mixed> $params
      * @return ResultSet
      */
     public function executeParams(array $params): ResultSet
@@ -388,8 +456,11 @@ class PreparedStatement
         }
         $this->connection->assertRollbackNotNeeded();
 
+        ksort($params);
+        $this->assertArrayKeysMatchPlaceholders($params, 'Keys of $params');
+
         $stringParams = [];
-        foreach (\array_values($params) as $key => $value) {
+        foreach ($params as $key => $value) {
             if (!isset($this->converters[$key])) {
                 throw new exceptions\RuntimeException(\sprintf(
                     'Parameter $%d did not have its type specified. Either pass type specifications to constructor '
