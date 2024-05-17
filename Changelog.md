@@ -1,5 +1,44 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+ * `Connection::prepare()` and `PreparedStatement::__construct()` now accept `$resultTypes`
+   that will be passed on to `ResultSet` instances returned by the `PreparedStatement` instance.
+ * In `PreparedStatement` class:
+   * `setResultTypes(array $resultTypes)` method used to configure `$resultTypes` for returned `ResultSet` instances. 
+   * `setParameterType(int $parameterNumber, mixed $type)` method that allows to specify the type for a parameter
+     separately from the value.
+   * `setNumberOfParameters(int $numberOfParameters)` method that sets the number of parameters used in the query.
+     If specified, this will be used to validate the `$parameterNumber` arguments given to various methods 
+     and keys in parameter values array. 
+   * `executeParams(array $params)` method that will execute the prepared statement with only the values
+     from the given `$params` array. An exception will be thrown if any parameter values were previously bound.
+   * `fetchParameterTypes(bool $overrideExistingTypes = false)` method that will fetch types for statement
+     parameters from the DB. It will also set the correct number of parameters.
+   * Static `setAutoFetchParameterTypes(bool $autoFetch)` / `getAutoFetchParameterTypes(): bool` static methods
+     that trigger automatically fetching the above data in `PreparedStatement`'s constructor.
+     This behaviour is currently disabled by default.
+   * Destructor that deallocates the prepared statement.
+
+### Deprecated
+ * Method names mentioning `resource`, as pgsql extension in PHP 8.1+ no longer uses resources:
+   * `Connection::getResource()` -- `Connection::getNative()` should be used instead,
+   * `ResultSet::getResource()` -- `ResultSet::getNative()`,
+   * `ResultSet::createFromResultResource()` -- `ResultSet::createFromReturnValue()`.
+ * `Connection::checkRollbackNotNeeded()` method -- `Connection::assertRollbackNotNeeded()` should be used, as
+   the previous naming was unclear.
+ * In `PreparedStatement` class:
+   * Passing `$params` to `execute()` method, use the new `PreparedStatement::executeParams()`
+   * Passing `$resultTypes` to `execute()` method as these are unlikely to change between calls.
+     Use the constructor or `setResultTypes()` method to set these.
+   * Not specifying types for parameters is deprecated for `bindValue()` / `bindParam()` and
+     will result in an exception for the new `executeParams()`.
+
+### Fixed
+ * `PreparedStatement::execute()` mapped bound values to query parameters in the order of `bindValue()` / `bindParam()` calls,
+   essentially ignoring the parameter numbers. 
+
 ## [2.3.0] - 2023-09-15
 
 A stable release following release of Postgres 16. No code changes since beta.
@@ -225,3 +264,4 @@ Initial release on GitHub
 [2.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.1...v2.2.0
 [2.3.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.2.0...v2.3.0-beta
 [2.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0-beta..v2.3.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0..HEAD
