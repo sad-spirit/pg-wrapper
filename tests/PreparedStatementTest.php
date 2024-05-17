@@ -23,6 +23,7 @@ namespace sad_spirit\pg_wrapper\tests;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
+    PreparedStatement,
     exceptions\OutOfBoundsException,
     exceptions\RuntimeException
 };
@@ -56,6 +57,7 @@ class PreparedStatementTest extends TestCase
     public function tearDown(): void
     {
         \restore_error_handler();
+        PreparedStatement::setAutoFetchParameterTypes(false);
     }
 
     public function testCreatesPreparedStatement(): void
@@ -301,5 +303,33 @@ class PreparedStatementTest extends TestCase
 
         $statement->setNumberOfParameters(2);
         $statement->executeParams([1 => 21, 3 => 'int4']);
+    }
+
+    public function testFetchParameterTypes(): void
+    {
+        $statement = $this->conn->prepare('select typname from pg_type where oid = any($1::oid[])')
+            ->fetchParameterTypes();
+
+        $result = $statement->executeParams([[1, 2, 21]]);
+        $this->assertEquals('int2', $result[0]['typname']);
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage('should be <= 1');
+
+        $statement->bindValue(2, 'anything');
+    }
+
+    public function testAutoFetchParameterTypes(): void
+    {
+        PreparedStatement::setAutoFetchParameterTypes(true);
+        $statement = $this->conn->prepare('select typname from pg_type where oid = any($1::oid[])');
+
+        $result = $statement->executeParams([[1, 2, 21]]);
+        $this->assertEquals('int2', $result[0]['typname']);
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage('should be <= 1');
+
+        $statement->bindValue(2, 'anything');
     }
 }

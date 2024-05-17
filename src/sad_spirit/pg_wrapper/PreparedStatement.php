@@ -26,6 +26,12 @@ namespace sad_spirit\pg_wrapper;
 class PreparedStatement
 {
     /**
+     * Whether to fetch parameter types from DB when first preparing the statement
+     * @var bool
+     */
+    private static $autoFetchParameterTypes = false;
+
+    /**
      * Used to generate statement names for pg_prepare()
      * @var int
      */
@@ -74,6 +80,27 @@ class PreparedStatement
     private $resultTypes;
 
     /**
+     * Sets whether parameter types should be automatically fetched after first preparing a statement
+     *
+     * @param bool $autoFetch
+     * @return void
+     */
+    public static function setAutoFetchParameterTypes(bool $autoFetch): void
+    {
+        self::$autoFetchParameterTypes = $autoFetch;
+    }
+
+    /**
+     * Returns whether parameter types will be automatically fetched after first preparing a statement
+     *
+     * @return bool
+     */
+    public static function getAutoFetchParameterTypes(): bool
+    {
+        return self::$autoFetchParameterTypes;
+    }
+
+    /**
      * Constructor.
      *
      * @param Connection               $connection  DB connection object.
@@ -102,6 +129,10 @@ class PreparedStatement
         }
 
         $this->prepare();
+
+        if (self::getAutoFetchParameterTypes()) {
+            $this->fetchParameterTypes();
+        }
     }
 
     /**
@@ -171,6 +202,42 @@ class PreparedStatement
 
         $this->connection->execute('deallocate ' . $this->queryId);
         $this->queryId = null;
+
+        return $this;
+    }
+
+    /**
+     * Fetches info about the types assigned to query parameters from the database
+     *
+     * PHP's pgsql extension does not provide a wrapper for PQdescribePrepared function of libpq, so we query
+     * the pg_catalog.pg_prepared_statements view instead.
+     *
+     * This method will always set parameter count to a correct value, but will not change existing type converters
+     * for parameters unless $overrideExistingTypes is true
+     *
+     * @param bool $overrideExistingTypes Whether to override the types that were already set for the parameters
+     *
+     * @return $this
+     */
+    public function fetchParameterTypes(bool $overrideExistingTypes = false): self
+    {
+        $preparedInfo = $this->connection->executeParams(
+            'select parameter_types::oid[] as types from pg_catalog.pg_prepared_statements where name = $1::text',
+            [$this->queryId]
+        )
+            ->current();
+
+        if (null === $preparedInfo) {
+            throw new exceptions\RuntimeException('Failed to fetch info for the prepared statement');
+        }
+
+        $this->setNumberOfParameters(\count($preparedInfo['types']));
+        foreach ($preparedInfo['types'] as $key => $typeOID) {
+            if (!isset($this->converters[$key]) || $overrideExistingTypes) {
+                $this->converters[$key] = $this->connection->getTypeConverterFactory()
+                    ->getConverterForTypeOID($typeOID);
+            }
+        }
 
         return $this;
     }
