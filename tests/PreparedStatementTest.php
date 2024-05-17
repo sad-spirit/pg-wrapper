@@ -60,13 +60,17 @@ class PreparedStatementTest extends TestCase
         PreparedStatement::setAutoFetchParameterTypes(false);
     }
 
-    public function testCreatesPreparedStatement(): void
+    public function testCreatesAndDeallocatesPreparedStatement(): void
     {
-        $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
+        $statement = $this->conn->prepare('select * from pg_stat_activity where query_start < $1');
 
         $result = $this->conn->execute('select * from pg_prepared_statements where not from_sql');
-
         $this::assertCount(1, $result);
+
+        unset($statement);
+
+        $result = $this->conn->execute('select * from pg_prepared_statements where not from_sql');
+        $this::assertCount(0, $result);
     }
 
     public function testClonedStatementIsRePrepared(): void

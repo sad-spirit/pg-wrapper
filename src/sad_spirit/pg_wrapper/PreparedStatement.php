@@ -136,6 +136,16 @@ class PreparedStatement
     }
 
     /**
+     * Destructor, deallocates the prepared statement
+     */
+    public function __destruct()
+    {
+        if (null !== $this->queryId && $this->connection->isConnected() && !$this->connection->needsRollback()) {
+            $this->connection->execute('deallocate ' . $this->queryId);
+        }
+    }
+
+    /**
      * Re-prepares the statement and removes bound values in cloned object
      */
     public function __clone()
