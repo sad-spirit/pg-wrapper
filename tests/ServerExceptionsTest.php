@@ -23,7 +23,7 @@ namespace sad_spirit\pg_wrapper\tests;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
-    ResultSet
+    Result
 };
 use sad_spirit\pg_wrapper\exceptions\{
     ConnectionException,
@@ -58,7 +58,7 @@ class ServerExceptionsTest extends TestCase
     {
         $connectionTwo = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
 
-        $this::assertInstanceOf(ResultSet::class, $connectionTwo->execute('select true'));
+        $this::assertInstanceOf(Result::class, $connectionTwo->execute('select true'));
 
         $this->conn->executeParams(
             'select pg_terminate_backend($1)',

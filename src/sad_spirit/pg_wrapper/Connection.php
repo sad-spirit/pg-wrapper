@@ -393,13 +393,13 @@ class Connection
      * @param string $sql         SQL query to execute
      * @param array  $resultTypes Type converters to pass to ResultSet
      *
-     * @return ResultSet Execution result.
+     * @return Result Execution result.
      * @throws exceptions\ServerException
      */
-    public function execute(string $sql, array $resultTypes = []): ResultSet
+    public function execute(string $sql, array $resultTypes = []): Result
     {
         $this->assertRollbackNotNeeded();
-        return ResultSet::createFromReturnValue(
+        return Result::createFromReturnValue(
             @pg_query($this->getNative(), $sql),
             $this,
             $resultTypes
@@ -414,10 +414,10 @@ class Connection
      * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters
      * @param array<int|string, mixed> $resultTypes Result types to pass to ResultSet
      *
-     * @return ResultSet
+     * @return Result
      * @throws exceptions\ServerException
      */
-    public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = []): ResultSet
+    public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = []): Result
     {
         $this->assertRollbackNotNeeded();
 
@@ -433,7 +433,7 @@ class Connection
             }
         }
 
-        return ResultSet::createFromReturnValue(
+        return Result::createFromReturnValue(
             @pg_query_params($native, $sql, $stringParams),
             $this,
             $resultTypes

@@ -27,6 +27,8 @@ use Pgsql\Result as NativeResult;
  *
  * @implements \Iterator<int, array>
  * @implements \ArrayAccess<int, ?array>
+ *
+ * @deprecated Since release 2.4.0, use Result instead
  */
 class ResultSet implements \Iterator, \Countable, \ArrayAccess
 {
@@ -107,7 +109,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @psalm-suppress PossiblyInvalidArgument
      */
-    protected function __construct($native, TypeConverterFactory $factory, array $types = [])
+    final protected function __construct($native, TypeConverterFactory $factory, array $types = [])
     {
         $this->native           = $native;
         $this->converterFactory = $factory;
@@ -134,7 +136,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @return NativeResult|resource
      * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Result : resource)
-     * @deprecated Since 2.4.0, use {@see ResultSet::getNative()} instead
+     * @deprecated Since 2.4.0, use {@see getNative()} instead
      */
     protected function getResource()
     {
@@ -185,7 +187,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param Connection                 $connection  Connection used to execute the query.
      * @param array                      $types       Types information, used to convert output values
      *                                                (overrides auto-generated types).
-     * @return self
+     * @return static
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      * @throws exceptions\ServerException
@@ -208,7 +210,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         // Methods we use in Connection and PreparedStatement (pg_query(), etc) can only return results
         // where status is one of PGSQL_COMMAND_OK, PGSQL_TUPLES_OK, PGSQL_COPY_OUT, PGSQL_COPY_IN.
         // All of these will allow at least pg_affected_rows()
-        return new self($returnValue, $connection->getTypeConverterFactory(), $types);
+        return new static($returnValue, $connection->getTypeConverterFactory(), $types);
     }
 
     /**
@@ -218,11 +220,11 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * @param Connection                 $connection Connection, origin of result resource.
      * @param array                      $types      Types information, used to convert output values
      *                                               (overrides auto-generated types).
-     * @return self
+     * @return static
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      * @throws exceptions\ServerException
-     * @deprecated Since 2.4.0, use {@see ResultSet::createFromReturnValue()} instead
+     * @deprecated Since 2.4.0, use {@see createFromReturnValue()} instead
      */
     public static function createFromResultResource($resource, Connection $connection, array $types = []): self
     {
@@ -232,7 +234,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
             __METHOD__
         ), \E_USER_DEPRECATED);
 
-        return self::createFromReturnValue($resource, $connection, $types);
+        return static::createFromReturnValue($resource, $connection, $types);
     }
 
     /**

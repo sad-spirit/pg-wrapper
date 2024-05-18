@@ -452,12 +452,12 @@ class PreparedStatement
      *                           bindValue() and bindParam() methods when provided.
      * @param array $resultTypes Types information for result fields, passed to ResultSet
      *
-     * @return ResultSet Execution result.
+     * @return Result Execution result.
      * @throws exceptions\TypeConversionException
      * @throws exceptions\ServerException
      * @throws exceptions\RuntimeException
      */
-    public function execute(array $params = [], array $resultTypes = []): ResultSet
+    public function execute(array $params = [], array $resultTypes = []): Result
     {
         if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
@@ -500,7 +500,7 @@ class PreparedStatement
             }
         }
 
-        return ResultSet::createFromReturnValue(
+        return Result::createFromReturnValue(
             @pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
             $resultTypes
@@ -518,9 +518,9 @@ class PreparedStatement
      * This method will throw an exception if some parameter values were bound previously.
      *
      * @param array<int, mixed> $params
-     * @return ResultSet
+     * @return Result
      */
-    public function executeParams(array $params): ResultSet
+    public function executeParams(array $params): Result
     {
         if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
@@ -548,7 +548,7 @@ class PreparedStatement
             $stringParams[$key] = $this->converters[$key]->output($value);
         }
 
-        return ResultSet::createFromReturnValue(
+        return Result::createFromReturnValue(
             @\pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
             $this->resultTypes

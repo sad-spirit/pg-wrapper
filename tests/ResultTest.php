@@ -30,7 +30,7 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for ResultSet class
  */
-class ResultSetTest extends TestCase
+class ResultTest extends TestCase
 {
     /**
      * @var Connection
@@ -43,10 +43,10 @@ class ResultSetTest extends TestCase
             return;
         }
         self::$conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-        self::$conn->execute('drop table if exists test_resultset');
-        self::$conn->execute('create table test_resultset (one integer, two text, three text)');
+        self::$conn->execute('drop table if exists test_result');
+        self::$conn->execute('create table test_result (one integer, two text, three text)');
         self::$conn->execute(<<<SQL
-insert into test_resultset values
+insert into test_result values
     (1, 'foo', 'first value of foo'),
     (3, 'foo', 'second value of foo'),
     (5, 'bar', 'first value of bar'),
@@ -65,18 +65,18 @@ SQL
 
     public function testAffectedRows(): void
     {
-        $resultDML = self::$conn->execute("insert into test_resultset values (10, 'last', 'this is temporary')");
+        $resultDML = self::$conn->execute("insert into test_result values (10, 'last', 'this is temporary')");
         $this::assertEquals(1, $resultDML->getAffectedRows());
         $this::assertCount(0, $resultDML);
 
-        $resultReturning = self::$conn->execute("delete from test_resultset where one = 10 returning *");
+        $resultReturning = self::$conn->execute("delete from test_result where one = 10 returning *");
         $this::assertEquals(1, $resultReturning->getAffectedRows());
         $this::assertCount(1, $resultReturning);
     }
 
     public function testSetMode(): void
     {
-        $res = self::$conn->execute("select * from test_resultset where one = 1");
+        $res = self::$conn->execute("select * from test_result where one = 1");
         $this->assertEquals(['one' => 1, 'two' => 'foo', 'three' => 'first value of foo'], $res[0]);
 
         $res->setMode(PGSQL_NUM);
@@ -85,7 +85,7 @@ SQL
 
     public function testSetType(): void
     {
-        $res = self::$conn->execute("select row(one, three) as onethree from test_resultset where two = 'baz'");
+        $res = self::$conn->execute("select row(one, three) as onethree from test_result where two = 'baz'");
         $this->assertEquals('(9,"only value of baz")', $res[0]['onethree']);
 
         $res->setType('onethree', new converters\containers\CompositeConverter(
@@ -98,7 +98,7 @@ SQL
     {
         $this::expectException(OutOfBoundsException::class);
 
-        $res = self::$conn->execute("select one, two from test_resultset");
+        $res = self::$conn->execute("select one, two from test_result");
         $res->setType('three', new converters\StubConverter());
     }
 
@@ -106,13 +106,13 @@ SQL
     {
         $this::expectException(OutOfBoundsException::class);
 
-        $res = self::$conn->execute("select one, two from test_resultset");
+        $res = self::$conn->execute("select one, two from test_result");
         $res->setType(3, new converters\StubConverter());
     }
 
     public function testFetchColumn(): void
     {
-        $res = self::$conn->execute("select one, two from test_resultset where one > 5");
+        $res = self::$conn->execute("select one, two from test_result where one > 5");
 
         $this->assertEquals([7, 9], $res->fetchColumn(0));
         $this->assertEquals(['bar', 'baz'], $res->fetchColumn('two'));
@@ -122,7 +122,7 @@ SQL
     {
         $this::expectException(OutOfBoundsException::class);
 
-        $res = self::$conn->execute("select one, two from test_resultset");
+        $res = self::$conn->execute("select one, two from test_result");
         $res->fetchColumn('three');
     }
 
@@ -130,13 +130,13 @@ SQL
     {
         $this::expectException(OutOfBoundsException::class);
 
-        $res = self::$conn->execute("select one, two from test_resultset");
+        $res = self::$conn->execute("select one, two from test_result");
         $res->fetchColumn(3);
     }
 
     public function testFetchAll(): void
     {
-        $res = self::$conn->execute("select one, two from test_resultset where one > 5 order by one");
+        $res = self::$conn->execute("select one, two from test_result where one > 5 order by one");
 
         $this->assertEquals(
             [
@@ -157,7 +157,7 @@ SQL
 
     public function testFetchAllUsingKeyWithTwoColumns(): void
     {
-        $res = self::$conn->execute("select one, two from test_resultset where one < 9 order by one");
+        $res = self::$conn->execute("select one, two from test_result where one < 9 order by one");
 
         $this->assertEquals(
             [
@@ -188,7 +188,7 @@ SQL
 
     public function testFetchAllUsingKey(): void
     {
-        $res = self::$conn->execute("select * from test_resultset where one > 1 order by one");
+        $res = self::$conn->execute("select * from test_result where one > 1 order by one");
 
         $this->assertEquals(
             [
@@ -243,7 +243,7 @@ SQL
             ->method('input')
             ->willReturn('not foo');
 
-        $res = self::$conn->execute("select * from test_resultset where one = 1");
+        $res = self::$conn->execute("select * from test_result where one = 1");
         $res->setType('two', $mockString);
         $this::assertEquals(1, $res[0]['one']);
         $this::assertEquals('not foo', $res[0]['two']);
