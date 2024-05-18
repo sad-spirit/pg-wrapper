@@ -84,6 +84,7 @@ class PreparedStatement
      *
      * @param bool $autoFetch
      * @return void
+     * @since 2.4.0
      */
     public static function setAutoFetchParameterTypes(bool $autoFetch): void
     {
@@ -94,6 +95,7 @@ class PreparedStatement
      * Returns whether parameter types will be automatically fetched after first preparing a statement
      *
      * @return bool
+     * @since 2.4.0
      */
     public static function getAutoFetchParameterTypes(): bool
     {
@@ -164,6 +166,7 @@ class PreparedStatement
      *
      * @param array $resultTypes
      * @return $this
+     * @since 2.4.0
      */
     public function setResultTypes(array $resultTypes): self
     {
@@ -228,6 +231,7 @@ class PreparedStatement
      * @param bool $overrideExistingTypes Whether to override the types that were already set for the parameters
      *
      * @return $this
+     * @since 2.4.0
      */
     public function fetchParameterTypes(bool $overrideExistingTypes = false): self
     {
@@ -260,6 +264,7 @@ class PreparedStatement
      *
      * @param int $numberOfParameters
      * @return $this
+     * @since 2.4.0
      */
     public function setNumberOfParameters(int $numberOfParameters): self
     {
@@ -282,6 +287,7 @@ class PreparedStatement
      * @param int   $parameterNumber Parameter number, 1-based
      * @param mixed $type            Type name / converter object
      * @return $this
+     * @since 2.4.0
      *
      * @throws exceptions\OutOfBoundsException
      * @throws exceptions\InvalidArgumentException
@@ -519,6 +525,7 @@ class PreparedStatement
      *
      * @param array<int, mixed> $params
      * @return Result
+     * @since 2.4.0
      */
     public function executeParams(array $params): Result
     {

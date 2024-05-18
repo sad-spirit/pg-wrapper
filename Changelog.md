@@ -4,9 +4,9 @@
 
 ### Added
  * `Connection::prepare()` and `PreparedStatement::__construct()` now accept `$resultTypes`
-   that will be passed on to `ResultSet` instances returned by the `PreparedStatement` instance.
+   that will be passed on to `Result` instances returned by the `PreparedStatement` instance.
  * In `PreparedStatement` class:
-   * `setResultTypes(array $resultTypes)` method used to configure `$resultTypes` for returned `ResultSet` instances. 
+   * `setResultTypes(array $resultTypes)` method used to configure `$resultTypes` for returned `Result` instances. 
    * `setParameterType(int $parameterNumber, mixed $type)` method that allows to specify the type for a parameter
      separately from the value.
    * `setNumberOfParameters(int $numberOfParameters)` method that sets the number of parameters used in the query.
@@ -22,15 +22,15 @@
    * Destructor that deallocates the prepared statement.
 
 ### Deprecated
+ * `ResultSet` class, use `Result` instead.
+ * `Connection::checkRollbackNotNeeded()` method, use `Connection::assertRollbackNotNeeded()` instead.
  * Method names mentioning `resource`, as pgsql extension in PHP 8.1+ no longer uses resources:
    * `Connection::getResource()` -- `Connection::getNative()` should be used instead,
-   * `ResultSet::getResource()` -- `ResultSet::getNative()`,
-   * `ResultSet::createFromResultResource()` -- `ResultSet::createFromReturnValue()`.
- * `Connection::checkRollbackNotNeeded()` method -- `Connection::assertRollbackNotNeeded()` should be used, as
-   the previous naming was unclear.
+   * `Result::getResource()` -- `Result::getNative()`,
+   * `Result::createFromResultResource()` -- `Result::createFromReturnValue()`.
  * In `PreparedStatement` class:
    * Passing `$params` to `execute()` method, use the new `PreparedStatement::executeParams()`
-   * Passing `$resultTypes` to `execute()` method as these are unlikely to change between calls.
+   * Passing `$resultTypes` to `execute()` method.
      Use the constructor or `setResultTypes()` method to set these.
    * Not specifying types for parameters is deprecated for `bindValue()` / `bindParam()` and
      will result in an exception for the new `executeParams()`.
