@@ -29,6 +29,7 @@ use Pgsql\Result as NativeResult;
  * @implements \ArrayAccess<int, ?array>
  *
  * @deprecated Since release 2.4.0, use Result instead
+ * @phpstan-consistent-constructor
  */
 class ResultSet implements \Iterator, \Countable, \ArrayAccess
 {
@@ -115,7 +116,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      *
      * @psalm-suppress PossiblyInvalidArgument
      */
-    final protected function __construct($native, TypeConverterFactory $factory, array $types = [])
+    protected function __construct($native, TypeConverterFactory $factory, array $types = [])
     {
         $this->native           = $native;
         $this->converterFactory = $factory;
