@@ -104,7 +104,7 @@ APIs that we can use with the native extension and / or adds another level of co
 
 * PDO does not expose [`pg_query_params()`](http://php.net/manual/en/function.pg-query-params.php), so you have
   to `prepare()` / `execute()` each query even if you `execute()` it only once. Doctrine DBAL has `Connection::executeQuery()`
-  but it has PDO's `prepare()` / `execute()` under the hood.
+  but it uses `prepare()` / `execute()` under the hood.
 * Postgres only supports `$1` positional parameters natively, while PDO has positional `?` and named `:foo` parameters.
   PDO actually rewrites the query to convert the latter to the former, which ([before PHP 7.4](https://wiki.php.net/rfc/pdo_escape_placeholders)) 
   prevented using [Postgres operators containing `?`](https://www.postgresql.org/docs/current/functions-json.html#FUNCTIONS-JSONB-OP-TABLE) with

@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [2.4.0] - 2024-05-20
 
-A major update for `PreparedStatement`'s API and multiple renames.
+A major update for `PreparedStatement`'s API, multiple renames.
 
 ### Added
  * `$resultTypes` argument for `Connection::prepare()` and `PreparedStatement::__construct()` 
@@ -268,4 +268,4 @@ Initial release on GitHub
 [2.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.1...v2.2.0
 [2.3.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.2.0...v2.3.0-beta
 [2.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0-beta..v2.3.0
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0..HEAD
+[2.4.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0..v2.4.0
