@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 
+A major update for `PreparedStatement`'s API and multiple renames.
+
 ### Added
- * `Connection::prepare()` and `PreparedStatement::__construct()` now accept `$resultTypes`
-   that will be passed on to `Result` instances returned by the `PreparedStatement` instance.
+ * `$resultTypes` argument for `Connection::prepare()` and `PreparedStatement::__construct()` 
+   that will be passed on to `Result` instances returned by the created `PreparedStatement` instance.
  * In `PreparedStatement` class:
    * `setResultTypes(array $resultTypes)` method used to configure `$resultTypes` for returned `Result` instances. 
    * `setParameterType(int $parameterNumber, mixed $type)` method that allows to specify the type for a parameter
@@ -12,7 +14,7 @@
    * `setNumberOfParameters(int $numberOfParameters)` method that sets the number of parameters used in the query.
      If specified, this will be used to validate the `$parameterNumber` arguments given to various methods 
      and keys in parameter values array. 
-   * `executeParams(array $params)` method that will execute the prepared statement with only the values
+   * `executeParams(array $params)` method that will execute the prepared statement using only the values
      from the given `$params` array. An exception will be thrown if any parameter values were previously bound.
    * `fetchParameterTypes(bool $overrideExistingTypes = false)` method that will fetch types for statement
      parameters from the DB. It will also set the correct number of parameters.
@@ -20,6 +22,8 @@
      that trigger automatically fetching the above data in `PreparedStatement`'s constructor.
      This behaviour is currently disabled by default.
    * Destructor that deallocates the prepared statement.
+ * `Result::getTableOID($fieldIndex)` method that exposes the result of `pg_field_table()`
+ * Tested on PHP 8.3
 
 ### Deprecated
  * `ResultSet` class, use `Result` instead.

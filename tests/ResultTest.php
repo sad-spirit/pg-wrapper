@@ -249,4 +249,16 @@ SQL
         $this::assertEquals('not foo', $res[0]['two']);
         $this::assertEquals('first value of foo', $res[0]['three']);
     }
+
+    public function testGetTableOID(): void
+    {
+        $result = self::$conn->execute("select two, 'two' from test_result where one = 1");
+
+        $this::assertIsNumeric($result->getTableOID('two'));
+        $this::assertNull($result->getTableOID(1));
+
+        $this::expectException(OutOfBoundsException::class);
+        $this::expectExceptionMessage('is not present');
+        $result->getTableOID('foo');
+    }
 }

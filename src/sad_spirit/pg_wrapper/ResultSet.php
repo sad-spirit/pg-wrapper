@@ -75,6 +75,12 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     private $namesHash = [];
 
     /**
+     * Table OIDs, indexed by column number
+     * @var array<int, int|numeric-string|null>
+     */
+    private $tableOIDs = [];
+
+    /**
      * Current iterator position
      * @var int
      */
@@ -163,6 +169,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
         $OIDs = [];
         for ($i = 0; $i < $this->numFields; $i++) {
             $this->namesHash[pg_field_name($native, $i)] = $i;
+            $this->tableOIDs[$i] = pg_field_table($native, $i, true) ?: null;
             $OIDs[$i] = pg_field_type_oid($native, $i);
         }
 
@@ -396,6 +403,19 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     public function getFieldCount(): int
     {
         return $this->numFields;
+    }
+
+    /**
+     * Returns the OID for a table that contains the given result field
+     *
+     * Will return null if the field is e.g. a literal or a calculated value
+     *
+     * @param int|string $fieldIndex
+     * @return int|numeric-string|null
+     */
+    public function getTableOID($fieldIndex)
+    {
+        return $this->tableOIDs[$this->checkFieldIndex($fieldIndex)];
     }
 
     /**
