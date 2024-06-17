@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters\geometric;
 
 use sad_spirit\pg_wrapper\{
+    converters\CustomArrayDelimiter,
     exceptions\TypeConversionException,
     types\Box
 };
@@ -28,7 +29,7 @@ use sad_spirit\pg_wrapper\{
 /**
  * Converter for box type, box is represented with two points that are its opposite corners
  */
-class BoxConverter extends BaseGeometricConverter
+class BoxConverter extends BaseGeometricConverter implements CustomArrayDelimiter
 {
     protected function parseInput(string $native, int &$pos): Box
     {
@@ -48,5 +49,10 @@ class BoxConverter extends BaseGeometricConverter
     public function dimensions(): int
     {
         return 2;
+    }
+
+    public function getArrayDelimiter(): string
+    {
+        return ';';
     }
 }

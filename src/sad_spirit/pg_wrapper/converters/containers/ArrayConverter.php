@@ -22,16 +22,17 @@ namespace sad_spirit\pg_wrapper\converters\containers;
 
 use sad_spirit\pg_wrapper\{
     Connection,
-    converters\ConnectionAware,
-    exceptions\TypeConversionException,
-    exceptions\InvalidArgumentException,
-    TypeConverter,
     Exception as PackageException,
-    converters\ContainerConverter
+    TypeConverter,
+    converters\ConnectionAware,
+    converters\ContainerConverter,
+    converters\CustomArrayDelimiter,
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException
 };
 
 /**
- * Class for arrays, including multi-dimensional ones
+ * Class for arrays, including multidimensional ones
  */
 class ArrayConverter extends ContainerConverter implements ConnectionAware
 {
@@ -41,10 +42,19 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      */
     private $itemConverter;
 
+    /**
+     * Delimiter for elements in string representation of an array
+     * @var string
+     */
+    private $delimiter = ',';
+
     public function __construct(TypeConverter $itemConverter)
     {
         if ($itemConverter instanceof self) {
             throw new InvalidArgumentException('ArrayConverters should not be nested');
+        }
+        if ($itemConverter instanceof CustomArrayDelimiter) {
+            $this->delimiter = $itemConverter->getArrayDelimiter();
         }
         $this->itemConverter = $itemConverter;
     }
@@ -78,13 +88,13 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      * Builds a Postgres array literal from given PHP array variable
      *
      * Postgres enforces neither a number of dimensions of an array nor a number
-     * of values in each dimension. However it does require that multidimensional
+     * of values in each dimension. However, it does require that multidimensional
      * arrays have matching sizes for each dimension. This means that e.g.
      * ARRAY[['foo', 'bar'], ['baz', 'quux']] is a valid array while
      * ARRAY[['foo', 'bar'], ['baz']] is invalid.
      *
      * This method calculates the sizes to match based on first elements of the given
-     * array and then checks that all other subarrays match these sizes.
+     * array and then checks that all other sub-arrays match these sizes.
      *
      * @param mixed $value Will throw an exception on anything but array
      * @return string
@@ -148,7 +158,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
             }
         }
 
-        return '{' . implode(',', $parts) . '}';
+        return '{' . implode($this->delimiter, $parts) . '}';
     }
 
     /**
@@ -203,10 +213,10 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         $this->expectChar($native, $pos, '{'); // Leading "{".
 
         while ('}' !== ($char = $this->nextChar($native, $pos))) {
-            // require a comma delimiter between elements
+            // require a delimiter between elements
             if (!empty($result)) {
-                if (',' !== $char) {
-                    throw TypeConversionException::parsingFailed($this, "','", $native, $pos);
+                if ($this->delimiter !== $char) {
+                    throw TypeConversionException::parsingFailed($this, "'{$this->delimiter}'", $native, $pos);
                 }
                 $pos++;
                 $char = $this->nextChar($native, $pos);
@@ -226,7 +236,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
 
             } else {
                 // zero-length string can appear only quoted
-                if (0 === ($len = strcspn($native, ",} \t\r\n", $pos))) {
+                if (0 === ($len = strcspn($native, $this->delimiter . "} \t\r\n", $pos))) {
                     throw TypeConversionException::parsingFailed(
                         $this,
                         'subarray, quoted or unquoted string',
