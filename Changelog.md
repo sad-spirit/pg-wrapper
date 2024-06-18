@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+ * String representations of arrays which include dimensions (e.g. `[0:0]={1}`) are now supported
+   (see issue #12). An exception will be thrown if the structure of the resultant array does not match
+   specified dimensions. If a lower bound is specified for a dimension, the keys in resultant PHP array
+   will start with that: `'[5:5]={1}'` will be converted to `[5 => 1]`.
+ * Arrays of elements that have a delimiter other than comma are supported. In particular,
+   converting from / to `box[]` type, which uses semicolon, is possible. Converters for custom
+   types having a non-comma delimiter may implement the new `CustomArrayDelimiter` interface.
+
 ## [2.4.0] - 2024-05-20
 
 A major update for `PreparedStatement`'s API, multiple renames.
@@ -267,5 +278,6 @@ Initial release on GitHub
 [2.1.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.0...v2.1.1
 [2.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.1.1...v2.2.0
 [2.3.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.2.0...v2.3.0-beta
-[2.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0-beta..v2.3.0
-[2.4.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0..v2.4.0
+[2.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0-beta...v2.3.0
+[2.4.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0...v2.4.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.0...HEAD

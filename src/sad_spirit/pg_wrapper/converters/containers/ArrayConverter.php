@@ -206,15 +206,101 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         return $sizes;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * This is a non-recursive part of array literal parsing, it handles the possible array dimensions that can only
+     * appear at the very beginning.
+     */
     protected function parseInput(string $native, int &$pos): array
     {
+        if ('[' === $this->nextChar($native, $pos)) {
+            $dimensions = $this->parseDimensions($native, $pos);
+        }
+        return $this->parseArrayRecursive($native, $pos, $dimensions ?? null);
+    }
+
+    /**
+     * Parses the array dimensions specification
+     *
+     * @param string $native
+     * @param int $pos
+     * @return list<array{int,int}> Contains the first key and number of elements for each dimension
+     */
+    private function parseDimensions(string $native, int &$pos): array
+    {
+        $dimensions = [];
+
+        do {
+            // Postgres does not allow whitespace inside dimension specifications, neither should we
+            if (!\preg_match('/\[([+-]?\d+)(?::([+-]?\d+))?/As', $native, $m, 0, $pos)) {
+                throw TypeConversionException::parsingFailed(
+                    $this,
+                    "array bounds after '['",
+                    $native,
+                    $pos + 1
+                );
+            }
+            if (!isset($m[2])) {
+                $lower = 1;
+                $upper = (int)$m[1];
+            } else {
+                $lower = (int)$m[1];
+                $upper = (int)$m[2];
+            }
+            if ($lower > $upper) {
+                throw new TypeConversionException(\sprintf(
+                    'Array upper bound (%d) cannot be less than lower bound (%d)',
+                    $lower,
+                    $upper
+                ));
+            }
+
+            // Convert to standard PHP 0-based array unless lower bound was given
+            if (!isset($m[2])) {
+                $dimensions[] = [0, $upper];
+            } else {
+                $dimensions[] = [$lower, $upper - $lower + 1];
+            }
+
+            $pos += \strlen($m[0]);
+            $this->expectChar($native, $pos, ']');
+        } while ('[' === ($char = $this->nextChar($native, $pos)));
+
+        if ('=' !== $char) {
+            throw TypeConversionException::parsingFailed($this, "'=' after array dimensions", $native, $pos);
+        }
+        $pos++;
+
+        return $dimensions;
+    }
+
+    /**
+     * Recursively parses the string representation of an array
+     *
+     * @param string $native
+     * @param int $pos
+     * @param list<array{int,int}>|null $dimensions Will be not null if the literal contained dimensions
+     * @return array
+     */
+    private function parseArrayRecursive(string $native, int &$pos, ?array $dimensions = null): array
+    {
         $result = [];
+
+        if (null === $dimensions) {
+            $key   = 0;
+            $count = null;
+        } elseif ([] !== $dimensions) {
+            [$key, $count] = \array_shift($dimensions);
+        } else {
+            throw new TypeConversionException("Specified array dimensions do not match array contents");
+        }
 
         $this->expectChar($native, $pos, '{'); // Leading "{".
 
         while ('}' !== ($char = $this->nextChar($native, $pos))) {
             // require a delimiter between elements
-            if (!empty($result)) {
+            if ([] !== $result) {
                 if ($this->delimiter !== $char) {
                     throw TypeConversionException::parsingFailed($this, "'{$this->delimiter}'", $native, $pos);
                 }
@@ -224,15 +310,18 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
 
             if ('{' === $char) {
                 // parse sub-array
-                $result[] = $this->parseInput($native, $pos);
+                $result[$key++] = $this->parseArrayRecursive($native, $pos, $dimensions);
+
+            } elseif (null !== $dimensions && [] !== $dimensions) {
+                throw new TypeConversionException("Specified array dimensions do not match array contents");
 
             } elseif ('"' === $char) {
                 // quoted string
                 if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $native, $m, 0, $pos)) {
                     throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                 }
-                $result[]  = $this->itemConverter->input(stripcslashes($m[1]));
-                $pos      += strlen($m[0]);
+                $result[$key++]  = $this->itemConverter->input(stripcslashes($m[1]));
+                $pos            += strlen($m[0]);
 
             } else {
                 // zero-length string can appear only quoted
@@ -244,12 +333,16 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
                         $pos
                     );
                 }
-                $v         = substr($native, $pos, $len);
-                $result[]  = strcasecmp($v, "null") ? $this->itemConverter->input(stripcslashes($v)) : null;
-                $pos      += $len;
+                $v               = substr($native, $pos, $len);
+                $result[$key++]  = strcasecmp($v, "null") ? $this->itemConverter->input(stripcslashes($v)) : null;
+                $pos            += $len;
             }
         }
         $pos++; // skip trailing "}"
+
+        if (null !== $count && \count($result) !== $count) {
+            throw new TypeConversionException("Specified array dimensions do not match array contents");
+        }
 
         return $result;
     }
