@@ -150,37 +150,39 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             ['json', 'jsonb']
         );
 
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\RangeConverter(new IntegerConverter());
         }, ['int4range', 'int8range']);
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\RangeConverter(new NumericConverter());
         }, 'numrange');
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\RangeConverter(new datetime\DateConverter());
         }, 'daterange');
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\RangeConverter(new datetime\TimeStampConverter());
         }, 'tsrange');
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\RangeConverter(new datetime\TimeStampTzConverter());
         }, 'tstzrange');
 
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\MultiRangeConverter(new IntegerConverter());
         }, ['int4multirange', 'int8multirange']);
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\MultiRangeConverter(new NumericConverter());
         }, 'nummultirange');
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\MultiRangeConverter(new datetime\DateConverter());
         }, 'datemultirange');
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\MultiRangeConverter(new datetime\TimeStampConverter());
         }, 'tsmultirange');
-        $this->registerConverter(function () {
+        $this->registerConverter(static function () {
             return new containers\MultiRangeConverter(new datetime\TimeStampTzConverter());
         }, 'tstzmultirange');
+
+        $this->registerConverter(containers\IntegerVectorConverter::class, ['int2vector', 'oidvector']);
     }
 
     public function setOIDMapper(TypeOIDMapper $mapper): void

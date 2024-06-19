@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+ * `IntegerVectorConverter` for `int2vector` and `oidvector` types used in system catalogs
+
 ### Fixed
  * String representations of arrays which include dimensions (e.g. `[0:0]={1}`) are now supported
    (see issue #12). An exception will be thrown if the structure of the resultant array does not match
