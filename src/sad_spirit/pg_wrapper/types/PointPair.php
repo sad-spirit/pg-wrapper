@@ -47,6 +47,7 @@ abstract class PointPair implements ArrayRepresentable, \JsonSerializable
      * Returns the first Point of line segment (or first corner of Box)
      *
      * @return Point
+     * @deprecated Since 2.5.0, use {@see $start} property
      */
     public function getStart(): Point
     {
@@ -57,6 +58,7 @@ abstract class PointPair implements ArrayRepresentable, \JsonSerializable
      * Returns the last Point of line segment (or second corner of Box)
      *
      * @return Point
+     * @deprecated Since 2.5.0, use {@see $end} property
      */
     public function getEnd(): Point
     {

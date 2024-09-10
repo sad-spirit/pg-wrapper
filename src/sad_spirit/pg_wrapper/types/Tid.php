@@ -29,8 +29,8 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * consists of a block number and tuple index within that block. Both of these
  * are non-negative integers.
  *
- * @property-read integer $block
- * @property-read integer $tuple
+ * @property-read int $block
+ * @property-read int $tuple
  */
 final class Tid implements ArrayRepresentable, \JsonSerializable
 {
@@ -57,6 +57,7 @@ final class Tid implements ArrayRepresentable, \JsonSerializable
      * Returns the block's number within a table
      *
      * @return int
+     * @deprecated Since 2.5.0, use {@see $block} property
      */
     public function getBlock(): int
     {
@@ -67,6 +68,7 @@ final class Tid implements ArrayRepresentable, \JsonSerializable
      * Returns the tuple's index within a block
      *
      * @return int
+     * @deprecated Since 2.5.0, use {@see $tuple} property
      */
     public function getTuple(): int
     {

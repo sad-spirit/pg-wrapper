@@ -63,6 +63,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * Returns the range's lower bound
      *
      * @return Bound|null
+     * @deprecated Since 2.5.0, use {@see $lower} property
      */
     public function getLower()
     {
@@ -73,6 +74,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * Returns the range's upper bound
      *
      * @return Bound|null
+     * @deprecated Since 2.5.0, use {@see $upper} property
      */
     public function getUpper()
     {
@@ -83,6 +85,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * Returns whether the range's lower bound is inclusive
      *
      * @return bool
+     * @deprecated Since 2.5.0, use {@see $lowerInclusive} property
      */
     public function isLowerInclusive(): bool
     {
@@ -93,6 +96,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * Returns whether the range's upper bound is inclusive
      *
      * @return bool
+     * @deprecated Since 2.5.0, use {@see $upperInclusive} property
      */
     public function isUpperInclusive(): bool
     {
@@ -103,6 +107,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * Returns whether the range is empty
      *
      * @return bool
+     * @deprecated Since 2.5.0, use {@see $empty} property
      */
     public function isEmpty(): bool
     {

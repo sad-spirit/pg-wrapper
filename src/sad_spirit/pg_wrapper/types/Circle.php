@@ -47,6 +47,7 @@ final class Circle implements ArrayRepresentable, \JsonSerializable
      * Returns the circle's central Point
      *
      * @return Point
+     * @deprecated Since 2.5.0, use {@see $center} property
      */
     public function getCenter(): Point
     {
@@ -57,6 +58,7 @@ final class Circle implements ArrayRepresentable, \JsonSerializable
      * Returns the circle's radius
      *
      * @return float
+     * @deprecated Since 2.5.0, use {@see $radius} property
      */
     public function getRadius(): float
     {

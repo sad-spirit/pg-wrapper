@@ -97,6 +97,7 @@ abstract class BaseConverter implements TypeConverter
      * @param string $mask    Mask for strspn()
      * @param int    $start   Position in the input string, will be moved
      * @return string
+     * @deprecated Since 2.5.0 - the method is unused in the package and will be removed in the next major version
      */
     protected function getStrspn(string $subject, string $mask, int &$start): string
     {

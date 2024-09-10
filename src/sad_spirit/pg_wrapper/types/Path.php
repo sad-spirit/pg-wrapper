@@ -25,7 +25,7 @@ namespace sad_spirit\pg_wrapper\types;
  *
  * Contains a list of points and 'open' property
  *
- * @property-read boolean $open
+ * @property-read bool $open
  */
 final class Path extends PointList implements ArrayRepresentable, \JsonSerializable
 {
@@ -44,6 +44,7 @@ final class Path extends PointList implements ArrayRepresentable, \JsonSerializa
      * Returns whether path is open
      *
      * @return bool
+     * @deprecated Since 2.5.0, use {@see $open} property
      */
     public function isOpen(): bool
     {

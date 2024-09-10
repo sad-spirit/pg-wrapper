@@ -27,6 +27,8 @@ use sad_spirit\pg_wrapper\exceptions\{
 
 /**
  * Exposes the object's getters also as read-only magic properties
+ *
+ * @deprecated Since 2.5.0, next major version will use native readonly properties
  */
 trait ReadOnlyProperties
 {

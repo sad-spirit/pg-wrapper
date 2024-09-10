@@ -47,6 +47,7 @@ final class Point implements ArrayRepresentable, \JsonSerializable
      * Returns the point's X coordinate
      *
      * @return float
+     * @deprecated Since 2.5.0, use {@see $x} property
      */
     public function getX(): float
     {
@@ -57,6 +58,7 @@ final class Point implements ArrayRepresentable, \JsonSerializable
      * Returns the point's Y coordinate
      *
      * @return float
+     * @deprecated Since 2.5.0, use {@see $y} property
      */
     public function getY(): float
     {

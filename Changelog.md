@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Deprecated
+ * Getters / issers methods of classes representing complex PostgreSQL types. Use corresponding magic properties,
+   these will be reimplemented as native `public readonly` properties in the next major version. Specifically,
+   * `types\Circle`: `getCenter()` -> `$center`, `getRadius()` -> `$radius`;
+   * `types\Line`: `getA()` -> `$A`, `getB()` -> `$B`, `getC()` -> `$C`;
+   * `types\Path`: `isOpen()` -> `$open`;
+   * `types\Point`: `getX()` -> `$x`, `getY()` -> `$y`;
+   * `types\Box` and `types\LineSegment`: `getStart()` -> `$start`, `getEnd()` -> `$end`,
+   * `types\Range`: `getLower()` -> `$lower`, `getUpper()` -> `$upper`, `isLowerInclusive()` -> `$lowerInclusive`,
+      `isUpperInclusive()` -> `$upperInclusive`, `isEmpty()` -> `$empty`;
+   * `types\Tid`: `getBlock()` -> `$block`, `getTuple()` -> `$tuple`.
+ * `types\ReadOnlyProperties` trait used to implement the above magic readonly properties, as migration to native ones 
+   is planned.
+ * `converters\BaseConverter::getStrspn()` method that is no longer used in the package.
+
 ## [2.4.1] - 2024-06-19
 
 ### Added
@@ -285,3 +302,4 @@ Initial release on GitHub
 [2.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0-beta...v2.3.0
 [2.4.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0...v2.4.0
 [2.4.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.0...v2.4.1
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...HEAD

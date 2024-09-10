@@ -53,6 +53,7 @@ final class Line implements ArrayRepresentable, \JsonSerializable
      * Returns the A coefficient of linear equation
      *
      * @return float
+     * @deprecated Since 2.5.0, use {@see $A} property
      */
     public function getA(): float
     {
@@ -63,6 +64,7 @@ final class Line implements ArrayRepresentable, \JsonSerializable
      * Returns the B coefficient of linear equation
      *
      * @return float
+     * @deprecated Since 2.5.0, use {@see $B} property
      */
     public function getB(): float
     {
@@ -73,6 +75,7 @@ final class Line implements ArrayRepresentable, \JsonSerializable
      * Returns the C coefficient of linear equation
      *
      * @return float
+     * @deprecated Since 2.5.0, use {@see $C} property
      */
     public function getC(): float
     {
