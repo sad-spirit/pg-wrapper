@@ -376,7 +376,11 @@ class IntervalConverter extends BaseConverter
             return sprintf('%d seconds', $value);
 
         } elseif (is_float($value)) {
-            return rtrim(sprintf('%.6f', $value), '.0') . ' seconds';
+            return \preg_replace(
+                '/\\.?0+$/',
+                '',
+                \number_format($value, 6, '.', '')
+            ) . ' seconds';
 
         } elseif ($value instanceof \DateInterval) {
             return DateInterval::formatAsISO8601($value);

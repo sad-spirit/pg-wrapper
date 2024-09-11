@@ -102,6 +102,7 @@ class IntervalTest extends TypeConverterTestCase
             [null,                          null],
             ['10 seconds',                  10],
             ['-12.34 seconds',              -12.34],
+            ['20 seconds',                  20.0],
             ['0.5 seconds',                 0.5],
             ['whatever',                    'whatever'],
             ['PT10S',                       'PT10S'],
