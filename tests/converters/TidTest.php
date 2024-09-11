@@ -63,9 +63,11 @@ class TidTest extends TypeConverterTestCase
     public function valuesTo(): array
     {
         return [
-            ['(1,2)',                       ['tuple' => 2, 'block' => 1]],
-            ['(1,2)',                       [1, 2]],
-            [new TypeConversionException(), 'a string'],
+            ['(1,2)',                        ['tuple' => 2, 'block' => 1]],
+            ['(1,2)',                        [1, 2]],
+            ['(4294967280,1)',               ['4294967280', 1]],
+            [new InvalidArgumentException(), ['-1', 1]],
+            [new TypeConversionException(),  'a string'],
             [new InvalidArgumentException(), [1]],
             [new InvalidArgumentException(), [1, 2, 3]],
             [new InvalidArgumentException(), [-1, 2]],

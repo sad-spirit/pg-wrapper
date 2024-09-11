@@ -29,24 +29,35 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * consists of a block number and tuple index within that block. Both of these
  * are non-negative integers.
  *
- * @property-read int $block
- * @property-read int $tuple
+ * @property-read int|numeric-string $block
+ * @property-read int                $tuple
  */
 final class Tid implements ArrayRepresentable, \JsonSerializable
 {
     use ReadOnlyProperties;
 
-    /** @var int */
+    /** @var int|numeric-string */
     private $p_block;
     /** @var int */
     private $p_tuple;
 
-    public function __construct(int $block, int $tuple)
+    /**
+     * Constructor, checks that arguments are non-negative
+     *
+     * @param int|numeric-string $block
+     * @param int $tuple
+     */
+    public function __construct($block, int $tuple)
     {
-        foreach (['block', 'tuple'] as $name) {
-            if (0 > $$name) {
-                throw new InvalidArgumentException("Tid {$name} field should be a non-negative integer");
-            }
+        if (
+            !\is_string($block) && !\is_int($block)
+            || \is_string($block) && !\ctype_digit($block)
+            || 0 > $block
+        ) {
+            throw new InvalidArgumentException("Tid \$block field should be a non-negative integer");
+        }
+        if (0 > $tuple) {
+            throw new InvalidArgumentException("Tid \$tuple field should be a non-negative integer");
         }
 
         $this->p_block = $block;
@@ -56,10 +67,10 @@ final class Tid implements ArrayRepresentable, \JsonSerializable
     /**
      * Returns the block's number within a table
      *
-     * @return int
+     * @return int|numeric-string
      * @deprecated Since 2.5.0, use {@see $block} property
      */
-    public function getBlock(): int
+    public function getBlock()
     {
         return $this->p_block;
     }
