@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [2.5.0] - 2024-09-12
+
+### Fixed
+ * `converters\datetime\IntervalConverter::output()` could incorrectly format the passed `float`-typed value.
+ * `$block` property of `types\Tid` class no longer has an `int` typehint: as was the case with OIDs, block number
+   is an *unsigned* 32-bit integer and may be out of range of PHP's *signed* `int` type on 32-bit builds.
 
 ### Deprecated
  * Getters / issers methods of classes representing complex PostgreSQL types. Use corresponding magic properties,
@@ -302,4 +307,4 @@ Initial release on GitHub
 [2.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0-beta...v2.3.0
 [2.4.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0...v2.4.0
 [2.4.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.0...v2.4.1
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...HEAD
+[2.5.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...v2.5.0

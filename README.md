@@ -11,6 +11,20 @@ This package has two parts and purposes
 While the converter part can be used separately e.g. with [PDO](https://www.php.net/manual/en/book.pdo.php), 
 features like transparent conversion of query results work only with the wrapper.
 
+## Installation
+
+Require the package with composer:
+```
+composer require sad_spirit/pg_wrapper
+```
+pg_wrapper requires at least PHP 7.2. Native [pgsql extension](https://php.net/manual/en/book.pgsql.php)
+should be enabled to use classes that access the DB (the extension is not a hard requirement).
+
+Minimum supported PostgreSQL version is 9.3
+
+It is highly recommended to use [PSR-6 compatible](https://www.php-fig.org/psr/psr-6/) metadata cache in production
+to prevent possible metadata lookups from database on each page request.
+
 ## Why type conversion?
 
 PostgreSQL supports a large (and extensible) set of complex database types: arrays, ranges, geometric and date/time
@@ -119,15 +133,19 @@ SELECT * FROM stuff WHERE id IN (?)
 ```
 where `?` actually represents a variable number of parameters.
 
-On the one hand, Postgres has native array types and this can be easily achieved with the following query
+On the one hand, if you don't need the abstraction, then Postgres has native array types,
+and this can be easily achieved with the following query
 ```SQL
 -- in case of using PDO just replace $1 with a PDO-compatible placeholder
 SELECT * FROM stuff WHERE id = ANY($1::INTEGER[])
 ```
 passing an array literal as its parameter value
 ```PHP
-$factory      = new DefaultTypeConverterFactory();
-$arrayLiteral = $factory->getConverterForTypeSpecification('INTEGER[]')->output([1, 2, 3]);
+use sad_spirit\pg_wrapper\converters\DefaultTypeConverterFactory;
+
+$arrayLiteral = (new DefaultTypeConverterFactory())
+    ->getConverterForTypeSpecification('INTEGER[]')
+    ->output([1, 2, 3]);
 ```
 
 On the other hand, Doctrine DBAL [has its own solution for parameter lists](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/data-retrieval-and-manipulation.html#list-of-parameters-conversion)
@@ -152,13 +170,3 @@ Working with PostgreSQL:
 * [Executing a query](https://github.com/sad-spirit/pg-wrapper/wiki/query)
 * [Working with a query result](https://github.com/sad-spirit/pg-wrapper/wiki/result)
 * [Transactions handling](https://github.com/sad-spirit/pg-wrapper/wiki/transactions)
-
-
-## Requirements
-
-pg_wrapper requires at least PHP 7.2. [pgsql extension](https://php.net/manual/en/book.pgsql.php) should be enabled to use classes that actually work with the DB.
-
-Minimum supported PostgreSQL version is 9.3
-
-It is highly recommended to use metadata cache in production to prevent possible metadata lookups from database on each
-page request.
