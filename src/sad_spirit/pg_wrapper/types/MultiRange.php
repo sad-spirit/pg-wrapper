@@ -58,6 +58,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
     {
         $rangeClass = static::getItemClass();
         foreach ($items as $item) {
+            /** @psalm-suppress NoValue */
             if (!$item instanceof $rangeClass) {
                 throw new InvalidArgumentException(sprintf(
                     '%s can contain only instances of %s, instance of %s given',

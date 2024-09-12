@@ -76,13 +76,7 @@ class ConnectionTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
-        $native     = $connection->getNative();
-        if (version_compare(phpversion(), '8.1', '>=')) {
-            $this->assertInstanceOf(NativeConnection::class, $native);
-        } else {
-            $this->assertIsResource($native);
-            $this->assertStringContainsString('pgsql link', get_resource_type($native));
-        }
+        $this->assertInstanceOf(NativeConnection::class, $connection->getNative());
     }
 
     public function testDestructorDisconnects(): void

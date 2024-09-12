@@ -113,6 +113,9 @@ class IntervalConverter extends BaseConverter
                 array_unshift($parts, '0');
             }
         }
+        if (3 !== \count($parts)) {
+            throw TypeConversionException::unexpectedValue($this, __FUNCTION__, $token, 'time token');
+        }
 
         $interval->h = (int)$parts[0];
         $interval->i = (int)$parts[1];
@@ -302,6 +305,7 @@ class IntervalConverter extends BaseConverter
      * @param string $native
      * @return DateInterval
      * @throws TypeConversionException
+     * @psalm-suppress PossiblyUndefinedArrayOffset
      */
     private function parseISO8601(string $native): DateInterval
     {

@@ -2,6 +2,8 @@
 <psalm
     errorLevel="3"
     resolveFromConfigFile="true"
+    findUnusedCode="false"
+    findUnusedBaselineEntry="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -16,13 +18,20 @@
     </projectFiles>
 
     <issueHandlers>
-        <InvalidCatch>
+        <InaccessibleProperty>
+            <!--
+                The fuckers tell that DateInterval properties should be "considered as readonly"
+                https://www.php.net/manual/en/class.dateinterval.php
+                but these are not real properties and cannot be accessed via reflection
+                https://bugs.php.net/bug.php?id=79804
+                Just suppress for now, bother when / if anything changes
+            -->
             <errorLevel type="suppress">
-                <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
-                <file name="src/sad_spirit/pg_wrapper/converters/CachedTypeOIDMapper.php"/>
-                <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
+                <file name="src/sad_spirit/pg_wrapper/converters/datetime/IntervalConverter.php" />
+                <file name="tests/converters/IntervalTest.php" />
+                <file name="tests/types/DateIntervalTest.php" />
             </errorLevel>
-        </InvalidCatch>
+        </InaccessibleProperty>
 
         <!-- Ignore these in tests, whatever we access is guaranteed to be not null -->
         <PossiblyNullArrayAccess>

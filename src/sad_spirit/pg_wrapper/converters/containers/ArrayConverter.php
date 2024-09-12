@@ -312,7 +312,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
                 // parse sub-array
                 $result[$key++] = $this->parseArrayRecursive($native, $pos, $dimensions);
 
-            } elseif (null !== $dimensions && [] !== $dimensions) {
+            } elseif ([] !== (array)$dimensions) {
                 throw new TypeConversionException("Specified array dimensions do not match array contents");
 
             } elseif ('"' === $char) {

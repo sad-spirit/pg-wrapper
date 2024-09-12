@@ -490,7 +490,9 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetExists($offset): bool
     {
+        /** @psalm-suppress NoValue */
         if (is_string($offset) && ctype_digit($offset)) {
+            /** @psalm-suppress InvalidCast */
             $offset = (int)$offset;
         } elseif (!is_int($offset)) {
             return false;
