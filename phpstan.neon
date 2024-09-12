@@ -11,6 +11,9 @@ parameters:
     - pgsql-stubs.php
   dynamicConstantNames:
     - TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING
+  ignoreErrors:
+    -
+        identifier: missingType.iterableValue
+    -
+        identifier: missingType.generics
   treatPhpDocTypesAsCertain: false
-  checkMissingIterableValueType: false
-  checkGenericClassInNonGenericObjectType: false
