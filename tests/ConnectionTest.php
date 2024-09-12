@@ -92,15 +92,12 @@ class ConnectionTest extends TestCase
         }
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $native     = $connection->getNative();
-        if (is_resource($native)) {
-            unset($connection);
-            $this->assertEquals('Unknown', get_resource_type($native));
-        } else {
-            unset($connection);
-            $this::expectError();
-            $this::expectErrorMessage('already been closed');
-            pg_connection_status($native);
-        }
+
+        $this::expectException(\Error::class);
+        $this::expectExceptionMessage('already been closed');
+
+        unset($connection);
+        pg_connection_status($native);
     }
 
     public function testNoReconnectAfterManualDisconnect(): void

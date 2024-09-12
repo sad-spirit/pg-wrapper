@@ -332,18 +332,12 @@ class DefaultTypeConverterFactoryTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
 
-        /* @var $mockPool CacheItemPoolInterface|MockObject */
-        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
-            ->setMethods(['getItem', 'save'])
-            ->getMockForAbstractClass();
-        /* @var $mockItem CacheItemInterface|MockObject */
-        $mockItem = $this->getMockBuilder(CacheItemInterface::class)
-            ->setMethods(['isHit', 'set'])
-            ->getMockForAbstractClass();
+        $mockPool = $this->createMock(CacheItemPoolInterface::class);
+        $mockItem = $this->createMock(CacheItemInterface::class);
 
         $mockPool->expects($this->once())
             ->method('getItem')
-            ->will($this->returnValue($mockItem));
+            ->willReturn($mockItem);
 
         $mockPool->expects($this->once())
             ->method('save')
@@ -351,7 +345,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
 
         $mockItem->expects($this->once())
             ->method('isHit')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
         $mockItem->expects($this->once())
             ->method('set')
@@ -374,34 +368,28 @@ class DefaultTypeConverterFactoryTest extends TestCase
             $this->markTestSkipped('Connection string is not configured');
         }
 
-        /* @var $mockPool CacheItemPoolInterface|MockObject */
-        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
-            ->setMethods(['getItem', 'save'])
-            ->getMockForAbstractClass();
-        /* @var $mockItem CacheItemInterface|MockObject */
-        $mockItem = $this->getMockBuilder(CacheItemInterface::class)
-            ->setMethods(['isHit', 'set'])
-            ->getMockForAbstractClass();
+        $mockPool = $this->createMock(CacheItemPoolInterface::class);
+        $mockItem = $this->createMock(CacheItemInterface::class);
 
         $mockPool->expects($this->once())
             ->method('getItem')
-            ->will($this->returnValue($mockItem));
+            ->willReturn($mockItem);
 
         $mockPool->expects($this->never())
             ->method('save');
 
         $mockItem->expects($this->once())
             ->method('isHit')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $mockItem->expects($this->once())
             ->method('get')
-            ->will($this->returnValue([
+            ->willReturn([
                 'composite' => [],
                 'array'     => [],
                 'range'     => [],
                 'names'     => ['blah' => ['blah' => 123456]]
-            ]));
+            ]);
 
         $mockItem->expects($this->never())
             ->method('set');

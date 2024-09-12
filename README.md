@@ -1,5 +1,10 @@
 # sad_spirit\pg_wrapper
 
+> Note: master branch is being upgraded for PHP 8.2+
+>
+> [Branch 2.x](../../tree/2.x) contains the stable version compatible with PHP 7.2+
+
+
 [![Build Status](https://github.com/sad-spirit/pg-wrapper/workflows/Continuous%20Integration/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions?query=branch%3Amaster+workflow%3A%22Continuous+Integration%22)
 
 [![Static Analysis](https://github.com/sad-spirit/pg-wrapper/workflows/Static%20Analysis/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions?query=branch%3Amaster+workflow%3A%22Static+Analysis%22)
@@ -17,7 +22,7 @@ Require the package with composer:
 ```
 composer require sad_spirit/pg_wrapper
 ```
-pg_wrapper requires at least PHP 7.2. Native [pgsql extension](https://php.net/manual/en/book.pgsql.php)
+pg_wrapper requires at least PHP 8.2. Native [pgsql extension](https://php.net/manual/en/book.pgsql.php)
 should be enabled to use classes that access the DB (the extension is not a hard requirement).
 
 Minimum supported PostgreSQL version is 9.3
