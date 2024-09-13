@@ -34,9 +34,10 @@ interface RangeConstructor
      * @param bool       $upperInclusive Whether upper bound is inclusive
      */
     public function __construct(
-        $lower = null,
-        $upper = null,
+        mixed $lower = null,
+        mixed $upper = null,
         bool $lowerInclusive = true,
-        bool $upperInclusive = false
+        bool $upperInclusive = false,
+        bool $empty = false
     );
 }

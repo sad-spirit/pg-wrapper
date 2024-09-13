@@ -29,13 +29,14 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * @extends Range<\DateTimeImmutable>
  */
-final class DateTimeRange extends Range
+final readonly class DateTimeRange extends Range
 {
     public function __construct(
-        $lower = null,
-        $upper = null,
+        mixed $lower = null,
+        mixed $upper = null,
         bool $lowerInclusive = true,
-        bool $upperInclusive = false
+        bool $upperInclusive = false,
+        bool $empty = false
     ) {
         // As we can't add typehints due to interface, check bounds in constructor
         foreach (['lower', 'upper'] as $bound) {
@@ -48,16 +49,20 @@ final class DateTimeRange extends Range
                 $$bound = \DateTimeImmutable::createFromMutable($$bound);
             }
         }
-        if (null !== $lower && null !== $upper && $lower > $upper) {
-            throw new InvalidArgumentException(
-                "Range lower bound must be less than or equal to range upper bound"
-            );
+        if (null !== $lower && null !== $upper) {
+            if ($lower > $upper) {
+                throw new InvalidArgumentException(
+                    "Range lower bound must be less than or equal to range upper bound"
+                );
+            } elseif ($lower == $upper && (!$lowerInclusive || !$upperInclusive)) {
+                $empty = true;
+            }
         }
 
-        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive);
+        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive, $empty);
     }
 
-    protected static function convertBound($bound)
+    protected static function convertBound(mixed $bound): ?\DateTimeImmutable
     {
         if (null === $bound || $bound instanceof \DateTimeImmutable) {
             return $bound;

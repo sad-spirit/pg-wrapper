@@ -77,6 +77,25 @@ class RangeTest extends TestCase
         ];
     }
 
+    public function testSinglePointDateTimeRange(): void
+    {
+        $tomorrow    = new \DateTimeImmutable('tomorrow');
+        $singlePoint = new DateTimeRange($tomorrow, $tomorrow, true, true);
+        $this::assertFalse($singlePoint->empty);
+
+        $emptyRange = new DateTimeRange($tomorrow, $tomorrow, false, true);
+        $this::assertTrue($emptyRange->empty);
+    }
+
+    public function testSinglePointNumericRange(): void
+    {
+        $singlePoint = new NumericRange(3, 3, true, true);
+        $this::assertFalse($singlePoint->empty);
+
+        $emptyRange = new NumericRange(3, 3, false, true);
+        $this::assertTrue($emptyRange->empty);
+    }
+
     public function testDateRangeBoundsAreImmutable(): void
     {
         $range = new DateTimeRange(new \DateTime('yesterday'), new \DateTimeImmutable('tomorrow'));

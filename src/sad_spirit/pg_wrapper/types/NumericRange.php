@@ -29,24 +29,31 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  *
  * @extends Range<int|float|numeric-string>
  */
-final class NumericRange extends Range
+final readonly class NumericRange extends Range
 {
     public function __construct(
-        $lower = null,
-        $upper = null,
+        mixed $lower = null,
+        mixed $upper = null,
         bool $lowerInclusive = true,
-        bool $upperInclusive = false
+        bool $upperInclusive = false,
+        bool $empty = false
     ) {
         foreach (['lower', 'upper'] as $bound) {
             if (null !== $$bound && !is_numeric($$bound)) {
                 throw new InvalidArgumentException("NumericRange {$bound} bound should be numeric");
             }
         }
-        if (null !== $lower && null !== $upper && floatval($upper) < floatval($lower)) {
-            throw new InvalidArgumentException(
-                "Range lower bound must be less than or equal to range upper bound"
-            );
+        if (null !== $lower && null !== $upper) {
+            if (floatval($upper) < floatval($lower)) {
+                throw new InvalidArgumentException(
+                    "Range lower bound must be less than or equal to range upper bound"
+                );
+            // comparing floats for equality is a bad idea, especially when we can lose precision,
+            // so compare string representations
+            } elseif ((string)$upper === (string)$lower && (!$lowerInclusive || !$upperInclusive)) {
+                $empty = true;
+            }
         }
-        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive);
+        parent::__construct($lower, $upper, $lowerInclusive, $upperInclusive, $empty);
     }
 }

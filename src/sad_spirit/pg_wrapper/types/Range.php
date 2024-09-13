@@ -24,102 +24,38 @@ namespace sad_spirit\pg_wrapper\types;
  * Class representing a range value from Postgres on PHP side
  *
  * @template Bound
- * @property-read Bound|null $lower
- * @property-read Bound|null $upper
- * @property-read bool       $lowerInclusive
- * @property-read bool       $upperInclusive
- * @property-read bool       $empty
  *
  * @psalm-consistent-constructor
  */
-class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
+readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
 {
-    use ReadOnlyProperties;
-
     /** @var Bound|null */
-    private $p_lower = null;
+    public mixed $lower;
     /** @var Bound|null */
-    private $p_upper = null;
-    /** @var bool */
-    private $p_lowerInclusive = true;
-    /** @var bool */
-    private $p_upperInclusive = false;
-    /** @var bool */
-    private $p_empty = false;
+    public mixed $upper;
+    public bool $lowerInclusive;
+    public bool $upperInclusive;
+    public bool $empty;
 
     public function __construct(
-        $lower = null,
-        $upper = null,
+        mixed $lower = null,
+        mixed $upper = null,
         bool $lowerInclusive = true,
-        bool $upperInclusive = false
+        bool $upperInclusive = false,
+        bool $empty = false
     ) {
-        $this->p_lower          = $lower;
-        $this->p_upper          = $upper;
-        $this->p_lowerInclusive = $lowerInclusive && null !== $lower;
-        $this->p_upperInclusive = $upperInclusive && null !== $upper;
-    }
-
-    /**
-     * Returns the range's lower bound
-     *
-     * @return Bound|null
-     * @deprecated Since 2.5.0, use {@see $lower} property
-     */
-    public function getLower()
-    {
-        return $this->p_lower;
-    }
-
-    /**
-     * Returns the range's upper bound
-     *
-     * @return Bound|null
-     * @deprecated Since 2.5.0, use {@see $upper} property
-     */
-    public function getUpper()
-    {
-        return $this->p_upper;
-    }
-
-    /**
-     * Returns whether the range's lower bound is inclusive
-     *
-     * @return bool
-     * @deprecated Since 2.5.0, use {@see $lowerInclusive} property
-     */
-    public function isLowerInclusive(): bool
-    {
-        return $this->p_lowerInclusive;
-    }
-
-    /**
-     * Returns whether the range's upper bound is inclusive
-     *
-     * @return bool
-     * @deprecated Since 2.5.0, use {@see $upperInclusive} property
-     */
-    public function isUpperInclusive(): bool
-    {
-        return $this->p_upperInclusive;
-    }
-
-    /**
-     * Returns whether the range is empty
-     *
-     * @return bool
-     * @deprecated Since 2.5.0, use {@see $empty} property
-     */
-    public function isEmpty(): bool
-    {
-        return $this->p_empty;
-    }
-
-    /**
-     * Sets range as empty
-     */
-    final protected function setEmpty(): void
-    {
-        $this->p_empty = true;
+        if (!$empty) {
+            $this->lower          = $lower;
+            $this->upper          = $upper;
+            $this->lowerInclusive = $lowerInclusive && null !== $lower;
+            $this->upperInclusive = $upperInclusive && null !== $upper;
+        } else {
+            $this->lower          = null;
+            $this->upper          = null;
+            $this->lowerInclusive = false;
+            $this->upperInclusive = false;
+        }
+        $this->empty = $empty;
     }
 
     /**
@@ -127,11 +63,9 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      *
      * @return static
      */
-    public static function createEmpty(): self
+    public static function createEmpty(): static
     {
-        $range = new static();
-        $range->setEmpty();
-        return $range;
+        return new static(empty: true);
     }
 
     /**
@@ -141,16 +75,16 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        if ($this->p_empty) {
+        if ($this->empty) {
             return [
                 'empty' => true
             ];
         } else {
             return [
-                'lower'          => $this->p_lower,
-                'upper'          => $this->p_upper,
-                'lowerInclusive' => $this->p_lowerInclusive,
-                'upperInclusive' => $this->p_upperInclusive
+                'lower'          => $this->lower,
+                'upper'          => $this->upper,
+                'lowerInclusive' => $this->lowerInclusive,
+                'upperInclusive' => $this->upperInclusive
             ];
         }
     }
@@ -161,7 +95,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * @param mixed $bound
      * @return Bound|null
      */
-    protected static function convertBound($bound)
+    protected static function convertBound(mixed $bound): mixed
     {
         return $bound;
     }
@@ -172,7 +106,7 @@ class Range implements ArrayRepresentable, RangeConstructor, \JsonSerializable
      * @param array $input Expects an array of two bounds or array with the keys named as Range properties
      * @return static
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         if (!empty($input['empty'])) {
             return static::createEmpty();
