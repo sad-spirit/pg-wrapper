@@ -28,11 +28,8 @@ use Psr\Cache\CacheItemPoolInterface;
  */
 class Connection
 {
-    /**
-     * Connection resource
-     * @var resource|null|NativeConnection
-     */
-    private $native;
+    /** Native connection object */
+    private ?NativeConnection $native = null;
 
     /**
      * Connection string (as used for pg_connect())
@@ -108,7 +105,7 @@ class Connection
     /**
      * Whether disconnect() method was called
      *
-     * We connect to the database automatically only once: on first getResource() call if $lazy = true was passed
+     * We connect to the database automatically only once: on first getNative() call if $lazy = true was passed
      * to constructor. Once disconnect() was ever called, we require manual call to connect().
      *
      * @var bool
@@ -210,7 +207,6 @@ class Connection
     {
         if (null !== $this->native) {
             try {
-                /** @psalm-suppress PossiblyInvalidArgument */
                 pg_close($this->native);
             } catch (\Throwable $e) {
             }
@@ -239,7 +235,6 @@ class Connection
     public function isConnected(): bool
     {
         try {
-            /** @psalm-suppress PossiblyInvalidArgument */
             return null !== $this->native
                    && \PGSQL_CONNECTION_OK === \pg_connection_status($this->native);
         } catch (\Throwable $e) {
@@ -255,7 +250,6 @@ class Connection
     public function getLastError(): ?string
     {
         try {
-            /** @psalm-suppress PossiblyInvalidArgument */
             if (null !== $this->native && ($error = \pg_last_error($this->native))) {
                 return $error;
             }
@@ -265,51 +259,27 @@ class Connection
     }
 
     /**
-     * Returns the native object (or resource) representing database connection
+     * Returns the native object representing database connection
      *
-     * @return resource|NativeConnection
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? NativeConnection : resource)
      * @throws exceptions\ConnectionException
      */
-    public function getNative()
+    public function getNative(): NativeConnection
     {
-        if (!is_resource($this->native) && !$this->disconnected) {
+        if (!$this->disconnected) {
             if (!$this->native instanceof NativeConnection) {
                 $this->connect();
             } else {
                 try {
-                    /**
-                     * @psalm-suppress InvalidArgument
-                     */
                     \pg_connection_status($this->native);
                 } catch (\Throwable $e) {
                     throw new exceptions\ConnectionException("Connection has been closed");
                 }
             }
         }
-        if (!is_resource($this->native) && !$this->native instanceof NativeConnection) {
+        if (!$this->native instanceof NativeConnection) {
             throw new exceptions\ConnectionException("Connection has been closed");
         }
         return $this->native;
-    }
-
-    /**
-     * Returns database connection resource
-     *
-     * @return resource|NativeConnection
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? NativeConnection : resource)
-     * @throws exceptions\ConnectionException
-     * @deprecated Since 2.4.0, use {@see Connection::getNative()} instead
-     */
-    public function getResource()
-    {
-        @trigger_error(sprintf(
-            'The "%s()" method is deprecated since release 2.4.0, '
-            . 'use "Connection::getNative()" instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-
-        return $this->getNative();
     }
 
     /**

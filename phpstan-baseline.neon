@@ -6,12 +6,6 @@ parameters:
 			path: src/sad_spirit/pg_wrapper/converters/CachedTypeOIDMapper.php
 
 		-
-			message: "#^Conditional return type uses subject type#"
-			paths:
-				- src/sad_spirit/pg_wrapper/ResultSet.php
-				- src/sad_spirit/pg_wrapper/Connection.php
-
-		-
 			message: "#^Parameter \\#1 \\$connection of function pg_connection_status expects resource, Pgsql\\\\Connection given\\.$#"
 			paths:
 				- src/sad_spirit/pg_wrapper/Connection.php

@@ -337,7 +337,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      *    'foo[]' is treated as an array of base type 'foo'
      *  - ['field' => 'type', ...] for composite types
      *  - TypeConverter instance. If it implements ConnectionAware, then
-     *    it will receive current connection resource
+     *    it will receive current Connection
      *
      * Converters for type names registered with registerConverter() will
      * be returned even without database connection. Getting Converters for

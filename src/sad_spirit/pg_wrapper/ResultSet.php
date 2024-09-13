@@ -33,11 +33,8 @@ use PgSql\Result as NativeResult;
  */
 class ResultSet implements \Iterator, \Countable, \ArrayAccess
 {
-    /**
-     * PostgreSQL result resource
-     * @var resource|NativeResult
-     */
-    private $native;
+    /** PostgreSQL native result object */
+    private NativeResult $native;
 
     /**
      * Factory for database type converters (mostly needed for setType())
@@ -107,16 +104,16 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Constructor.
      *
-     * @param resource|NativeResult $native  SQL result resource.
-     * @param TypeConverterFactory  $factory
-     * @param array                 $types   Types information, used to convert output values
-     *                                       (overrides auto-generated types).
+     * @param NativeResult         $native  SQL result object.
+     * @param TypeConverterFactory $factory
+     * @param array                $types   Types information, used to convert output values
+     *                                      (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      *
      * @psalm-suppress PossiblyInvalidArgument
      */
-    protected function __construct($native, TypeConverterFactory $factory, array $types = [])
+    protected function __construct(NativeResult $native, TypeConverterFactory $factory, array $types = [])
     {
         $this->native           = $native;
         $this->converterFactory = $factory;
@@ -128,32 +125,11 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
-     * Returns the native object (or resource) representing query result
-     *
-     * @return NativeResult|resource
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \PgSql\Result : resource)
+     * Returns the native object representing query result
      */
-    protected function getNative()
+    protected function getNative(): NativeResult
     {
         return $this->native;
-    }
-
-    /**
-     * Returns the result resource
-     *
-     * @return NativeResult|resource
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \PgSql\Result : resource)
-     * @deprecated Since 2.4.0, use {@see getNative()} instead
-     */
-    protected function getResource()
-    {
-        @trigger_error(sprintf(
-            'The "%s()" method is deprecated since release 2.4.0, '
-            . 'use "ResultSet::getNative()" instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-
-        return $this->getNative();
     }
 
     /**
@@ -191,58 +167,27 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
     /**
      * Converts a return value of native query execution methods into either a ResultSet instance or an Exception
      *
-     * @param resource|bool|NativeResult $returnValue Value returned by native query execution method.
-     * @param Connection                 $connection  Connection used to execute the query.
-     * @param array                      $types       Types information, used to convert output values
-     *                                                (overrides auto-generated types).
+     * @param false|NativeResult $returnValue Value returned by native query execution method.
+     * @param Connection         $connection  Connection used to execute the query.
+     * @param array              $types       Types information, used to convert output values
+     *                                        (overrides auto-generated types).
      * @return static
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      * @throws exceptions\ServerException
      */
-    public static function createFromReturnValue($returnValue, Connection $connection, array $types = []): self
-    {
+    public static function createFromReturnValue(
+        false|NativeResult $returnValue,
+        Connection $connection,
+        array $types = []
+    ): self {
         if (false === $returnValue) {
             throw exceptions\ServerException::fromConnection($connection);
-        } elseif (
-            (!is_resource($returnValue) || 'pgsql result' !== get_resource_type($returnValue))
-            && !$returnValue instanceof NativeResult
-        ) {
-            throw exceptions\InvalidArgumentException::unexpectedType(
-                __METHOD__,
-                'a query result resource',
-                $returnValue
-            );
         }
-
         // Methods we use in Connection and PreparedStatement (pg_query(), etc) can only return results
         // where status is one of PGSQL_COMMAND_OK, PGSQL_TUPLES_OK, PGSQL_COPY_OUT, PGSQL_COPY_IN.
         // All of these will allow at least pg_affected_rows()
         return new static($returnValue, $connection->getTypeConverterFactory(), $types);
-    }
-
-    /**
-     * Creates a return value for various execute*() methods from underlying query result resource
-     *
-     * @param resource|bool|NativeResult $resource   SQL result resource, false if query failed.
-     * @param Connection                 $connection Connection, origin of result resource.
-     * @param array                      $types      Types information, used to convert output values
-     *                                               (overrides auto-generated types).
-     * @return static
-     * @throws exceptions\InvalidArgumentException
-     * @throws exceptions\RuntimeException
-     * @throws exceptions\ServerException
-     * @deprecated Since 2.4.0, use {@see createFromReturnValue()} instead
-     */
-    public static function createFromResultResource($resource, Connection $connection, array $types = []): self
-    {
-        @trigger_error(sprintf(
-            'The "%s()" method is deprecated since release 2.4.0, '
-            . 'use "ResultSet::createFromReturnValue()" instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-
-        return static::createFromReturnValue($resource, $connection, $types);
     }
 
     /**

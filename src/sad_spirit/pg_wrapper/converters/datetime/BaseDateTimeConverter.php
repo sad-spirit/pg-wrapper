@@ -61,7 +61,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Constructor, possibly sets the connection this converter works with
      *
-     * @param Connection|null $connection Connection resource
+     * @param Connection|null $connection
      */
     public function __construct(Connection $connection = null)
     {

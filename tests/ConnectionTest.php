@@ -109,7 +109,7 @@ class ConnectionTest extends TestCase
         $connection->execute("select true");
     }
 
-    public function testDifferentInstancesHaveDifferentResources(): void
+    public function testDifferentInstancesHaveDifferentNativeConnections(): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
