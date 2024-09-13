@@ -52,6 +52,5 @@
 
     <stubs>
       <file name="tests/config.php.psalm" />
-      <file name="pgsql-stubs.php" />
     </stubs>
 </psalm>

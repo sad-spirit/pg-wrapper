@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\tests;
 
 use PHPUnit\Framework\TestCase;
-use Pgsql\Connection as NativeConnection;
+use PgSql\Connection as NativeConnection;
 use sad_spirit\pg_wrapper\{
     Connection,
     converters\StubTypeConverterFactory,

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper;
 
-use Pgsql\Result as NativeResult;
+use PgSql\Result as NativeResult;
 
 /**
  * Class representing a query result
@@ -131,7 +131,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Returns the native object (or resource) representing query result
      *
      * @return NativeResult|resource
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Result : resource)
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \PgSql\Result : resource)
      */
     protected function getNative()
     {
@@ -142,7 +142,7 @@ class ResultSet implements \Iterator, \Countable, \ArrayAccess
      * Returns the result resource
      *
      * @return NativeResult|resource
-     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \Pgsql\Result : resource)
+     * @psalm-return (PHP_VERSION_ID is int<80100, max> ? \PgSql\Result : resource)
      * @deprecated Since 2.4.0, use {@see getNative()} instead
      */
     protected function getResource()

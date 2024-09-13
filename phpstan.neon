@@ -8,7 +8,6 @@ parameters:
     - tests
   bootstrapFiles:
     - tests/config.php.dist
-    - pgsql-stubs.php
   dynamicConstantNames:
     - TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING
   ignoreErrors:

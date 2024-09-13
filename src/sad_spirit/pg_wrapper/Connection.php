@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper;
 
-use Pgsql\Connection as NativeConnection;
+use PgSql\Connection as NativeConnection;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
