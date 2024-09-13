@@ -24,45 +24,13 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Base class for geometric types containing exactly two Points (boxes and line segments)
- *
- * @property-read Point $start
- * @property-read Point $end
  */
-abstract class PointPair implements ArrayRepresentable, \JsonSerializable
+abstract readonly class PointPair implements ArrayRepresentable, \JsonSerializable
 {
-    use ReadOnlyProperties;
-
-    /** @var Point */
-    private $p_start;
-    /** @var Point */
-    private $p_end;
-
-    final public function __construct(Point $start, Point $end)
-    {
-        $this->p_start = $start;
-        $this->p_end   = $end;
-    }
-
-    /**
-     * Returns the first Point of line segment (or first corner of Box)
-     *
-     * @return Point
-     * @deprecated Since 2.5.0, use {@see $start} property
-     */
-    public function getStart(): Point
-    {
-        return $this->p_start;
-    }
-
-    /**
-     * Returns the last Point of line segment (or second corner of Box)
-     *
-     * @return Point
-     * @deprecated Since 2.5.0, use {@see $end} property
-     */
-    public function getEnd(): Point
-    {
-        return $this->p_end;
+    final public function __construct(
+        public Point $start,
+        public Point $end
+    ) {
     }
 
     /**
@@ -73,8 +41,8 @@ abstract class PointPair implements ArrayRepresentable, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'start' => $this->p_start,
-            'end'   => $this->p_end
+            'start' => $this->start,
+            'end'   => $this->end
         ];
     }
 

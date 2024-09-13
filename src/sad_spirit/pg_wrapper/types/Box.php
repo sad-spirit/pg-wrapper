@@ -23,6 +23,6 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing 'box' geometric type
  */
-final class Box extends PointPair
+final readonly class Box extends PointPair
 {
 }

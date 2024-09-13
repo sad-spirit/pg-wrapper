@@ -24,45 +24,13 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Represents a point in two-dimensional space
- *
- * @property-read float $x
- * @property-read float $y
  */
-final class Point implements ArrayRepresentable, \JsonSerializable
+final readonly class Point implements ArrayRepresentable, \JsonSerializable
 {
-    use ReadOnlyProperties;
-
-    /** @var float */
-    private $p_x;
-    /** @var float */
-    private $p_y;
-
-    public function __construct(float $x, float $y)
-    {
-        $this->p_x = $x;
-        $this->p_y = $y;
-    }
-
-    /**
-     * Returns the point's X coordinate
-     *
-     * @return float
-     * @deprecated Since 2.5.0, use {@see $x} property
-     */
-    public function getX(): float
-    {
-        return $this->p_x;
-    }
-
-    /**
-     * Returns the point's Y coordinate
-     *
-     * @return float
-     * @deprecated Since 2.5.0, use {@see $y} property
-     */
-    public function getY(): float
-    {
-        return $this->p_y;
+    public function __construct(
+        public float $x,
+        public float $y
+    ) {
     }
 
     /**
@@ -73,8 +41,8 @@ final class Point implements ArrayRepresentable, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'x' => $this->p_x,
-            'y' => $this->p_y
+            'x' => $this->x,
+            'y' => $this->y
         ];
     }
 

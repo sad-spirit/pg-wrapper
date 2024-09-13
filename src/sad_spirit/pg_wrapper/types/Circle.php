@@ -24,45 +24,13 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 
 /**
  * Represents a circle, defined by a center point and radius
- *
- * @property-read Point $center
- * @property-read float $radius
  */
-final class Circle implements ArrayRepresentable, \JsonSerializable
+final readonly class Circle implements ArrayRepresentable, \JsonSerializable
 {
-    use ReadOnlyProperties;
-
-    /** @var Point */
-    private $p_center;
-    /** @var float */
-    private $p_radius;
-
-    public function __construct(Point $center, float $radius)
-    {
-        $this->p_center = $center;
-        $this->p_radius = $radius;
-    }
-
-    /**
-     * Returns the circle's central Point
-     *
-     * @return Point
-     * @deprecated Since 2.5.0, use {@see $center} property
-     */
-    public function getCenter(): Point
-    {
-        return $this->p_center;
-    }
-
-    /**
-     * Returns the circle's radius
-     *
-     * @return float
-     * @deprecated Since 2.5.0, use {@see $radius} property
-     */
-    public function getRadius(): float
-    {
-        return $this->p_radius;
+    public function __construct(
+        public Point $center,
+        public float $radius
+    ) {
     }
 
     /**
@@ -73,8 +41,8 @@ final class Circle implements ArrayRepresentable, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'center' => $this->p_center,
-            'radius' => $this->p_radius
+            'center' => $this->center,
+            'radius' => $this->radius
         ];
     }
 

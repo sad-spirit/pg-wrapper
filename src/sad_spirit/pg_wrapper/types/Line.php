@@ -26,60 +26,14 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * Class representing 'line' geometric type (PostgreSQL 9.4+)
  *
  * Lines are represented by the linear equation Ax + By + C = 0
- *
- * @property-read float $A
- * @property-read float $B
- * @property-read float $C
  */
-final class Line implements ArrayRepresentable, \JsonSerializable
+final readonly class Line implements ArrayRepresentable, \JsonSerializable
 {
-    use ReadOnlyProperties;
-
-    /** @var float */
-    private $p_A;
-    /** @var float */
-    private $p_B;
-    /** @var float */
-    private $p_C;
-
-    public function __construct(float $A, float $B, float $C)
-    {
-        $this->p_A = $A;
-        $this->p_B = $B;
-        $this->p_C = $C;
-    }
-
-    /**
-     * Returns the A coefficient of linear equation
-     *
-     * @return float
-     * @deprecated Since 2.5.0, use {@see $A} property
-     */
-    public function getA(): float
-    {
-        return $this->p_A;
-    }
-
-    /**
-     * Returns the B coefficient of linear equation
-     *
-     * @return float
-     * @deprecated Since 2.5.0, use {@see $B} property
-     */
-    public function getB(): float
-    {
-        return $this->p_B;
-    }
-
-    /**
-     * Returns the C coefficient of linear equation
-     *
-     * @return float
-     * @deprecated Since 2.5.0, use {@see $C} property
-     */
-    public function getC(): float
-    {
-        return $this->p_C;
+    public function __construct(
+        public float $A,
+        public float $B,
+        public float $C
+    ) {
     }
 
     /**
@@ -90,9 +44,9 @@ final class Line implements ArrayRepresentable, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'A' => $this->p_A,
-            'B' => $this->p_B,
-            'C' => $this->p_C
+            'A' => $this->A,
+            'B' => $this->B,
+            'C' => $this->C
         ];
     }
 

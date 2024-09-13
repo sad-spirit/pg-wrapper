@@ -31,13 +31,13 @@ use sad_spirit\pg_wrapper\exceptions\{
  * @implements \ArrayAccess<int, Point>
  * @implements \IteratorAggregate<int, Point>
  */
-abstract class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
+abstract readonly class PointList implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * Points available through ArrayAccess
      * @var Point[]
      */
-    protected $points = [];
+    protected array $points;
 
     public function __construct(Point ...$points)
     {

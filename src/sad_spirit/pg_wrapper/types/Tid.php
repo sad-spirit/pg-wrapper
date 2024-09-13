@@ -28,18 +28,11 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
  * tid describes the physical location of a tuple (row) within a table and
  * consists of a block number and tuple index within that block. Both of these
  * are non-negative integers.
- *
- * @property-read int|numeric-string $block
- * @property-read int                $tuple
  */
-final class Tid implements ArrayRepresentable, \JsonSerializable
+final readonly class Tid implements ArrayRepresentable, \JsonSerializable
 {
-    use ReadOnlyProperties;
-
-    /** @var int|numeric-string */
-    private $p_block;
-    /** @var int */
-    private $p_tuple;
+    public int|string $block;
+    public int $tuple;
 
     /**
      * Constructor, checks that arguments are non-negative
@@ -47,11 +40,10 @@ final class Tid implements ArrayRepresentable, \JsonSerializable
      * @param int|numeric-string $block
      * @param int $tuple
      */
-    public function __construct($block, int $tuple)
+    public function __construct(int|string $block, int $tuple)
     {
         if (
-            !\is_string($block) && !\is_int($block)
-            || \is_string($block) && !\ctype_digit($block)
+            \is_string($block) && !\ctype_digit($block)
             || 0 > $block
         ) {
             throw new InvalidArgumentException("Tid \$block field should be a non-negative integer");
@@ -60,30 +52,8 @@ final class Tid implements ArrayRepresentable, \JsonSerializable
             throw new InvalidArgumentException("Tid \$tuple field should be a non-negative integer");
         }
 
-        $this->p_block = $block;
-        $this->p_tuple = $tuple;
-    }
-
-    /**
-     * Returns the block's number within a table
-     *
-     * @return int|numeric-string
-     * @deprecated Since 2.5.0, use {@see $block} property
-     */
-    public function getBlock()
-    {
-        return $this->p_block;
-    }
-
-    /**
-     * Returns the tuple's index within a block
-     *
-     * @return int
-     * @deprecated Since 2.5.0, use {@see $tuple} property
-     */
-    public function getTuple(): int
-    {
-        return $this->p_tuple;
+        $this->block = $block;
+        $this->tuple = $tuple;
     }
 
     /**
@@ -94,8 +64,8 @@ final class Tid implements ArrayRepresentable, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'block' => $this->p_block,
-            'tuple' => $this->p_tuple
+            'block' => $this->block,
+            'tuple' => $this->tuple
         ];
     }
 

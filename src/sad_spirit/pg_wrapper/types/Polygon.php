@@ -23,7 +23,7 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing 'polygon' geometric type
  */
-final class Polygon extends PointList implements ArrayRepresentable, \JsonSerializable
+final readonly class Polygon extends PointList implements ArrayRepresentable, \JsonSerializable
 {
     /**
      * {@inheritDoc}
