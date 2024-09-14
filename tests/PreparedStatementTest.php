@@ -197,16 +197,6 @@ class PreparedStatementTest extends TestCase
         $this::assertIsArray($result->current()['parameter_types']);
     }
 
-    public function testPassingResultTypesToExecuteIsDeprecated(): void
-    {
-        $this::expectException(\ErrorException::class);
-        $this::expectExceptionMessage('$resultTypes');
-
-        $statement = $this->conn->prepare('select typname from pg_type where oid = $1');
-        $statement->bindValue(1, 23, 'oid');
-        $statement->execute([], ['typname' => 'text']);
-    }
-
     public function testExecuteParamsDisallowsBoundValues(): void
     {
         $this::expectException(RuntimeException::class);

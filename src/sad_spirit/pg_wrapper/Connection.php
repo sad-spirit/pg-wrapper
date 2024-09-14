@@ -828,23 +828,6 @@ class Connection
     }
 
     /**
-     * Throws an exception if $needsRollback flag was previously set, preventing queries except "ROLLBACK"
-     *
-     * @throws exceptions\RuntimeException
-     * @deprecated Since 2.4.0, use {@see Connection::assertRollbackNotNeeded()} instead
-     */
-    public function checkRollbackNotNeeded(): void
-    {
-        @trigger_error(sprintf(
-            'The "%s()" method is deprecated since release 2.4.0, '
-            . 'use "Connection::assertRollbackNotNeeded()" instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-
-        $this->assertRollbackNotNeeded();
-    }
-
-    /**
      * Resets various fields used by atomic()
      *
      * Generally needed when a new DB connection is established

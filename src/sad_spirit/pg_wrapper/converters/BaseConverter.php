@@ -89,22 +89,4 @@ abstract class BaseConverter implements TypeConverter
         }
         $pos++;
     }
-
-    /**
-     * Returns a part of string satisfying the strspn() mask
-     *
-     * @param string $subject Input string
-     * @param string $mask    Mask for strspn()
-     * @param int    $start   Position in the input string, will be moved
-     * @return string
-     * @deprecated Since 2.5.0 - the method is unused in the package and will be removed in the next major version
-     */
-    protected function getStrspn(string $subject, string $mask, int &$start): string
-    {
-        $length = strspn($subject, $mask, $start);
-        $masked = substr($subject, $start, $length);
-        $start += $length;
-
-        return $masked;
-    }
 }

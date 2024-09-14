@@ -311,7 +311,7 @@ class PreparedStatement
      *
      * @throws exceptions\OutOfBoundsException
      */
-    public function bindValue(int $parameterNumber, $value, $type = null): self
+    public function bindValue(int $parameterNumber, mixed $value, mixed $type = null): self
     {
         $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
@@ -319,10 +319,9 @@ class PreparedStatement
         if (null !== $type) {
             $this->setParameterType($parameterNumber, $type);
         } elseif (!isset($this->converters[$parameterNumber - 1])) {
-            @\trigger_error(
-                'Not specifying bound value type is deprecated since release 2.4.0. '
-                . 'Either pass $type to bindValue() or specify the type beforehand using e.g. setParameterType().',
-                \E_USER_DEPRECATED
+            throw new exceptions\InvalidArgumentException(
+                "Missing bound value type: it should be specified either in \$type parameter or "
+                . "beforehand using e.g. setParameterType()"
             );
         }
 
@@ -339,7 +338,7 @@ class PreparedStatement
      *
      * @throws exceptions\OutOfBoundsException
      */
-    public function bindParam(int $parameterNumber, &$param, $type = null): self
+    public function bindParam(int $parameterNumber, mixed &$param, mixed $type = null): self
     {
         $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
@@ -347,10 +346,9 @@ class PreparedStatement
         if (null !== $type) {
             $this->setParameterType($parameterNumber, $type);
         } elseif (!isset($this->converters[$parameterNumber - 1])) {
-            @\trigger_error(
-                'Not specifying type for a bound variable is deprecated since release 2.4.0. '
-                . 'Either pass $type to bindParam() or specify the type beforehand using e.g. setParameterType().',
-                \E_USER_DEPRECATED
+            throw new exceptions\InvalidArgumentException(
+                "Missing bound variable type: it should be specified either in \$type parameter or "
+                . "beforehand using e.g. setParameterType()"
             );
         }
 
@@ -452,45 +450,19 @@ class PreparedStatement
     }
 
     /**
-     * Executes a prepared query
-     *
-     * @param array $params      Input parameters for query, will override those bound by
-     *                           bindValue() and bindParam() methods when provided.
-     * @param array $resultTypes Types information for result fields, passed to ResultSet
+     * Executes a prepared query using previously bound values
      *
      * @return Result Execution result.
      * @throws exceptions\TypeConversionException
      * @throws exceptions\ServerException
      * @throws exceptions\RuntimeException
      */
-    public function execute(array $params = [], array $resultTypes = []): Result
+    public function execute(): Result
     {
         if (!$this->queryId) {
             throw new exceptions\RuntimeException('The statement has already been deallocated');
         }
         $this->connection->assertRollbackNotNeeded();
-
-        if (!empty($params)) {
-            @\trigger_error(
-                'Passing $params to PreparedStatement::execute() is deprecated since release 2.4.0. '
-                . 'Either bind the parameters with bindParam() / bindValue() beforehand or use executeParams().',
-                \E_USER_DEPRECATED
-            );
-
-            $this->values = [];
-            foreach (array_values($params) as $i => $value) {
-                $this->bindValue($i + 1, $value);
-            }
-        }
-        if ([] === $resultTypes) {
-            $resultTypes = $this->resultTypes;
-        } else {
-            @\trigger_error(
-                'Passing $resultTypes to PreparedStatement::execute() is deprecated since release 2.4.0. '
-                . 'Set these either via constructor or setResultTypes() method.',
-                \E_USER_DEPRECATED
-            );
-        }
 
         ksort($this->values);
         $this->assertArrayKeysMatchPlaceholders($this->values, 'Bound values');
@@ -509,7 +481,7 @@ class PreparedStatement
         return Result::createFromReturnValue(
             @pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
-            $resultTypes
+            $this->resultTypes
         );
     }
 
