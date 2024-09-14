@@ -34,17 +34,11 @@ class TypeConversionException extends \DomainException implements Exception
 
     /**
      * Thrown when parsing the database value failed (and we know exactly where)
-     *
-     * @param TypeConverter $converter
-     * @param string        $expected
-     * @param string        $given
-     * @param int           $position
-     * @return TypeConversionException
      */
     public static function parsingFailed(TypeConverter $converter, string $expected, string $given, int $position): self
     {
         return new self(
-            \get_class($converter) . '::input(): error parsing database value: unexpected input '
+            $converter::class . '::input(): error parsing database value: unexpected input '
             . "'" . \substr_replace($given, ">>HERE>>", $position, 0) . "' at position {$position}"
             . ", expecting {$expected}"
         );
@@ -52,28 +46,23 @@ class TypeConversionException extends \DomainException implements Exception
 
     /**
      * Thrown when an unexpected value was received (either for input or output)
-     *
-     * @param TypeConverter $converter
-     * @param string        $method
-     * @param string        $expected
-     * @param mixed         $given
-     * @return TypeConversionException
      */
-    public static function unexpectedValue(TypeConverter $converter, string $method, string $expected, $given): self
-    {
+    public static function unexpectedValue(
+        TypeConverter $converter,
+        string $method,
+        string $expected,
+        mixed $given
+    ): self {
         return new self(
-            \get_class($converter) . '::' . $method . '(): unexpected '
+            $converter::class . '::' . $method . '(): unexpected '
             . self::stringify($given) . ', expecting ' . $expected
         );
     }
 
     /**
      * Thrown in Connection::guessOutputFormat() when guessing fails
-     *
-     * @param mixed $value
-     * @return TypeConversionException
      */
-    public static function guessFailed($value): self
+    public static function guessFailed(mixed $value): self
     {
         return new self(
             'Failed to deduce a proper type converter for '

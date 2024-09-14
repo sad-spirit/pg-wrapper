@@ -27,14 +27,11 @@ trait Stringifier
 {
     /**
      * Returns a string representation of $value for exception message
-     *
-     * @param mixed $value
-     * @return string
      */
-    protected static function stringify($value): string
+    protected static function stringify(mixed $value): string
     {
         if (\is_object($value)) {
-            return 'Object(' . \get_class($value) . ')';
+            return 'Object(' . $value::class . ')';
 
         } elseif (\is_array($value)) {
             $strings = [];
@@ -53,6 +50,6 @@ trait Stringifier
             return $value ? 'true' : 'false';
         }
 
-        return "'" . (string)$value . "'";
+        return "'" . $value . "'";
     }
 }

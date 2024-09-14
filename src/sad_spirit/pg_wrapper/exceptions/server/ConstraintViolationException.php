@@ -27,11 +27,8 @@ use sad_spirit\pg_wrapper\exceptions\ServerException;
  */
 class ConstraintViolationException extends ServerException
 {
-    /**
-     * Name of violated constraint
-     * @var string|null
-     */
-    private $constraintName = null;
+    /** Name of violated constraint */
+    private ?string $constraintName = null;
 
     public function __construct(string $message = "", string $sqlState = "", \Throwable $previous = null)
     {
@@ -48,7 +45,7 @@ class ConstraintViolationException extends ServerException
                 // previous line should have constraint name, unfortunately "CONSTRAINT NAME" string can be localized
                 && \preg_match('/:\s+(.*)$/', $parts[\count($parts) - 2], $m)
                 // constraint name is repeated in main error message?
-                && false !== \strpos($parts[0], $m[1])
+                && \str_contains($parts[0], $m[1])
             ) {
                 $this->constraintName = $m[1];
             }

@@ -384,13 +384,6 @@ class ServerException extends RuntimeException
     public const DATA_CORRUPTED  = 'XX001';
     public const INDEX_CORRUPTED = 'XX002';
 
-
-    /**
-     * Five-character 'SQLSTATE' error code
-     * @var string
-     */
-    private $sqlState;
-
     /**
      * Creates a proper exception object based on connection resource
      *
@@ -474,10 +467,13 @@ class ServerException extends RuntimeException
         }
     }
 
-    public function __construct(string $message = "", string $sqlState = "", \Throwable $previous = null)
-    {
+    public function __construct(
+        string $message = "",
+        /** Five-character 'SQLSTATE' error code */
+        private readonly string $sqlState = "",
+        \Throwable $previous = null
+    ) {
         parent::__construct($message, 0, $previous);
-        $this->sqlState = $sqlState;
     }
 
     /**
