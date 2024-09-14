@@ -92,7 +92,6 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
     /**
      * Converts the (possibly JSON-encoded) bound passed to {@see createFromArray()}
      *
-     * @param mixed $bound
      * @return Bound|null
      */
     protected static function convertBound(mixed $bound): mixed

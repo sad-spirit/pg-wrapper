@@ -32,6 +32,7 @@ interface RangeConstructor
      * @param mixed|null $upper          Range upper bound (type checks should be done in child constructor)
      * @param bool       $lowerInclusive Whether lower bound is inclusive
      * @param bool       $upperInclusive Whether upper bound is inclusive
+     * @param bool       $empty          If true, an empty range is created (all other parameters are ignored)
      */
     public function __construct(
         mixed $lower = null,

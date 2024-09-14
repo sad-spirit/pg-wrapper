@@ -40,13 +40,13 @@ final readonly class DateTimeRange extends Range
     ) {
         // As we can't add typehints due to interface, check bounds in constructor
         foreach (['lower', 'upper'] as $bound) {
-            if (null !== $$bound && !$$bound instanceof \DateTimeInterface) {
+            if (null !== ${$bound} && !${$bound} instanceof \DateTimeInterface) {
                 throw new InvalidArgumentException(
                     "DateTimeRange {$bound} bound should be an instance of DateTimeInterface"
                 );
             }
-            if ($$bound instanceof \DateTime) {
-                $$bound = \DateTimeImmutable::createFromMutable($$bound);
+            if (${$bound} instanceof \DateTime) {
+                ${$bound} = \DateTimeImmutable::createFromMutable(${$bound});
             }
         }
         if (null !== $lower && null !== $upper) {

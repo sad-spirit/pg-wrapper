@@ -25,7 +25,7 @@ namespace sad_spirit\pg_wrapper\types;
  *
  * Adds a method to return the string representation of interval.
  */
-class DateInterval extends \DateInterval
+class DateInterval extends \DateInterval implements \Stringable
 {
     /**
      * Returns the value of DateInterval object as an ISO 8601 time interval string
@@ -67,7 +67,7 @@ class DateInterval extends \DateInterval
         return 'P' === $string ? 'PT0S' : $string;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return self::formatAsISO8601($this);
     }

@@ -72,7 +72,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      */
     public function offsetSet($offset, $value): void
     {
-        throw new BadMethodCallException(__CLASS__ . " objects are immutable");
+        throw new BadMethodCallException(self::class . " objects are immutable");
     }
 
     /**
@@ -82,7 +82,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      */
     public function offsetUnset($offset): void
     {
-        throw new BadMethodCallException(__CLASS__ . " objects are immutable");
+        throw new BadMethodCallException(self::class . " objects are immutable");
     }
 
     /**
@@ -118,7 +118,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
                 throw new InvalidArgumentException(\sprintf(
                     "%s() expects an array containing Points or arrays convertible to Point, %s found",
                     __METHOD__,
-                    \is_object($point) ? 'object(' . \get_class($point) . ')' : \gettype($point)
+                    \is_object($point) ? 'object(' . $point::class . ')' : \gettype($point)
                 ));
             }
             $points[] = $point;

@@ -37,7 +37,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
     /**
      * @var array<int, T>
      */
-    private $items;
+    private array $items;
 
     /**
      * Only instances of this class will be allowed as items
@@ -62,9 +62,9 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
             if (!$item instanceof $rangeClass) {
                 throw new InvalidArgumentException(\sprintf(
                     '%s can contain only instances of %s, instance of %s given',
-                    __CLASS__,
+                    self::class,
                     $rangeClass,
-                    \get_class($item)
+                    $item::class
                 ));
             }
         }
@@ -100,7 +100,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      */
     final public function offsetSet($offset, $value): void
     {
-        throw new BadMethodCallException(__CLASS__ . " objects are immutable");
+        throw new BadMethodCallException(self::class . " objects are immutable");
     }
 
     /**
@@ -110,7 +110,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      */
     final public function offsetUnset($offset): void
     {
-        throw new BadMethodCallException(__CLASS__ . " objects are immutable");
+        throw new BadMethodCallException(self::class . " objects are immutable");
     }
 
     /**
@@ -148,7 +148,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
                 throw new InvalidArgumentException(\sprintf(
                     "%s() expects an array containing compatible Ranges or arrays convertible to Range, %s found",
                     __METHOD__,
-                    \is_object($range) ? 'object(' . \get_class($range) . ')' : \gettype($range)
+                    \is_object($range) ? 'object(' . $range::class . ')' : \gettype($range)
                 ));
             }
             $ranges[] = $range;
@@ -163,8 +163,6 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      */
     final public function jsonSerialize(): array
     {
-        return \array_map(function (Range $item) {
-            return $item->jsonSerialize();
-        }, $this->items);
+        return \array_map(fn(Range $item): array => $item->jsonSerialize(), $this->items);
     }
 }
