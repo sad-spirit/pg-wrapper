@@ -42,7 +42,7 @@ final readonly class Path extends PointList implements ArrayRepresentable, \Json
     public function jsonSerialize(): array
     {
         $points = $this->points;
-        array_unshift($points, $this->open);
+        \array_unshift($points, $this->open);
         return $points;
     }
 
@@ -55,8 +55,8 @@ final readonly class Path extends PointList implements ArrayRepresentable, \Json
      */
     public static function createFromArray(array $input): self
     {
-        if (is_bool(reset($input))) {
-            $open = array_shift($input);
+        if (\is_bool(\reset($input))) {
+            $open = \array_shift($input);
         } else {
             $open = false;
         }

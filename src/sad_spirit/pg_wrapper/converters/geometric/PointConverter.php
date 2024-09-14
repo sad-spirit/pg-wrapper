@@ -50,14 +50,14 @@ class PointConverter extends ContainerConverter
             $hasDelimiters = true;
             $pos++;
         }
-        $len  = strcspn($native, ',)', $pos);
-        $x    = substr($native, $pos, $len);
+        $len  = \strcspn($native, ',)', $pos);
+        $x    = \substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
-        $len  = strcspn($native, ',)', $pos);
-        $y    = substr($native, $pos, $len);
+        $len  = \strcspn($native, ',)', $pos);
+        $y    = \substr($native, $pos, $len);
         $pos += $len;
 
         if ($hasDelimiters) {
@@ -68,7 +68,7 @@ class PointConverter extends ContainerConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Point::createFromArray($value);
         } elseif (!($value instanceof Point)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Point or an array', $value);

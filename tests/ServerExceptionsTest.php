@@ -62,7 +62,7 @@ class ServerExceptionsTest extends TestCase
 
         $this->conn->executeParams(
             'select pg_terminate_backend($1)',
-            [pg_get_pid($connectionTwo->getNative())]
+            [\pg_get_pid($connectionTwo->getNative())]
         );
 
         $this::expectException(ConnectionException::class);
@@ -140,7 +140,7 @@ SQL
         $this::expectException(OperationalException::class);
 
         $result = $this->conn->execute('select current_database()');
-        $result->setMode(PGSQL_NUM);
+        $result->setMode(\PGSQL_NUM);
         $dbName = $result[0][0];
 
         $this->conn->execute(
@@ -185,7 +185,7 @@ SQL
         $connectionTwo->execute("update test_deadlock set txt = 'quux' where id = 2");
 
         // this will wait for lock, so we execute it asynchronously
-        pg_send_query(
+        \pg_send_query(
             $connectionTwo->getNative(),
             "update test_deadlock set txt = 'quux' where id = 1"
         );

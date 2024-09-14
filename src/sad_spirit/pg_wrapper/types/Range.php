@@ -112,7 +112,7 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
             return static::createEmpty();
         }
         foreach (['lower', 'upper', 'lowerInclusive', 'upperInclusive'] as $key) {
-            if (array_key_exists($key, $input)) {
+            if (\array_key_exists($key, $input)) {
                 return new static(
                     static::convertBound($input['lower'] ?? null),
                     static::convertBound($input['upper'] ?? null),
@@ -122,8 +122,8 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
             }
         }
         return new static(
-            static::convertBound(array_shift($input)),
-            static::convertBound(array_shift($input))
+            static::convertBound(\array_shift($input)),
+            static::convertBound(\array_shift($input))
         );
     }
 }

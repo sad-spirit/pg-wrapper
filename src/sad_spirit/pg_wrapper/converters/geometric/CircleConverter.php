@@ -52,7 +52,7 @@ class CircleConverter extends BaseGeometricConverter
             if ('<' === $char) {
                 $angleDelimiter = true;
             } else {
-                $singleOpen     = $pos === strrpos($native, '(');
+                $singleOpen     = $pos === \strrpos($native, '(');
             }
             $pos++;
         }
@@ -63,8 +63,8 @@ class CircleConverter extends BaseGeometricConverter
             $pos++;
         }
         $this->expectChar($native, $pos, ',');
-        $len    = strcspn($native, ',)>', $pos);
-        $radius = substr($native, $pos, $len);
+        $len    = \strcspn($native, ',)>', $pos);
+        $radius = \substr($native, $pos, $len);
         $pos   += $len;
 
         if ($hasDelimiters) {
@@ -76,7 +76,7 @@ class CircleConverter extends BaseGeometricConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Circle::createFromArray($value);
         } elseif (!($value instanceof Circle)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Circle or an array', $value);

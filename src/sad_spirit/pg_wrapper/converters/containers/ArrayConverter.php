@@ -102,21 +102,21 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      */
     protected function outputNotNull($value): string
     {
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array', $value);
         }
-        if (0 === count($value)) {
+        if (0 === \count($value)) {
             return '{}';
         }
 
         $requiredSizes = $this->calculateRequiredSizes($value);
         // this can only happen if $item->dimensions() > 0, i.e. it should be an array itself
-        if (count($requiredSizes) < 1) {
+        if (\count($requiredSizes) < 1) {
             throw TypeConversionException::unexpectedValue(
                 $this,
                 'output',
                 "array with at least {$this->itemConverter->dimensions()} dimension(s)",
-                reset($value)
+                \reset($value)
             );
         }
         return $this->buildArrayLiteral($value, $requiredSizes);
@@ -132,8 +132,8 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      */
     private function buildArrayLiteral(array $value, array $requiredSizes): string
     {
-        $requiredCount = array_shift($requiredSizes);
-        if ($requiredCount !== count($value)) {
+        $requiredCount = \array_shift($requiredSizes);
+        if ($requiredCount !== \count($value)) {
             throw TypeConversionException::unexpectedValue(
                 $this,
                 'output',
@@ -146,19 +146,19 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         if (empty($requiredSizes)) {
             foreach ($value as $v) {
                 $item    = $this->itemConverter->output($v);
-                $parts[] = ($item === null) ? 'NULL' : '"' . addcslashes($item, '"\\') . '"';
+                $parts[] = ($item === null) ? 'NULL' : '"' . \addcslashes($item, '"\\') . '"';
             }
 
         } else {
             foreach ($value as $v) {
-                if (!is_array($v)) {
+                if (!\is_array($v)) {
                     throw TypeConversionException::unexpectedValue($this, 'output', 'array', $v);
                 }
                 $parts[] = $this->buildArrayLiteral($v, $requiredSizes);
             }
         }
 
-        return '{' . implode($this->delimiter, $parts) . '}';
+        return '{' . \implode($this->delimiter, $parts) . '}';
     }
 
     /**
@@ -171,9 +171,9 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
     private function calculateRequiredSizes(array $value): array
     {
         $sizes = [];
-        while (is_array($value)) {
-            $sizes[] = count($value);
-            if (!count($value) || array_keys($value) !== range(0, count($value) - 1)) {
+        while (\is_array($value)) {
+            $sizes[] = \count($value);
+            if (!\count($value) || \array_keys($value) !== \range(0, \count($value) - 1)) {
                 if (0 === $this->itemConverter->dimensions()) {
                     // scalar base type? "weird" sub-array is not allowed
                     throw TypeConversionException::unexpectedValue(
@@ -184,7 +184,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
                     );
                 }
                 // assume that we reached an array representing base type
-                array_pop($sizes);
+                \array_pop($sizes);
                 return $sizes;
             }
             if (null === ($value = $value[0])) {
@@ -194,14 +194,14 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         }
         if ($this->itemConverter->dimensions() > 0) {
             // check whether we have an object representing base type
-            if (is_object($value)) {
+            if (\is_object($value)) {
                 try {
                     $this->itemConverter->output($value);
                     return $sizes;
                 } catch (PackageException $e) {
                 }
             }
-            array_splice($sizes, -$this->itemConverter->dimensions());
+            \array_splice($sizes, -$this->itemConverter->dimensions());
         }
         return $sizes;
     }
@@ -317,15 +317,15 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
 
             } elseif ('"' === $char) {
                 // quoted string
-                if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $native, $m, 0, $pos)) {
+                if (!\preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $native, $m, 0, $pos)) {
                     throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                 }
-                $result[$key++]  = $this->itemConverter->input(stripcslashes($m[1]));
-                $pos            += strlen($m[0]);
+                $result[$key++]  = $this->itemConverter->input(\stripcslashes($m[1]));
+                $pos            += \strlen($m[0]);
 
             } else {
                 // zero-length string can appear only quoted
-                if (0 === ($len = strcspn($native, $this->delimiter . "} \t\r\n", $pos))) {
+                if (0 === ($len = \strcspn($native, $this->delimiter . "} \t\r\n", $pos))) {
                     throw TypeConversionException::parsingFailed(
                         $this,
                         'subarray, quoted or unquoted string',
@@ -333,8 +333,8 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
                         $pos
                     );
                 }
-                $v               = substr($native, $pos, $len);
-                $result[$key++]  = strcasecmp($v, "null") ? $this->itemConverter->input(stripcslashes($v)) : null;
+                $v               = \substr($native, $pos, $len);
+                $result[$key++]  = \strcasecmp($v, "null") ? $this->itemConverter->input(\stripcslashes($v)) : null;
                 $pos            += $len;
             }
         }

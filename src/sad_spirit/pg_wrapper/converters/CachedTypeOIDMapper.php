@@ -539,7 +539,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
                 'Database connection required'
             )
         ) {
-            throw new InvalidArgumentException(sprintf('Could not find type information for OID %d', $oid));
+            throw new InvalidArgumentException(\sprintf('Could not find type information for OID %d', $oid));
         }
 
         return $this->oidMap[$oid];
@@ -553,13 +553,13 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
                     return isset($this->typeNames[$typeName])
                     && (null === $schemaName || isset($this->typeNames[$typeName][$schemaName]));
                 },
-                sprintf(
+                \sprintf(
                     "Database connection required to process type name %s",
                     InvalidArgumentException::formatQualifiedName($typeName, $schemaName)
                 )
             )
         ) {
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 'Type %s does not exist in the database',
                 InvalidArgumentException::formatQualifiedName($typeName, $schemaName)
             ));
@@ -568,14 +568,14 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         if ($schemaName) {
             return $this->typeNames[$typeName][$schemaName];
 
-        } elseif (1 === count($this->typeNames[$typeName])) {
-            return reset($this->typeNames[$typeName]);
+        } elseif (1 === \count($this->typeNames[$typeName])) {
+            return \reset($this->typeNames[$typeName]);
 
         } else {
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 'Types named "%s" found in schemas: %s. Qualified name required.',
                 $typeName,
-                implode(', ', array_keys($this->typeNames[$typeName]))
+                \implode(', ', \array_keys($this->typeNames[$typeName]))
             ));
         }
     }
@@ -657,11 +657,11 @@ from pg_catalog.pg_type as t, pg_catalog.pg_namespace as s
 where t.typnamespace = s.oid
 order by 1
 SQL;
-            if (!($res = @pg_query($this->connection->getNative(), $sql))) {
+            if (!($res = @\pg_query($this->connection->getNative(), $sql))) {
                 throw ServerException::fromConnection($this->connection);
             }
             $converter = new IntegerConverter();
-            while ($row = pg_fetch_assoc($res)) {
+            while ($row = \pg_fetch_assoc($res)) {
                 if (!isset($this->typeNames[$row['typname']])) {
                     $this->typeNames[$row['typname']] = [$row['nspname'] => $converter->input($row['oid'])];
                 } else {
@@ -677,7 +677,7 @@ SQL;
                     $this->domainTypes[$row['oid']] = $converter->input($row['typbasetype']);
                 }
             }
-            pg_free_result($res);
+            \pg_free_result($res);
 
             if ($this->getCompositeTypesCaching()) {
                 // Preload columns for freestanding composite types: they are far more likely to appear
@@ -690,29 +690,29 @@ where a.attrelid = c.oid and
       a.attnum > 0
 order by attrelid, attnum
 SQL;
-                if (!($res = @pg_query($this->connection->getNative(), $sql))) {
+                if (!($res = @\pg_query($this->connection->getNative(), $sql))) {
                     throw ServerException::fromConnection($this->connection);
                 }
-                while ($row = pg_fetch_assoc($res)) {
+                while ($row = \pg_fetch_assoc($res)) {
                     $relTypeId = $converter->input($row['reltype']);
-                    if (!isset($this->compositeTypes[$relTypeId]) || !is_array($this->compositeTypes[$relTypeId])) {
+                    if (!isset($this->compositeTypes[$relTypeId]) || !\is_array($this->compositeTypes[$relTypeId])) {
                         $this->compositeTypes[$relTypeId] = [];
                     }
                     $this->compositeTypes[$relTypeId][$row['attname']] = $converter->input($row['atttypid']);
                 }
-                pg_free_result($res);
+                \pg_free_result($res);
             }
 
-            if (!($res = @pg_query($this->connection->getNative(), "select * from pg_range"))) {
+            if (!($res = @\pg_query($this->connection->getNative(), "select * from pg_range"))) {
                 throw ServerException::fromConnection($this->connection);
             }
-            while ($row = pg_fetch_assoc($res)) {
-                if (array_key_exists('rngmultitypid', $row)) {
+            while ($row = \pg_fetch_assoc($res)) {
+                if (\array_key_exists('rngmultitypid', $row)) {
                     $this->multiRangeTypes[$row['rngmultitypid']] = $converter->input($row['rngsubtype']);
                 }
                 $this->rangeTypes[$row['rngtypid']] = $converter->input($row['rngsubtype']);
             }
-            pg_free_result($res);
+            \pg_free_result($res);
 
             if ($cache && $cacheItem) {
                 $cache->save($cacheItem->set([
@@ -746,7 +746,7 @@ SQL;
             throw new RuntimeException('Database connection required for getting composite types data');
         }
 
-        if (!is_array($this->compositeTypes[$oid])) {
+        if (!\is_array($this->compositeTypes[$oid])) {
             $cacheItem = null;
             if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
                 try {
@@ -767,7 +767,7 @@ where attrelid = $1 and
 order by attnum
 SQL;
                 if (
-                    !($res = @pg_query_params(
+                    !($res = @\pg_query_params(
                         $this->connection->getNative(),
                         $sql,
                         [$this->compositeTypes[$oid]]
@@ -777,10 +777,10 @@ SQL;
                 }
                 $this->compositeTypes[$oid] = [];
                 $converter = new IntegerConverter();
-                while ($row = pg_fetch_assoc($res)) {
+                while ($row = \pg_fetch_assoc($res)) {
                     $this->compositeTypes[$oid][$row['attname']] = $converter->input($row['atttypid']);
                 }
-                pg_free_result($res);
+                \pg_free_result($res);
 
                 if ($cache && $cacheItem) {
                     $cache->save($cacheItem->set($this->compositeTypes[$oid]));

@@ -100,19 +100,19 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
                     break 2;
 
                 case '"':
-                    if (!preg_match('/"((?>[^"\\\\]+|\\\\.|"")*)"/As', $string, $m, 0, $pos)) {
+                    if (!\preg_match('/"((?>[^"\\\\]+|\\\\.|"")*)"/As', $string, $m, 0, $pos)) {
                         throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
                     }
-                    $pos   += strlen($m[0]);
-                    $bound .= strtr($m[1], ['\\\\' => '\\', '\\"' => '"', '""' => '"']);
+                    $pos   += \strlen($m[0]);
+                    $bound .= \strtr($m[1], ['\\\\' => '\\', '\\"' => '"', '""' => '"']);
                     break;
 
                 default:
-                    if (!preg_match("/(?>[^\"\\\\\\]),]+|\\\\.)+/As", $string, $m, 0, $pos)) {
+                    if (!\preg_match("/(?>[^\"\\\\\\]),]+|\\\\.)+/As", $string, $m, 0, $pos)) {
                         throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
                     }
-                    $pos   += strlen($m[0]);
-                    $bound .= stripcslashes($m[0]);
+                    $pos   += \strlen($m[0]);
+                    $bound .= \stripcslashes($m[0]);
             }
         }
 
@@ -140,9 +140,9 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
 
             case 'e':
             case 'E':
-                if (preg_match('/empty/Ai', $native, $m, 0, $pos)) {
+                if (\preg_match('/empty/Ai', $native, $m, 0, $pos)) {
                     $pos += 5;
-                    return call_user_func([$this->resultClass, 'createEmpty']);
+                    return \call_user_func([$this->resultClass, 'createEmpty']);
                 }
                 // fall-through is intentional
 
@@ -176,8 +176,8 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
-            $value = call_user_func([$this->resultClass, 'createFromArray'], $value);
+        if (\is_array($value)) {
+            $value = \call_user_func([$this->resultClass, 'createFromArray'], $value);
         } elseif (!($value instanceof Range)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Range or an array', $value);
         }
@@ -186,10 +186,10 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
         }
         return ($value->lowerInclusive ? '[' : '(')
                . (null === $value->lower
-                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->lower) ?? '', '"\\') . '"')
+                  ? '' : '"' . \addcslashes($this->subtypeConverter->output($value->lower) ?? '', '"\\') . '"')
                . ','
                . (null === $value->upper
-                  ? '' : '"' . addcslashes($this->subtypeConverter->output($value->upper) ?? '', '"\\') . '"')
+                  ? '' : '"' . \addcslashes($this->subtypeConverter->output($value->upper) ?? '', '"\\') . '"')
                . ($value->upperInclusive ? ']' : ')');
     }
 }

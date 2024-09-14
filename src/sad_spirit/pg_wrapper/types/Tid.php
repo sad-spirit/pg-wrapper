@@ -78,14 +78,14 @@ final readonly class Tid implements ArrayRepresentable, \JsonSerializable
      */
     public static function createFromArray(array $input): self
     {
-        if (2 !== count($input)) {
+        if (2 !== \count($input)) {
             throw new InvalidArgumentException(
-                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+                \sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );
         }
-        if (array_key_exists('block', $input) && array_key_exists('tuple', $input)) {
+        if (\array_key_exists('block', $input) && \array_key_exists('tuple', $input)) {
             return new self($input['block'], $input['tuple']);
         }
-        return new self(array_shift($input), array_shift($input));
+        return new self(\array_shift($input), \array_shift($input));
     }
 }

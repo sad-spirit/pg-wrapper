@@ -29,18 +29,18 @@ class NumericConverter extends BaseNumericConverter
 {
     protected function inputNotNull(string $native)
     {
-        $native = trim($native);
-        if (is_numeric($native)) {
+        $native = \trim($native);
+        if (\is_numeric($native)) {
             return $native;
 
-        } elseif (0 === strcasecmp($native, 'NaN')) {
-            return NAN;
+        } elseif (0 === \strcasecmp($native, 'NaN')) {
+            return \NAN;
 
-        } elseif (0 === strcasecmp($native, 'Infinity')) {
-            return INF;
+        } elseif (0 === \strcasecmp($native, 'Infinity')) {
+            return \INF;
 
-        } elseif (0 === strcasecmp($native, '-Infinity')) {
-            return -INF;
+        } elseif (0 === \strcasecmp($native, '-Infinity')) {
+            return -\INF;
 
         } else {
             throw TypeConversionException::unexpectedValue($this, 'input', 'numeric value', $native);
@@ -49,17 +49,17 @@ class NumericConverter extends BaseNumericConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_float($value)) {
-            if (is_nan($value)) {
+        if (\is_float($value)) {
+            if (\is_nan($value)) {
                 return 'NaN';
-            } elseif (is_infinite($value)) {
+            } elseif (\is_infinite($value)) {
                 return $value > 0 ? 'Infinity' : '-Infinity';
             } else {
-                return strtr((string)$value, ',', '.');
+                return \strtr((string)$value, ',', '.');
             }
         }
-        if (is_string($value)) {
-            $value = strtr($value, ',', '.');
+        if (\is_string($value)) {
+            $value = \strtr($value, ',', '.');
         }
 
         if (\is_scalar($value) && \is_numeric($value)) {

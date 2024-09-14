@@ -47,20 +47,20 @@ class LineConverter extends ContainerConverter
     {
         $this->expectChar($native, $pos, '{');
 
-        $len  = strcspn($native, ',}', $pos);
-        $A    = substr($native, $pos, $len);
+        $len  = \strcspn($native, ',}', $pos);
+        $A    = \substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
-        $len  = strcspn($native, ',}', $pos);
-        $B    = substr($native, $pos, $len);
+        $len  = \strcspn($native, ',}', $pos);
+        $B    = \substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
-        $len  = strcspn($native, ',}', $pos);
-        $C    = substr($native, $pos, $len);
+        $len  = \strcspn($native, ',}', $pos);
+        $C    = \substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, '}');
@@ -74,7 +74,7 @@ class LineConverter extends ContainerConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Line::createFromArray($value);
         } elseif (!($value instanceof Line)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Line or an array', $value);

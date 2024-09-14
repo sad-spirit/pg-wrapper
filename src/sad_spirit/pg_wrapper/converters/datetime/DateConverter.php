@@ -31,18 +31,18 @@ class DateConverter extends BaseDateTimeConverter
 
     protected function getFormats(string $style): array
     {
-        [$output, $order] = array_map('trim', explode(',', $style));
+        [$output, $order] = \array_map('trim', \explode(',', $style));
 
-        if (0 === strcasecmp('ISO', $output)) {
+        if (0 === \strcasecmp('ISO', $output)) {
             return ['Y-m-d'];
 
-        } elseif (0 === strcasecmp('Postgres', $output)) {
-            return 0 === strcasecmp('DMY', $order) ? ['d-m-Y'] : ['m-d-Y'];
+        } elseif (0 === \strcasecmp('Postgres', $output)) {
+            return 0 === \strcasecmp('DMY', $order) ? ['d-m-Y'] : ['m-d-Y'];
 
-        } elseif (0 === strcasecmp('SQL', $output)) {
-            return 0 === strcasecmp('DMY', $order) ? ['d/m/Y'] : ['m/d/Y'];
+        } elseif (0 === \strcasecmp('SQL', $output)) {
+            return 0 === \strcasecmp('DMY', $order) ? ['d/m/Y'] : ['m/d/Y'];
 
-        } elseif (0 === strcasecmp('German', $output)) {
+        } elseif (0 === \strcasecmp('German', $output)) {
             return ['d.m.Y'];
         }
 

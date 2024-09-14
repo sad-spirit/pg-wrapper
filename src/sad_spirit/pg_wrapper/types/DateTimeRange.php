@@ -68,7 +68,7 @@ final readonly class DateTimeRange extends Range
             return $bound;
         } elseif ($bound instanceof \DateTime) {
             return \DateTimeImmutable::createFromMutable($bound);
-        } elseif (is_array($bound)) {
+        } elseif (\is_array($bound)) {
             return \DateTimeImmutable::__set_state($bound);
         }
         throw InvalidArgumentException::unexpectedType(

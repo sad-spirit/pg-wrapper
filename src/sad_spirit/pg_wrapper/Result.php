@@ -86,7 +86,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     /**
      * @var int
      */
-    private $mode = PGSQL_ASSOC;
+    private $mode = \PGSQL_ASSOC;
 
     /**
      * Arguments for last call to read() method
@@ -116,9 +116,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     {
         $this->native           = $native;
         $this->converterFactory = $factory;
-        $this->affectedRows     = pg_affected_rows($this->native);
+        $this->affectedRows     = \pg_affected_rows($this->native);
 
-        if (PGSQL_TUPLES_OK === pg_result_status($this->native)) {
+        if (\PGSQL_TUPLES_OK === \pg_result_status($this->native)) {
             $this->setupResultFields($types);
         }
     }
@@ -139,14 +139,14 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     private function setupResultFields(array $types): void
     {
         $native          = $this->getNative();
-        $this->numRows   = pg_num_rows($native);
-        $this->numFields = pg_num_fields($native);
+        $this->numRows   = \pg_num_rows($native);
+        $this->numFields = \pg_num_fields($native);
 
         $OIDs = [];
         for ($i = 0; $i < $this->numFields; $i++) {
-            $this->namesHash[pg_field_name($native, $i)] = $i;
-            $this->tableOIDs[$i] = pg_field_table($native, $i, true) ?: null;
-            $OIDs[$i] = pg_field_type_oid($native, $i);
+            $this->namesHash[\pg_field_name($native, $i)] = $i;
+            $this->tableOIDs[$i] = \pg_field_table($native, $i, true) ?: null;
+            $OIDs[$i] = \pg_field_type_oid($native, $i);
         }
 
         // first set the explicitly given types...
@@ -229,9 +229,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @return $this
      * @throws exceptions\InvalidArgumentException
      */
-    public function setMode(int $mode = PGSQL_ASSOC): self
+    public function setMode(int $mode = \PGSQL_ASSOC): self
     {
-        if (PGSQL_ASSOC !== $mode && PGSQL_NUM !== $mode) {
+        if (\PGSQL_ASSOC !== $mode && \PGSQL_NUM !== $mode) {
             throw new exceptions\InvalidArgumentException(
                 __METHOD__ . ' accepts either of PGSQL_ASSOC or PGSQL_NUM constants'
             );
@@ -256,7 +256,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
         $result = [];
         $native = $this->getNative();
         for ($i = 0; $i < $this->numRows; $i++) {
-            $result[] = $this->converters[$fieldIndex]->input(pg_fetch_result($native, $i, $fieldIndex));
+            $result[] = $this->converters[$fieldIndex]->input(\pg_fetch_result($native, $i, $fieldIndex));
         }
         return $result;
     }
@@ -281,7 +281,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     {
         if (null === $mode) {
             $mode = $this->mode;
-        } elseif (PGSQL_ASSOC !== $mode && PGSQL_NUM !== $mode) {
+        } elseif (\PGSQL_ASSOC !== $mode && \PGSQL_NUM !== $mode) {
             throw new exceptions\InvalidArgumentException(
                 __METHOD__ . ' accepts either of PGSQL_ASSOC or PGSQL_NUM constants for $mode'
             );
@@ -294,10 +294,10 @@ class Result implements \Iterator, \Countable, \ArrayAccess
                 );
             }
             $fieldIndex = $this->checkFieldIndex($keyColumn);
-            if (PGSQL_NUM === $mode) {
+            if (\PGSQL_NUM === $mode) {
                 $keyColumn = $fieldIndex;
-            } elseif (!is_string($keyColumn) || $keyColumn === (string)$fieldIndex) {
-                $keyColumn = pg_field_name($this->getNative(), $fieldIndex);
+            } elseif (!\is_string($keyColumn) || $keyColumn === (string)$fieldIndex) {
+                $keyColumn = \pg_field_name($this->getNative(), $fieldIndex);
             }
         }
         $killArray = (!$forceArray && 2 === $this->numFields);
@@ -310,14 +310,14 @@ class Result implements \Iterator, \Countable, \ArrayAccess
                 $result[] = $row;
 
             } else {
-                if (!is_int($keyColumn)) {
+                if (!\is_int($keyColumn)) {
                     $key = $row[$keyColumn];
                     unset($row[$keyColumn]);
                 } else {
-                    [$key] = array_splice($row, $keyColumn, 1, []);
+                    [$key] = \array_splice($row, $keyColumn, 1, []);
                 }
                 if ($killArray) {
-                    $row = reset($row);
+                    $row = \reset($row);
                 }
                 if ($group) {
                     $result[$key][] = $row;
@@ -337,7 +337,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function getFieldNames(): array
     {
-        return array_flip($this->namesHash);
+        return \array_flip($this->namesHash);
     }
 
     /**
@@ -368,7 +368,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        pg_free_result($this->getNative());
+        \pg_free_result($this->getNative());
     }
 
     /**
@@ -435,10 +435,10 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     public function offsetExists($offset): bool
     {
         /** @psalm-suppress NoValue */
-        if (is_string($offset) && ctype_digit($offset)) {
+        if (\is_string($offset) && \ctype_digit($offset)) {
             /** @psalm-suppress InvalidCast */
             $offset = (int)$offset;
-        } elseif (!is_int($offset)) {
+        } elseif (!\is_int($offset)) {
             return false;
         }
         return $offset >= 0 && $offset < $this->numRows;
@@ -487,11 +487,11 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     private function checkFieldIndex($fieldIndex): int
     {
-        if (is_int($fieldIndex) || ctype_digit((string)$fieldIndex)) {
+        if (\is_int($fieldIndex) || \ctype_digit((string)$fieldIndex)) {
             if ($fieldIndex >= 0 && $fieldIndex < $this->numFields) {
                 return (int)$fieldIndex;
             } else {
-                throw new exceptions\OutOfBoundsException(sprintf(
+                throw new exceptions\OutOfBoundsException(\sprintf(
                     "%s: field number %d is not within range 0..%d",
                     __METHOD__,
                     $fieldIndex,
@@ -499,12 +499,12 @@ class Result implements \Iterator, \Countable, \ArrayAccess
                 ));
             }
 
-        } elseif (is_string($fieldIndex)) {
+        } elseif (\is_string($fieldIndex)) {
             if (isset($this->namesHash[$fieldIndex])) {
                 return $this->namesHash[$fieldIndex];
             } else {
                 throw new exceptions\OutOfBoundsException(
-                    sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
+                    \sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
                 );
             }
 
@@ -530,11 +530,11 @@ class Result implements \Iterator, \Countable, \ArrayAccess
             return $this->lastReadResult;
         }
 
-        if (false === ($row = pg_fetch_array($this->getNative(), $position, $mode))) {
-            throw new exceptions\RuntimeException(sprintf("Failed to fetch row %d in result set", $position));
+        if (false === ($row = \pg_fetch_array($this->getNative(), $position, $mode))) {
+            throw new exceptions\RuntimeException(\sprintf("Failed to fetch row %d in result set", $position));
         }
         foreach ($row as $key => &$value) {
-            if (PGSQL_ASSOC === $mode) {
+            if (\PGSQL_ASSOC === $mode) {
                 $value = $this->converters[$this->namesHash[$key]]->input($value);
             } else {
                 $value = $this->converters[$key]->input($value);

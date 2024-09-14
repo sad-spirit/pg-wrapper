@@ -106,7 +106,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     public function __construct()
     {
-        if (extension_loaded('mbstring') && (2 & (int)ini_get('mbstring.func_overload'))) {
+        if (\extension_loaded('mbstring') && (2 & (int)\ini_get('mbstring.func_overload'))) {
             throw new RuntimeException(
                 'Multibyte function overloading must be disabled for correct parsing of database values'
             );
@@ -208,7 +208,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     public function registerConverter($converter, $type, string $schema = 'pg_catalog'): void
     {
-        if (!is_string($converter) && !is_callable($converter) && !($converter instanceof TypeConverter)) {
+        if (!\is_string($converter) && !\is_callable($converter) && !($converter instanceof TypeConverter)) {
             throw InvalidArgumentException::unexpectedType(
                 __METHOD__,
                 'a class name, a closure or an instance of TypeConverter',
@@ -309,10 +309,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             $this->updateConnection($type);
             return $type;
 
-        } elseif (is_string($type)) {
+        } elseif (\is_string($type)) {
             return $this->getConverterForTypeName($type);
 
-        } elseif (is_array($type)) {
+        } elseif (\is_array($type)) {
             // type specification for composite type
             $types = [];
             foreach ($type as $k => $v) {
@@ -342,7 +342,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     public function getConverterForPHPValue($value): TypeConverter
     {
-        switch (gettype($value)) {
+        switch (\gettype($value)) {
             case 'string':
             case 'NULL':
                 return $this->getConverterForQualifiedName('text', 'pg_catalog');
@@ -419,7 +419,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     private function asciiLowercase(string $string): string
     {
-        return strtr($string, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+        return \strtr($string, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
     }
 
     /**
@@ -436,15 +436,15 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     protected function parseTypeName(string $name): array
     {
-        if (false === strpos($name, '.') && false === strpos($name, '"')) {
+        if (false === \strpos($name, '.') && false === \strpos($name, '"')) {
             // can be an SQL standard type, try known aliases
-            $regexp = '(?:(' . implode('|', array_keys(self::SIMPLE_ALIASES)) . ')' // 1
+            $regexp = '(?:(' . \implode('|', \array_keys(self::SIMPLE_ALIASES)) . ')' // 1
                       . '|(double\\s+precision)' // 2
                       . '|(time|timestamp)(?:\\s+(with|without)\\s+time\\s+zone)?' // 3,4
                       . '|(national\\s+(?:character|char)(?:\\s*varying)?)' // 5
                       . '|(bit|character|char|nchar)(?:\\s*varying)?)' // 6
                       . '\\s*(\\[\\s*])?'; // 7
-            if (preg_match('/^' . $regexp . '$/i', $name, $matches)) {
+            if (\preg_match('/^' . $regexp . '$/i', $name, $matches)) {
                 $isArray = !empty($matches[7]);
                 if (!empty($matches[1])) {
                     $typeName = self::SIMPLE_ALIASES[$this->asciiLowercase($matches[1])];
@@ -452,7 +452,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                     $typeName = 'float8';
                 } elseif (!empty($matches[3])) {
                     $typeName = $this->asciiLowercase($matches[3])
-                                . (0 === strcasecmp($matches[4], 'with') ? 'tz' : '');
+                                . (0 === \strcasecmp($matches[4], 'with') ? 'tz' : '');
                 } else {
                     $typeName = 'text';
                 }
@@ -461,7 +461,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
         }
 
         $position   = 0;
-        $length     = strlen($name);
+        $length     = \strlen($name);
         $typeName   = null;
         $schema     = null;
         $isArray    = false;
@@ -471,12 +471,12 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             if ('[' === $name[$position]) {
                 if (
                     !$typeName || $isArray || $identifier
-                    || !preg_match('/\[\s*]$/A', $name, $m, 0, $position)
+                    || !\preg_match('/\[\s*]$/A', $name, $m, 0, $position)
                 ) {
                     throw new InvalidArgumentException("Invalid array specification in type name '{$name}'");
                 }
                 $isArray     = true;
-                $position   += strlen($m[0]);
+                $position   += \strlen($m[0]);
                 $identifier  = false;
 
             } elseif ('.' === $name[$position]) {
@@ -490,8 +490,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
             } elseif ('"' === $name[$position]) {
                 if (
-                    !preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
-                    || !strlen($m[1])
+                    !\preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
+                    || !\strlen($m[1])
                 ) {
                     throw new InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
                 } elseif (!$identifier) {
@@ -499,23 +499,23 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                         "Unexpected double-quoted string '{$m[0]}' in type name '{$name}'"
                     );
                 }
-                $typeName    = strtr($m[1], ['""' => '"']);
-                $position   += strlen($m[0]);
+                $typeName    = \strtr($m[1], ['""' => '"']);
+                $position   += \strlen($m[0]);
                 $identifier  = false;
 
-            } elseif (preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*/A', $name, $m, 0, $position)) {
+            } elseif (\preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*/A', $name, $m, 0, $position)) {
                 if (!$identifier) {
                     throw new InvalidArgumentException("Unexpected identifier '{$m[0]}' in type name '{$name}'");
                 }
                 $typeName    = $this->asciiLowercase($m[0]);
-                $position   += strlen($m[0]);
+                $position   += \strlen($m[0]);
                 $identifier  = false;
 
             } else {
                 throw new InvalidArgumentException("Unexpected symbol '{$name[$position]}' in type name '{$name}'");
             }
 
-            $position += strspn($name, " \r\n\t\f", $position);
+            $position += \strspn($name, " \r\n\t\f", $position);
         }
 
         if (!$typeName) {
@@ -536,22 +536,22 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     private function getRegisteredConverterInstance(string $typeName, ?string $schemaName = null): TypeConverter
     {
         if (null === $schemaName) {
-            if (1 < count($this->types[$typeName])) {
-                throw new InvalidArgumentException(sprintf(
+            if (1 < \count($this->types[$typeName])) {
+                throw new InvalidArgumentException(\sprintf(
                     '%s: Converters for type "%s" exist for schemas: %s. Qualified name required.',
                     __METHOD__,
                     $typeName,
-                    implode(', ', array_keys($this->types[$typeName]))
+                    \implode(', ', \array_keys($this->types[$typeName]))
                 ));
             }
-            reset($this->types[$typeName]);
-            $schemaName = key($this->types[$typeName]);
+            \reset($this->types[$typeName]);
+            $schemaName = \key($this->types[$typeName]);
         }
         if (empty($this->converters[$typeName][$schemaName])) {
             if ($this->types[$typeName][$schemaName] instanceof TypeConverter) {
                 $converter = clone $this->types[$typeName][$schemaName];
 
-            } elseif (is_callable($this->types[$typeName][$schemaName])) {
+            } elseif (\is_callable($this->types[$typeName][$schemaName])) {
                 $converter = $this->types[$typeName][$schemaName]();
 
             } else {
@@ -579,8 +579,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     private function getConverterForTypeName(string $name): TypeConverter
     {
         if (!isset($this->parsedNames[$name])) {
-            if (!preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[])?$/', $name, $m)) {
-                [$schemaName, $typeName, $isArray] = $this->parseTypeName(trim($name));
+            if (!\preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[])?$/', $name, $m)) {
+                [$schemaName, $typeName, $isArray] = $this->parseTypeName(\trim($name));
 
             } else {
                 $schemaName = null;
@@ -629,7 +629,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                 $converter = $this->getConverterForTypeOID($oid);
             } else {
                 // a converter required by name is required explicitly -> exception if not found
-                throw new InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(\sprintf(
                     '%s: no converter registered for base type %s',
                     __METHOD__,
                     InvalidArgumentException::formatQualifiedName($typeName, $schemaName)

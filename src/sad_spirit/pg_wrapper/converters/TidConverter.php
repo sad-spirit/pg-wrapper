@@ -45,14 +45,14 @@ class TidConverter extends ContainerConverter
     {
         $this->expectChar($native, $pos, '(');
 
-        $len = strcspn($native, ",)", $pos);
-        $blockNumber = substr($native, $pos, $len);
+        $len = \strcspn($native, ",)", $pos);
+        $blockNumber = \substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ',');
 
-        $len = strcspn($native, ",)", $pos);
-        $offset = substr($native, $pos, $len);
+        $len = \strcspn($native, ",)", $pos);
+        $offset = \substr($native, $pos, $len);
         $pos += $len;
 
         $this->expectChar($native, $pos, ')');
@@ -62,13 +62,13 @@ class TidConverter extends ContainerConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Tid::createFromArray($value);
         } elseif (!($value instanceof Tid)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Tid or an array', $value);
         }
         /* @var $value Tid */
-        return sprintf('(%d,%d)', $value->block, $value->tuple);
+        return \sprintf('(%d,%d)', $value->block, $value->tuple);
     }
 
     public function dimensions(): int

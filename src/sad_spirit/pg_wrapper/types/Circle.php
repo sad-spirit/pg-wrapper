@@ -55,19 +55,19 @@ final readonly class Circle implements ArrayRepresentable, \JsonSerializable
      */
     public static function createFromArray(array $input): self
     {
-        if (2 !== count($input)) {
+        if (2 !== \count($input)) {
             throw new InvalidArgumentException(
-                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+                \sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );
         }
-        if (array_key_exists('center', $input) && array_key_exists('radius', $input)) {
+        if (\array_key_exists('center', $input) && \array_key_exists('radius', $input)) {
             $center = $input['center'];
             $radius = $input['radius'];
         } else {
-            $center = array_shift($input);
-            $radius = array_shift($input);
+            $center = \array_shift($input);
+            $radius = \array_shift($input);
         }
-        if (is_array($center)) {
+        if (\is_array($center)) {
             $center = Point::createFromArray($center);
         }
         return new self($center, $radius);

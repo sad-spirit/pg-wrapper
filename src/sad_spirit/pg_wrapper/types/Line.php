@@ -59,14 +59,14 @@ final readonly class Line implements ArrayRepresentable, \JsonSerializable
      */
     public static function createFromArray(array $input): self
     {
-        if (3 !== count($input)) {
+        if (3 !== \count($input)) {
             throw new InvalidArgumentException(
-                sprintf("%s() expects an array with exactly three elements", __METHOD__)
+                \sprintf("%s() expects an array with exactly three elements", __METHOD__)
             );
         }
-        if (array_key_exists('A', $input) && array_key_exists('B', $input) && array_key_exists('C', $input)) {
+        if (\array_key_exists('A', $input) && \array_key_exists('B', $input) && \array_key_exists('C', $input)) {
             return new self($input['A'], $input['B'], $input['C']);
         }
-        return new self(array_shift($input), array_shift($input), array_shift($input));
+        return new self(\array_shift($input), \array_shift($input), \array_shift($input));
     }
 }

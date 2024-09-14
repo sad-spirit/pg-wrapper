@@ -40,15 +40,15 @@ class ConstraintViolationException extends ServerException
         // NOT NULL violation messages do not contain constraint names, in case of any other violation
         // try to extract the name
         if (self::NOT_NULL_VIOLATION !== $sqlState) {
-            $parts = preg_split("/\n/", $message, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+            $parts = \preg_split("/\n/", $message, -1, \PREG_SPLIT_NO_EMPTY) ?: [];
             if (
-                count($parts) > 2
+                \count($parts) > 2
                 // last line of message points to source file and line of error?
-                && preg_match('/\.c:\d+$/', $parts[count($parts) - 1])
+                && \preg_match('/\.c:\d+$/', $parts[\count($parts) - 1])
                 // previous line should have constraint name, unfortunately "CONSTRAINT NAME" string can be localized
-                && preg_match('/:\s+(.*)$/', $parts[count($parts) - 2], $m)
+                && \preg_match('/:\s+(.*)$/', $parts[\count($parts) - 2], $m)
                 // constraint name is repeated in main error message?
-                && false !== strpos($parts[0], $m[1])
+                && false !== \strpos($parts[0], $m[1])
             ) {
                 $this->constraintName = $m[1];
             }

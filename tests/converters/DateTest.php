@@ -67,7 +67,7 @@ class DateTest extends TestCase
     public function testCastFrom(?string $style, ?string $native, ?\DateTime $value): void
     {
         if ($value instanceof \Throwable) {
-            $this->expectException(get_class($value));
+            $this->expectException(\get_class($value));
         }
         if (null !== $style) {
             $this->caster->setDateStyle($style);
@@ -83,7 +83,7 @@ class DateTest extends TestCase
     public function testCastTo($native, $value): void
     {
         if ($native instanceof \Throwable) {
-            $this->expectException(get_class($native));
+            $this->expectException(\get_class($native));
         }
         $this->assertEquals($native, $this->caster->output($value));
     }

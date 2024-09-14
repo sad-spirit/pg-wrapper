@@ -29,18 +29,18 @@ class IntegerConverter extends BaseNumericConverter
 {
     protected function inputNotNull(string $native)
     {
-        $native = trim($native);
-        if (!ctype_digit($native) && !preg_match('/^-\d+$/', $native)) {
+        $native = \trim($native);
+        if (!\ctype_digit($native) && !\preg_match('/^-\d+$/', $native)) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'integer value', $native);
 
-        } elseif (PHP_INT_SIZE >= 8) {
+        } elseif (\PHP_INT_SIZE >= 8) {
             // 64-bit system: any Postgres integer type may be represented by PHP integer
             return (int)$native;
 
         } else {
             // convert to int and check for overflow
             $int = (int)$native;
-            return $native === strval($int) ? $int : $native;
+            return $native === \strval($int) ? $int : $native;
         }
     }
 

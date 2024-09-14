@@ -39,12 +39,12 @@ final readonly class NumericRange extends Range
         bool $empty = false
     ) {
         foreach (['lower', 'upper'] as $bound) {
-            if (null !== $$bound && !is_numeric($$bound)) {
+            if (null !== $$bound && !\is_numeric($$bound)) {
                 throw new InvalidArgumentException("NumericRange {$bound} bound should be numeric");
             }
         }
         if (null !== $lower && null !== $upper) {
-            if (floatval($upper) < floatval($lower)) {
+            if (\floatval($upper) < \floatval($lower)) {
                 throw new InvalidArgumentException(
                     "Range lower bound must be less than or equal to range upper bound"
                 );

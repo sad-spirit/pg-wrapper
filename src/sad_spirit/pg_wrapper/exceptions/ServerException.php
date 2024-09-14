@@ -402,7 +402,7 @@ class ServerException extends RuntimeException
         $message = $connection->getLastError() ?? 'Unknown error';
         // We can only use pg_result_error_field() with async queries, so just try to parse the message
         // instead. See function pqBuildErrorMessage3() in src/interfaces/libpq/fe-protocol3.c
-        if (!preg_match("/^[^\r\n]+: {2}([A-Z0-9]{5}):/", $message, $m)) {
+        if (!\preg_match("/^[^\r\n]+: {2}([A-Z0-9]{5}):/", $message, $m)) {
             return $connection->isConnected() ? new self($message) : new ConnectionException($message);
 
         } else {
@@ -411,7 +411,7 @@ class ServerException extends RuntimeException
                 throw new ConnectionException($message, $m[1]);
             }
             // Make "generic subclass" for the current error code and create a specific exception based on that
-            switch (substr_replace($m[1], '000', 2, 3)) {
+            switch (\substr_replace($m[1], '000', 2, 3)) {
                 case self::FEATURE_NOT_SUPPORTED:
                     return new server\FeatureNotSupportedException($message, $m[1]);
 

@@ -27,7 +27,7 @@ class BooleanConverter extends BaseConverter
 {
     protected function inputNotNull(string $native)
     {
-        $native = trim($native);
+        $native = \trim($native);
         return !($native === 'false' || $native === 'f' || $native === '0' || $native === '');
     }
 

@@ -43,21 +43,21 @@ class DateInterval extends \DateInterval
         $mult   = $interval->invert ? -1 : 1;
         foreach (['y' => 'Y', 'm' => 'M', 'd' => 'D'] as $key => $char) {
             if (0 !== $interval->{$key}) {
-                $string .= sprintf('%d%s', $interval->{$key} * $mult, $char);
+                $string .= \sprintf('%d%s', $interval->{$key} * $mult, $char);
             }
         }
         if (0 !== $interval->h || 0 !== $interval->i || 0 !== $interval->s || 0.0 !== $interval->f) {
             $string .= 'T';
             foreach (['h' => 'H', 'i' => 'M'] as $key => $char) {
                 if (0 !== $interval->{$key}) {
-                    $string .= sprintf('%d%s', $interval->{$key} * $mult, $char);
+                    $string .= \sprintf('%d%s', $interval->{$key} * $mult, $char);
                 }
             }
             if (0 !== $interval->s || 0.0 !== $interval->f) {
                 if (0.0 === $interval->f) {
-                    $string .= sprintf('%d%s', $interval->s * $mult, 'S');
+                    $string .= \sprintf('%d%s', $interval->s * $mult, 'S');
                 } else {
-                    $string .= rtrim(sprintf('%.6f', ($interval->s + $interval->f) * $mult), '0');
+                    $string .= \rtrim(\sprintf('%.6f', ($interval->s + $interval->f) * $mult), '0');
                     $string .= 'S';
                 }
             }

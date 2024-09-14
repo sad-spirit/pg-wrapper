@@ -88,7 +88,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     private function updateDateStyleFromConnection(): bool
     {
         $style = null !== $this->connection && $this->connection->isConnected()
-                 ? pg_parameter_status($this->connection->getNative(), 'DateStyle')
+                 ? \pg_parameter_status($this->connection->getNative(), 'DateStyle')
                  : false;
         if (false === $style || $style === $this->style) {
             return false;
@@ -151,12 +151,12 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     protected function outputNotNull($value): string
     {
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return $value;
 
-        } elseif (is_int($value)) {
+        } elseif (\is_int($value)) {
             $formats = $this->getFormats(self::DEFAULT_STYLE);
-            return date($formats[0], $value);
+            return \date($formats[0], $value);
 
         } elseif ($value instanceof \DateTimeInterface) {
             $formats = $this->getFormats(self::DEFAULT_STYLE);

@@ -38,7 +38,7 @@ class PathConverter extends BaseGeometricConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Path::createFromArray($value);
         } elseif (!($value instanceof Path)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Path or an array', $value);
@@ -48,7 +48,7 @@ class PathConverter extends BaseGeometricConverter
         foreach ($value as $point) {
             $points[] = $this->point->output($point);
         }
-        return ($value->open ? '[' : '(') . implode(',', $points) . ($value->open ? ']' : ')');
+        return ($value->open ? '[' : '(') . \implode(',', $points) . ($value->open ? ']' : ')');
     }
 
     public function dimensions(): int

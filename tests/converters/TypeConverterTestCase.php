@@ -46,7 +46,7 @@ abstract class TypeConverterTestCase extends TestCase
     public function testCastFrom(?string $native, $value): void
     {
         if ($value instanceof \Throwable) {
-            $this->expectException(get_class($value));
+            $this->expectException(\get_class($value));
             $this->converter->input($native);
         } else {
             $this->assertEquals($value, $this->converter->input($native));
@@ -65,7 +65,7 @@ abstract class TypeConverterTestCase extends TestCase
     public function testCastTo($native, $value): void
     {
         if ($native instanceof \Throwable) {
-            $this->expectException(get_class($native));
+            $this->expectException(\get_class($native));
             $this->converter->output($value);
         } else {
             $this->assertEquals($native, $this->converter->output($value));

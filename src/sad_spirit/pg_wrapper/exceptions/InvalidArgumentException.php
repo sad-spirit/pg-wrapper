@@ -41,7 +41,7 @@ class InvalidArgumentException extends \InvalidArgumentException implements Exce
      */
     public static function unexpectedType(string $method, string $expected, $given): self
     {
-        return new self(sprintf(
+        return new self(\sprintf(
             '%s() expects %s, %s given',
             $method,
             $expected,
@@ -58,7 +58,7 @@ class InvalidArgumentException extends \InvalidArgumentException implements Exce
      */
     public static function formatQualifiedName(string $typeName, ?string $schemaName): string
     {
-        return (null === $schemaName ? '' : '"' . strtr($schemaName, ['"' => '""']) . '".')
-               . '"' . strtr($typeName, ['"' => '""']) . '"';
+        return (null === $schemaName ? '' : '"' . \strtr($schemaName, ['"' => '""']) . '".')
+               . '"' . \strtr($typeName, ['"' => '""']) . '"';
     }
 }

@@ -39,23 +39,23 @@ class NumericTest extends TypeConverterTestCase
 
     public function testConvertNaN(): void
     {
-        $this->assertTrue(is_nan($this->converter->input('NAN')));
-        $this->assertEquals('NaN', $this->converter->output(NAN));
+        $this->assertTrue(\is_nan($this->converter->input('NAN')));
+        $this->assertEquals('NaN', $this->converter->output(\NAN));
     }
 
     public function testConvertInfinity(): void
     {
-        $this::assertTrue(is_infinite($this->converter->input('-Infinity')));
-        $this::assertEquals('Infinity', $this->converter->output(INF));
+        $this::assertTrue(\is_infinite($this->converter->input('-Infinity')));
+        $this::assertEquals('Infinity', $this->converter->output(\INF));
     }
 
     public function testLocaleIndependentConversion(): void
     {
         try {
-            setlocale(LC_NUMERIC, 'Russian', 'ru_RU', 'ru_RU.UTF-8');
+            \setlocale(\LC_NUMERIC, 'Russian', 'ru_RU', 'ru_RU.UTF-8');
             $this::assertEquals('1.234', $this->converter->output(1.234));
         } finally {
-            setlocale(LC_NUMERIC, 'C');
+            \setlocale(\LC_NUMERIC, 'C');
         }
     }
 

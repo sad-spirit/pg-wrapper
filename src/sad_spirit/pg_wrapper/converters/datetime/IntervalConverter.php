@@ -102,15 +102,15 @@ class IntervalConverter extends BaseConverter
      */
     private function parseTimeToken(string $token, DateInterval $interval): void
     {
-        $parts = explode(':', $token);
+        $parts = \explode(':', $token);
 
-        if (2 === count($parts)) {
-            if (false === strpos($parts[1], '.')) {
+        if (2 === \count($parts)) {
+            if (false === \strpos($parts[1], '.')) {
                 // treat as hours to minutes
                 $parts[] = '0';
             } else {
                 // treat as minutes to seconds
-                array_unshift($parts, '0');
+                \array_unshift($parts, '0');
             }
         }
         if (3 !== \count($parts)) {
@@ -119,11 +119,11 @@ class IntervalConverter extends BaseConverter
 
         $interval->h = (int)$parts[0];
         $interval->i = (int)$parts[1];
-        if (false === ($pos = strpos($parts[2], '.'))) {
+        if (false === ($pos = \strpos($parts[2], '.'))) {
             $interval->s = (int)$parts[2];
         } else {
-            $interval->s = (int)substr($parts[2], 0, $pos);
-            $interval->f = (float)substr($parts[2], $pos);
+            $interval->s = (int)\substr($parts[2], 0, $pos);
+            $interval->f = (float)\substr($parts[2], $pos);
         }
     }
 
@@ -144,23 +144,23 @@ class IntervalConverter extends BaseConverter
         $invert      = false;
         $keysHash    = [];
 
-        for ($i = count($tokens) - 1; $i >= 0; $i--) {
+        for ($i = \count($tokens) - 1; $i >= 0; $i--) {
             [$tokenValue, $tokenType] = $tokens[$i];
             $keys = [];
             switch ($tokenType) {
                 case self::TOKEN_NUMBER:
                     $intervalKey = $intervalKey ?: 's';
 
-                    if (false === ($pos = strpos($tokenValue, '.'))) {
+                    if (false === ($pos = \strpos($tokenValue, '.'))) {
                         $interval->{$intervalKey} = (int)$tokenValue;
                     } elseif ('s' !== $intervalKey) {
                         // Only allow fractional seconds, otherwise there is a non-trivial amount of work
                         // to e.g. properly convert '4.56 months'
                         throw TypeConversionException::parsingFailed($this, 'integer value', $tokenValue, 0);
                     } else {
-                        $interval->s = (int)substr($tokenValue, 0, $pos);
+                        $interval->s = (int)\substr($tokenValue, 0, $pos);
                         $interval->f = ('-' === $tokenValue[0] ? -1 : 1)
-                                       * (float)substr($tokenValue, $pos);
+                                       * (float)\substr($tokenValue, $pos);
                     }
 
                     $keys = [$intervalKey];
@@ -187,7 +187,7 @@ class IntervalConverter extends BaseConverter
                     if ('-' !== $tokenValue[0] && '+' !== $tokenValue[0]) {
                         $this->parseTimeToken($tokenValue, $interval);
                     } else {
-                        $this->parseTimeToken(substr($tokenValue, 1), $interval);
+                        $this->parseTimeToken(\substr($tokenValue, 1), $interval);
                         if ('-' === $tokenValue[0]) {
                             [$interval->h, $interval->i, $interval->s, $interval->f] =
                                 [-$interval->h, -$interval->i, -$interval->s, -$interval->f];
@@ -201,10 +201,10 @@ class IntervalConverter extends BaseConverter
                     // SQL "years-months" syntax
                     if ('-' !== $tokenValue[0] && '+' !== $tokenValue[0]) {
                         $sign  = '+';
-                        $parts = explode('-', $tokenValue);
+                        $parts = \explode('-', $tokenValue);
                     } else {
                         $sign  = $tokenValue[0];
-                        $parts = explode('-', substr($tokenValue, 1));
+                        $parts = \explode('-', \substr($tokenValue, 1));
                     }
                     $interval->y = ('-' === $sign ? -1 : 1) * (int)$parts[0];
                     $interval->m = ('-' === $sign ? -1 : 1) * (int)$parts[1];
@@ -217,7 +217,7 @@ class IntervalConverter extends BaseConverter
 
             foreach ($keys as $key) {
                 if (isset($keysHash[$key])) {
-                    throw new TypeConversionException(sprintf(
+                    throw new TypeConversionException(\sprintf(
                         "%s: duplicate value for interval field '%s' found",
                         __METHOD__,
                         $key
@@ -245,7 +245,7 @@ class IntervalConverter extends BaseConverter
     {
         $tokens = [];
         $pos    = 0;
-        $length = strlen($native);
+        $length = \strlen($native);
 
         if ('@' === $native[0]) {
             // only skip first @, there can be no other punctuation in _output_
@@ -254,15 +254,15 @@ class IntervalConverter extends BaseConverter
 
         while ($pos < $length) {
             // $native cannot have _trailing_ whitespace, it was trimmed in inputNotNull()
-            $pos += strspn($native, " \r\n\t\f", $pos);
+            $pos += \strspn($native, " \r\n\t\f", $pos);
 
-            if (preg_match('/[a-z]+/A', $native, $m, 0, $pos)) {
+            if (\preg_match('/[a-z]+/A', $native, $m, 0, $pos)) {
                 $field  = $m[0];
-                $pos   += strlen($m[0]);
+                $pos   += \strlen($m[0]);
                 $type   = self::TOKEN_STRING;
 
             } elseif (
-                preg_match(
+                \preg_match(
                     '/[+-]? \d+ (?: (:\d+)?:(\d+(\.\d+)?|\.\d+) | ([-.]) \d+ )? /Ax',
                     $native,
                     $m,
@@ -271,7 +271,7 @@ class IntervalConverter extends BaseConverter
                 )
             ) {
                 $field  = $m[0];
-                $pos   += strlen($m[0]);
+                $pos   += \strlen($m[0]);
                 if (!empty($m[2])) {
                     // has :[digit] part
                     $type = self::TOKEN_TIME;
@@ -317,19 +317,19 @@ class IntervalConverter extends BaseConverter
     (?<s>-? (?: \d+ (\.\d+)? | \.\d+) S)?               # seconds, allow fractional 
 )?$/x';
 
-        if (!preg_match($regexp, $native, $m, PREG_UNMATCHED_AS_NULL)) {
+        if (!\preg_match($regexp, $native, $m, \PREG_UNMATCHED_AS_NULL)) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
         }
 
         foreach (['y', 'm', 'w', 'd', 'h', 'i', 's'] as $key) {
             if (isset($m[$key])) {
                 if ('w' === $key) {
-                    $interval->d = 7 * (int)substr($m['w'], 0, -1);
-                } elseif ('s' === $key && false !== ($pos = strpos($m['s'], '.'))) {
-                    $interval->s = (int)substr($m['s'], 0, $pos);
-                    $interval->f = ('-' === $m['s'][0] ? -1 : 1) * (float)substr($m['s'], $pos, -1);
+                    $interval->d = 7 * (int)\substr($m['w'], 0, -1);
+                } elseif ('s' === $key && false !== ($pos = \strpos($m['s'], '.'))) {
+                    $interval->s = (int)\substr($m['s'], 0, $pos);
+                    $interval->f = ('-' === $m['s'][0] ? -1 : 1) * (float)\substr($m['s'], $pos, -1);
                 } else {
-                    $interval->{$key} = (int)substr($m[$key], 0, -1);
+                    $interval->{$key} = (int)\substr($m[$key], 0, -1);
                 }
             }
         }
@@ -339,14 +339,14 @@ class IntervalConverter extends BaseConverter
 
     protected function inputNotNull(string $native)
     {
-        if ('' === ($native = trim($native))) {
+        if ('' === ($native = \trim($native))) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
 
         } elseif ('P' !== $native[0]) {
             return $this->createInterval($this->tokenize($native));
 
         } else {
-            if (false === strpos($native, '-') && false === strpos($native, '.')) {
+            if (false === \strpos($native, '-') && false === \strpos($native, '.')) {
                 // DateInterval in PHP 7.2+ supports fractional seconds, but still cannot parse them:
                 // https://bugs.php.net/bug.php?id=53831
                 // No minuses or dots -> built-in constructor can probably handle
@@ -373,13 +373,13 @@ class IntervalConverter extends BaseConverter
      */
     protected function outputNotNull($value): string
     {
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return $value;
 
-        } elseif (is_int($value)) {
-            return sprintf('%d seconds', $value);
+        } elseif (\is_int($value)) {
+            return \sprintf('%d seconds', $value);
 
-        } elseif (is_float($value)) {
+        } elseif (\is_float($value)) {
             return \preg_replace(
                 '/\\.?0+$/',
                 '',

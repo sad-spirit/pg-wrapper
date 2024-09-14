@@ -227,7 +227,7 @@ SQL
         try {
             $this->conn->atomic(function () {
                 $this->doStuff(1);
-                sleep(1);
+                \sleep(1);
                 $this->doStuff(2);
             });
         } catch (ConnectionException $e) {

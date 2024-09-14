@@ -37,7 +37,7 @@ class PolygonConverter extends BaseGeometricConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Polygon::createFromArray($value);
         } elseif (!($value instanceof Polygon)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Polygon or an array', $value);
@@ -47,7 +47,7 @@ class PolygonConverter extends BaseGeometricConverter
         foreach ($value as $point) {
             $points[] = $this->point->output($point);
         }
-        return '(' . implode(',', $points) . ')';
+        return '(' . \implode(',', $points) . ')';
     }
 
     public function dimensions(): int

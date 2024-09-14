@@ -79,7 +79,7 @@ SQL
         $res = self::$conn->execute("select * from test_result where one = 1");
         $this->assertEquals(['one' => 1, 'two' => 'foo', 'three' => 'first value of foo'], $res[0]);
 
-        $res->setMode(PGSQL_NUM);
+        $res->setMode(\PGSQL_NUM);
         $this->assertEquals([1, 'foo', 'first value of foo'], $res[0]);
     }
 
@@ -143,7 +143,7 @@ SQL
                 ['one' => 7, 'two' => 'bar'],
                 ['one' => 9, 'two' => 'baz']
             ],
-            $res->fetchAll(PGSQL_ASSOC)
+            $res->fetchAll(\PGSQL_ASSOC)
         );
 
         $this->assertEquals(
@@ -151,7 +151,7 @@ SQL
                 [7, 'bar'],
                 [9, 'baz']
             ],
-            $res->fetchAll(PGSQL_NUM)
+            $res->fetchAll(\PGSQL_NUM)
         );
     }
 
@@ -174,7 +174,7 @@ SQL
                 5 => ['bar'],
                 7 => ['bar']
             ],
-            $res->fetchAll(PGSQL_NUM, 'one', true)
+            $res->fetchAll(\PGSQL_NUM, 'one', true)
         );
 
         $this->assertEquals(
@@ -197,7 +197,7 @@ SQL
                 7 => ['bar', 'second value of bar'],
                 9 => ['baz', 'only value of baz']
             ],
-            $res->fetchAll(PGSQL_NUM, 'one')
+            $res->fetchAll(\PGSQL_NUM, 'one')
         );
 
         $this->assertEquals(
@@ -213,7 +213,7 @@ SQL
                     ['one' => 9, 'three' => 'only value of baz']
                 ]
             ],
-            $res->fetchAll(PGSQL_ASSOC, 1, false, true)
+            $res->fetchAll(\PGSQL_ASSOC, 1, false, true)
         );
     }
 

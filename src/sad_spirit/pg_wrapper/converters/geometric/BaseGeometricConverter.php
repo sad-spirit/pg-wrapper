@@ -54,9 +54,9 @@ abstract class BaseGeometricConverter extends ContainerConverter
      */
     protected function countPoints(string $native): int
     {
-        $commas = substr_count($native, ',');
+        $commas = \substr_count($native, ',');
         if ($commas % 2) {
-            return intval(($commas + 1) / 2);
+            return \intval(($commas + 1) / 2);
         } else {
             throw TypeConversionException::unexpectedValue($this, 'input', 'even number of numeric values', $native);
         }
@@ -92,7 +92,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
 
         } elseif ('(' === $char) {
             $nextPos = $pos + 1;
-            if ($pos === strrpos($native, '(') || '(' === $this->nextChar($native, $nextPos)) {
+            if ($pos === \strrpos($native, '(') || '(' === $this->nextChar($native, $nextPos)) {
                 $hasDelimiters = true;
                 $pos++;
             }

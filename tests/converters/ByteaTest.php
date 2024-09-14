@@ -61,7 +61,7 @@ class ByteaTest extends TestCase
     public function testCastFrom(?string $native, $value): void
     {
         if ($value instanceof \Throwable) {
-            $this->expectException(get_class($value));
+            $this->expectException(\get_class($value));
         }
         $this->assertEquals($value, $this->caster->input($native));
     }

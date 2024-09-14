@@ -31,22 +31,22 @@ class TimeStampTzConverter extends BaseDateTimeConverter
 
     protected function getFormats(string $style): array
     {
-        [$output, $order] = array_map('trim', explode(',', $style));
+        [$output, $order] = \array_map('trim', \explode(',', $style));
 
-        if (0 === strcasecmp('ISO', $output)) {
+        if (0 === \strcasecmp('ISO', $output)) {
             return ['Y-m-d H:i:s.uO', 'Y-m-d H:i:sO'];
 
-        } elseif (0 === strcasecmp('Postgres', $output)) {
-            return 0 === strcasecmp('DMY', $order)
+        } elseif (0 === \strcasecmp('Postgres', $output)) {
+            return 0 === \strcasecmp('DMY', $order)
                    ? ['* d M H:i:s.u Y T', '* d M H:i:s Y T']
                    : ['* M d H:i:s.u Y T', '* M d H:i:s Y T'];
 
-        } elseif (0 === strcasecmp('SQL', $output)) {
-            return 0 === strcasecmp('DMY', $order)
+        } elseif (0 === \strcasecmp('SQL', $output)) {
+            return 0 === \strcasecmp('DMY', $order)
                    ? ['d/m/Y H:i:s.u T', 'd/m/Y H:i:s T']
                    : ['m/d/Y H:i:s.u T', 'm/d/Y H:i:s T'];
 
-        } elseif (0 === strcasecmp('German', $output)) {
+        } elseif (0 === \strcasecmp('German', $output)) {
             return ['d.m.Y H:i:s.u T', 'd.m.Y H:i:s T'];
         }
 

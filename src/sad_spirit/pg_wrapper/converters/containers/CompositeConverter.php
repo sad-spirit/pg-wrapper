@@ -64,17 +64,17 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
      */
     public function __construct(array $items)
     {
-        if (0 === count($items)) {
+        if (0 === \count($items)) {
             throw new InvalidArgumentException(
                 __CLASS__ . " expects an array of TypeConverter instances, empty array given"
             );
         }
         foreach ($items as $field => $item) {
             if (!$item instanceof TypeConverter) {
-                throw new InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(\sprintf(
                     "%s expects an array of TypeConverter instances, '%s' given for index '%s'",
                     __CLASS__,
-                    is_object($item) ? get_class($item) : gettype($item),
+                    \is_object($item) ? \get_class($item) : \gettype($item),
                     $field
                 ));
             }
@@ -103,17 +103,17 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
 
     protected function outputNotNull($value): string
     {
-        if (is_object($value)) {
+        if (\is_object($value)) {
             $value = (array)$value;
-        } elseif (!is_array($value)) {
+        } elseif (!\is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array or object', $value);
         }
         $parts = [];
         foreach ($this->items as $field => $type) {
             $v       = $type->output($value[$field] ?? null);
-            $parts[] = ($v === null) ? '' : ('"' . strtr($v, self::ESCAPES) . '"');
+            $parts[] = ($v === null) ? '' : ('"' . \strtr($v, self::ESCAPES) . '"');
         }
-        return '(' . implode(',', $parts) . ')';
+        return '(' . \implode(',', $parts) . ')';
     }
 
     protected function parseInput(string $native, int &$pos): array
@@ -136,17 +136,17 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
                     break;
 
                 case '"': // Quoted string.
-                    if (!preg_match('/"((?>[^"]+|"")*)"/As', $native, $m, 0, $pos)) {
+                    if (!\preg_match('/"((?>[^"]+|"")*)"/As', $native, $m, 0, $pos)) {
                         throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                     }
-                    $result[$field]  = $type->input(strtr($m[1], self::UNESCAPES));
-                    $pos            += strlen($m[0]);
+                    $result[$field]  = $type->input(\strtr($m[1], self::UNESCAPES));
+                    $pos            += \strlen($m[0]);
                     $char            = $this->nextChar($native, $pos);
                     break;
 
                 default: // Unquoted string.
-                    $len             = strcspn($native, ',)', $pos);
-                    $result[$field]  = $type->input(substr($native, $pos, $len));
+                    $len             = \strcspn($native, ',)', $pos);
+                    $result[$field]  = $type->input(\substr($native, $pos, $len));
                     $pos            += $len;
                     $char            = $this->nextChar($native, $pos);
                     break;

@@ -34,10 +34,10 @@ class JSONConverter extends BaseConverter
     {
         // Postgres stores numbers in JSON as values of "numeric" type, not "float"
         // To prevent loss of precision we should (try to) return these as strings
-        $result = json_decode($native, true, 512, JSON_BIGINT_AS_STRING);
+        $result = \json_decode($native, true, 512, \JSON_BIGINT_AS_STRING);
 
-        if (null === $result && ($code = json_last_error())) {
-            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, json_last_error_msg()));
+        if (null === $result && ($code = \json_last_error())) {
+            throw new TypeConversionException(\sprintf('%s(): %s', __METHOD__, \json_last_error_msg()));
         }
 
         return $result;
@@ -45,10 +45,10 @@ class JSONConverter extends BaseConverter
 
     protected function outputNotNull($value): string
     {
-        $result = json_encode($value);
+        $result = \json_encode($value);
 
         if (false === $result) {
-            throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, json_last_error_msg()));
+            throw new TypeConversionException(\sprintf('%s(): %s', __METHOD__, \json_last_error_msg()));
         }
 
         return $result;

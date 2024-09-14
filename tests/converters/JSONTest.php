@@ -77,8 +77,8 @@ class JSONTest extends TypeConverterTestCase
 
         return [
             [new TypeConversionException(), $foo],
-            [new TypeConversionException(), fopen(__DIR__ . '/TypeConverterTestCase.php', 'rb')],
-            [new TypeConversionException(), [NAN]]
+            [new TypeConversionException(), \fopen(__DIR__ . '/TypeConverterTestCase.php', 'rb')],
+            [new TypeConversionException(), [\NAN]]
         ];
     }
 }

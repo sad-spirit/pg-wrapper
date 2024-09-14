@@ -38,7 +38,7 @@ class BoxConverter extends BaseGeometricConverter implements CustomArrayDelimite
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Box::createFromArray($value);
         } elseif (!($value instanceof Box)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Box or an array', $value);

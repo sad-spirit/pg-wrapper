@@ -44,8 +44,8 @@ class TypeConversionException extends \DomainException implements Exception
     public static function parsingFailed(TypeConverter $converter, string $expected, string $given, int $position): self
     {
         return new self(
-            get_class($converter) . '::input(): error parsing database value: unexpected input '
-            . "'" . substr_replace($given, ">>HERE>>", $position, 0) . "' at position {$position}"
+            \get_class($converter) . '::input(): error parsing database value: unexpected input '
+            . "'" . \substr_replace($given, ">>HERE>>", $position, 0) . "' at position {$position}"
             . ", expecting {$expected}"
         );
     }
@@ -62,7 +62,7 @@ class TypeConversionException extends \DomainException implements Exception
     public static function unexpectedValue(TypeConverter $converter, string $method, string $expected, $given): self
     {
         return new self(
-            get_class($converter) . '::' . $method . '(): unexpected '
+            \get_class($converter) . '::' . $method . '(): unexpected '
             . self::stringify($given) . ', expecting ' . $expected
         );
     }

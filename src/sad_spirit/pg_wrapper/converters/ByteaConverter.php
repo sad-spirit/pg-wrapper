@@ -33,8 +33,8 @@ class ByteaConverter extends BaseConverter
 {
     protected function inputNotNull(string $native)
     {
-        if ('\x' !== substr($native, 0, 2)) {
-            return pg_unescape_bytea($native);
+        if ('\x' !== \substr($native, 0, 2)) {
+            return \pg_unescape_bytea($native);
 
         } else {
             // http://www.postgresql.org/docs/current/interactive/datatype-binary.html says:
@@ -45,13 +45,13 @@ class ByteaConverter extends BaseConverter
             $warning = '';
             $result  = '';
             $start   = 2;
-            $length  = strlen($native);
+            $length  = \strlen($native);
             while ($start < $length) {
-                $start += strspn($native, " \n\r\t", $start);
-                $hexes  = strcspn($native, " \n\r\t", $start);
+                $start += \strspn($native, " \n\r\t", $start);
+                $hexes  = \strcspn($native, " \n\r\t", $start);
                 if ($hexes > 0) {
                     if ($hexes % 2) {
-                        throw new TypeConversionException(sprintf(
+                        throw new TypeConversionException(\sprintf(
                             '%s(): expecting even number of hex digits, %d hex digit(s) found',
                             __METHOD__,
                             $hexes
@@ -59,16 +59,16 @@ class ByteaConverter extends BaseConverter
                     }
 
                     // pack() throws a warning, but returns a string nonetheless, so use warnings handler
-                    set_error_handler(function ($errno, $errstr) use (&$warning) {
+                    \set_error_handler(function ($errno, $errstr) use (&$warning) {
                         $warning = $errstr;
                         return true;
-                    }, E_WARNING);
-                    $result .= pack('H*', substr($native, $start, $hexes));
+                    }, \E_WARNING);
+                    $result .= \pack('H*', \substr($native, $start, $hexes));
                     $start  += $hexes;
-                    restore_error_handler();
+                    \restore_error_handler();
 
                     if ($warning) {
-                        throw new TypeConversionException(sprintf('%s(): %s', __METHOD__, $warning));
+                        throw new TypeConversionException(\sprintf('%s(): %s', __METHOD__, $warning));
                     }
                 }
             }
@@ -87,11 +87,11 @@ class ByteaConverter extends BaseConverter
      */
     protected function outputNotNull($value): string
     {
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'string', $value);
         }
 
-        [, $encoded] = unpack('H*', $value);
+        [, $encoded] = \unpack('H*', $value);
         return '\x' . $encoded;
     }
 }

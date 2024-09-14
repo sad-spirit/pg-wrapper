@@ -49,7 +49,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      */
     public function offsetExists($offset): bool
     {
-        return array_key_exists($offset, $this->points);
+        return \array_key_exists($offset, $this->points);
     }
 
     /**
@@ -58,7 +58,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      */
     public function offsetGet($offset): Point
     {
-        if (array_key_exists($offset, $this->points)) {
+        if (\array_key_exists($offset, $this->points)) {
             return $this->points[$offset];
         }
 
@@ -99,7 +99,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      */
     public function count(): int
     {
-        return count($this->points);
+        return \count($this->points);
     }
 
     /**
@@ -112,13 +112,13 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
     {
         $points = [];
         foreach ($input as $point) {
-            if (is_array($point)) {
+            if (\is_array($point)) {
                 $point = Point::createFromArray($point);
             } elseif (!$point instanceof Point) {
-                throw new InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(\sprintf(
                     "%s() expects an array containing Points or arrays convertible to Point, %s found",
                     __METHOD__,
-                    is_object($point) ? 'object(' . get_class($point) . ')' : gettype($point)
+                    \is_object($point) ? 'object(' . \get_class($point) . ')' : \gettype($point)
                 ));
             }
             $points[] = $point;

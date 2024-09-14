@@ -55,14 +55,14 @@ final readonly class Point implements ArrayRepresentable, \JsonSerializable
      */
     public static function createFromArray(array $input): self
     {
-        if (2 !== count($input)) {
+        if (2 !== \count($input)) {
             throw new InvalidArgumentException(
-                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+                \sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );
         }
-        if (array_key_exists('x', $input) && array_key_exists('y', $input)) {
+        if (\array_key_exists('x', $input) && \array_key_exists('y', $input)) {
             return new self($input['x'], $input['y']);
         }
-        return new self(array_shift($input), array_shift($input));
+        return new self(\array_shift($input), \array_shift($input));
     }
 }

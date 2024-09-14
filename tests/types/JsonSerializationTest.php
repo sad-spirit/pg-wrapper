@@ -52,7 +52,7 @@ class JsonSerializationTest extends TestCase
     {
         $this::assertEquals(
             $object,
-            $object::createFromArray(json_decode(json_encode($object), true))
+            $object::createFromArray(\json_decode(\json_encode($object), true))
         );
     }
 

@@ -189,7 +189,7 @@ class PreparedStatement
         }
 
         $this->queryId = 'statement' . ++self::$statementIdx;
-        if (!@pg_prepare($this->connection->getNative(), $this->queryId, $this->query)) {
+        if (!@\pg_prepare($this->connection->getNative(), $this->queryId, $this->query)) {
             throw exceptions\ServerException::fromConnection($this->connection);
         }
 
@@ -397,7 +397,7 @@ class PreparedStatement
     {
         if ([] === $array) {
             return null;
-        } elseif (function_exists('array_key_last')) {
+        } elseif (\function_exists('array_key_last')) {
             return \array_key_last($array);
         } else {
             return \key(\array_slice($array, -1, 1, true));
@@ -464,7 +464,7 @@ class PreparedStatement
         }
         $this->connection->assertRollbackNotNeeded();
 
-        ksort($this->values);
+        \ksort($this->values);
         $this->assertArrayKeysMatchPlaceholders($this->values, 'Bound values');
 
         $stringParams = [];
@@ -479,7 +479,7 @@ class PreparedStatement
         }
 
         return Result::createFromReturnValue(
-            @pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
+            @\pg_execute($this->connection->getNative(), $this->queryId, $stringParams),
             $this->connection,
             $this->resultTypes
         );
@@ -512,7 +512,7 @@ class PreparedStatement
         }
         $this->connection->assertRollbackNotNeeded();
 
-        ksort($params);
+        \ksort($params);
         $this->assertArrayKeysMatchPlaceholders($params, 'Keys of $params');
 
         $stringParams = [];

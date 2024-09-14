@@ -33,23 +33,23 @@ trait Stringifier
      */
     protected static function stringify($value): string
     {
-        if (is_object($value)) {
-            return 'Object(' . get_class($value) . ')';
+        if (\is_object($value)) {
+            return 'Object(' . \get_class($value) . ')';
 
-        } elseif (is_array($value)) {
+        } elseif (\is_array($value)) {
             $strings = [];
             foreach ($value as $k => $v) {
-                $strings[] = sprintf('%s => %s', $k, self::stringify($v));
+                $strings[] = \sprintf('%s => %s', $k, self::stringify($v));
             }
-            return 'Array(' . implode(', ', $strings) . ')';
+            return 'Array(' . \implode(', ', $strings) . ')';
 
-        } elseif (is_resource($value)) {
-            return 'Resource (' . get_resource_type($value) . ')';
+        } elseif (\is_resource($value)) {
+            return 'Resource (' . \get_resource_type($value) . ')';
 
-        } elseif (is_null($value)) {
+        } elseif (\is_null($value)) {
             return 'null';
 
-        } elseif (is_bool($value)) {
+        } elseif (\is_bool($value)) {
             return $value ? 'true' : 'false';
         }
 

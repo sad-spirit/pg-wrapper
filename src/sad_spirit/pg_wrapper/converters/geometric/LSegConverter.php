@@ -37,7 +37,7 @@ class LSegConverter extends BaseGeometricConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = LineSegment::createFromArray($value);
         } elseif (!($value instanceof LineSegment)) {
             throw TypeConversionException::unexpectedValue(

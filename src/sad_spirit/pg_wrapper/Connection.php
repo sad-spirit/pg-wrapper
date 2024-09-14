@@ -128,7 +128,7 @@ class Connection
      */
     public function __construct(string $connectionString, bool $lazy = true)
     {
-        if (!function_exists('pg_connect')) {
+        if (!\function_exists('pg_connect')) {
             throw new exceptions\RuntimeException("PHP's pgsql extension should be enabled");
         }
         $this->connectionString = $connectionString;
@@ -171,29 +171,29 @@ class Connection
         }
 
         $connectionWarnings = [];
-        set_error_handler(function (int $errno, string $errstr) use (&$connectionWarnings) {
+        \set_error_handler(function (int $errno, string $errstr) use (&$connectionWarnings) {
             $connectionWarnings[] = $errstr;
             return true;
-        }, E_WARNING);
+        }, \E_WARNING);
 
-        $native = pg_connect($this->connectionString, PGSQL_CONNECT_FORCE_NEW);
+        $native = \pg_connect($this->connectionString, \PGSQL_CONNECT_FORCE_NEW);
 
-        restore_error_handler();
+        \restore_error_handler();
         if (false === $native) {
             throw new exceptions\ConnectionException(
-                __METHOD__ . ': ' . implode("\n", $connectionWarnings)
+                __METHOD__ . ': ' . \implode("\n", $connectionWarnings)
             );
         }
         $this->native  = $native;
-        $serverVersion = pg_parameter_status($this->native, 'server_version');
-        if (!$serverVersion || version_compare($serverVersion, '9.3', '<')) {
+        $serverVersion = \pg_parameter_status($this->native, 'server_version');
+        if (!$serverVersion || \version_compare($serverVersion, '9.3', '<')) {
             $this->disconnect();
             throw new exceptions\ConnectionException(
                 __METHOD__ . ': PostgreSQL versions earlier than 9.3 are no longer supported, '
                 . 'connected server reports ' . ($serverVersion ? 'version ' . $serverVersion : 'unknown version')
             );
         }
-        pg_set_error_verbosity($this->native, PGSQL_ERRORS_VERBOSE);
+        \pg_set_error_verbosity($this->native, \PGSQL_ERRORS_VERBOSE);
 
         $this->resetTransactionState();
 
@@ -207,7 +207,7 @@ class Connection
     {
         if (null !== $this->native) {
             try {
-                pg_close($this->native);
+                \pg_close($this->native);
             } catch (\Throwable $e) {
             }
         }
@@ -289,7 +289,7 @@ class Connection
      */
     public function getConnectionId(): string
     {
-        return 'pg' . sprintf('%x', crc32(get_class($this) . ' ' . $this->connectionString));
+        return 'pg' . \sprintf('%x', \crc32(\get_class($this) . ' ' . $this->connectionString));
     }
 
     /**
@@ -311,7 +311,7 @@ class Connection
         $converted = null !== $type
                      ? $this->getTypeConverter($type)->output($value)
                      : $this->getTypeConverterFactory()->getConverterForPHPValue($value)->output($value);
-        $escaped   = null === $converted ? 'NULL' : @pg_escape_literal($native, $converted);
+        $escaped   = null === $converted ? 'NULL' : @\pg_escape_literal($native, $converted);
 
         // PHP docs and psalm claim that pg_escape_literal() cannot return false,
         // phpstan and source of ext/pgsql think otherwise; let's take the side of caution
@@ -332,7 +332,7 @@ class Connection
     {
         // PHP docs and psalm claim that pg_escape_identifier() cannot return false,
         // phpstan and source of ext/pgsql think otherwise; let's take the side of caution
-        if (false !== ($escaped = @pg_escape_identifier($this->getNative(), $identifier))) {
+        if (false !== ($escaped = @\pg_escape_identifier($this->getNative(), $identifier))) {
             return $escaped;
         } else {
             throw new exceptions\RuntimeException(__METHOD__ . "(): pg_escape_identifier() call failed");
@@ -370,7 +370,7 @@ class Connection
     {
         $this->assertRollbackNotNeeded();
         return Result::createFromReturnValue(
-            @pg_query($this->getNative(), $sql),
+            @\pg_query($this->getNative(), $sql),
             $this,
             $resultTypes
         );
@@ -404,7 +404,7 @@ class Connection
         }
 
         return Result::createFromReturnValue(
-            @pg_query_params($native, $sql, $stringParams),
+            @\pg_query_params($native, $sql, $stringParams),
             $this,
             $resultTypes
         );
@@ -591,11 +591,11 @@ class Connection
 
         $this->execute('ROLLBACK TO SAVEPOINT ' . $savepoint);
 
-        $this->onCommitCallbacks = array_filter($this->onCommitCallbacks, function ($value) use ($savepoint) {
-            return !in_array($savepoint, $value[0]);
+        $this->onCommitCallbacks = \array_filter($this->onCommitCallbacks, function ($value) use ($savepoint) {
+            return !\in_array($savepoint, $value[0]);
         });
-        array_walk($this->onRollbackCallbacks, function (array &$value) use ($savepoint) {
-            if (in_array($savepoint, $value[0])) {
+        \array_walk($this->onRollbackCallbacks, function (array &$value) use ($savepoint) {
+            if (\in_array($savepoint, $value[0])) {
                 $value[2] = true;
             }
         });
@@ -610,9 +610,9 @@ class Connection
      */
     public function inTransaction(): bool
     {
-        $status = pg_transaction_status($this->getNative());
+        $status = \pg_transaction_status($this->getNative());
 
-        return PGSQL_TRANSACTION_INTRANS === $status || PGSQL_TRANSACTION_INERROR === $status;
+        return \PGSQL_TRANSACTION_INTRANS === $status || \PGSQL_TRANSACTION_INERROR === $status;
     }
 
     /**
@@ -670,7 +670,7 @@ class Connection
 
         } finally {
             if (!empty($this->savepointNames)) {
-                $savepointName  = array_pop($this->savepointNames);
+                $savepointName  = \array_pop($this->savepointNames);
             } else {
                 $this->inAtomic = false;
             }
@@ -727,7 +727,7 @@ class Connection
 
             } finally {
                 // Covers the case when outermost atomic() was entered with transaction already open
-                if (!empty($inTransaction) && 0 === count($this->savepointNames)) {
+                if (!empty($inTransaction) && 0 === \count($this->savepointNames)) {
                     $this->inAtomic = false;
                 }
                 // If disconnected from DB, run callbacks on exit from outermost atomic()
@@ -770,7 +770,7 @@ class Connection
             );
         }
         if (!$this->shutdownRegistered) {
-            register_shutdown_function(function () {
+            \register_shutdown_function(function () {
                 $this->runAndClearOnRollbackCallbacks();
             });
             $this->shutdownRegistered = true;
@@ -859,9 +859,9 @@ class Connection
      */
     private function runAndClearOnCommitCallbacks(): void
     {
-        $callbacks = array_merge(
+        $callbacks = \array_merge(
             $this->onCommitCallbacks,
-            array_filter($this->onRollbackCallbacks, function ($value) {
+            \array_filter($this->onRollbackCallbacks, function ($value) {
                 return $value[2];
             })
         );

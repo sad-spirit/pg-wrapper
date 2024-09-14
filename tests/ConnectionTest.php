@@ -59,15 +59,15 @@ class ConnectionTest extends TestCase
 
     public function testUndefinedPhpErrorMsg(): void
     {
-        set_error_handler(function ($errno, $errstr) {
+        \set_error_handler(function ($errno, $errstr) {
             return true;
-        }, E_WARNING);
+        }, \E_WARNING);
         try {
             $connection = new Connection('blah=blah duh=oh', false);
         } catch (ConnectionException $e) {
             $this->assertStringContainsString('invalid connection option', $e->getMessage());
         }
-        restore_error_handler();
+        \restore_error_handler();
     }
 
     public function testCanConnect(): void
@@ -91,7 +91,7 @@ class ConnectionTest extends TestCase
         $this::expectExceptionMessage('already been closed');
 
         unset($connection);
-        pg_connection_status($native);
+        \pg_connection_status($native);
     }
 
     public function testNoReconnectAfterManualDisconnect(): void

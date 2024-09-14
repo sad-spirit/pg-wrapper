@@ -37,18 +37,18 @@ class HstoreConverter extends ContainerConverter
 
     protected function outputNotNull($value): string
     {
-        if (is_object($value)) {
+        if (\is_object($value)) {
             $value = (array)$value;
-        } elseif (!is_array($value)) {
+        } elseif (!\is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array or object', $value);
         }
         $parts = [];
         foreach ($value as $key => $item) {
-            $parts[] =  '"' . addcslashes((string)$key, '"\\') . '"'
+            $parts[] =  '"' . \addcslashes((string)$key, '"\\') . '"'
                         . '=>'
-                        . (($item === null) ? 'NULL' : '"' . addcslashes((string)$item, '"\\') . '"');
+                        . (($item === null) ? 'NULL' : '"' . \addcslashes((string)$item, '"\\') . '"');
         }
-        return implode(', ', $parts);
+        return \implode(', ', $parts);
     }
 
     /**
@@ -61,11 +61,11 @@ class HstoreConverter extends ContainerConverter
      */
     private function readQuoted(string $string, int &$pos): string
     {
-        if (!preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
+        if (!\preg_match('/"((?>[^"\\\\]+|\\\\.)*)"/As', $string, $m, 0, $pos)) {
             throw TypeConversionException::parsingFailed($this, 'quoted string', $string, $pos);
         }
-        $pos += strlen($m[0]);
-        return stripcslashes($m[1]);
+        $pos += \strlen($m[0]);
+        return \stripcslashes($m[1]);
     }
 
     /**
@@ -79,10 +79,10 @@ class HstoreConverter extends ContainerConverter
      */
     private function readUnquoted(string $string, int &$pos, string $delimiter): string
     {
-        if (0 === ($length = strcspn($string, " \t\r\n" . $delimiter, $pos))) {
+        if (0 === ($length = \strcspn($string, " \t\r\n" . $delimiter, $pos))) {
             throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
         }
-        $value  = substr($string, $pos, $length);
+        $value  = \substr($string, $pos, $length);
         $pos   += $length;
 
         return $value;
@@ -100,7 +100,7 @@ class HstoreConverter extends ContainerConverter
         if ('"' === $string[$pos]) {
             return $this->readQuoted($string, $pos);
         } else {
-            return stripcslashes($this->readUnquoted($string, $pos, '='));
+            return \stripcslashes($this->readUnquoted($string, $pos, '='));
         }
     }
 
@@ -119,7 +119,7 @@ class HstoreConverter extends ContainerConverter
             return $this->readQuoted($string, $pos);
         } else {
             $value = $this->readUnquoted($string, $pos, ',');
-            return 0 === strcasecmp($value, 'NULL') ? null : stripcslashes($value);
+            return 0 === \strcasecmp($value, 'NULL') ? null : \stripcslashes($value);
         }
     }
 

@@ -28,6 +28,6 @@ class FloatConverter extends NumericConverter
     protected function inputNotNull(string $native)
     {
         $result = parent::inputNotNull($native);
-        return is_string($result) ? (float)$result : $result;
+        return \is_string($result) ? (float)$result : $result;
     }
 }

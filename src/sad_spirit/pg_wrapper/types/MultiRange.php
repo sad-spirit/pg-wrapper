@@ -60,7 +60,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
         foreach ($items as $item) {
             /** @psalm-suppress NoValue */
             if (!$item instanceof $rangeClass) {
-                throw new InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(\sprintf(
                     '%s can contain only instances of %s, instance of %s given',
                     __CLASS__,
                     $rangeClass,
@@ -148,7 +148,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
                 throw new InvalidArgumentException(\sprintf(
                     "%s() expects an array containing compatible Ranges or arrays convertible to Range, %s found",
                     __METHOD__,
-                    is_object($range) ? 'object(' . \get_class($range) . ')' : \gettype($range)
+                    \is_object($range) ? 'object(' . \get_class($range) . ')' : \gettype($range)
                 ));
             }
             $ranges[] = $range;
@@ -163,7 +163,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      */
     final public function jsonSerialize(): array
     {
-        return array_map(function (Range $item) {
+        return \array_map(function (Range $item) {
             return $item->jsonSerialize();
         }, $this->items);
     }

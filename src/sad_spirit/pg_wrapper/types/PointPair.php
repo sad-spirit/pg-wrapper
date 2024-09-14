@@ -55,22 +55,22 @@ abstract readonly class PointPair implements ArrayRepresentable, \JsonSerializab
      */
     public static function createFromArray(array $input): self
     {
-        if (2 !== count($input)) {
+        if (2 !== \count($input)) {
             throw new InvalidArgumentException(
-                sprintf("%s() expects an array with exactly two elements", __METHOD__)
+                \sprintf("%s() expects an array with exactly two elements", __METHOD__)
             );
         }
-        if (array_key_exists('start', $input) && array_key_exists('end', $input)) {
+        if (\array_key_exists('start', $input) && \array_key_exists('end', $input)) {
             $start = $input['start'];
             $end   = $input['end'];
         } else {
-            $start = array_shift($input);
-            $end   = array_shift($input);
+            $start = \array_shift($input);
+            $end   = \array_shift($input);
         }
-        if (is_array($start)) {
+        if (\is_array($start)) {
             $start = Point::createFromArray($start);
         }
-        if (is_array($end)) {
+        if (\is_array($end)) {
             $end = Point::createFromArray($end);
         }
         return new static($start, $end);
