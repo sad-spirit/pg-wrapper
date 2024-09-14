@@ -25,12 +25,12 @@ namespace sad_spirit\pg_wrapper\converters;
  */
 class StringConverter extends BaseConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): string
     {
         return $native;
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         return (string)$value;
     }

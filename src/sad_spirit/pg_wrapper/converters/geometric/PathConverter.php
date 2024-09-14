@@ -36,11 +36,11 @@ class PathConverter extends BaseGeometricConverter
         return new Path($usedSquare ?? false, ...$points);
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Path::createFromArray($value);
-        } elseif (!($value instanceof Path)) {
+        } elseif (!$value instanceof Path) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Path or an array', $value);
         }
 

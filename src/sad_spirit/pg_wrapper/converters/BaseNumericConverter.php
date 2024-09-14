@@ -30,10 +30,8 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
     public const REGEXP_INTEGER = '/^-?(?>0[bB](_?[01])+|0[oO](_?[0-7])+|0[xX](_?[0-9a-fA-F])+|\d(_?\d)*)$/';
     public const REGEXP_REAL    = '/^-?(\d(_?\d)*(\.(\d(_?\d)*)?)?|\.\d(_?\d)*)([Ee][-+]?\d(_?\d)*)?$/';
 
-    /** @var bool|null  */
-    private $allowNonDecimal = null;
-    /** @var Connection|null  */
-    private $connection = null;
+    private ?bool $allowNonDecimal = null;
+    private ?Connection $connection = null;
 
     public function __construct(?Connection $connection = null)
     {
@@ -57,8 +55,6 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
 
     /**
      * Returns whether converter accepts non-decimal numeric literals and underscores as digit separators
-     *
-     * @return bool
      */
     public function allowNonDecimalLiteralsAndUnderscores(): bool
     {

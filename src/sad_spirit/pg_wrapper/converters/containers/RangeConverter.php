@@ -41,29 +41,23 @@ use sad_spirit\pg_wrapper\converters\{
 class RangeConverter extends ContainerConverter implements ConnectionAware
 {
     /**
-     * Converter for the base type of the range
-     * @var TypeConverter
-     */
-    private $subtypeConverter;
-
-    /**
      * input() will return instances of this class
      * @var class-string<Range>
      */
-    protected $resultClass = Range::class;
+    protected string $resultClass = Range::class;
 
     /**
      * Constructor, sets converter for the base type
      *
      * @param TypeConverter $subtypeConverter
      */
-    public function __construct(TypeConverter $subtypeConverter)
-    {
-        $this->subtypeConverter = $subtypeConverter;
-
-        if ($subtypeConverter instanceof BaseNumericConverter) {
+    public function __construct(
+        /** Converter for the base type of the range */
+        private readonly TypeConverter $subtypeConverter
+    ) {
+        if ($this->subtypeConverter instanceof BaseNumericConverter) {
             $this->resultClass = NumericRange::class;
-        } elseif ($subtypeConverter instanceof BaseDateTimeConverter) {
+        } elseif ($this->subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeRange::class;
         }
     }
@@ -174,11 +168,11 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
         );
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = \call_user_func([$this->resultClass, 'createFromArray'], $value);
-        } elseif (!($value instanceof Range)) {
+        } elseif (!$value instanceof Range) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Range or an array', $value);
         }
         if ($value->empty) {

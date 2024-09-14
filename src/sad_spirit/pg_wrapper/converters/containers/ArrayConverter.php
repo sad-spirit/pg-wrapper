@@ -36,17 +36,11 @@ use sad_spirit\pg_wrapper\{
  */
 class ArrayConverter extends ContainerConverter implements ConnectionAware
 {
-    /**
-     * Base type for elements of the array
-     * @var TypeConverter
-     */
-    private $itemConverter;
+    /** Base type converter for elements of the array */
+    private readonly TypeConverter $itemConverter;
 
-    /**
-     * Delimiter for elements in string representation of an array
-     * @var string
-     */
-    private $delimiter = ',';
+    /** Delimiter for elements in string representation of an array */
+    private string $delimiter = ',';
 
     public function __construct(TypeConverter $itemConverter)
     {
@@ -64,8 +58,6 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      *
      * Return value is meaningless as Postgres arrays, by design, can have a variable number of
      * dimensions. As ArrayConverters cannot be nested this method is not actually called anywhere.
-     *
-     * @return int
      */
     public function dimensions(): int
     {
@@ -100,7 +92,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      * @return string
      * @throws TypeConversionException
      */
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (!\is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array', $value);
@@ -137,7 +129,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
             throw TypeConversionException::unexpectedValue(
                 $this,
                 'output',
-                "array with {$requiredCount} value(s)",
+                "array with $requiredCount value(s)",
                 $value
             );
         }
@@ -198,7 +190,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
                 try {
                     $this->itemConverter->output($value);
                     return $sizes;
-                } catch (PackageException $e) {
+                } catch (PackageException) {
                 }
             }
             \array_splice($sizes, -$this->itemConverter->dimensions());
@@ -233,7 +225,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
 
         do {
             // Postgres does not allow whitespace inside dimension specifications, neither should we
-            if (!\preg_match('/\[([+-]?\d+)(?::([+-]?\d+))?/As', $native, $m, 0, $pos)) {
+            if (!\preg_match('/\[([+-]?\d+)(?::([+-]?\d+))?/A', $native, $m, 0, $pos)) {
                 throw TypeConversionException::parsingFailed(
                     $this,
                     "array bounds after '['",
@@ -302,7 +294,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
             // require a delimiter between elements
             if ([] !== $result) {
                 if ($this->delimiter !== $char) {
-                    throw TypeConversionException::parsingFailed($this, "'{$this->delimiter}'", $native, $pos);
+                    throw TypeConversionException::parsingFailed($this, "'$this->delimiter'", $native, $pos);
                 }
                 $pos++;
                 $char = $this->nextChar($native, $pos);

@@ -84,8 +84,7 @@ class IntervalConverter extends BaseConverter
         'yrs'       => 'y'
     ];
 
-    /** @var DateInterval */
-    private $intervalPrototype;
+    private readonly DateInterval $intervalPrototype;
 
     public function __construct()
     {
@@ -105,7 +104,7 @@ class IntervalConverter extends BaseConverter
         $parts = \explode(':', $token);
 
         if (2 === \count($parts)) {
-            if (false === \strpos($parts[1], '.')) {
+            if (!\str_contains($parts[1], '.')) {
                 // treat as hours to minutes
                 $parts[] = '0';
             } else {
@@ -337,7 +336,7 @@ class IntervalConverter extends BaseConverter
         return $interval;
     }
 
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): DateInterval
     {
         if ('' === ($native = \trim($native))) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
@@ -346,13 +345,13 @@ class IntervalConverter extends BaseConverter
             return $this->createInterval($this->tokenize($native));
 
         } else {
-            if (false === \strpos($native, '-') && false === \strpos($native, '.')) {
+            if (!\str_contains($native, '-') && !\str_contains($native, '.')) {
                 // DateInterval in PHP 7.2+ supports fractional seconds, but still cannot parse them:
                 // https://bugs.php.net/bug.php?id=53831
                 // No minuses or dots -> built-in constructor can probably handle
                 try {
                     return new DateInterval($native);
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     // croaked; let our own parsing function work and throw an Exception
                 }
             }
@@ -371,7 +370,7 @@ class IntervalConverter extends BaseConverter
      * @return string
      * @throws TypeConversionException if $value is of unexpected type
      */
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_string($value)) {
             return $value;

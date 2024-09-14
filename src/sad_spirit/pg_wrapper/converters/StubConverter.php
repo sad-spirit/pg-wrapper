@@ -33,7 +33,7 @@ class StubConverter implements TypeConverter
     /**
      * {@inheritdoc}
      */
-    public function output($value): ?string
+    public function output(mixed $value): ?string
     {
         return null === $value ? null : (string)$value;
     }
@@ -41,7 +41,7 @@ class StubConverter implements TypeConverter
     /**
      * {@inheritdoc}
      */
-    public function input(?string $native)
+    public function input(?string $native): ?string
     {
         return $native;
     }

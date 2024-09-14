@@ -32,7 +32,7 @@ interface TypeConverter
      * @return string|null
      * @throws exceptions\TypeConversionException if converter doesn't know how to process $value
      */
-    public function output($value): ?string;
+    public function output(mixed $value): ?string;
 
     /**
      * Parses a native value into PHP variable
@@ -41,8 +41,7 @@ interface TypeConverter
      * @return mixed
      * @throws exceptions\TypeConversionException if converter cannot parse the incoming string
      */
-    public function input(?string $native);
-
+    public function input(?string $native): mixed;
 
     /**
      * Number of array dimensions for PHP variable

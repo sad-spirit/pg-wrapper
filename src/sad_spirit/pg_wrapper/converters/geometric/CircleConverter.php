@@ -31,11 +31,8 @@ use sad_spirit\pg_wrapper\{
  */
 class CircleConverter extends BaseGeometricConverter
 {
-    /**
-     * Converter for circle's radius
-     * @var FloatConverter
-     */
-    private $floatConverter;
+    /** Converter for circle's radius */
+    private readonly FloatConverter $floatConverter;
 
     public function __construct()
     {
@@ -74,11 +71,11 @@ class CircleConverter extends BaseGeometricConverter
         return new Circle($center, $this->floatConverter->input($radius));
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Circle::createFromArray($value);
-        } elseif (!($value instanceof Circle)) {
+        } elseif (!$value instanceof Circle) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Circle or an array', $value);
         }
         return '<' . $this->point->output($value->center) . ',' . $this->floatConverter->output($value->radius) . '>';

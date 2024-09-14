@@ -27,7 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 abstract class ContainerConverter extends BaseConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): mixed
     {
         $pos   = 0;
         $value = $this->parseInput($native, $pos);
@@ -39,10 +39,6 @@ abstract class ContainerConverter extends BaseConverter
 
     /**
      * Parses a native value into PHP variable from given position
-     *
-     * @param string $native
-     * @param int    $pos
-     * @return mixed
      */
-    abstract protected function parseInput(string $native, int &$pos);
+    abstract protected function parseInput(string $native, int &$pos): mixed;
 }

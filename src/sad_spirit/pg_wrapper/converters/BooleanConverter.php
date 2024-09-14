@@ -25,13 +25,13 @@ namespace sad_spirit\pg_wrapper\converters;
  */
 class BooleanConverter extends BaseConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): bool
     {
         $native = \trim($native);
         return !($native === 'false' || $native === 'f' || $native === '0' || $native === '');
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         return (!$value || $value === 'false' || $value === 'f') ? 'f' : 't';
     }

@@ -32,26 +32,26 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class IntegerVectorConverter extends ContainerConverter
 {
-    /** @var IntegerConverter */
-    private $integerConverter;
+    private readonly IntegerConverter $integerConverter;
 
     public function __construct()
     {
         $this->integerConverter = new IntegerConverter();
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (!\is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array', $value);
         }
 
-        return \implode(' ', \array_map(function ($v) {
-            return $this->integerConverter->outputNotNull($v);
-        }, $value));
+        return \implode(' ', \array_map(fn($v) => $this->integerConverter->outputNotNull($v), $value));
     }
 
-    protected function parseInput(string $native, int &$pos)
+    /**
+     * @return array<int|numeric-string>
+     */
+    protected function parseInput(string $native, int &$pos): array
     {
         $values = [];
 

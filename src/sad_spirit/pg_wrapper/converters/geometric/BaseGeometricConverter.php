@@ -31,11 +31,8 @@ use sad_spirit\pg_wrapper\{
  */
 abstract class BaseGeometricConverter extends ContainerConverter
 {
-    /**
-     * Point instance used to parse input and build output
-     * @var PointConverter
-     */
-    protected $point;
+    /** Point instance used to parse input and build output */
+    protected readonly PointConverter $point;
 
     /**
      * Constructor, sets the Point instance used for input and output

@@ -27,7 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class IntegerConverter extends BaseNumericConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): int|string
     {
         $native = \trim($native);
         if (!\ctype_digit($native) && !\preg_match('/^-\d+$/', $native)) {
@@ -44,7 +44,7 @@ class IntegerConverter extends BaseNumericConverter
         }
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_numeric($value)) {
             return (string)$value;

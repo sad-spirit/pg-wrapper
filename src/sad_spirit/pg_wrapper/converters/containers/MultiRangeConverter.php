@@ -41,29 +41,23 @@ use sad_spirit\pg_wrapper\TypeConverter;
 class MultiRangeConverter extends ContainerConverter implements ConnectionAware
 {
     /**
-     * Converter for the base type of the multirange
-     * @var TypeConverter
-     */
-    private $subtypeConverter;
-
-    /**
      * input() will return instances of this class
      * @var class-string<MultiRange>
      */
-    protected $resultClass = MultiRange::class;
+    protected string $resultClass = MultiRange::class;
 
     /**
      * Constructor, sets converter for the base type
      *
      * @param TypeConverter $subtypeConverter
      */
-    public function __construct(TypeConverter $subtypeConverter)
-    {
-        $this->subtypeConverter = $subtypeConverter;
-
-        if ($subtypeConverter instanceof BaseNumericConverter) {
+    public function __construct(
+        /** Converter for the base type of the multirange */
+        private readonly TypeConverter $subtypeConverter
+    ) {
+        if ($this->subtypeConverter instanceof BaseNumericConverter) {
             $this->resultClass = NumericMultiRange::class;
-        } elseif ($subtypeConverter instanceof BaseDateTimeConverter) {
+        } elseif ($this->subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeMultiRange::class;
         }
     }
@@ -80,7 +74,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
         }
     }
 
-    protected function parseInput(string $native, int &$pos)
+    protected function parseInput(string $native, int &$pos): mixed
     {
         $ranges    = [];
         $converter = new RangeConverter($this->subtypeConverter);
@@ -102,7 +96,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
         return new $this->resultClass(...$ranges);
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = \call_user_func([$this->resultClass, 'createFromArray'], $value);

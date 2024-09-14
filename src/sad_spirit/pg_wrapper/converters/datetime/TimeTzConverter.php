@@ -34,7 +34,7 @@ class TimeTzConverter extends BaseDateTimeConverter
         return ['H:i:s.uO', 'H:i:sO'];
     }
 
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): \DateTimeImmutable
     {
         foreach ($this->getFormats(self::DEFAULT_STYLE) as $format) {
             if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {

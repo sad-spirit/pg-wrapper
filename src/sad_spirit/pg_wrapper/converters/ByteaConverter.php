@@ -31,9 +31,9 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class ByteaConverter extends BaseConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): string
     {
-        if ('\x' !== \substr($native, 0, 2)) {
+        if (!\str_starts_with($native, '\x')) {
             return \pg_unescape_bytea($native);
 
         } else {
@@ -59,7 +59,7 @@ class ByteaConverter extends BaseConverter
                     }
 
                     // pack() throws a warning, but returns a string nonetheless, so use warnings handler
-                    \set_error_handler(function ($errno, $errstr) use (&$warning) {
+                    \set_error_handler(function ($errno, $errstr) use (&$warning): true {
                         $warning = $errstr;
                         return true;
                     }, \E_WARNING);
@@ -85,7 +85,7 @@ class ByteaConverter extends BaseConverter
      * @return string
      * @throws TypeConversionException if $value is not a string
      */
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (!\is_string($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'string', $value);

@@ -30,18 +30,15 @@ use sad_spirit\pg_wrapper\{
  */
 class TidConverter extends ContainerConverter
 {
-    /**
-     * Converter for numbers within Tid
-     * @var IntegerConverter
-     */
-    private $integerConverter;
+    /** Converter for numbers within Tid */
+    private readonly IntegerConverter $integerConverter;
 
     public function __construct()
     {
         $this->integerConverter = new IntegerConverter();
     }
 
-    protected function parseInput(string $native, int &$pos)
+    protected function parseInput(string $native, int &$pos): Tid
     {
         $this->expectChar($native, $pos, '(');
 
@@ -60,14 +57,13 @@ class TidConverter extends ContainerConverter
         return new Tid($this->integerConverter->input($blockNumber), $this->integerConverter->input($offset));
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Tid::createFromArray($value);
-        } elseif (!($value instanceof Tid)) {
+        } elseif (!$value instanceof Tid) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Tid or an array', $value);
         }
-        /* @var $value Tid */
         return \sprintf('(%d,%d)', $value->block, $value->tuple);
     }
 

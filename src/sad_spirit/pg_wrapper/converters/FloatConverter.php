@@ -25,7 +25,7 @@ namespace sad_spirit\pg_wrapper\converters;
  */
 class FloatConverter extends NumericConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): string|float
     {
         $result = parent::inputNotNull($native);
         return \is_string($result) ? (float)$result : $result;

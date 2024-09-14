@@ -38,7 +38,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
      * Converters for fields within composite type
      * @var TypeConverter[]
      */
-    private $items = [];
+    private array $items = [];
 
     /**
      * Unlike hstore and array, composite types use doubled "" for escaping "
@@ -66,15 +66,15 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
     {
         if (0 === \count($items)) {
             throw new InvalidArgumentException(
-                __CLASS__ . " expects an array of TypeConverter instances, empty array given"
+                self::class . " expects an array of TypeConverter instances, empty array given"
             );
         }
         foreach ($items as $field => $item) {
             if (!$item instanceof TypeConverter) {
                 throw new InvalidArgumentException(\sprintf(
                     "%s expects an array of TypeConverter instances, '%s' given for index '%s'",
-                    __CLASS__,
-                    \is_object($item) ? \get_class($item) : \gettype($item),
+                    self::class,
+                    get_debug_type($item),
                     $field
                 ));
             }
@@ -101,7 +101,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
         }
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_object($value)) {
             $value = (array)$value;
@@ -126,7 +126,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
         foreach ($this->items as $field => $type) {
             if ($closing) {
                 // point error at preceding ')'
-                throw TypeConversionException::parsingFailed($this, "value for '{$field}'", $native, $pos - 1);
+                throw TypeConversionException::parsingFailed($this, "value for '$field'", $native, $pos - 1);
             }
 
             switch ($char = $this->nextChar($native, $pos)) {
@@ -136,7 +136,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
                     break;
 
                 case '"': // Quoted string.
-                    if (!\preg_match('/"((?>[^"]+|"")*)"/As', $native, $m, 0, $pos)) {
+                    if (!\preg_match('/"((?>[^"]+|"")*)"/A', $native, $m, 0, $pos)) {
                         throw TypeConversionException::parsingFailed($this, 'quoted string', $native, $pos);
                     }
                     $result[$field]  = $type->input(\strtr($m[1], self::UNESCAPES));

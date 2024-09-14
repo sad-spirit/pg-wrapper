@@ -32,11 +32,8 @@ use sad_spirit\pg_wrapper\{
  */
 class LineConverter extends ContainerConverter
 {
-    /**
-     * Converter for line's coefficients
-     * @var FloatConverter
-     */
-    private $floatConverter;
+    /** Converter for line's coefficients */
+    private readonly FloatConverter $floatConverter;
 
     public function __construct()
     {
@@ -72,11 +69,11 @@ class LineConverter extends ContainerConverter
         );
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Line::createFromArray($value);
-        } elseif (!($value instanceof Line)) {
+        } elseif (!$value instanceof Line) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Line or an array', $value);
         }
         return '{' . $this->floatConverter->output($value->A) . ',' . $this->floatConverter->output($value->B)

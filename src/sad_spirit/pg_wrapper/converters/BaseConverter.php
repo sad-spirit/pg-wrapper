@@ -30,12 +30,12 @@ use sad_spirit\pg_wrapper\{
  */
 abstract class BaseConverter implements TypeConverter
 {
-    public function input(?string $native)
+    public function input(?string $native): mixed
     {
         return ($native === null) ? null : $this->inputNotNull($native);
     }
 
-    public function output($value): ?string
+    public function output(mixed $value): ?string
     {
         return ($value === null) ? null : $this->outputNotNull($value);
     }
@@ -47,19 +47,13 @@ abstract class BaseConverter implements TypeConverter
 
     /**
      * Parses native value that is not NULL into PHP variable
-     *
-     * @param string $native
-     * @return mixed
      */
-    abstract protected function inputNotNull(string $native);
+    abstract protected function inputNotNull(string $native): mixed;
 
     /**
      * Converts PHP variable not identical to null into native format
-     *
-     * @param mixed $value
-     * @return string
      */
-    abstract protected function outputNotNull($value): string;
+    abstract protected function outputNotNull(mixed $value): string;
 
     /**
      * Gets next non-whitespace character from input

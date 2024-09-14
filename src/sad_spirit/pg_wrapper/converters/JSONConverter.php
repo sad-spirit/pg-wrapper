@@ -30,20 +30,20 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class JSONConverter extends BaseConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): mixed
     {
         // Postgres stores numbers in JSON as values of "numeric" type, not "float"
         // To prevent loss of precision we should (try to) return these as strings
         $result = \json_decode($native, true, 512, \JSON_BIGINT_AS_STRING);
 
-        if (null === $result && ($code = \json_last_error())) {
+        if (null === $result && \JSON_ERROR_NONE !== \json_last_error()) {
             throw new TypeConversionException(\sprintf('%s(): %s', __METHOD__, \json_last_error_msg()));
         }
 
         return $result;
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         $result = \json_encode($value);
 

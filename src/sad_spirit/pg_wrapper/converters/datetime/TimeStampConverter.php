@@ -27,7 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class TimeStampConverter extends BaseDateTimeConverter
 {
-    protected $expectation = 'date and time string without time zone info';
+    protected string $expectation = 'date and time string without time zone info';
 
     protected function getFormats(string $style): array
     {

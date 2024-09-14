@@ -32,7 +32,7 @@ class TimeConverter extends BaseDateTimeConverter
         return ['H:i:s.u', 'H:i:s'];
     }
 
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): \DateTimeImmutable
     {
         foreach ($this->getFormats(self::DEFAULT_STYLE) as $format) {
             if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {

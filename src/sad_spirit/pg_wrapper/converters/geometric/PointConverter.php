@@ -32,11 +32,8 @@ use sad_spirit\pg_wrapper\{
  */
 class PointConverter extends ContainerConverter
 {
-    /**
-     * Converter for point's coordinates
-     * @var FloatConverter
-     */
-    private $floatConverter;
+    /** Converter for point's coordinates */
+    private readonly FloatConverter $floatConverter;
 
     public function __construct()
     {
@@ -66,11 +63,11 @@ class PointConverter extends ContainerConverter
         return new Point($this->floatConverter->input($x), $this->floatConverter->input($y));
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Point::createFromArray($value);
-        } elseif (!($value instanceof Point)) {
+        } elseif (!$value instanceof Point) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Point or an array', $value);
         }
         return '(' . $this->floatConverter->output($value->x) . ',' . $this->floatConverter->output($value->y) . ')';

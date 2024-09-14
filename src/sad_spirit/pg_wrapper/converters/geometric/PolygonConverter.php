@@ -35,11 +35,11 @@ class PolygonConverter extends BaseGeometricConverter
         return new Polygon(...$this->parsePoints($native, $pos, $this->countPoints($native)));
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Polygon::createFromArray($value);
-        } elseif (!($value instanceof Polygon)) {
+        } elseif (!$value instanceof Polygon) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Polygon or an array', $value);
         }
 

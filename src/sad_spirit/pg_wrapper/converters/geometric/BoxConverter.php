@@ -36,11 +36,11 @@ class BoxConverter extends BaseGeometricConverter implements CustomArrayDelimite
         return new Box(...$this->parsePoints($native, $pos, 2));
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = Box::createFromArray($value);
-        } elseif (!($value instanceof Box)) {
+        } elseif (!$value instanceof Box) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'instance of Box or an array', $value);
         }
         return '(' . $this->point->output($value->start) . ',' . $this->point->output($value->end) . ')';

@@ -208,7 +208,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     public function registerConverter($converter, $type, string $schema = 'pg_catalog'): void
     {
-        if (!\is_string($converter) && !\is_callable($converter) && !($converter instanceof TypeConverter)) {
+        if (!\is_string($converter) && !\is_callable($converter) && !$converter instanceof TypeConverter) {
             throw InvalidArgumentException::unexpectedType(
                 __METHOD__,
                 'a class name, a closure or an instance of TypeConverter',

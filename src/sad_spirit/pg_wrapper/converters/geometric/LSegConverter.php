@@ -35,11 +35,11 @@ class LSegConverter extends BaseGeometricConverter
         return new LineSegment(...$this->parsePoints($native, $pos, 2, true));
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_array($value)) {
             $value = LineSegment::createFromArray($value);
-        } elseif (!($value instanceof LineSegment)) {
+        } elseif (!$value instanceof LineSegment) {
             throw TypeConversionException::unexpectedValue(
                 $this,
                 'output',

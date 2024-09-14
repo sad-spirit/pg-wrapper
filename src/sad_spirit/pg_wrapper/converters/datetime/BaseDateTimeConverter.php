@@ -40,23 +40,14 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     public const DEFAULT_STYLE = 'ISO, MDY';
 
-    /**
-     * Current DateStyle setting, used for input
-     * @var string
-     */
-    private $style = self::DEFAULT_STYLE;
+    /** Current DateStyle setting, used for input */
+    private string $style = self::DEFAULT_STYLE;
 
-    /**
-     * Connection, used for checking DateStyle setting
-     * @var Connection|null
-     */
-    private $connection = null;
+    /** Connection, used for checking DateStyle setting */
+    private ?Connection $connection = null;
 
-    /**
-     * What to display in exception message if conversion failed
-     * @var string
-     */
-    protected $expectation = 'date/time string';
+    /** What to display in exception message if conversion failed */
+    protected string $expectation = 'date/time string';
 
     /**
      * Constructor, possibly sets the connection this converter works with
@@ -117,7 +108,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     abstract protected function getFormats(string $style): array;
 
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): \DateTimeImmutable
     {
         foreach ($this->getFormats($this->style) as $format) {
             if ($value = \DateTimeImmutable::createFromFormat('!' . $format, $native)) {
@@ -149,7 +140,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      * @return string
      * @throws TypeConversionException if given a $value of unexpected type
      */
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_string($value)) {
             return $value;

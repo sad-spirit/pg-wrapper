@@ -27,7 +27,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class NumericConverter extends BaseNumericConverter
 {
-    protected function inputNotNull(string $native)
+    protected function inputNotNull(string $native): string|float
     {
         $native = \trim($native);
         if (\is_numeric($native)) {
@@ -47,7 +47,7 @@ class NumericConverter extends BaseNumericConverter
         }
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_float($value)) {
             if (\is_nan($value)) {

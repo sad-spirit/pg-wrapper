@@ -35,7 +35,7 @@ class HstoreConverter extends ContainerConverter
         return 1;
     }
 
-    protected function outputNotNull($value): string
+    protected function outputNotNull(mixed $value): string
     {
         if (\is_object($value)) {
             $value = (array)$value;
@@ -131,7 +131,7 @@ class HstoreConverter extends ContainerConverter
     {
         $result = [];
 
-        while (null !== ($char = $this->nextChar($native, $pos))) {
+        while (null !== $this->nextChar($native, $pos)) {
             $key = $this->readKey($native, $pos);
 
             $this->expectChar($native, $pos, '=');
