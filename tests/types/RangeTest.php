@@ -42,14 +42,12 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider getInvalidNumericRanges
-     * @param mixed $lower
-     * @param mixed $upper
      */
-    public function testInvalidNumericRangesViaConstructor($lower, $upper): void
+    public function testInvalidNumericRangesViaConstructor(int|string $lower, int|string $upper): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $range = new NumericRange($lower, $upper);
+        new NumericRange($lower, $upper);
     }
 
     public function getInvalidNumericRanges(): array
@@ -65,7 +63,7 @@ class RangeTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $range = new DateTimeRange(new \DateTime('tomorrow'), new \DateTime('yesterday'));
+        new DateTimeRange(new \DateTime('tomorrow'), new \DateTime('yesterday'));
     }
 
     public function getInvalidDateTimeRanges(): array
@@ -105,8 +103,6 @@ class RangeTest extends TestCase
 
     /**
      * @dataProvider missingBoundsProvider
-     * @param ?string $lowerBound
-     * @param ?string $upperBound
      */
     public function testMissingBoundIsExclusive(?string $lowerBound, ?string $upperBound): void
     {

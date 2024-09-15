@@ -32,8 +32,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class ArrayDimensionsTest extends TestCase
 {
-    /** @var ArrayConverter */
-    private $converter;
+    private ArrayConverter $converter;
 
     protected function setUp(): void
     {

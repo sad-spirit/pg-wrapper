@@ -59,10 +59,10 @@ class TransactionCallbacksTest extends TestCase
 
     protected function doStuff(int $stuffId): void
     {
-        $this->conn->onCommit(function () use ($stuffId) {
+        $this->conn->onCommit(function () use ($stuffId): void {
             $this->committed[] = $stuffId;
         });
-        $this->conn->onRollback(function () use ($stuffId) {
+        $this->conn->onRollback(function () use ($stuffId): void {
             $this->rolledBack[] = $stuffId;
         });
         $this->conn->executeParams('insert into test_trans values ($1)', [$stuffId]);
@@ -86,7 +86,7 @@ class TransactionCallbacksTest extends TestCase
     public function testDisallowOnCommitOutsideAtomic(): void
     {
         $this::expectException(BadMethodCallException::class);
-        $this->conn->onCommit(function () {
+        $this->conn->onCommit(function (): void {
             // no-op
         });
     }
@@ -94,14 +94,14 @@ class TransactionCallbacksTest extends TestCase
     public function testDisallowOnRollbackOutsideAtomic(): void
     {
         $this::expectException(BadMethodCallException::class);
-        $this->conn->onCommit(function () {
+        $this->conn->onCommit(function (): void {
             // no-op
         });
     }
 
     public function testCommitCallbacksAfterSuccessfulCommit(): void
     {
-        $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
             $this->doStuff(1);
             $this::assertEquals([], $this->committed);
         });
@@ -111,11 +111,11 @@ class TransactionCallbacksTest extends TestCase
     public function testRollbackCallbacksAfterFailure(): void
     {
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
                 throw new FeatureNotSupportedException('Oopsie');
             });
-        } catch (FeatureNotSupportedException $e) {
+        } catch (FeatureNotSupportedException) {
         }
 
         $this->assertStuffDone([]);
@@ -124,8 +124,8 @@ class TransactionCallbacksTest extends TestCase
 
     public function testCommitCallbacksAfterFinalCommit(): void
     {
-        $this->conn->atomic(function () {
-            $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
                 $this::assertEquals([], $this->committed);
             }, true);
@@ -136,23 +136,23 @@ class TransactionCallbacksTest extends TestCase
 
     public function testCallbacksFromRolledBackSavepoints(): void
     {
-        $this->conn->atomic(function () {
-            $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
             }, true);
 
             try {
-                $this->conn->atomic(function () {
+                $this->conn->atomic(function (): void {
                     $this->doStuff(2);
                     throw new FeatureNotSupportedException('Oopsie');
                 }, true);
-            } catch (FeatureNotSupportedException $e) {
+            } catch (FeatureNotSupportedException) {
             }
 
             // The callbacks should run after final commit
             $this->assertStuffNotDone([]);
 
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(3);
             });
         });
@@ -172,13 +172,13 @@ SQL
         );
 
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
                 $this->doStuff(1);
                 $this->doStuff(2);
             });
             $this->fail('Expected ConstraintViolationException was not thrown');
-        } catch (ConstraintViolationException $e) {
+        } catch (ConstraintViolationException) {
         }
 
         $this->assertStuffDone([]);
@@ -187,11 +187,11 @@ SQL
 
     public function testCallbacksAreClearedAfterCommit(): void
     {
-        $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
             $this->doStuff(1);
         });
 
-        $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
             $this->doStuff(2);
         });
 
@@ -201,14 +201,14 @@ SQL
     public function testCallbacksAreClearedAfterRollback(): void
     {
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
                 throw new FeatureNotSupportedException('Oopsie');
             });
-        } catch (FeatureNotSupportedException $e) {
+        } catch (FeatureNotSupportedException) {
         }
 
-        $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
             $this->doStuff(2);
         });
 
@@ -225,12 +225,12 @@ SQL
         }
 
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
                 \sleep(1);
                 $this->doStuff(2);
             });
-        } catch (ConnectionException $e) {
+        } catch (ConnectionException) {
         }
 
         $this::assertFalse($this->conn->isConnected());
@@ -240,11 +240,11 @@ SQL
     public function testDisconnectInAtomic(): void
     {
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->doStuff(1);
                 $this->conn->disconnect();
             });
-        } catch (ConnectionException $e) {
+        } catch (ConnectionException) {
         }
 
         $this::assertFalse($this->conn->isConnected());

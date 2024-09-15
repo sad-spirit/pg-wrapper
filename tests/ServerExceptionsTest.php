@@ -130,7 +130,7 @@ SQL
         $this->conn->beginTransaction();
         try {
             $this->conn->execute('blah');
-        } catch (ServerException $e) {
+        } catch (ServerException) {
         }
         $this->conn->execute('select true');
     }

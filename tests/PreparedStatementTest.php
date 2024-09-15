@@ -47,7 +47,7 @@ class PreparedStatementTest extends TestCase
         $this->conn = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
 
         \set_error_handler(
-            static function (int $errno, string $errstr) {
+            static function (int $errno, string $errstr): void {
                 throw new \ErrorException($errstr, $errno);
             },
             \E_USER_DEPRECATED

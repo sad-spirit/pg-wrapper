@@ -44,9 +44,8 @@ class StubTypeConverterFactoryTest extends TestCase
 
     /**
      * @dataProvider getTypeSpecifications
-     * @param mixed $type
      */
-    public function testReturnsStubConverterForAnyType($type): void
+    public function testReturnsStubConverterForAnyType(mixed $type): void
     {
         $this->assertEquals(
             new StubConverter(),

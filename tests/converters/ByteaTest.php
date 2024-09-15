@@ -31,10 +31,7 @@ use sad_spirit\pg_wrapper\{
  */
 class ByteaTest extends TestCase
 {
-    /**
-     * @var ByteaConverter
-     */
-    protected $caster;
+    protected ByteaConverter $caster;
 
     protected function setUp(): void
     {
@@ -44,10 +41,9 @@ class ByteaTest extends TestCase
     /**
      * ByteaConverter should only accept strings
      *
-     * @param mixed $value
      * @dataProvider invalidPHPValuesProvider
      */
-    public function testInvalidPHPValue($value): void
+    public function testInvalidPHPValue(mixed $value): void
     {
         $this::expectException(TypeConversionException::class);
         $this->caster->output($value);
@@ -55,21 +51,17 @@ class ByteaTest extends TestCase
 
     /**
      * @dataProvider getValuesFrom
-     * @param string|null            $native
-     * @param string|null|\Throwable $value
      */
-    public function testCastFrom(?string $native, $value): void
+    public function testCastFrom(?string $native, string|\Throwable|null $value): void
     {
         if ($value instanceof \Throwable) {
-            $this->expectException(\get_class($value));
+            $this->expectException($value::class);
         }
         $this->assertEquals($value, $this->caster->input($native));
     }
 
     /**
      * @dataProvider getValuesToHex
-     * @param string|null $value
-     * @param string|null $hexEncoded
      */
     public function testCastToHex(?string $value, ?string $hexEncoded): void
     {

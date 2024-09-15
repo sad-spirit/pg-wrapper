@@ -33,7 +33,7 @@ abstract class TypeConverterTestCase extends TestCase
     /**
      * @var T
      */
-    protected $converter;
+    protected TypeConverter $converter;
 
     /**
      * Tests conversion from native Postgres format to PHP types
@@ -43,10 +43,10 @@ abstract class TypeConverterTestCase extends TestCase
      * @param string|null $native String representation of value in the database
      * @param mixed       $value  Conversion result or an instance of expected throwable
      */
-    public function testCastFrom(?string $native, $value): void
+    public function testCastFrom(?string $native, mixed $value): void
     {
         if ($value instanceof \Throwable) {
-            $this->expectException(\get_class($value));
+            $this->expectException($value::class);
             $this->converter->input($native);
         } else {
             $this->assertEquals($value, $this->converter->input($native));
@@ -62,10 +62,10 @@ abstract class TypeConverterTestCase extends TestCase
      *                                       throwable
      * @param mixed                  $value  Incoming PHP value
      */
-    public function testCastTo($native, $value): void
+    public function testCastTo(string|\Throwable|null $native, mixed $value): void
     {
         if ($native instanceof \Throwable) {
-            $this->expectException(\get_class($native));
+            $this->expectException($native::class);
             $this->converter->output($value);
         } else {
             $this->assertEquals($native, $this->converter->output($value));

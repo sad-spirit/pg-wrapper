@@ -29,10 +29,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class TimestampTzTest extends TestCase
 {
-    /**
-     * @var TimeStampTzConverter
-     */
-    protected $caster;
+    protected TimeStampTzConverter $caster;
 
     public function setUp(): void
     {
@@ -41,14 +38,11 @@ class TimestampTzTest extends TestCase
 
     /**
      * @dataProvider getValuesFrom
-     * @param string|null                        $style
-     * @param string|null                        $native
-     * @param \DateTimeInterface|\Throwable|null $value
      */
-    public function testCastFrom(?string $style, ?string $native, $value): void
+    public function testCastFrom(?string $style, ?string $native, \DateTimeInterface|\Throwable|null $value): void
     {
         if ($value instanceof \Throwable) {
-            $this->expectException(\get_class($value));
+            $this->expectException($value::class);
         }
         if (null !== $style) {
             $this->caster->setDateStyle($style);
@@ -58,13 +52,11 @@ class TimestampTzTest extends TestCase
 
     /**
      * @dataProvider getValuesTo
-     * @param string|null|\Throwable $native
-     * @param mixed                  $value
      */
-    public function testCastTo($native, $value): void
+    public function testCastTo(string|\Throwable|null $native, mixed $value): void
     {
         if ($native instanceof \Throwable) {
-            $this->expectException(\get_class($native));
+            $this->expectException($native::class);
         }
         $this->assertEquals($native, $this->caster->output($value));
     }

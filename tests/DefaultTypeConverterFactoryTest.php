@@ -548,7 +548,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         try {
             $converter->input('18.09.2020');
             $this::fail('Expected TypeConversionException was not thrown');
-        } catch (TypeConversionException $e) {
+        } catch (TypeConversionException) {
         }
 
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);

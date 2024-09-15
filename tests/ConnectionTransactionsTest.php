@@ -64,7 +64,7 @@ class ConnectionTransactionsTest extends TestCase
 
     public function testCommit(): void
     {
-        $result = $this->conn->atomic(function () {
+        $result = $this->conn->atomic(function (): string {
             $this->store(1);
             return 'success!';
         });
@@ -76,7 +76,7 @@ class ConnectionTransactionsTest extends TestCase
     public function testRollback(): void
     {
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->store(1);
                 throw new FeatureNotSupportedException('Oopsie');
             });
@@ -90,9 +90,9 @@ class ConnectionTransactionsTest extends TestCase
 
     public function testNestedCommitAndCommit(): void
     {
-        $this->conn->atomic(function (Connection $connection) {
+        $this->conn->atomic(function (Connection $connection): void {
             $this->store(1);
-            $connection->atomic(function () {
+            $connection->atomic(function (): void {
                 $this->store(2);
             }, true);
         });
@@ -101,14 +101,14 @@ class ConnectionTransactionsTest extends TestCase
 
     public function testNestedCommitAndRollback(): void
     {
-        $this->conn->atomic(function (Connection $connection) {
+        $this->conn->atomic(function (Connection $connection): void {
             $this->store(1);
             try {
-                $connection->atomic(function () {
+                $connection->atomic(function (): void {
                     $this->store(2);
                     throw new FeatureNotSupportedException('Oopsie');
                 }, true);
-            } catch (FeatureNotSupportedException $e) {
+            } catch (FeatureNotSupportedException) {
             }
         });
         $this->assertStored([1]);
@@ -117,14 +117,14 @@ class ConnectionTransactionsTest extends TestCase
     public function testNestedRollbackAndCommit(): void
     {
         try {
-            $this->conn->atomic(function (Connection $connection) {
+            $this->conn->atomic(function (Connection $connection): void {
                 $this->store(1);
-                $connection->atomic(function () {
+                $connection->atomic(function (): void {
                     $this->store(2);
                 }, true);
                 throw new FeatureNotSupportedException('Oopsie');
             });
-        } catch (FeatureNotSupportedException $e) {
+        } catch (FeatureNotSupportedException) {
         }
         $this->assertStored([]);
     }
@@ -132,27 +132,27 @@ class ConnectionTransactionsTest extends TestCase
     public function testNestedRollbackAndRollback(): void
     {
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->store(1);
                 try {
-                    $this->conn->atomic(function () {
+                    $this->conn->atomic(function (): void {
                         $this->store(2);
                         throw new FeatureNotSupportedException('Oopsie');
                     }, true);
-                } catch (FeatureNotSupportedException $e) {
+                } catch (FeatureNotSupportedException) {
                 }
                 throw new FeatureNotSupportedException('Another oopsie');
             });
-        } catch (FeatureNotSupportedException $e) {
+        } catch (FeatureNotSupportedException) {
         }
         $this->assertStored([]);
     }
 
     public function testMergedCommitAndCommit(): void
     {
-        $this->conn->atomic(function (Connection $connection) {
+        $this->conn->atomic(function (Connection $connection): void {
             $this->store(1);
-            $connection->atomic(function () {
+            $connection->atomic(function (): void {
                 $this->store(2);
             });
         });
@@ -161,14 +161,14 @@ class ConnectionTransactionsTest extends TestCase
 
     public function testMergedCommitAndRollback(): void
     {
-        $this->conn->atomic(function (Connection $connection) {
+        $this->conn->atomic(function (Connection $connection): void {
             $this->store(1);
             try {
-                $connection->atomic(function () {
+                $connection->atomic(function (): void {
                     $this->store(2);
                     throw new FeatureNotSupportedException('Oopsie');
                 });
-            } catch (FeatureNotSupportedException $e) {
+            } catch (FeatureNotSupportedException) {
             }
         });
         $this->assertStored([]);
@@ -177,14 +177,14 @@ class ConnectionTransactionsTest extends TestCase
     public function testMergedRollbackAndCommit(): void
     {
         try {
-            $this->conn->atomic(function (Connection $connection) {
+            $this->conn->atomic(function (Connection $connection): void {
                 $this->store(1);
-                $connection->atomic(function () {
+                $connection->atomic(function (): void {
                     $this->store(2);
                 });
                 throw new FeatureNotSupportedException('Oopsie');
             });
-        } catch (FeatureNotSupportedException $e) {
+        } catch (FeatureNotSupportedException) {
         }
         $this->assertStored([]);
     }
@@ -192,18 +192,18 @@ class ConnectionTransactionsTest extends TestCase
     public function testMergedRollbackAndRollback(): void
     {
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 $this->store(1);
                 try {
-                    $this->conn->atomic(function () {
+                    $this->conn->atomic(function (): void {
                         $this->store(2);
                         throw new FeatureNotSupportedException('Oopsie');
                     });
-                } catch (FeatureNotSupportedException $e) {
+                } catch (FeatureNotSupportedException) {
                 }
                 throw new FeatureNotSupportedException('Another oopsie');
             });
-        } catch (FeatureNotSupportedException $e) {
+        } catch (FeatureNotSupportedException) {
         }
         $this->assertStored([]);
     }
@@ -214,8 +214,8 @@ class ConnectionTransactionsTest extends TestCase
 
         $this->conn->beginTransaction();
 
-        $this->conn->atomic(function (Connection $connection) use (&$onCommitCalled) {
-            $connection->onCommit(function () use (&$onCommitCalled) {
+        $this->conn->atomic(function (Connection $connection) use (&$onCommitCalled): void {
+            $connection->onCommit(function () use (&$onCommitCalled): void {
                 $onCommitCalled = true;
             });
         });
@@ -234,8 +234,8 @@ class ConnectionTransactionsTest extends TestCase
         $this->conn->beginTransaction();
 
         try {
-            $this->conn->atomic(function (Connection $connection) use (&$onRollbackCalled) {
-                $connection->onRollback(function () use (&$onRollbackCalled) {
+            $this->conn->atomic(function (Connection $connection) use (&$onRollbackCalled): void {
+                $connection->onRollback(function () use (&$onRollbackCalled): void {
                     $onRollbackCalled = true;
                 });
                 $connection->execute('blah');
@@ -252,7 +252,7 @@ class ConnectionTransactionsTest extends TestCase
         // entering the outermost atomic block. So in case when first atomic() fails and the second
         // succeeds both can succeed
         try {
-            $this->conn->atomic(function () {
+            $this->conn->atomic(function (): void {
                 // no-op
             });
             $this::fail('Expected RuntimeException was not thrown');
@@ -266,7 +266,7 @@ class ConnectionTransactionsTest extends TestCase
 
     public function testForceRollback(): void
     {
-        $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
             $this->store(1);
             $this::assertFalse($this->conn->needsRollback());
             $this->conn->setNeedsRollback(true);
@@ -276,14 +276,14 @@ class ConnectionTransactionsTest extends TestCase
 
     public function testPreventRollback(): void
     {
-        $this->conn->atomic(function () {
+        $this->conn->atomic(function (): void {
             $this->store(1);
             $this->conn->createSavepoint('manual_savepoint');
             try {
-                $this->conn->atomic(function () {
+                $this->conn->atomic(function (): void {
                     $this->conn->execute('blah');
                 });
-            } catch (ProgrammingException $e) {
+            } catch (ProgrammingException) {
             }
             $this::assertTrue($this->conn->needsRollback());
             $this->conn->setNeedsRollback(false);

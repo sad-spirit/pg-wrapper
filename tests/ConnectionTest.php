@@ -54,20 +54,9 @@ class ConnectionTest extends TestCase
     public function testInvalidConnectionString(): void
     {
         $this->expectException(ConnectionException::class);
-        $connection = new Connection('blah=blah duh=oh', false);
-    }
+        $this::expectExceptionMessage('invalid connection option');
 
-    public function testUndefinedPhpErrorMsg(): void
-    {
-        \set_error_handler(function ($errno, $errstr) {
-            return true;
-        }, \E_WARNING);
-        try {
-            $connection = new Connection('blah=blah duh=oh', false);
-        } catch (ConnectionException $e) {
-            $this->assertStringContainsString('invalid connection option', $e->getMessage());
-        }
-        \restore_error_handler();
+        new Connection('blah=blah duh=oh', false);
     }
 
     public function testCanConnect(): void
@@ -133,10 +122,8 @@ class ConnectionTest extends TestCase
 
     /**
      * @dataProvider getImplicitTypes
-     * @param mixed  $value
-     * @param string $expected
      */
-    public function testQuoteImplicitTypes($value, string $expected): void
+    public function testQuoteImplicitTypes(mixed $value, string $expected): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -147,9 +134,8 @@ class ConnectionTest extends TestCase
 
     /**
      * @dataProvider getImplicitTypesFail
-     * @param mixed $value
      */
-    public function testFailToQuoteImplicitTypes($value): void
+    public function testFailToQuoteImplicitTypes(mixed $value): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
@@ -161,11 +147,8 @@ class ConnectionTest extends TestCase
 
     /**
      * @dataProvider getExplicitTypes
-     * @param mixed  $value
-     * @param string $type
-     * @param string $expected
      */
-    public function testQuoteExplicitTypes($value, string $type, string $expected): void
+    public function testQuoteExplicitTypes(mixed $value, string $type, string $expected): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this->markTestSkipped('Connection string is not configured');
