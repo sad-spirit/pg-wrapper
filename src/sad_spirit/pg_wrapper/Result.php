@@ -32,79 +32,54 @@ use PgSql\Result as NativeResult;
  */
 class Result implements \Iterator, \Countable, \ArrayAccess
 {
-    /** PostgreSQL native result object */
-    private NativeResult $native;
-
-    /**
-     * Factory for database type converters (mostly needed for setType())
-     * @var TypeConverterFactory
-     */
-    private $converterFactory;
-
     /**
      * Type converters, indexed by column number
      * @var TypeConverter[]
      */
-    private $converters = [];
+    private array $converters = [];
 
-    /**
-     * Number of affected rows for DML query
-     * @var int
-     */
-    private $affectedRows;
+    /** Number of affected rows for DML query */
+    private readonly int $affectedRows;
 
-    /**
-     * Number of rows in result
-     * @var int
-     */
-    private $numRows = 0;
+    /** Number of rows in result */
+    private int $numRows = 0;
 
-    /**
-     * Number of columns in result
-     * @var int
-     */
-    private $numFields = 0;
+    /** Number of columns in result */
+    private int $numFields = 0;
 
     /**
      * Hash (column name => column number)
      * @var array<string, int>
      */
-    private $namesHash = [];
+    private array $namesHash = [];
 
     /**
      * Table OIDs, indexed by column number
      * @var array<int, int|numeric-string|null>
      */
-    private $tableOIDs = [];
+    private array $tableOIDs = [];
 
-    /**
-     * Current iterator position
-     * @var int
-     */
-    private $position = 0;
+    /** Current iterator position */
+    private int $position = 0;
 
-    /**
-     * @var int
-     */
-    private $mode = \PGSQL_ASSOC;
+    private int $mode = \PGSQL_ASSOC;
 
     /**
      * Arguments for last call to read() method
      * @var array{int,int}|null
      */
-    private $lastReadParams = null;
+    private ?array $lastReadParams = null;
 
     /**
      * Result of last read() call
-     * @var array
      */
-    private $lastReadResult;
+    private array $lastReadResult = [];
 
     /**
      * Constructor.
      *
      * @param NativeResult         $native  SQL result object.
-     * @param TypeConverterFactory $factory
+     * @param TypeConverterFactory $converterFactory
      * @param array                $types   Types information, used to convert output values
      *                                      (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
@@ -112,11 +87,13 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      *
      * @psalm-suppress PossiblyInvalidArgument
      */
-    protected function __construct(NativeResult $native, TypeConverterFactory $factory, array $types = [])
-    {
-        $this->native           = $native;
-        $this->converterFactory = $factory;
-        $this->affectedRows     = \pg_affected_rows($this->native);
+    protected function __construct(
+        private readonly NativeResult $native,
+        /** Factory for database type converters (mostly needed for setType()) */
+        private readonly TypeConverterFactory $converterFactory,
+        array $types = []
+    ) {
+        $this->affectedRows = \pg_affected_rows($this->native);
 
         if (\PGSQL_TUPLES_OK === \pg_result_status($this->native)) {
             $this->setupResultFields($types);
@@ -193,8 +170,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns number of rows affected by INSERT, UPDATE, and DELETE queries
      *
      * In case of SELECT queries this will be equal to what count() returns
-     *
-     * @return int
      */
     public function getAffectedRows(): int
     {
@@ -211,7 +186,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    public function setType($fieldIndex, $type): self
+    public function setType(int|string $fieldIndex, mixed $type): self
     {
         $this->converters[$this->checkFieldIndex($fieldIndex)] =
             $this->converterFactory->getConverterForTypeSpecification($type);
@@ -249,7 +224,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    public function fetchColumn($fieldIndex): array
+    public function fetchColumn(int|string $fieldIndex): array
     {
         $fieldIndex = $this->checkFieldIndex($fieldIndex);
 
@@ -277,8 +252,12 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    public function fetchAll(?int $mode = null, $keyColumn = null, bool $forceArray = false, bool $group = false): array
-    {
+    public function fetchAll(
+        ?int $mode = null,
+        int|string|null $keyColumn = null,
+        bool $forceArray = false,
+        bool $group = false
+    ): array {
         if (null === $mode) {
             $mode = $this->mode;
         } elseif (\PGSQL_ASSOC !== $mode && \PGSQL_NUM !== $mode) {
@@ -342,8 +321,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * Returns the number of fields in the result
-     *
-     * @return int
      */
     public function getFieldCount(): int
     {
@@ -354,11 +331,8 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns the OID for a table that contains the given result field
      *
      * Will return null if the field is e.g. a literal or a calculated value
-     *
-     * @param int|string $fieldIndex
-     * @return int|numeric-string|null
      */
-    public function getTableOID($fieldIndex)
+    public function getTableOID(int|string $fieldIndex): int|string|null
     {
         return $this->tableOIDs[$this->checkFieldIndex($fieldIndex)];
     }
@@ -461,9 +435,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param mixed $value  (not used)
      * @throws exceptions\BadMethodCallException
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new exceptions\BadMethodCallException(__CLASS__ . ' is read-only');
+        throw new exceptions\BadMethodCallException(self::class . ' is read-only');
     }
 
     /**
@@ -472,9 +446,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param mixed $offset (not used)
      * @throws exceptions\BadMethodCallException
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
-        throw new exceptions\BadMethodCallException(__CLASS__ . ' is read-only');
+        throw new exceptions\BadMethodCallException(self::class . ' is read-only');
     }
 
     /**
@@ -485,9 +459,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    private function checkFieldIndex($fieldIndex): int
+    private function checkFieldIndex(int|string $fieldIndex): int
     {
-        if (\is_int($fieldIndex) || \ctype_digit((string)$fieldIndex)) {
+        if (\is_int($fieldIndex) || \ctype_digit($fieldIndex)) {
             if ($fieldIndex >= 0 && $fieldIndex < $this->numFields) {
                 return (int)$fieldIndex;
             } else {
@@ -499,20 +473,12 @@ class Result implements \Iterator, \Countable, \ArrayAccess
                 ));
             }
 
-        } elseif (\is_string($fieldIndex)) {
-            if (isset($this->namesHash[$fieldIndex])) {
-                return $this->namesHash[$fieldIndex];
-            } else {
-                throw new exceptions\OutOfBoundsException(
-                    \sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
-                );
-            }
+        } elseif (isset($this->namesHash[$fieldIndex])) {
+            return $this->namesHash[$fieldIndex];
 
         } else {
-            throw exceptions\InvalidArgumentException::unexpectedType(
-                __METHOD__,
-                'a field number or a field name',
-                $fieldIndex
+            throw new exceptions\OutOfBoundsException(
+                \sprintf("%s: field name '%s' is not present", __METHOD__, $fieldIndex)
             );
         }
     }

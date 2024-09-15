@@ -31,47 +31,29 @@ class Connection
     /** Native connection object */
     private ?NativeConnection $native = null;
 
-    /**
-     * Connection string (as used for pg_connect())
-     * @var string
-     */
-    private $connectionString;
+    /** Connection string (as used for pg_connect()) */
+    private readonly string $connectionString;
 
-    /**
-     * Type conversion factory for this connection
-     * @var TypeConverterFactory|null
-     */
-    private $converterFactory;
+    /** Type conversion factory for this connection */
+    private ?TypeConverterFactory $converterFactory = null;
 
-    /**
-     * Cache for database metadata
-     * @var CacheItemPoolInterface|null
-     */
-    private $cacheItemPool;
+    /** Cache for database metadata */
+    private ?CacheItemPoolInterface $cacheItemPool = null;
 
-    /**
-     * Marks whether the connection is in a transaction managed by {@link atomic()}
-     * @var bool
-     */
-    private $inAtomic = false;
+    /** Marks whether the connection is in a transaction managed by {@link atomic()} */
+    private bool $inAtomic = false;
 
-    /**
-     * Marks whether transaction should be rolled back to the next available savepoint due to error in inner block
-     * @var bool
-     */
-    private $needsRollback = false;
+    /** Marks whether transaction should be rolled back to the next available savepoint due to error in inner block */
+    private bool $needsRollback = false;
 
-    /**
-     * Counter used to generate unique savepoint names
-     * @var int
-     */
-    private $savepointIndex = 0;
+    /** Counter used to generate unique savepoint names */
+    private int $savepointIndex = 0;
 
     /**
      * Names of savepoints created by {@link atomic()}
      * @var array<int, string|null>
      */
-    private $savepointNames = [];
+    private array $savepointNames = [];
 
     /**
      * Callbacks to run after successful commit of transaction
@@ -82,7 +64,7 @@ class Connection
      *
      * @var array<int, array{array<int, string|null>, callable}>
      */
-    private $onCommitCallbacks = [];
+    private array $onCommitCallbacks = [];
 
     /**
      * Callbacks to run after rollback of transaction
@@ -94,40 +76,35 @@ class Connection
      *
      * @var array<int, array{array<int, string|null>, callable, bool}>
      */
-    private $onRollbackCallbacks = [];
+    private array $onRollbackCallbacks = [];
 
-    /**
-     * Whether a shutdown function to run outstanding onRollback() callbacks was registered
-     * @var bool
-     */
-    private $shutdownRegistered = false;
+    /** Whether a shutdown function to run outstanding onRollback() callbacks was registered */
+    private bool $shutdownRegistered = false;
 
     /**
      * Whether disconnect() method was called
      *
      * We connect to the database automatically only once: on first getNative() call if $lazy = true was passed
      * to constructor. Once disconnect() was ever called, we require manual call to connect().
-     *
-     * @var bool
      */
-    private $disconnected = false;
+    private bool $disconnected = false;
 
-    /**
-     * Whether disconnect() was called within atomic() closure
-     * @var bool
-     */
-    private $disconnectedInAtomic = false;
+    /** Whether disconnect() was called within atomic() closure */
+    private bool $disconnectedInAtomic = false;
 
     /**
      * Constructor.
      *
      * @param string $connectionString Connection string.
-     * @param bool   $lazy             Whether to postpone connecting until needed
+     * @param bool   $lazy             Whether to postpone connecting until needed.
      * @throws exceptions\ConnectionException
      * @throws exceptions\RuntimeException
      */
-    public function __construct(string $connectionString, bool $lazy = true)
-    {
+    public function __construct(
+        #[\SensitiveParameter]
+        string $connectionString,
+        bool $lazy = true
+    ) {
         if (!\function_exists('pg_connect')) {
             throw new exceptions\RuntimeException("PHP's pgsql extension should be enabled");
         }
@@ -171,7 +148,7 @@ class Connection
         }
 
         $connectionWarnings = [];
-        \set_error_handler(function (int $errno, string $errstr) use (&$connectionWarnings) {
+        \set_error_handler(function (int $errno, string $errstr) use (&$connectionWarnings): true {
             $connectionWarnings[] = $errstr;
             return true;
         }, \E_WARNING);
@@ -202,13 +179,15 @@ class Connection
 
     /**
      * Disconnects from the database
+     *
+     * @return $this
      */
     public function disconnect(): self
     {
         if (null !== $this->native) {
             try {
                 \pg_close($this->native);
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
             }
         }
         $this->native       = null;
@@ -229,23 +208,19 @@ class Connection
 
     /**
      * Checks whether a connection was made
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
         try {
             return null !== $this->native
                    && \PGSQL_CONNECTION_OK === \pg_connection_status($this->native);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return false;
         }
     }
 
     /**
      * Returns the last error message for this connection, null if none present
-     *
-     * @return string|null
      */
     public function getLastError(): ?string
     {
@@ -253,7 +228,7 @@ class Connection
             if (null !== $this->native && ($error = \pg_last_error($this->native))) {
                 return $error;
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
         return null;
     }
@@ -271,7 +246,7 @@ class Connection
             } else {
                 try {
                     \pg_connection_status($this->native);
-                } catch (\Throwable $e) {
+                } catch (\Throwable) {
                     throw new exceptions\ConnectionException("Connection has been closed");
                 }
             }
@@ -289,7 +264,7 @@ class Connection
      */
     public function getConnectionId(): string
     {
-        return 'pg' . \sprintf('%x', \crc32(\get_class($this) . ' ' . $this->connectionString));
+        return 'pg' . \sprintf('%x', \crc32(static::class . ' ' . $this->connectionString));
     }
 
     /**
@@ -301,7 +276,7 @@ class Connection
      * @throws exceptions\TypeConversionException
      * @throws exceptions\RuntimeException
      */
-    public function quote($value, $type = null): string
+    public function quote(mixed $value, mixed $type = null): string
     {
         if (null === $value) {
             return 'NULL';
@@ -356,9 +331,6 @@ class Connection
 
     /**
      * Executes a given query
-     *
-     * For queries that return rows this method returns a ResultSet object, for
-     * data modification queries it returns the number of affected rows
      *
      * @param string $sql         SQL query to execute
      * @param array  $resultTypes Type converters to pass to ResultSet
@@ -439,19 +411,14 @@ class Connection
 
     /**
      * Returns type converter for the given database type
-     *
-     * @param mixed $type
-     * @return TypeConverter
      */
-    public function getTypeConverter($type): TypeConverter
+    public function getTypeConverter(mixed $type): TypeConverter
     {
         return $this->getTypeConverterFactory()->getConverterForTypeSpecification($type);
     }
 
     /**
      * Returns the DB metadata cache
-     *
-     * @return CacheItemPoolInterface|null
      */
     public function getMetadataCache(): ?CacheItemPoolInterface
     {
@@ -591,10 +558,11 @@ class Connection
 
         $this->execute('ROLLBACK TO SAVEPOINT ' . $savepoint);
 
-        $this->onCommitCallbacks = \array_filter($this->onCommitCallbacks, function ($value) use ($savepoint) {
-            return !\in_array($savepoint, $value[0]);
-        });
-        \array_walk($this->onRollbackCallbacks, function (array &$value) use ($savepoint) {
+        $this->onCommitCallbacks = \array_filter(
+            $this->onCommitCallbacks,
+            fn($value): bool => !\in_array($savepoint, $value[0])
+        );
+        \array_walk($this->onRollbackCallbacks, function (array &$value) use ($savepoint): void {
             if (\in_array($savepoint, $value[0])) {
                 $value[2] = true;
             }
@@ -638,7 +606,7 @@ class Connection
      *
      * @throws \Throwable
      */
-    public function atomic(callable $callback, bool $savepoint = false)
+    public function atomic(callable $callback, bool $savepoint = false): mixed
     {
         if (!$this->inAtomic) {
             $this->assertRollbackNotNeeded();
@@ -691,7 +659,7 @@ class Connection
                         try {
                             $this->rollbackToSavepoint($savepointName);
                             $this->releaseSavepoint($savepointName);
-                        } catch (\Throwable $rse) {
+                        } catch (\Throwable) {
                             $this->needsRollback = true;
                         }
                     }
@@ -713,7 +681,7 @@ class Connection
                         try {
                             $this->rollbackToSavepoint($savepointName);
                             $this->releaseSavepoint($savepointName);
-                        } catch (\Throwable $rse) {
+                        } catch (\Throwable) {
                             $this->needsRollback = true;
                         }
                         throw $se;
@@ -770,9 +738,7 @@ class Connection
             );
         }
         if (!$this->shutdownRegistered) {
-            \register_shutdown_function(function () {
-                $this->runAndClearOnRollbackCallbacks();
-            });
+            \register_shutdown_function($this->runAndClearOnRollbackCallbacks(...));
             $this->shutdownRegistered = true;
         }
         $this->onRollbackCallbacks[] = [$this->savepointNames, $callback, false];
@@ -782,8 +748,6 @@ class Connection
 
     /**
      * Whether transaction should be rolled back due to an error in an inner block
-     *
-     * @return bool
      */
     public function needsRollback(): bool
     {
@@ -861,9 +825,7 @@ class Connection
     {
         $callbacks = \array_merge(
             $this->onCommitCallbacks,
-            \array_filter($this->onRollbackCallbacks, function ($value) {
-                return $value[2];
-            })
+            \array_filter($this->onRollbackCallbacks, fn($value): bool => $value[2])
         );
         $this->onCommitCallbacks   = [];
         $this->onRollbackCallbacks = [];

@@ -25,59 +25,29 @@ namespace sad_spirit\pg_wrapper;
  */
 class PreparedStatement
 {
-    /**
-     * Whether to fetch parameter types from DB when first preparing the statement
-     * @var bool
-     */
-    private static $autoFetchParameterTypes = false;
+    /** Whether to fetch parameter types from DB when first preparing the statement */
+    private static bool $autoFetchParameterTypes = false;
 
-    /**
-     * Used to generate statement names for pg_prepare()
-     * @var int
-     */
-    protected static $statementIdx = 0;
+    /** Used to generate statement names for pg_prepare() */
+    protected static int $statementIdx = 0;
 
-    /**
-     * Connection object
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * SQL query text
-     * @var string
-     */
-    private $query;
-
-    /**
-     * Statement name for pg_prepare() / pg_execute()
-     * @var string|null
-     */
-    private $queryId;
+    /** Statement name for pg_prepare() / pg_execute() */
+    private ?string $queryId = null;
 
     /**
      * Values for input parameters
      * @var array<int, mixed>
      */
-    private $values = [];
+    private array $values = [];
 
     /**
      * Converters for input parameters
      * @var TypeConverter[]
      */
-    private $converters = [];
+    private array $converters = [];
 
-    /**
-     * Number of parameters in the prepared statement
-     * @var int|null
-     */
-    private $numberOfParameters = null;
-
-    /**
-     * Types information for output values, passed on to ResultSet
-     * @var array
-     */
-    private $resultTypes;
+    /** Number of parameters in the prepared statement */
+    private ?int $numberOfParameters = null;
 
     /**
      * Sets whether parameter types should be automatically fetched after first preparing a statement
@@ -113,15 +83,14 @@ class PreparedStatement
      * @throws exceptions\ServerException
      */
     public function __construct(
-        Connection $connection,
-        string $query,
+        /** Connection object */
+        private readonly Connection $connection,
+        /** SQL query text */
+        private readonly string $query,
         array $paramTypes = [],
-        array $resultTypes = []
+        /** Types information for output values, passed on to ResultSet */
+        private array $resultTypes = []
     ) {
-        $this->connection  = $connection;
-        $this->query       = $query;
-        $this->resultTypes = $resultTypes;
-
         foreach ($paramTypes as $key => $type) {
             if (!\is_int($key)) {
                 throw new exceptions\InvalidArgumentException('$paramTypes array should contain only integer keys');
@@ -292,7 +261,7 @@ class PreparedStatement
      * @throws exceptions\OutOfBoundsException
      * @throws exceptions\InvalidArgumentException
      */
-    public function setParameterType(int $parameterNumber, $type): self
+    public function setParameterType(int $parameterNumber, mixed $type): self
     {
         $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
@@ -388,23 +357,6 @@ class PreparedStatement
     }
 
     /**
-     * A polyfill for array_key_last()
-     *
-     * @param array<int, mixed> $array
-     * @return int|null
-     */
-    private function lastKey(array $array): ?int
-    {
-        if ([] === $array) {
-            return null;
-        } elseif (\function_exists('array_key_last')) {
-            return \array_key_last($array);
-        } else {
-            return \key(\array_slice($array, -1, 1, true));
-        }
-    }
-
-    /**
      * Checks that the array keys correspond to statement placeholders
      *
      * @param array<int, mixed> $params
@@ -417,7 +369,7 @@ class PreparedStatement
     {
         if (null !== $this->numberOfParameters) {
             $numberOfParameters = $this->numberOfParameters;
-        } elseif (null !== ($lastKey = $this->lastKey($params))) {
+        } elseif (null !== ($lastKey = \array_key_last($params))) {
             $numberOfParameters = $lastKey + 1;
         } else {
             $numberOfParameters = 0;
@@ -435,15 +387,12 @@ class PreparedStatement
         $message      = $prefix . ' do not match statement placeholders';
 
         if ([] !== ($missing = \array_diff($expectedKeys, $actualKeys))) {
-            $message .= ', missing values for parameters: $' . \implode(', $', \array_map(function ($key) {
-                return $key + 1;
-            }, $missing));
+            $message .= ', missing values for parameters: $'
+                . \implode(', $', \array_map(fn($key): int => $key + 1, $missing));
         }
         if ([] !== ($extra = \array_diff($actualKeys, $expectedKeys))) {
             $message .= ', containing values for nonexistent parameters: $'
-                . \implode(', $', \array_map(function ($key) {
-                    return $key + 1;
-                }, $extra));
+                . \implode(', $', \array_map(fn($key): int => $key + 1, $extra));
         }
 
         throw new exceptions\OutOfBoundsException($message);
