@@ -74,7 +74,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
                 throw new InvalidArgumentException(\sprintf(
                     "%s expects an array of TypeConverter instances, '%s' given for index '%s'",
                     self::class,
-                    get_debug_type($item),
+                    \get_debug_type($item),
                     $field
                 ));
             }
