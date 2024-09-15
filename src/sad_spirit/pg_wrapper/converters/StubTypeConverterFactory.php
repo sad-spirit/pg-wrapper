@@ -35,10 +35,8 @@ use sad_spirit\pg_wrapper\{
  */
 final class StubTypeConverterFactory implements TypeConverterFactory
 {
-    /** @var StubConverter */
-    private $converter;
-    /** @var Connection|null */
-    private $connection;
+    private readonly StubConverter $converter;
+    private ?Connection $connection = null;
 
     public function __construct()
     {
@@ -48,7 +46,7 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function getConverterForTypeSpecification($type): TypeConverter
+    public function getConverterForTypeSpecification(mixed $type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
             if ($this->connection && $type instanceof ConnectionAware) {
@@ -75,7 +73,7 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function getConverterForPHPValue($value): TypeConverter
+    public function getConverterForPHPValue(mixed $value): TypeConverter
     {
         return $this->converter;
     }
@@ -83,7 +81,7 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function getConverterForTypeOID($oid): TypeConverter
+    public function getConverterForTypeOID(int|string $oid): TypeConverter
     {
         return $this->converter;
     }

@@ -52,35 +52,32 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
         'nchar'     => 'text'
     ];
 
-    /**
-     * DB connection object
-     * @var Connection|null
-     */
-    private $connection;
+    /** DB connection object */
+    private ?Connection $connection = null;
 
     /**
      * Mapping of known base types to converter class names
      * @var array<string, array<string, class-string|callable|TypeConverter>>
      */
-    private $types = [];
+    private array $types = [];
 
     /**
      * Converter instances
      * @var array<string, array<string, TypeConverter>>
      */
-    private $converters = [];
+    private array $converters = [];
 
     /**
      * Mapping "type name as string" => ["type name", "schema name", "is array"]
      * @var array<string, array{string, ?string, bool}>
      */
-    private $parsedNames = [];
+    private array $parsedNames = [];
 
     /**
      * Mapping "PHP class name" => ["schema name", "type name"]
      * @var array<class-string, array{string, string}>
      */
-    private $classMapping = [
+    private array $classMapping = [
         \DateTimeInterface::class       => ['pg_catalog', 'timestamptz'],
         \DateInterval::class            => ['pg_catalog', 'interval'],
 
@@ -98,20 +95,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
         types\Tid::class                => ['pg_catalog', 'tid']
     ];
 
-    /** @var TypeOIDMapper|null */
-    private $typeOIDMapper;
+    private ?TypeOIDMapper $typeOIDMapper = null;
 
     /**
      * Constructor, registers converters for built-in types
      */
     public function __construct()
     {
-        if (\extension_loaded('mbstring') && (2 & (int)\ini_get('mbstring.func_overload'))) {
-            throw new RuntimeException(
-                'Multibyte function overloading must be disabled for correct parsing of database values'
-            );
-        }
-
         $this->registerConverter(BooleanConverter::class, 'bool');
         $this->registerConverter(ByteaConverter::class, 'bytea');
         $this->registerConverter(
@@ -195,26 +185,22 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
     public function getOIDMapper(): TypeOIDMapper
     {
-        return $this->typeOIDMapper ?? ($this->typeOIDMapper = new CachedTypeOIDMapper($this->connection));
+        return $this->typeOIDMapper ??= new CachedTypeOIDMapper($this->connection);
     }
 
     /**
      * Registers a converter for a known named type
      *
-     * @param class-string|callable|TypeConverter $converter
+     * @param class-string<TypeConverter>|callable|TypeConverter $converter
      * @param string|string[]                     $type
      * @param string                              $schema
      * @throws InvalidArgumentException
      */
-    public function registerConverter($converter, $type, string $schema = 'pg_catalog'): void
-    {
-        if (!\is_string($converter) && !\is_callable($converter) && !$converter instanceof TypeConverter) {
-            throw InvalidArgumentException::unexpectedType(
-                __METHOD__,
-                'a class name, a closure or an instance of TypeConverter',
-                $converter
-            );
-        }
+    public function registerConverter(
+        callable|TypeConverter|string $converter,
+        array|string $type,
+        string $schema = 'pg_catalog'
+    ): void {
         foreach ((array)$type as $typeName) {
             if (isset($this->converters[$typeName])) {
                 unset($this->converters[$typeName][$schema]);
@@ -251,7 +237,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * @param Connection $connection
      * @return $this
      */
-    public function setConnection(Connection $connection): TypeConverterFactory
+    public function setConnection(Connection $connection): self
     {
         if ($this->connection && $connection !== $this->connection) {
             throw new RuntimeException("Connection already set");
@@ -303,7 +289,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    public function getConverterForTypeSpecification($type): TypeConverter
+    public function getConverterForTypeSpecification(mixed $type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
             $this->updateConnection($type);
@@ -340,7 +326,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * @return TypeConverter
      * @throws TypeConversionException
      */
-    public function getConverterForPHPValue($value): TypeConverter
+    public function getConverterForPHPValue(mixed $value): TypeConverter
     {
         switch (\gettype($value)) {
             case 'string':
@@ -370,7 +356,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     /**
      * {@inheritdoc}
      */
-    final public function getConverterForTypeOID($oid): TypeConverter
+    final public function getConverterForTypeOID(int|string $oid): TypeConverter
     {
         $mapper = $this->getOIDMapper();
         if ($mapper->isArrayTypeOID($oid, $baseTypeOid)) {
@@ -390,7 +376,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
         } elseif ($mapper->isCompositeTypeOID($oid, $members)) {
             return new containers\CompositeConverter(\array_map(
-                [$this, 'getConverterForTypeOID'],
+                $this->getConverterForTypeOID(...),
                 $members
             ));
 
@@ -406,16 +392,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
         try {
             return $this->getConverterForQualifiedName($typeName, $schemaName);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             return new StubConverter();
         }
     }
 
     /**
      * ASCII-only lowercasing for type names
-     *
-     * @param string $string
-     * @return string
      */
     private function asciiLowercase(string $string): string
     {
@@ -436,7 +419,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     protected function parseTypeName(string $name): array
     {
-        if (false === \strpos($name, '.') && false === \strpos($name, '"')) {
+        if (!\str_contains($name, '.') && !\str_contains($name, '"')) {
             // can be an SQL standard type, try known aliases
             $regexp = '(?:(' . \implode('|', \array_keys(self::SIMPLE_ALIASES)) . ')' // 1
                       . '|(double\\s+precision)' // 2
@@ -473,7 +456,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                     !$typeName || $isArray || $identifier
                     || !\preg_match('/\[\s*]$/A', $name, $m, 0, $position)
                 ) {
-                    throw new InvalidArgumentException("Invalid array specification in type name '{$name}'");
+                    throw new InvalidArgumentException("Invalid array specification in type name '$name'");
                 }
                 $isArray     = true;
                 $position   += \strlen($m[0]);
@@ -482,7 +465,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             } elseif ('.' === $name[$position]) {
                 /** @psalm-suppress TypeDoesNotContainType */
                 if ($schema || !$typeName || $identifier) {
-                    throw new InvalidArgumentException("Extra dots in type name '{$name}'");
+                    throw new InvalidArgumentException("Extra dots in type name '$name'");
                 }
                 [$schema, $typeName] = [$typeName, null];
                 $position++;
@@ -493,10 +476,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                     !\preg_match('/"((?>[^"]+|"")*)"/A', $name, $m, 0, $position)
                     || !\strlen($m[1])
                 ) {
-                    throw new InvalidArgumentException("Invalid double-quoted string in type name '{$name}'");
+                    throw new InvalidArgumentException("Invalid double-quoted string in type name '$name'");
                 } elseif (!$identifier) {
                     throw new InvalidArgumentException(
-                        "Unexpected double-quoted string '{$m[0]}' in type name '{$name}'"
+                        "Unexpected double-quoted string '$m[0]' in type name '$name'"
                     );
                 }
                 $typeName    = \strtr($m[1], ['""' => '"']);
@@ -505,21 +488,21 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
             } elseif (\preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*/A', $name, $m, 0, $position)) {
                 if (!$identifier) {
-                    throw new InvalidArgumentException("Unexpected identifier '{$m[0]}' in type name '{$name}'");
+                    throw new InvalidArgumentException("Unexpected identifier '$m[0]' in type name '$name'");
                 }
                 $typeName    = $this->asciiLowercase($m[0]);
                 $position   += \strlen($m[0]);
                 $identifier  = false;
 
             } else {
-                throw new InvalidArgumentException("Unexpected symbol '{$name[$position]}' in type name '{$name}'");
+                throw new InvalidArgumentException("Unexpected symbol '$name[$position]' in type name '$name'");
             }
 
             $position += \strspn($name, " \r\n\t\f", $position);
         }
 
         if (!$typeName) {
-            throw new InvalidArgumentException("Missing type name in '{$name}'");
+            throw new InvalidArgumentException("Missing type name in '$name'");
         }
         return [$schema, $typeName, $isArray];
     }
@@ -530,11 +513,17 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * @param string      $typeName   type name (as passed to registerConverter())
      * @param string|null $schemaName schema name (only required if converters for the same
      *                                type name were registered for different schemas)
-     * @return TypeConverter
+     * @return ?TypeConverter
      * @throws InvalidArgumentException
      */
-    private function getRegisteredConverterInstance(string $typeName, ?string $schemaName = null): TypeConverter
+    private function getRegisteredConverterInstance(string $typeName, ?string $schemaName = null): ?TypeConverter
     {
+        if (
+            empty($this->types[$typeName])
+            || null !== $schemaName && !isset($this->types[$typeName][$schemaName])
+        ) {
+            return null;
+        }
         if (null === $schemaName) {
             if (1 < \count($this->types[$typeName])) {
                 throw new InvalidArgumentException(\sprintf(
@@ -544,8 +533,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                     \implode(', ', \array_keys($this->types[$typeName]))
                 ));
             }
-            \reset($this->types[$typeName]);
-            $schemaName = \key($this->types[$typeName]);
+            $schemaName = \array_key_first($this->types[$typeName]);
         }
         if (empty($this->converters[$typeName][$schemaName])) {
             if ($this->types[$typeName][$schemaName] instanceof TypeConverter) {
@@ -612,13 +600,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
         ?string $schemaName = null,
         bool $isArray = false
     ): TypeConverter {
-        if (
-            isset($this->types[$typeName])
-            && (null === $schemaName || isset($this->types[$typeName][$schemaName]))
-        ) {
-            $converter = $this->getRegisteredConverterInstance($typeName, $schemaName);
-
-        } else {
+        if (null === $converter = $this->getRegisteredConverterInstance($typeName, $schemaName)) {
             $mapper = $this->getOIDMapper();
             try {
                 $oid = $mapper->findOIDForTypeName($typeName, $schemaName);

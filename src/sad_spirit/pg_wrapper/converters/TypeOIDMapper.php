@@ -37,7 +37,7 @@ interface TypeOIDMapper
      * @return int|numeric-string
      * @throws InvalidArgumentException
      */
-    public function findOIDForTypeName(string $typeName, ?string $schemaName = null);
+    public function findOIDForTypeName(string $typeName, ?string $schemaName = null): int|string;
 
     /**
      * Searches for a type name corresponding to the given OID in loaded type metadata
@@ -46,7 +46,7 @@ interface TypeOIDMapper
      * @return array{string, string}
      * @throws InvalidArgumentException
      */
-    public function findTypeNameForOID($oid): array;
+    public function findTypeNameForOID(int|string $oid): array;
 
     /**
      * Checks whether given OID corresponds to base type
@@ -54,20 +54,20 @@ interface TypeOIDMapper
      * @param int|numeric-string $oid
      * @return bool
      */
-    public function isBaseTypeOID($oid): bool;
+    public function isBaseTypeOID(int|string $oid): bool;
 
     /**
      * Checks whether given OID corresponds to array type
      *
      * $baseTypeOid will be set to OID of the array base type
      *
-     * @param int|numeric-string      $oid
+     * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isArrayTypeOID($oid, &$baseTypeOid = null): bool;
+    public function isArrayTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
 
     /**
      * Checks whether given OID corresponds to composite type
@@ -78,44 +78,44 @@ interface TypeOIDMapper
      *
      * @psalm-assert-if-true array<string, int|numeric-string> $members
      */
-    public function isCompositeTypeOID($oid, array &$members = null): bool;
+    public function isCompositeTypeOID(int|string $oid, array &$members = null): bool;
 
     /**
      * Checks whether given OID corresponds to domain type
      *
      * $baseTypeOid will be set to OID of the underlying data type
      *
-     * @param int|numeric-string      $oid
+     * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isDomainTypeOID($oid, &$baseTypeOid = null): bool;
+    public function isDomainTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
 
     /**
      * Checks whether given OID corresponds to range type
      *
      * $baseTypeOid will be set to OID of the range base type
      *
-     * @param int|numeric-string      $oid
+     * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isRangeTypeOID($oid, &$baseTypeOid = null): bool;
+    public function isRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
 
     /**
      * Checks whether given OID corresponds to multirange type (available since Postgres 14)
      *
      * $baseTypeOid will be set to OID of the multirange base type
      *
-     * @param int|numeric-string      $oid
+     * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
      * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isMultiRangeTypeOID($oid, &$baseTypeOid = null): bool;
+    public function isMultiRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
 }

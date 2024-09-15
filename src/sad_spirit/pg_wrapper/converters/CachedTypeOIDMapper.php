@@ -56,7 +56,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      * @var array<string, array<string, int|numeric-string>> Mapping "type name" => ["schema name" => "type OID", ...],
      *                                        several schemas may contain types having the same name
      */
-    private $typeNames = [
+    private array $typeNames = [
         'bool'                         => ['pg_catalog' => 16],
         'bytea'                        => ['pg_catalog' => 17],
         'char'                         => ['pg_catalog' => 18],
@@ -261,7 +261,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      * Mapping of array type OIDs to their base type OIDs
      * @var array<int|numeric-string>
      */
-    private $arrayTypes = [
+    private array $arrayTypes = [
         1000 => 16,
         1001 => 17,
         1002 => 18,
@@ -355,7 +355,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      *
      * @var array<int|numeric-string|array<string, int|numeric-string>>
      */
-    private $compositeTypes = [
+    private array $compositeTypes = [
         71   => 1247,
         75   => 1249,
         81   => 1255,
@@ -371,13 +371,13 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      * Mapping of domain type OIDs to their base type OIDs
      * @var array<int|numeric-string>
      */
-    private $domainTypes = [];
+    private array $domainTypes = [];
 
     /**
      * Mapping of range type OIDs to their base type OIDs
      * @var array<int|numeric-string>
      */
-    private $rangeTypes = [
+    private array $rangeTypes = [
         3904 => 23,
         3906 => 1700,
         3908 => 1114,
@@ -390,7 +390,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      * Mapping of multirange type OIDs to their base type OIDs (Postgres 14+)
      * @var array<int|numeric-string>
      */
-    private $multiRangeTypes = [
+    private array $multiRangeTypes = [
         4451 => 23,
         4532 => 1700,
         4533 => 1114,
@@ -399,17 +399,11 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         4536 => 20
     ];
 
-    /**
-     * Source of $dbTypes data, one of SOURCE_* constants
-     * @var string
-     */
-    private $dbTypesSource = self::SOURCE_BUILTIN;
+    /** Source of $dbTypes data, one of SOURCE_* constants */
+    private string $dbTypesSource = self::SOURCE_BUILTIN;
 
-    /**
-     * Whether to cache composite types' structure
-     * @var bool
-     */
-    private $compositeTypesCaching = true;
+    /** Whether to cache composite types' structure */
+    private bool $compositeTypesCaching = true;
 
     /**
      * Mapping 'type OID' => ['schema name', 'type name']
@@ -418,9 +412,8 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      *
      * @var array<array{string, string}>
      */
-    private $oidMap = [];
-    /** @var Connection|null */
-    private $connection;
+    private array $oidMap = [];
+    private ?Connection $connection = null;
 
     public function __construct(Connection $connection = null)
     {
@@ -470,7 +463,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         return $this->compositeTypesCaching;
     }
 
-    public function isArrayTypeOID($oid, &$baseTypeOid = null): bool
+    public function isArrayTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
     {
         if (!isset($this->arrayTypes[$oid])) {
             return false;
@@ -480,7 +473,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isRangeTypeOID($oid, &$baseTypeOid = null): bool
+    public function isRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
     {
         if (!isset($this->rangeTypes[$oid])) {
             return false;
@@ -490,7 +483,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isMultiRangeTypeOID($oid, &$baseTypeOid = null): bool
+    public function isMultiRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
     {
         if (!isset($this->multiRangeTypes[$oid])) {
             return false;
@@ -500,7 +493,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isDomainTypeOID($oid, &$baseTypeOid = null): bool
+    public function isDomainTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
     {
         if (!isset($this->domainTypes[$oid])) {
             return false;
@@ -510,7 +503,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isCompositeTypeOID($oid, array &$members = null): bool
+    public function isCompositeTypeOID(int|string $oid, array &$members = null): bool
     {
         if (!isset($this->compositeTypes[$oid])) {
             return false;
@@ -520,7 +513,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isBaseTypeOID($oid): bool
+    public function isBaseTypeOID(int|string $oid): bool
     {
         return !isset($this->arrayTypes[$oid])
                && !isset($this->rangeTypes[$oid])
@@ -529,13 +522,11 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
                && !isset($this->domainTypes[$oid]);
     }
 
-    public function findTypeNameForOID($oid): array
+    public function findTypeNameForOID(int|string $oid): array
     {
         if (
             !$this->checkTypesArrayWithPossibleReload(
-                function () use ($oid) {
-                    return isset($this->oidMap[$oid]);
-                },
+                fn(): bool => isset($this->oidMap[$oid]),
                 'Database connection required'
             )
         ) {
@@ -545,14 +536,12 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         return $this->oidMap[$oid];
     }
 
-    public function findOIDForTypeName(string $typeName, ?string $schemaName = null)
+    public function findOIDForTypeName(string $typeName, ?string $schemaName = null): int|string
     {
         if (
             !$this->checkTypesArrayWithPossibleReload(
-                function () use ($typeName, $schemaName) {
-                    return isset($this->typeNames[$typeName])
-                    && (null === $schemaName || isset($this->typeNames[$typeName][$schemaName]));
-                },
+                fn(): bool => isset($this->typeNames[$typeName])
+                    && (null === $schemaName || isset($this->typeNames[$typeName][$schemaName])),
                 \sprintf(
                     "Database connection required to process type name %s",
                     InvalidArgumentException::formatQualifiedName($typeName, $schemaName)
@@ -630,7 +619,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         if ($cache = $this->connection->getMetadataCache()) {
             try {
                 $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-types');
-            } catch (\Psr\Cache\InvalidArgumentException $e) {
+            } catch (\Psr\Cache\InvalidArgumentException) {
             }
         }
 
@@ -740,7 +729,7 @@ SQL;
      * @throws ServerException
      * @throws RuntimeException
      */
-    private function getCompositeTypeMembers($oid): array
+    private function getCompositeTypeMembers(int|string $oid): array
     {
         if (null === $this->connection) {
             throw new RuntimeException('Database connection required for getting composite types data');
@@ -751,7 +740,7 @@ SQL;
             if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
                 try {
                     $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-composite-' . $oid);
-                } catch (\Psr\Cache\InvalidArgumentException $e) {
+                } catch (\Psr\Cache\InvalidArgumentException) {
                 }
             }
 

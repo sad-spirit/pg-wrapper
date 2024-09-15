@@ -48,7 +48,7 @@ interface TypeConverterFactory
      * @return TypeConverter
      * @throws InvalidArgumentException
      */
-    public function getConverterForTypeSpecification($type): TypeConverter;
+    public function getConverterForTypeSpecification(mixed $type): TypeConverter;
 
     /**
      * Returns a converter for the type with the given OID
@@ -70,7 +70,7 @@ interface TypeConverterFactory
      * @param int|numeric-string $oid
      * @return TypeConverter
      */
-    public function getConverterForTypeOID($oid): TypeConverter;
+    public function getConverterForTypeOID(int|string $oid): TypeConverter;
 
     /**
      * Tries to return a converter based on type of $value
@@ -83,7 +83,7 @@ interface TypeConverterFactory
      * @return TypeConverter
      * @throws TypeConversionException
      */
-    public function getConverterForPHPValue($value): TypeConverter;
+    public function getConverterForPHPValue(mixed $value): TypeConverter;
 
     /**
      * Sets database connection details for this object
