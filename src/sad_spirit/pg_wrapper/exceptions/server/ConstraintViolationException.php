@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\exceptions\server;
 
 use sad_spirit\pg_wrapper\exceptions\ServerException;
+use sad_spirit\pg_wrapper\exceptions\SqlState;
 
 /**
  * Thrown when database integrity constraint is violated
@@ -30,13 +31,13 @@ class ConstraintViolationException extends ServerException
     /** Name of violated constraint */
     private ?string $constraintName = null;
 
-    public function __construct(string $message = "", string $sqlState = "", \Throwable $previous = null)
+    public function __construct(string $message = "", SqlState $sqlState = null, \Throwable $previous = null)
     {
         parent::__construct($message, $sqlState, $previous);
 
         // NOT NULL violation messages do not contain constraint names, in case of any other violation
         // try to extract the name
-        if (self::NOT_NULL_VIOLATION !== $sqlState) {
+        if (SqlState::NOT_NULL_VIOLATION !== $sqlState) {
             $parts = \preg_split("/\n/", $message, -1, \PREG_SPLIT_NO_EMPTY) ?: [];
             if (
                 \count($parts) > 2

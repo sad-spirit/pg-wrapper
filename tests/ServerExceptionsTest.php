@@ -28,6 +28,7 @@ use sad_spirit\pg_wrapper\{
 use sad_spirit\pg_wrapper\exceptions\{
     ConnectionException,
     ServerException,
+    SqlState,
     server\ConstraintViolationException,
     server\DataException,
     server\FeatureNotSupportedException,
@@ -98,7 +99,7 @@ SQL
             $this->conn->execute('insert into test_exception values (null)');
             $this::fail('Expected ConstraintViolationException was not thrown');
         } catch (ConstraintViolationException $e) {
-            $this::assertEquals(ServerException::NOT_NULL_VIOLATION, $e->getSqlState());
+            $this::assertEquals(SqlState::NOT_NULL_VIOLATION, $e->getSqlState());
             $this::assertEquals(null, $e->getConstraintName());
         }
 
@@ -106,7 +107,7 @@ SQL
             $this->conn->execute('insert into test_exception values (1)');
             $this::fail('Expected ConstraintViolationException was not thrown');
         } catch (ConstraintViolationException $e) {
-            $this::assertEquals(ServerException::UNIQUE_VIOLATION, $e->getSqlState());
+            $this::assertEquals(SqlState::UNIQUE_VIOLATION, $e->getSqlState());
             $this::assertEquals('test_exception_pkey', $e->getConstraintName());
         }
     }
