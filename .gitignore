@@ -1,5 +1,6 @@
 /.idea
 /cache
+/tests/.phpunit.cache
 /tests/config.php
 /vendor
 /composer.lock
