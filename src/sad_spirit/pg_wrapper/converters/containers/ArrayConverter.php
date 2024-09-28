@@ -243,8 +243,8 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
             if ($lower > $upper) {
                 throw new TypeConversionException(\sprintf(
                     'Array upper bound (%d) cannot be less than lower bound (%d)',
-                    $lower,
-                    $upper
+                    $upper,
+                    $lower
                 ));
             }
 

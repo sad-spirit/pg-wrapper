@@ -70,8 +70,8 @@ class ArrayDimensionsTest extends TestCase
             ['[1',          "expecting ']'"],
             ['[1]{1}',      "expecting '='"],
             ['[ 1 ]={1}',   "expecting array bounds after '['"],
-            ['[2:1]={1,2}', "cannot be less"],
-            ['[-1]={1}',    "cannot be less"]
+            ['[2:1]={1,2}', "upper bound (1) cannot be less"],
+            ['[-1]={1}',    "upper bound (-1) cannot be less"]
         ];
     }
 
