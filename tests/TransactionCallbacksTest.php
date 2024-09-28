@@ -35,15 +35,12 @@ use sad_spirit\pg_wrapper\exceptions\{
  */
 class TransactionCallbacksTest extends TestCase
 {
-    /**
-     * @var Connection
-     */
-    protected $conn;
+    protected Connection $conn;
 
     /** @var int[] */
-    protected $committed;
+    protected array $committed;
     /** @var int[] */
-    protected $rolledBack;
+    protected array $rolledBack;
 
     protected function setUp(): void
     {

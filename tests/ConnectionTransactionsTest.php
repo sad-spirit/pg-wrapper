@@ -33,10 +33,7 @@ use sad_spirit\pg_wrapper\exceptions\{
  */
 class ConnectionTransactionsTest extends TestCase
 {
-    /**
-     * @var Connection
-     */
-    protected $conn;
+    protected Connection $conn;
 
     protected function setUp(): void
     {

@@ -39,7 +39,7 @@ class LineTest extends TypeConverterTestCase
         $this->converter = new LineConverter();
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null,             null],
@@ -47,7 +47,7 @@ class LineTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['  {  1.2 , 3.4 ,    5.6}   ', new Line(1.2, 3.4, 5.6)],
@@ -58,7 +58,7 @@ class LineTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['{1.2,3.4,5.6}',                ['C' => 5.6, 'A' => 1.2, 'B' => 3.4]],

@@ -32,10 +32,7 @@ use sad_spirit\pg_wrapper\{
  */
 class ResultTest extends TestCase
 {
-    /**
-     * @var Connection
-     */
-    protected static $conn;
+    protected static Connection $conn;
 
     public static function setUpBeforeClass(): void
     {

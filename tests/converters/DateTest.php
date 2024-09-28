@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\converters\datetime\DateConverter;
@@ -31,10 +32,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class DateTest extends TestCase
 {
-    /**
-     * @var DateConverter
-     */
-    protected $caster;
+    protected DateConverter $caster;
 
     public function setUp(): void
     {
@@ -58,12 +56,7 @@ class DateTest extends TestCase
         $this->caster->input('2021-02-11');
     }
 
-    /**
-     * @dataProvider getValuesFrom
-     * @param string|null    $style
-     * @param string|null    $native
-     * @param \DateTime|null $value
-     */
+    #[DataProvider('getValuesFrom')]
     public function testCastFrom(?string $style, ?string $native, ?\DateTime $value): void
     {
         if ($value instanceof \Throwable) {
@@ -75,9 +68,7 @@ class DateTest extends TestCase
         $this->assertEquals($value, $this->caster->input($native));
     }
 
-    /**
-     * @dataProvider getValuesTo
-     */
+    #[DataProvider('getValuesTo')]
     public function testCastTo(string|\Throwable|null $native, mixed $value): void
     {
         if ($native instanceof \Throwable) {
@@ -86,7 +77,7 @@ class DateTest extends TestCase
         $this->assertEquals($native, $this->caster->output($value));
     }
 
-    public function getValuesFrom(): array
+    public static function getValuesFrom(): array
     {
         return [
             [null,             null,         null],
@@ -101,7 +92,7 @@ class DateTest extends TestCase
         ];
     }
 
-    public function getValuesTo(): array
+    public static function getValuesTo(): array
     {
         $dateTime = new \DateTime('2001-05-25');
         return [

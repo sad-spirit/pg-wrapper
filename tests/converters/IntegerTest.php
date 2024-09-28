@@ -24,6 +24,7 @@ use sad_spirit\pg_wrapper\{
     converters\IntegerConverter,
     exceptions\TypeConversionException
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Unit test for integer type converter
@@ -37,26 +38,14 @@ class IntegerTest extends TypeConverterTestCase
         $this->converter = new IntegerConverter();
     }
 
-    /**
-     * Tests for non-decimal literals and underscore separators
-     *
-     * @param string $literal
-     * @return void
-     * @dataProvider postgres16ValidIntegerLiterals
-     */
+    #[DataProvider('postgres16ValidIntegerLiterals')]
     public function testAllowNonDecimalLiteralsAndUnderscores(string $literal): void
     {
         $this->converter->setAllowNonDecimalLiteralsAndUnderscores(true);
         $this::assertEquals($literal, $this->converter->output($literal));
     }
 
-    /**
-     * Invalid non-decimal literals and underscore separators
-     *
-     * @param string $literal
-     * @return void
-     * @dataProvider postgres16InvalidIntegerLiterals
-     */
+    #[DataProvider('postgres16InvalidIntegerLiterals')]
     public function testInvalidNonDecimalLiteralsAndUnderscores(string $literal): void
     {
         $this->converter->setAllowNonDecimalLiteralsAndUnderscores(true);
@@ -64,7 +53,7 @@ class IntegerTest extends TypeConverterTestCase
         $this->converter->output($literal);
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null, null],
@@ -76,7 +65,7 @@ class IntegerTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['1.0', new TypeConversionException()],
@@ -84,7 +73,7 @@ class IntegerTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             [new TypeConversionException(), ''],
@@ -93,7 +82,7 @@ class IntegerTest extends TypeConverterTestCase
         ];
     }
 
-    public function postgres16ValidIntegerLiterals(): array
+    public static function postgres16ValidIntegerLiterals(): array
     {
         return [
             ['0b100101'],
@@ -107,7 +96,7 @@ class IntegerTest extends TypeConverterTestCase
         ];
     }
 
-    public function postgres16InvalidIntegerLiterals(): array
+    public static function postgres16InvalidIntegerLiterals(): array
     {
         return [
             ['123abc'],

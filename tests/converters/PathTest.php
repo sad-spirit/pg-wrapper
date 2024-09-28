@@ -40,7 +40,7 @@ class PathTest extends TypeConverterTestCase
         $this->converter = new PathConverter();
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null,                null],
@@ -50,7 +50,7 @@ class PathTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['1,2,3,4',     new Path(false, new Point(1, 2), new Point(3, 4))],
@@ -59,7 +59,7 @@ class PathTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['((1,2),(1.2,2.3))',            [[1, 2], [1.2, 2.3]]],

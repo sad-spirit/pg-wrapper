@@ -43,7 +43,7 @@ class StringRangeTest extends TypeConverterTestCase
         $this->converter = new RangeConverter(new StringConverter());
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             ['empty',               Range::createEmpty()],
@@ -51,7 +51,7 @@ class StringRangeTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             // tests from rangetypes.sql
@@ -89,7 +89,7 @@ class StringRangeTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['("a","bc\\\\\\"\\""]',            new Range('a', 'bc\\""', false, true)],

@@ -34,10 +34,7 @@ use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
  */
 class PreparedStatementTest extends TestCase
 {
-    /**
-     * @var Connection
-     */
-    protected $conn;
+    protected Connection $conn;
 
     public function setUp(): void
     {

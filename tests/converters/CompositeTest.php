@@ -49,7 +49,7 @@ class CompositeTest extends TypeConverterTestCase
         ]);
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null, null],
@@ -83,7 +83,7 @@ class CompositeTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             [
@@ -99,7 +99,7 @@ class CompositeTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             [new TypeConversionException(), 1],

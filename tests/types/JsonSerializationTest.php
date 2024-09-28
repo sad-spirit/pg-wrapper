@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\types;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\types\{
     ArrayRepresentable,
@@ -43,11 +44,7 @@ use sad_spirit\pg_wrapper\types\{
  */
 class JsonSerializationTest extends TestCase
 {
-    /**
-     * @dataProvider typeInstances
-     * @param ArrayRepresentable $object
-     * @return void
-     */
+    #[DataProvider('typeInstances')]
     public function testSerializesToJson(ArrayRepresentable $object): void
     {
         $this::assertEquals(
@@ -60,7 +57,7 @@ class JsonSerializationTest extends TestCase
      * Provides data for testSerializesToJson() method
      * @return array<array<ArrayRepresentable>>
      */
-    public function typeInstances(): array
+    public static function typeInstances(): array
     {
         return [
             [new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))],

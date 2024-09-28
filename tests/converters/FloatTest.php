@@ -37,7 +37,7 @@ class FloatTest extends TypeConverterTestCase
         $this->converter = new FloatConverter();
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null, null],
@@ -49,7 +49,7 @@ class FloatTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['1', 1.0],
@@ -62,7 +62,7 @@ class FloatTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['2.3', '2,3'],

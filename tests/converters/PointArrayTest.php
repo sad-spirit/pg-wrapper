@@ -40,7 +40,7 @@ class PointArrayTest extends TypeConverterTestCase
         $this->converter = new ArrayConverter(new PointConverter());
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null, null],
@@ -52,7 +52,7 @@ class PointArrayTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['{NULL, NULL}', [null, null]],
@@ -60,7 +60,7 @@ class PointArrayTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['{"(1,2)","(3,4)"}',           [['y' => 2, 'x' => 1], [3, 4]]],

@@ -51,7 +51,7 @@ class JSONTest extends TypeConverterTestCase
         $this->converter->output("\xB1\x31");
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null,                         null],
@@ -61,7 +61,7 @@ class JSONTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['"тест"',       'тест'],
@@ -70,7 +70,7 @@ class JSONTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         $foo = new \stdClass();
         $foo->bar = $foo;

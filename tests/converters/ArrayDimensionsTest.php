@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
 use sad_spirit\pg_wrapper\converters\IntegerConverter;
@@ -39,9 +40,7 @@ class ArrayDimensionsTest extends TestCase
         $this->converter = new ArrayConverter(new IntegerConverter());
     }
 
-    /**
-     * @dataProvider invalidDimensions
-     */
+    #[DataProvider('invalidDimensions')]
     public function testInvalidDimensionsSpecifications(string $invalid, string $message): void
     {
         $this::expectException(TypeConversionException::class);
@@ -50,9 +49,7 @@ class ArrayDimensionsTest extends TestCase
         $this->converter->input($invalid);
     }
 
-    /**
-     * @dataProvider mismatchedDimensions
-     */
+    #[DataProvider('mismatchedDimensions')]
     public function testDimensionsMismatch(string $invalid): void
     {
         $this::expectException(TypeConversionException::class);
@@ -61,15 +58,13 @@ class ArrayDimensionsTest extends TestCase
         $this->converter->input($invalid);
     }
 
-    /**
-     * @dataProvider validDimensions
-     */
+    #[DataProvider('validDimensions')]
     public function testValidDimensions(string $input, array $expected): void
     {
         $this::assertEquals($expected, $this->converter->input($input));
     }
 
-    public function invalidDimensions(): array
+    public static function invalidDimensions(): array
     {
         return [
             ['[1',          "expecting ']'"],
@@ -80,7 +75,7 @@ class ArrayDimensionsTest extends TestCase
         ];
     }
 
-    public function mismatchedDimensions(): array
+    public static function mismatchedDimensions(): array
     {
         return [
             ['[1]={{2}}'],
@@ -91,7 +86,7 @@ class ArrayDimensionsTest extends TestCase
         ];
     }
 
-    public function validDimensions(): array
+    public static function validDimensions(): array
     {
         return [
             ['[1]={2}',                     [2]],

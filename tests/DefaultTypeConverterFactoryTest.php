@@ -20,10 +20,8 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests;
 
-use PHPUnit\Framework\{
-    TestCase,
-    MockObject\MockObject
-};
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     Connection,
     exceptions\InvalidArgumentException,
@@ -59,41 +57,26 @@ use Psr\Cache\{
  */
 class DefaultTypeConverterFactoryTest extends TestCase
 {
-    /**
-     * @var DefaultTypeConverterFactory
-     */
-    protected $factory;
+    protected DefaultTypeConverterFactory $factory;
 
     public function setUp(): void
     {
         $this->factory = new DefaultTypeConverterFactory();
     }
 
-    /**
-     * @dataProvider getBuiltinTypeConverters
-     * @param string        $typeName
-     * @param TypeConverter $converter
-     */
+    #[DataProvider('getBuiltinTypeConverters')]
     public function testGetConverterForBuiltInType(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals($converter, $this->factory->getConverterForTypeSpecification($typeName));
     }
 
-    /**
-     * @dataProvider getSqlStandardTypeConverters
-     * @param string        $typeName
-     * @param TypeConverter $converter
-     */
+    #[DataProvider('getSqlStandardTypeConverters')]
     public function testGetConverterForSqlStandardType(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals($converter, $this->factory->getConverterForTypeSpecification($typeName));
     }
 
-    /**
-     * @dataProvider getBuiltinTypeConverters
-     * @param string        $typeName
-     * @param TypeConverter $converter
-     */
+    #[DataProvider('getBuiltinTypeConverters')]
     public function testGetConverterForBuiltinTypeArray(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals(
@@ -102,11 +85,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getSqlStandardTypeConverters
-     * @param string $typeName
-     * @param TypeConverter $converter
-     */
+    #[DataProvider('getSqlStandardTypeConverters')]
     public function testGetConverterForSqlStandardTypeArray(string $typeName, TypeConverter $converter): void
     {
         $this->assertEquals(
@@ -115,11 +94,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getInvalidTypeNames
-     * @param string $typeName
-     * @param string $exceptionMessage
-     */
+    #[DataProvider('getInvalidTypeNames')]
     public function testInvalidTypeNames(string $typeName, string $exceptionMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -577,7 +552,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
-    public function getBuiltinTypeConverters(): array
+    public static function getBuiltinTypeConverters(): array
     {
         return [
             ['int4',                    new IntegerConverter()],
@@ -592,7 +567,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         ];
     }
 
-    public function getSqlStandardTypeConverters(): array
+    public static function getSqlStandardTypeConverters(): array
     {
         return [
             ['integer',                    new IntegerConverter()],
@@ -602,7 +577,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         ];
     }
 
-    public function getInvalidTypeNames(): array
+    public static function getInvalidTypeNames(): array
     {
         return [
             ['',             'Missing type name'],

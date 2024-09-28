@@ -42,10 +42,7 @@ use sad_spirit\pg_wrapper\exceptions\{
 
 class ServerExceptionsTest extends TestCase
 {
-    /**
-     * @var Connection
-     */
-    protected $conn;
+    protected Connection $conn;
 
     public function setUp(): void
     {

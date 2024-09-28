@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\types;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 use sad_spirit\pg_wrapper\types\{
@@ -52,10 +53,7 @@ class MultiRangeTest extends TestCase
         $this::assertFalse(isset($multiRange[1]));
     }
 
-    /**
-     * @dataProvider invalidDateTimeMultiRangeProvider
-     * @param array $ranges
-     */
+    #[DataProvider('invalidDateTimeMultiRangeProvider')]
     public function testInvalidDateTimeMultiRangeViaConstructor(array $ranges): void
     {
         $this::expectException(InvalidArgumentException::class);
@@ -63,10 +61,7 @@ class MultiRangeTest extends TestCase
         new DateTimeMultiRange(...$ranges);
     }
 
-    /**
-     * @dataProvider invalidDateTimeMultiRangeProvider
-     * @param array $ranges
-     */
+    #[DataProvider('invalidDateTimeMultiRangeProvider')]
     public function testInvalidDateTimeMultiRangeViaCreateFromArray(array $ranges): void
     {
         $this::expectException(InvalidArgumentException::class);
@@ -74,7 +69,7 @@ class MultiRangeTest extends TestCase
         DateTimeMultiRange::createFromArray($ranges);
     }
 
-    public function invalidDateTimeMultiRangeProvider(): array
+    public static function invalidDateTimeMultiRangeProvider(): array
     {
         return [
             [[new Range()]],

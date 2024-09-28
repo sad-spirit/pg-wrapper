@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     converters\ByteaConverter,
@@ -40,18 +41,15 @@ class ByteaTest extends TestCase
 
     /**
      * ByteaConverter should only accept strings
-     *
-     * @dataProvider invalidPHPValuesProvider
      */
+    #[DataProvider('invalidPHPValuesProvider')]
     public function testInvalidPHPValue(mixed $value): void
     {
         $this::expectException(TypeConversionException::class);
         $this->caster->output($value);
     }
 
-    /**
-     * @dataProvider getValuesFrom
-     */
+    #[DataProvider('getValuesFrom')]
     public function testCastFrom(?string $native, string|\Throwable|null $value): void
     {
         if ($value instanceof \Throwable) {
@@ -60,15 +58,13 @@ class ByteaTest extends TestCase
         $this->assertEquals($value, $this->caster->input($native));
     }
 
-    /**
-     * @dataProvider getValuesToHex
-     */
+    #[DataProvider('getValuesToHex')]
     public function testCastToHex(?string $value, ?string $hexEncoded): void
     {
         $this->assertEquals($hexEncoded, $this->caster->output($value));
     }
 
-    public function getValuesFrom(): array
+    public static function getValuesFrom(): array
     {
         return [
             [null,                     null],
@@ -81,7 +77,7 @@ class ByteaTest extends TestCase
         ];
     }
 
-    public function getValuesToHex(): array
+    public static function getValuesToHex(): array
     {
         return [
             [null,         null],
@@ -91,7 +87,7 @@ class ByteaTest extends TestCase
         ];
     }
 
-    public function invalidPHPValuesProvider(): array
+    public static function invalidPHPValuesProvider(): array
     {
         return [
             [[]],

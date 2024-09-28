@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\{
     converters\StubTypeConverterFactory,
@@ -32,19 +33,14 @@ use sad_spirit\pg_wrapper\converters\datetime\TimeStampConverter;
 
 class StubTypeConverterFactoryTest extends TestCase
 {
-    /**
-     * @var StubTypeConverterFactory
-     */
-    protected $factory;
+    protected StubTypeConverterFactory $factory;
 
     public function setUp(): void
     {
         $this->factory = new StubTypeConverterFactory();
     }
 
-    /**
-     * @dataProvider getTypeSpecifications
-     */
+    #[DataProvider('getTypeSpecifications')]
     public function testReturnsStubConverterForAnyType(mixed $type): void
     {
         $this->assertEquals(
@@ -87,7 +83,7 @@ class StubTypeConverterFactoryTest extends TestCase
         $connectionTwo->setTypeConverterFactory($this->factory);
     }
 
-    public function getTypeSpecifications(): array
+    public static function getTypeSpecifications(): array
     {
         return [
             ['foo.bar'],

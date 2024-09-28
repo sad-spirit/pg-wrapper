@@ -39,7 +39,7 @@ class TidTest extends TypeConverterTestCase
         $this->converter = new TidConverter();
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             ['(0,0)', new Tid(0, 0)],
@@ -47,7 +47,7 @@ class TidTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             [' ( 3 , 4 ) ', new Tid(3, 4)],
@@ -60,7 +60,7 @@ class TidTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['(1,2)',                        ['tuple' => 2, 'block' => 1]],

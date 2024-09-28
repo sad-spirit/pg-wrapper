@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\converters;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\converters\datetime\TimeStampTzConverter;
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -36,9 +37,7 @@ class TimestampTzTest extends TestCase
         $this->caster = new TimeStampTzConverter();
     }
 
-    /**
-     * @dataProvider getValuesFrom
-     */
+    #[DataProvider('getValuesFrom')]
     public function testCastFrom(?string $style, ?string $native, \DateTimeInterface|\Throwable|null $value): void
     {
         if ($value instanceof \Throwable) {
@@ -50,9 +49,7 @@ class TimestampTzTest extends TestCase
         $this->assertEquals($value, $this->caster->input($native));
     }
 
-    /**
-     * @dataProvider getValuesTo
-     */
+    #[DataProvider('getValuesTo')]
     public function testCastTo(string|\Throwable|null $native, mixed $value): void
     {
         if ($native instanceof \Throwable) {
@@ -61,7 +58,7 @@ class TimestampTzTest extends TestCase
         $this->assertEquals($native, $this->caster->output($value));
     }
 
-    public function getValuesFrom(): array
+    public static function getValuesFrom(): array
     {
         return [
             [null,             null,                               null],
@@ -77,7 +74,7 @@ class TimestampTzTest extends TestCase
         ];
     }
 
-    public function getValuesTo(): array
+    public static function getValuesTo(): array
     {
         return [
             ['whatever',                       'whatever'],

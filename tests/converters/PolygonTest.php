@@ -40,7 +40,7 @@ class PolygonTest extends TypeConverterTestCase
         $this->converter = new PolygonConverter();
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null, null],
@@ -49,7 +49,7 @@ class PolygonTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['1, 2,  3  , 4 ', new Polygon(new Point(1, 2), new Point(3, 4))],
@@ -59,7 +59,7 @@ class PolygonTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['((1,2))',                      [[1, 2]]],

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PgSql\Connection as NativeConnection;
 use sad_spirit\pg_wrapper\{
@@ -120,9 +121,7 @@ class ConnectionTest extends TestCase
         $this->assertFalse($cloned->isConnected());
     }
 
-    /**
-     * @dataProvider getImplicitTypes
-     */
+    #[DataProvider('getImplicitTypes')]
     public function testQuoteImplicitTypes(mixed $value, string $expected): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -132,9 +131,7 @@ class ConnectionTest extends TestCase
         $this->assertSame($expected, $connection->quote($value));
     }
 
-    /**
-     * @dataProvider getImplicitTypesFail
-     */
+    #[DataProvider('getImplicitTypesFail')]
     public function testFailToQuoteImplicitTypes(mixed $value): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -145,9 +142,7 @@ class ConnectionTest extends TestCase
         $connection->quote($value);
     }
 
-    /**
-     * @dataProvider getExplicitTypes
-     */
+    #[DataProvider('getExplicitTypes')]
     public function testQuoteExplicitTypes(mixed $value, string $type, string $expected): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
@@ -190,7 +185,7 @@ class ConnectionTest extends TestCase
         $this::assertNotSame($connection->getTypeConverterFactory(), $cloned->getTypeConverterFactory());
     }
 
-    public function getImplicitTypes(): array
+    public static function getImplicitTypes(): array
     {
         return [
             [null,                         'NULL'],
@@ -229,7 +224,7 @@ class ConnectionTest extends TestCase
         ];
     }
 
-    public function getImplicitTypesFail(): array
+    public static function getImplicitTypesFail(): array
     {
         return [
             [[]],
@@ -237,7 +232,7 @@ class ConnectionTest extends TestCase
         ];
     }
 
-    public function getExplicitTypes(): array
+    public static function getExplicitTypes(): array
     {
         return [
             [['foo' => 'bar'],    'hstore',   '\'"foo"=>"bar"\''],

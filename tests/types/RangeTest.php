@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\tests\types;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 use sad_spirit\pg_wrapper\types\{
@@ -40,9 +41,7 @@ class RangeTest extends TestCase
         $this->assertTrue($range->empty);
     }
 
-    /**
-     * @dataProvider getInvalidNumericRanges
-     */
+    #[DataProvider('getInvalidNumericRanges')]
     public function testInvalidNumericRangesViaConstructor(int|string $lower, int|string $upper): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -50,7 +49,7 @@ class RangeTest extends TestCase
         new NumericRange($lower, $upper);
     }
 
-    public function getInvalidNumericRanges(): array
+    public static function getInvalidNumericRanges(): array
     {
         return [
             [2, 1],
@@ -101,9 +100,7 @@ class RangeTest extends TestCase
         $this::assertInstanceOf(\DateTimeImmutable::class, $range->upper);
     }
 
-    /**
-     * @dataProvider missingBoundsProvider
-     */
+    #[DataProvider('missingBoundsProvider')]
     public function testMissingBoundIsExclusive(?string $lowerBound, ?string $upperBound): void
     {
         $range = new Range($lowerBound, $upperBound, true, true);
@@ -119,7 +116,7 @@ class RangeTest extends TestCase
         }
     }
 
-    public function missingBoundsProvider(): array
+    public static function missingBoundsProvider(): array
     {
         return [
             ['a', null],
@@ -128,11 +125,7 @@ class RangeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider arrayProvider
-     * @param array $input
-     * @param NumericRange $expected
-     */
+    #[DataProvider('arrayProvider')]
     public function testCreateFromArray(array $input, NumericRange $expected): void
     {
         $this::assertEquals(
@@ -141,7 +134,7 @@ class RangeTest extends TestCase
         );
     }
 
-    public function arrayProvider(): array
+    public static function arrayProvider(): array
     {
         return [
             [

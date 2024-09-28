@@ -24,6 +24,7 @@ use sad_spirit\pg_wrapper\{
     converters\NumericConverter,
     exceptions\TypeConversionException
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Unit test for numeric type converter
@@ -59,26 +60,14 @@ class NumericTest extends TypeConverterTestCase
         }
     }
 
-    /**
-     * Tests for non-decimal literals and underscore separators
-     *
-     * @param string $literal
-     * @return void
-     * @dataProvider postgres16ValidNumericLiterals
-     */
+    #[DataProvider('postgres16ValidNumericLiterals')]
     public function testAllowNonDecimalLiteralsAndUnderscores(string $literal): void
     {
         $this->converter->setAllowNonDecimalLiteralsAndUnderscores(true);
         $this::assertEquals($literal, $this->converter->output($literal));
     }
 
-    /**
-     * Invalid non-decimal literals and underscore separators
-     *
-     * @param string $literal
-     * @return void
-     * @dataProvider postgres16InvalidNumericLiterals
-     */
+    #[DataProvider('postgres16InvalidNumericLiterals')]
     public function testInvalidNonDecimalLiteralsAndUnderscores(string $literal): void
     {
         $this->converter->setAllowNonDecimalLiteralsAndUnderscores(true);
@@ -86,7 +75,7 @@ class NumericTest extends TypeConverterTestCase
         $this->converter->output($literal);
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null,   null],
@@ -96,7 +85,7 @@ class NumericTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['',     new TypeConversionException()],
@@ -104,7 +93,7 @@ class NumericTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['2.3',                         '2,3'],
@@ -114,7 +103,7 @@ class NumericTest extends TypeConverterTestCase
         ];
     }
 
-    public function postgres16ValidNumericLiterals(): array
+    public static function postgres16ValidNumericLiterals(): array
     {
         return [
             ['0b_10_0101'],
@@ -126,7 +115,7 @@ class NumericTest extends TypeConverterTestCase
         ];
     }
 
-    public function postgres16InvalidNumericLiterals(): array
+    public static function postgres16InvalidNumericLiterals(): array
     {
         return [
             ['0x0y'],

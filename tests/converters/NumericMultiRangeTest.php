@@ -41,7 +41,7 @@ class NumericMultiRangeTest extends TypeConverterTestCase
         $this->converter = new MultiRangeConverter(new NumericConverter());
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             ['{}',                      new NumericMultiRange()],
@@ -57,7 +57,7 @@ class NumericMultiRangeTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['   {    [1     , 2]  }',  new NumericMultiRange(new NumericRange('1', '2', true, true))],
@@ -68,7 +68,7 @@ class NumericMultiRangeTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['{["2","3")}',                     [[2, 3]]],

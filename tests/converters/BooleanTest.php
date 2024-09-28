@@ -34,7 +34,7 @@ class BooleanTest extends TypeConverterTestCase
         $this->converter = new BooleanConverter();
     }
 
-    public function valuesBoth(): array
+    public static function valuesBoth(): array
     {
         return [
             [null, null],
@@ -43,7 +43,7 @@ class BooleanTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesFrom(): array
+    public static function valuesFrom(): array
     {
         return [
             ['1', true],
@@ -51,7 +51,7 @@ class BooleanTest extends TypeConverterTestCase
         ];
     }
 
-    public function valuesTo(): array
+    public static function valuesTo(): array
     {
         return [
             ['t', 'true'],
