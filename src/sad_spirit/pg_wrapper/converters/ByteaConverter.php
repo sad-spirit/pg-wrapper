@@ -47,8 +47,8 @@ class ByteaConverter extends BaseConverter
             $start   = 2;
             $length  = \strlen($native);
             while ($start < $length) {
-                $start += \strspn($native, " \n\r\t", $start);
-                $hexes  = \strcspn($native, " \n\r\t", $start);
+                $start += \strspn($native, self::WHITESPACE, $start);
+                $hexes  = \strcspn($native, self::WHITESPACE, $start);
                 if ($hexes > 0) {
                     if ($hexes % 2) {
                         throw new TypeConversionException(\sprintf(
@@ -59,7 +59,7 @@ class ByteaConverter extends BaseConverter
                     }
 
                     // pack() throws a warning, but returns a string nonetheless, so use warnings handler
-                    \set_error_handler(function ($errno, $errstr) use (&$warning): true {
+                    \set_error_handler(static function ($errno, $errstr) use (&$warning): true {
                         $warning = $errstr;
                         return true;
                     }, \E_WARNING);

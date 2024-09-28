@@ -29,7 +29,7 @@ class NumericConverter extends BaseNumericConverter
 {
     protected function inputNotNull(string $native): string|float
     {
-        $native = \trim($native);
+        $native = \trim($native, self::WHITESPACE);
         if (\is_numeric($native)) {
             return $native;
 

@@ -48,6 +48,10 @@ class BooleanTest extends TypeConverterTestCase
         return [
             ['1', true],
             ['0', false],
+
+            // whitespace handling
+            ["f\f", false],
+            ["\vf", false]
         ];
     }
 
@@ -67,7 +71,7 @@ class BooleanTest extends TypeConverterTestCase
             ['f', 'false'],
             ['f', 0],
             ['f', '0'],
-            ['f', []],
+            ['f', []]
         ];
     }
 }

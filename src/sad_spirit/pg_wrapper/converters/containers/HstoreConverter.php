@@ -79,7 +79,7 @@ class HstoreConverter extends ContainerConverter
      */
     private function readUnquoted(string $string, int &$pos, string $delimiter): string
     {
-        if (0 === ($length = \strcspn($string, " \t\r\n" . $delimiter, $pos))) {
+        if (0 === ($length = \strcspn($string, self::WHITESPACE . $delimiter, $pos))) {
             throw TypeConversionException::parsingFailed($this, 'unquoted string', $string, $pos);
         }
         $value  = \substr($string, $pos, $length);

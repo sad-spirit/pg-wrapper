@@ -317,7 +317,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
 
             } else {
                 // zero-length string can appear only quoted
-                if (0 === ($len = \strcspn($native, $this->delimiter . "} \t\r\n", $pos))) {
+                if (0 === ($len = \strcspn($native, $this->delimiter . '}' . self::WHITESPACE, $pos))) {
                     throw TypeConversionException::parsingFailed(
                         $this,
                         'subarray, quoted or unquoted string',

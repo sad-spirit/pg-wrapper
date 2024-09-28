@@ -73,7 +73,10 @@ class ByteaTest extends TestCase
             ['abc\\000\'\\\\\\001def', "abc\000'\\\001def"],
             ['\x4142000102',           "AB\000\001\002"],
             ['\x4 1',                  new TypeConversionException()],
-            ['\x41$2',                 new TypeConversionException()]
+            ['\x41$2',                 new TypeConversionException()],
+
+            // whitespace handling
+            ["\\x 41\r\n42\t00\v01\f02", "AB\000\001\002"]
         ];
     }
 

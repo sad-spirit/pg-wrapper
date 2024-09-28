@@ -88,6 +88,7 @@ class NumericTest extends TypeConverterTestCase
     public static function valuesFrom(): array
     {
         return [
+            ["\v1.0\f", '1.0'],
             ['',     new TypeConversionException()],
             ['blah', new TypeConversionException()]
         ];

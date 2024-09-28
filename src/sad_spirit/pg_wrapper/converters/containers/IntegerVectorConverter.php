@@ -56,7 +56,7 @@ class IntegerVectorConverter extends ContainerConverter
         $values = [];
 
         while (null !== $this->nextChar($native, $pos)) {
-            $length    = \strcspn($native, " \n\r\t", $pos);
+            $length    = \strcspn($native, self::WHITESPACE, $pos);
             $values[]  = $this->integerConverter->input(\substr($native, $pos, $length));
             $pos      += $length;
         }

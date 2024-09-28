@@ -253,7 +253,7 @@ class IntervalConverter extends BaseConverter
 
         while ($pos < $length) {
             // $native cannot have _trailing_ whitespace, it was trimmed in inputNotNull()
-            $pos += \strspn($native, " \r\n\t\f", $pos);
+            $pos += \strspn($native, self::WHITESPACE, $pos);
 
             if (\preg_match('/[a-z]+/A', $native, $m, 0, $pos)) {
                 $field  = $m[0];
@@ -338,7 +338,7 @@ class IntervalConverter extends BaseConverter
 
     protected function inputNotNull(string $native): DateInterval
     {
-        if ('' === ($native = \trim($native))) {
+        if ('' === ($native = \trim($native, self::WHITESPACE))) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
 
         } elseif ('P' !== $native[0]) {

@@ -57,6 +57,7 @@ class StringArrayTest extends TypeConverterTestCase
         return [
             ['{ {NULL} ,{  NULL, "string" }}  ', [[null], [null, 'string']]],
             ['{{NULL},{test,"\\"y"},{NULL,string}}', [[null], ['test', '"y'], [null, 'string']]],
+            ["{{\na,b\r}\t,{\vc,d\f}}", [['a', 'b'], ['c', 'd']]]
         ];
     }
 

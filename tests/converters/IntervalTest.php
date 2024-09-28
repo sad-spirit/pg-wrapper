@@ -61,6 +61,8 @@ class IntervalTest extends TypeConverterTestCase
             ['P1Y2M',                                              'P1Y2M'],
             ['P3DT4H5M6S',                                         'P3DT4H5M6S'],
             ['P-1Y-2M3DT-4H-5M-6S',                                'P-1Y-2M3DT-4H-5M-6S'],
+            // handling whitespace
+            ["\v\f1\ryear\n2\v\tmonths\v\f",                         'P1Y2M'],
 
             // handling of fractional seconds
             ['01:02:03.456',                                       'PT1H2M3.456S'],

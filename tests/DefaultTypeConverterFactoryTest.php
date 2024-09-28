@@ -563,7 +563,9 @@ class DefaultTypeConverterFactoryTest extends TestCase
             [' "public" . "hstore"',    new HstoreConverter()],
             ['tsrange',                 new RangeConverter(new TimeStampConverter())],
             ['pg_catalog.int4range',    new RangeConverter(new IntegerConverter())],
-            ['pg_catalog.tsmultirange', new MultiRangeConverter(new TimeStampConverter())]
+            ['pg_catalog.tsmultirange', new MultiRangeConverter(new TimeStampConverter())],
+            ["\rpg_catalog\n.\tint4 ",  new IntegerConverter()],
+            ["\vpg_catalog\f.\vint4\f", new IntegerConverter()]
         ];
     }
 

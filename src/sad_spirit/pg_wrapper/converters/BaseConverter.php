@@ -30,6 +30,12 @@ use sad_spirit\pg_wrapper\{
  */
 abstract class BaseConverter implements TypeConverter
 {
+    /**
+     * Symbols that should be considered whitespace by type converters
+     * https://git.postgresql.org/gitweb/?p=postgresql.git;a=commitdiff;h=ae6d06f09684d8f8a7084514c9b35a274babca61
+     */
+    public const WHITESPACE = " \n\r\t\v\f";
+
     public function input(?string $native): mixed
     {
         return ($native === null) ? null : $this->inputNotNull($native);
@@ -64,7 +70,7 @@ abstract class BaseConverter implements TypeConverter
      */
     protected function nextChar(string $str, int &$p): ?string
     {
-        $p += \strspn($str, " \t\r\n", $p);
+        $p += \strspn($str, self::WHITESPACE, $p);
         return $str[$p] ?? null;
     }
 

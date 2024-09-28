@@ -68,6 +68,7 @@ class IntegerTest extends TypeConverterTestCase
     public static function valuesFrom(): array
     {
         return [
+            ["\v1\f", 1],
             ['1.0', new TypeConversionException()],
             ['NaN', new TypeConversionException()]
         ];

@@ -29,7 +29,7 @@ class IntegerConverter extends BaseNumericConverter
 {
     protected function inputNotNull(string $native): int|string
     {
-        $native = \trim($native);
+        $native = \trim($native, self::WHITESPACE);
         if (!\ctype_digit($native) && !\preg_match('/^-\d+$/', $native)) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'integer value', $native);
 

@@ -443,7 +443,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             }
         }
 
-        $position   = 0;
+        $position   = \strspn($name, BaseConverter::WHITESPACE);
         $length     = \strlen($name);
         $typeName   = null;
         $schema     = null;
@@ -486,7 +486,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                 $position   += \strlen($m[0]);
                 $identifier  = false;
 
-            } elseif (\preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*/A', $name, $m, 0, $position)) {
+            } elseif (\preg_match('/[A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9$]*/A', $name, $m, 0, $position)) {
                 if (!$identifier) {
                     throw new InvalidArgumentException("Unexpected identifier '$m[0]' in type name '$name'");
                 }
@@ -498,7 +498,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                 throw new InvalidArgumentException("Unexpected symbol '$name[$position]' in type name '$name'");
             }
 
-            $position += \strspn($name, " \r\n\t\f", $position);
+            $position += \strspn($name, BaseConverter::WHITESPACE, $position);
         }
 
         if (!$typeName) {
@@ -567,8 +567,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     private function getConverterForTypeName(string $name): TypeConverter
     {
         if (!isset($this->parsedNames[$name])) {
-            if (!\preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9\$]*)(\[])?$/', $name, $m)) {
-                [$schemaName, $typeName, $isArray] = $this->parseTypeName(\trim($name));
+            if (!\preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9$]*)(\[])?$/', $name, $m)) {
+                [$schemaName, $typeName, $isArray] = $this->parseTypeName($name);
 
             } else {
                 $schemaName = null;
