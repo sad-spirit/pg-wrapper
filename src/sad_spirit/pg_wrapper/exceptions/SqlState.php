@@ -205,6 +205,7 @@ enum SqlState: string
     case NO_ACTIVE_SQL_TRANSACTION                            = '25P01';
     case IN_FAILED_SQL_TRANSACTION                            = '25P02';
     case IDLE_IN_TRANSACTION_SESSION_TIMEOUT                  = '25P03';
+    case ERRCODE_TRANSACTION_TIMEOUT                          = '25P04';
 
     /* Class 26 - Invalid SQL Statement Name */
     case INVALID_SQL_STATEMENT_NAME = '26000';
@@ -354,7 +355,7 @@ enum SqlState: string
     case DUPLICATE_FILE = '58P02';
 
     /* Class 72 - Snapshot Failure */
-    case SNAPSHOT_TOO_OLD = '72000';
+    case SNAPSHOT_TOO_OLD = '72000'; // This was removed in Postgres 17
 
     /* Class F0 - Configuration File Error */
     case CONFIG_FILE_ERROR = 'F0000';
