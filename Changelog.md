@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased]
+
+The package now requires PHP 8.2+. BC breaks are possible due to new language features being used,
+please consult the [upgrade instructions](./UPGRADE.md).
+
+### Added
+ * Tested on PHP 8.4 and Postgres 17
+ * Types data and error codes updated for Postgres 17.
+
+### Changed
+ * Classes representing complex PostgreSQL types contain native `public readonly` properties rather than magic ones.
+ * When parsing database values, consistently follow Postgres 17 in what is considered a whitespace character:
+  space, `\r`, `\n`, `\t`, `\v`, `\f`.
+ * SQL error codes are represented by cases of `SqlState` enum instead of `ServerException` class constants.
+ * Added typehints for arguments and return values where not previously possible: e.g. `int|string` for
+   methods dealing with OID values and `int|string` for methods of `Result` accepting field name / index.
+
+### Removed
+Features deprecated in 2.x releases were removed, see the [upgrade instructions](./UPGRADE.md) for the full list.
+
+### Fixed
+* An exception message for invalid array bounds in `ArrayConverter` got these bounds mixed.
+* Proper casing of native `PgSql` namespace.
+
 ## [2.5.0] - 2024-09-12
 
 ### Fixed
@@ -308,3 +332,4 @@ Initial release on GitHub
 [2.4.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.3.0...v2.4.0
 [2.4.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.0...v2.4.1
 [2.5.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...v2.5.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v2.5.0...HEAD
