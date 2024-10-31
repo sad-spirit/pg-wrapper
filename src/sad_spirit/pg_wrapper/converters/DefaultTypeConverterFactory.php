@@ -398,14 +398,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     }
 
     /**
-     * ASCII-only lowercasing for type names
-     */
-    private function asciiLowercase(string $string): string
-    {
-        return \strtr($string, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
-    }
-
-    /**
      * Parses possibly schema-qualified or double-quoted type name
      *
      * NB: this method does not employ a full-blown parser, specifically
@@ -430,12 +422,11 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             if (\preg_match('/^' . $regexp . '$/i', $name, $matches)) {
                 $isArray = !empty($matches[7]);
                 if (!empty($matches[1])) {
-                    $typeName = self::SIMPLE_ALIASES[$this->asciiLowercase($matches[1])];
+                    $typeName = self::SIMPLE_ALIASES[\strtolower($matches[1])];
                 } elseif (!empty($matches[2])) {
                     $typeName = 'float8';
                 } elseif (!empty($matches[3])) {
-                    $typeName = $this->asciiLowercase($matches[3])
-                                . (0 === \strcasecmp($matches[4], 'with') ? 'tz' : '');
+                    $typeName = \strtolower($matches[3]) . (0 === \strcasecmp($matches[4], 'with') ? 'tz' : '');
                 } else {
                     $typeName = 'text';
                 }
@@ -490,7 +481,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
                 if (!$identifier) {
                     throw new InvalidArgumentException("Unexpected identifier '$m[0]' in type name '$name'");
                 }
-                $typeName    = $this->asciiLowercase($m[0]);
+                $typeName    = \strtolower($m[0]);
                 $position   += \strlen($m[0]);
                 $identifier  = false;
 
@@ -573,7 +564,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             } else {
                 $schemaName = null;
                 $isArray    = !empty($m[2]);
-                $typeName   = $this->asciiLowercase($m[1]);
+                $typeName   = \strtolower($m[1]);
                 if (isset(self::SIMPLE_ALIASES[$typeName])) {
                     $typeName = self::SIMPLE_ALIASES[$typeName];
                 }
