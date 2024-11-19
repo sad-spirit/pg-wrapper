@@ -14,6 +14,8 @@
  * @author    Alexey Borzov <avb@php.net>
  * @license   https://opensource.org/licenses/BSD-2-Clause BSD 2-Clause license
  * @link      https://github.com/sad-spirit/pg-wrapper
+ *
+ * @noinspection SqlResolve
  */
 
 declare(strict_types=1);
@@ -257,5 +259,13 @@ SQL
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('is not present');
         $result->getTableOID('foo');
+    }
+
+    public function testNumericAlias(): void
+    {
+        $result = self::$conn->execute('select \'foo\' as "1", \'bar\' as "0"');
+
+        $this::assertEquals(['foo'], $result->fetchColumn('1'));
+        $this::assertEquals(['bar'], $result->fetchColumn(1));
     }
 }

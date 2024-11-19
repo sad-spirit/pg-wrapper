@@ -188,7 +188,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function setType(int|string $fieldIndex, mixed $type): self
     {
-        $this->converters[$this->checkFieldIndex($fieldIndex)] =
+        $this->converters[$this->normalizeFieldIndex($fieldIndex)] =
             $this->converterFactory->getConverterForTypeSpecification($type);
         $this->lastReadParams = null;
 
@@ -226,7 +226,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function fetchColumn(int|string $fieldIndex): array
     {
-        $fieldIndex = $this->checkFieldIndex($fieldIndex);
+        $fieldIndex = $this->normalizeFieldIndex($fieldIndex);
 
         $result = [];
         $native = $this->getNative();
@@ -272,7 +272,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
                     __METHOD__ . ': at least two columns needed for associative array result'
                 );
             }
-            $fieldIndex = $this->checkFieldIndex($keyColumn);
+            $fieldIndex = $this->normalizeFieldIndex($keyColumn);
             if (\PGSQL_NUM === $mode) {
                 $keyColumn = $fieldIndex;
             } elseif (!\is_string($keyColumn) || $keyColumn === (string)$fieldIndex) {
@@ -334,7 +334,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function getTableOID(int|string $fieldIndex): int|string|null
     {
-        return $this->tableOIDs[$this->checkFieldIndex($fieldIndex)];
+        return $this->tableOIDs[$this->normalizeFieldIndex($fieldIndex)];
     }
 
     /**
@@ -382,7 +382,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function valid(): bool
     {
-        return ($this->position >= 0) && ($this->position < $this->numRows);
+        return $this->position >= 0 && $this->position < $this->numRows;
     }
 
     /**
@@ -406,16 +406,13 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
-        /** @psalm-suppress NoValue */
-        if (\is_string($offset) && \ctype_digit($offset)) {
-            /** @psalm-suppress InvalidCast */
-            $offset = (int)$offset;
-        } elseif (!\is_int($offset)) {
-            return false;
-        }
-        return $offset >= 0 && $offset < $this->numRows;
+        $intOffset = (int)$offset;
+
+        return (string)$intOffset === (string)$offset
+            && $intOffset >= 0
+            && $intOffset < $this->numRows;
     }
 
     /**
@@ -423,7 +420,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @psalm-return array|null
      * @psalm-ignore-nullable-return
      */
-    public function offsetGet($offset): ?array
+    public function offsetGet(mixed $offset): ?array
     {
         return $this->offsetExists($offset) ? $this->read((int)$offset, $this->mode) : null;
     }
@@ -459,22 +456,21 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
-    private function checkFieldIndex(int|string $fieldIndex): int
+    private function normalizeFieldIndex(int|string $fieldIndex): int
     {
-        if (\is_int($fieldIndex) || \ctype_digit($fieldIndex)) {
+        if (\is_string($fieldIndex) && isset($this->namesHash[$fieldIndex])) {
+            return $this->namesHash[$fieldIndex];
+
+        } elseif (\is_int($fieldIndex) || \ctype_digit($fieldIndex)) {
             if ($fieldIndex >= 0 && $fieldIndex < $this->numFields) {
                 return (int)$fieldIndex;
-            } else {
-                throw new exceptions\OutOfBoundsException(\sprintf(
-                    "%s: field number %d is not within range 0..%d",
-                    __METHOD__,
-                    $fieldIndex,
-                    $this->numFields - 1
-                ));
             }
-
-        } elseif (isset($this->namesHash[$fieldIndex])) {
-            return $this->namesHash[$fieldIndex];
+            throw new exceptions\OutOfBoundsException(\sprintf(
+                "%s: field number %d is not within range 0..%d",
+                __METHOD__,
+                $fieldIndex,
+                $this->numFields - 1
+            ));
 
         } else {
             throw new exceptions\OutOfBoundsException(
