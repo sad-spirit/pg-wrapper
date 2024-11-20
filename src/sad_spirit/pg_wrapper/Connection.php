@@ -120,7 +120,7 @@ class Connection
     public function __destruct()
     {
         $this->converterFactory = null;
-        $this->disconnect();
+        $this->disconnectImpl();
     }
 
     /**
@@ -184,6 +184,21 @@ class Connection
      */
     public function disconnect(): self
     {
+        $this->disconnectImpl();
+
+        return $this;
+    }
+
+    /**
+     * Closes the connection and possibly runs registered "on rollback" callbacks
+     *
+     * This is a separate method returning void as calling disconnect() returning $this in __destruct() leads
+     * to breakage of PHPUnit mocks for this class: https://github.com/sebastianbergmann/phpunit/issues/5809
+     *
+     * @return void
+     */
+    private function disconnectImpl(): void
+    {
         if (null !== $this->native) {
             try {
                 \pg_close($this->native);
@@ -202,8 +217,6 @@ class Connection
             // Postpone running callbacks until exit from outermost atomic()
             $this->disconnectedInAtomic = true;
         }
-
-        return $this;
     }
 
     /**
