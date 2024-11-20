@@ -342,7 +342,11 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        \pg_free_result($this->getNative());
+        /** @psalm-suppress RedundantCondition */
+        // This is only for the mocks, where newInstanceWithoutConstructor() is used
+        if (isset($this->native)) {
+            pg_free_result($this->native);
+        }
     }
 
     /**
