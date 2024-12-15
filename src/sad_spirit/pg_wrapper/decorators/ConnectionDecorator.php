@@ -39,7 +39,7 @@ use Psr\Cache\CacheItemPoolInterface;
 abstract class ConnectionDecorator extends Connection
 {
     /** @noinspection PhpMissingParentConstructorInspection */
-    public function __construct(private Connection $wrapped)
+    public function __construct(private readonly Connection $wrapped)
     {
     }
 
