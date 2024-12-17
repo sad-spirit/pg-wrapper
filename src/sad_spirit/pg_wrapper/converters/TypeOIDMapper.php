@@ -67,7 +67,7 @@ interface TypeOIDMapper
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isArrayTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
+    public function isArrayTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool;
 
     /**
      * Checks whether given OID corresponds to composite type
@@ -78,7 +78,7 @@ interface TypeOIDMapper
      *
      * @psalm-assert-if-true array<string, int|numeric-string> $members
      */
-    public function isCompositeTypeOID(int|string $oid, array &$members = null): bool;
+    public function isCompositeTypeOID(int|string $oid, array|null &$members = null): bool;
 
     /**
      * Checks whether given OID corresponds to domain type
@@ -91,7 +91,7 @@ interface TypeOIDMapper
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isDomainTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
+    public function isDomainTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool;
 
     /**
      * Checks whether given OID corresponds to range type
@@ -104,7 +104,7 @@ interface TypeOIDMapper
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
+    public function isRangeTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool;
 
     /**
      * Checks whether given OID corresponds to multirange type (available since Postgres 14)
@@ -117,5 +117,5 @@ interface TypeOIDMapper
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
-    public function isMultiRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool;
+    public function isMultiRangeTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool;
 }

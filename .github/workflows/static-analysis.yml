@@ -61,6 +61,9 @@ jobs:
       matrix:
         operating-system: [ 'ubuntu-latest' ]
         php-version: [ '8.2', '8.4' ]
+        include:
+          - php-version: '8.4'
+            composer-flags: '--ignore-platform-req=php+'
 
     steps:
       - name: Checkout code

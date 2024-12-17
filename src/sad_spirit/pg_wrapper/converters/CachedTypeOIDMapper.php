@@ -415,7 +415,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
     private array $oidMap = [];
     private ?Connection $connection = null;
 
-    public function __construct(Connection $connection = null)
+    public function __construct(?Connection $connection = null)
     {
         if (null !== $connection) {
             $this->setConnection($connection);
@@ -463,7 +463,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         return $this->compositeTypesCaching;
     }
 
-    public function isArrayTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
+    public function isArrayTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool
     {
         if (!isset($this->arrayTypes[$oid])) {
             return false;
@@ -473,7 +473,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
+    public function isRangeTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool
     {
         if (!isset($this->rangeTypes[$oid])) {
             return false;
@@ -483,7 +483,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isMultiRangeTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
+    public function isMultiRangeTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool
     {
         if (!isset($this->multiRangeTypes[$oid])) {
             return false;
@@ -493,7 +493,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isDomainTypeOID(int|string $oid, int|string &$baseTypeOid = null): bool
+    public function isDomainTypeOID(int|string $oid, int|string|null &$baseTypeOid = null): bool
     {
         if (!isset($this->domainTypes[$oid])) {
             return false;
@@ -503,7 +503,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         }
     }
 
-    public function isCompositeTypeOID(int|string $oid, array &$members = null): bool
+    public function isCompositeTypeOID(int|string $oid, array|null &$members = null): bool
     {
         if (!isset($this->compositeTypes[$oid])) {
             return false;
