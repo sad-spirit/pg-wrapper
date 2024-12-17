@@ -284,7 +284,6 @@ class PreparedStatement
     {
         $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
-        $this->values[$parameterNumber - 1] = $value;
         if (null !== $type) {
             $this->setParameterType($parameterNumber, $type);
         } elseif (!isset($this->converters[$parameterNumber - 1])) {
@@ -293,6 +292,8 @@ class PreparedStatement
                 . "beforehand using e.g. setParameterType()"
             );
         }
+
+        $this->values[$parameterNumber - 1] = $value;
 
         return $this;
     }
@@ -311,7 +312,6 @@ class PreparedStatement
     {
         $this->assertValidParameterNumber($parameterNumber, __METHOD__);
 
-        $this->values[$parameterNumber - 1] =& $param;
         if (null !== $type) {
             $this->setParameterType($parameterNumber, $type);
         } elseif (!isset($this->converters[$parameterNumber - 1])) {
@@ -320,6 +320,8 @@ class PreparedStatement
                 . "beforehand using e.g. setParameterType()"
             );
         }
+
+        $this->values[$parameterNumber - 1] =& $param;
 
         return $this;
     }
