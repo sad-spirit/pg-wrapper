@@ -31,7 +31,7 @@ class ConstraintViolationException extends ServerException
     /** Name of violated constraint */
     private ?string $constraintName = null;
 
-    public function __construct(string $message = "", SqlState $sqlState = null, \Throwable $previous = null)
+    public function __construct(string $message = "", ?SqlState $sqlState = null, ?\Throwable $previous = null)
     {
         parent::__construct($message, $sqlState, $previous);
 

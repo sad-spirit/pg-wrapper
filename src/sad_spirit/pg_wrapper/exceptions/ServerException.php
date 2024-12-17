@@ -113,7 +113,7 @@ class ServerException extends RuntimeException
         string $message = "",
         /** Error code */
         private readonly ?SqlState $sqlState = null,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, 0, $previous);
     }

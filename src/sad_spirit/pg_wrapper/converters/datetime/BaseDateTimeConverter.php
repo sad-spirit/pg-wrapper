@@ -54,7 +54,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      *
      * @param Connection|null $connection
      */
-    public function __construct(Connection $connection = null)
+    public function __construct(?Connection $connection = null)
     {
         if (null !== $connection) {
             $this->setConnection($connection);
