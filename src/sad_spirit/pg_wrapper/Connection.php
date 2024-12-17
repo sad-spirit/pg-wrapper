@@ -163,10 +163,10 @@ class Connection
         }
         $this->native  = $native;
         $serverVersion = \pg_parameter_status($this->native, 'server_version');
-        if (!$serverVersion || \version_compare($serverVersion, '9.3', '<')) {
+        if (!$serverVersion || \version_compare($serverVersion, '12', '<')) {
             $this->disconnect();
             throw new exceptions\ConnectionException(
-                __METHOD__ . ': PostgreSQL versions earlier than 9.3 are no longer supported, '
+                __METHOD__ . ': PostgreSQL versions earlier than 12 are no longer supported, '
                 . 'connected server reports ' . ($serverVersion ? 'version ' . $serverVersion : 'unknown version')
             );
         }

@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-The package now requires PHP 8.2+. BC breaks are possible due to new language features being used,
+The package now requires PHP 8.2+ and Postgres 12+. BC breaks are possible due to new language features being used,
 please consult the [upgrade instructions](./UPGRADE.md).
 
 ### Added
