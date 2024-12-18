@@ -26,7 +26,7 @@ namespace sad_spirit\pg_wrapper;
 class PreparedStatement
 {
     /** Whether to fetch parameter types from DB when first preparing the statement */
-    private static bool $autoFetchParameterTypes = false;
+    private static bool $autoFetchParameterTypes = true;
 
     /** Used to generate statement names for pg_prepare() */
     protected static int $statementIdx = 0;

@@ -21,6 +21,8 @@ please consult the [upgrade instructions](./UPGRADE.md).
  * SQL error codes are represented by cases of `SqlState` enum instead of `ServerException` class constants.
  * Added typehints for arguments and return values where not previously possible: e.g. `int|string` for
    methods dealing with OID values and `int|string` for methods of `Result` accepting field name / index.
+ * `PreparedStatement` will fetch data on query parameters from DB by default. This behaviour can be changed via
+   static `PreparedStatement::setAutoFetchParameterTypes(bool $autoFetch)` method.
 
 ### Removed
 Features deprecated in 2.x releases were removed, see the [upgrade instructions](./UPGRADE.md) for the full list.
