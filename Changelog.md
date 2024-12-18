@@ -8,6 +8,11 @@ please consult the [upgrade instructions](./UPGRADE.md).
 ### Added
  * Tested on PHP 8.4 and Postgres 17
  * Types data and error codes updated for Postgres 17.
+ * `decorators\ConnectionDecorator` and `decorators\PreparedStatementDecorator` abstract base classes that
+   can be used to add functionality to `Connection` and `PreparedStatement`. The base classes only forward calls 
+   to wrapped instances of `Connection` and `PreparedStatement`.
+ * `decorators\logging\Connection` and `decorators\logging\PreparedStatement` classes that extend the above and
+   log all queries using PSR-3 compatible logger.
 
 ### Changed
  * Classes representing complex PostgreSQL types contain native `public readonly` properties rather than magic ones.
