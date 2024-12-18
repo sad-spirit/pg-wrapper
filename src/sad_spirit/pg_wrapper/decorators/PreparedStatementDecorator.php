@@ -28,6 +28,8 @@ use sad_spirit\pg_wrapper\Result;
  *
  * This base class delegates all method calls to the decorated instance, child classes will implement
  * the additional logic
+ *
+ * @since 3.0.0
  */
 abstract class PreparedStatementDecorator extends PreparedStatement
 {

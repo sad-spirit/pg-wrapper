@@ -29,6 +29,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Decorator for Connection that logs queries using an implementation of PSR-3 LoggerInterface
+ *
+ * @since 3.0.0
  */
 final class Connection extends ConnectionDecorator
 {

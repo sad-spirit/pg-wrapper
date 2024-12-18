@@ -46,6 +46,8 @@ namespace sad_spirit\pg_wrapper\exceptions;
  *  - `NULL_VALUE_NOT_ALLOWED`
  *
  * and will return the same case for all the other ones.
+ *
+ * @since 3.0.0
  */
 enum SqlState: string
 {
