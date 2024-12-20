@@ -13,6 +13,21 @@ please consult the [upgrade instructions](./UPGRADE.md).
    to wrapped instances of `Connection` and `PreparedStatement`.
  * `decorators\logging\Connection` and `decorators\logging\PreparedStatement` classes that extend the above and
    log all queries using PSR-3 compatible logger.
+ * Iterator methods for `Result`:
+   * `iterateColumn(int|string $fieldIndex)` - returns an iterator over a single column of the result, this complements
+     `fetchColumn()`;
+   * `iterateNumeric()` - returns an iterator over result with values representing result rows as enumerated arrays,
+     this is similar to calling `$result->setMode(\PGSQL_NUM)` and iterating over `$result`, but more explicit;
+   * `iterateAssociative()` -  returns an iterator over result with values representing result rows as associative
+     arrays, this is once again a more explicit version of calling `$result->setMode(\PGSQL_ASSOC)`;
+   * `iterateKeyedAssociative(?string $keyColumn = null, bool $forceArray = false)` - returns an iterator over result 
+     with keys corresponding to the values of the given column and values representing either the values
+     of the remaining column or the rest of the columns as associative arrays, this complements `fetchAll()` with
+     key column specified and mode set to `\PGSQL_ASSOC`;
+   * `iterateKeyedNumeric(int $keyColumn = 0, bool $forceArray = false)` - eeturns an iterator over result 
+     with keys corresponding to the values of the column with the given index and values representing either 
+     the values of the remaining column or the rest of the columns as enumerated arrays, this complements `fetchAll()`
+     with key column specified and mode set to `\PGSQL_NUM`.
 
 ### Changed
  * Classes representing complex PostgreSQL types contain native `public readonly` properties rather than magic ones.

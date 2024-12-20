@@ -268,4 +268,100 @@ SQL
         $this::assertEquals(['foo'], $result->fetchColumn('1'));
         $this::assertEquals(['bar'], $result->fetchColumn(1));
     }
+
+    public function testIterateColumn(): void
+    {
+        $res = self::$conn->execute("select one, two from test_result where one > 5");
+
+        $this::assertEquals([7, 9], \iterator_to_array($res->iterateColumn('one')));
+        $this::assertEquals(['bar', 'baz'], \iterator_to_array($res->iterateColumn(1)));
+    }
+
+    public function testIterateAssociative(): void
+    {
+        $res = self::$conn->execute("select one, two from test_result where one > 5 order by one");
+
+        $res->setMode(\PGSQL_NUM);
+        $this::assertEquals(
+            [
+                ['one' => 7, 'two' => 'bar'],
+                ['one' => 9, 'two' => 'baz']
+            ],
+            \iterator_to_array($res->iterateAssociative())
+        );
+    }
+
+    public function testIterateNumeric(): void
+    {
+        $res = self::$conn->execute("select one, two from test_result where one > 5 order by one");
+
+        $res->setMode(\PGSQL_ASSOC);
+        $this::assertEquals(
+            [
+                [7, 'bar'],
+                [9, 'baz']
+            ],
+            \iterator_to_array($res->iterateNumeric())
+        );
+    }
+
+    public function testIterateKeyedAssociativeTwoColumns(): void
+    {
+        $res = self::$conn->execute("select one, two from test_result where one > 5 order by one");
+
+        $this::assertEquals(
+            [7 => 'bar', 9 => 'baz'],
+            \iterator_to_array($res->iterateKeyedAssociative())
+        );
+        $this::assertEquals(
+            ['bar' => 7, 'baz' => 9],
+            \iterator_to_array($res->iterateKeyedAssociative('two'))
+        );
+        $this::assertEquals(
+            ['bar' => ['one' => 7], 'baz' => ['one' => 9]],
+            \iterator_to_array($res->iterateKeyedAssociative('two', true))
+        );
+    }
+
+    public function testIterateAssociativeThreeColumns(): void
+    {
+        $res      = self::$conn->execute("select one, two, three from test_result where one < 5 order by one");
+        $expected = [
+            1 => ['two' => 'foo', 'three' => 'first value of foo'],
+            3 => ['two' => 'foo', 'three' => 'second value of foo']
+        ];
+
+        $this::assertEquals($expected, \iterator_to_array($res->iterateKeyedAssociative('one')));
+        $this::assertEquals($expected, \iterator_to_array($res->iterateKeyedAssociative(null, true)));
+    }
+
+    public function testIterateKeyedNumericTwoColumns(): void
+    {
+        $res = self::$conn->execute("select one, two from test_result where one > 5 order by one");
+
+        $this::assertEquals(
+            [7 => 'bar', 9 => 'baz'],
+            \iterator_to_array($res->iterateKeyedNumeric())
+        );
+        $this::assertEquals(
+            ['bar' => 7, 'baz' => 9],
+            \iterator_to_array($res->iterateKeyedNumeric(1))
+        );
+        $this::assertEquals(
+            ['bar' => [7], 'baz' => [9]],
+            \iterator_to_array($res->iterateKeyedNumeric(1, true))
+        );
+    }
+
+    public function testIterateNumericThreeColumns(): void
+    {
+        $res      = self::$conn->execute("select one, two, three from test_result where one < 5 order by one");
+        $expected = [
+            1 => ['foo', 'first value of foo'],
+            3 => ['foo', 'second value of foo']
+        ];
+
+        $this::assertEquals($expected, \iterator_to_array($res->iterateKeyedNumeric(0)));
+        $this::assertEquals($expected, \iterator_to_array($res->iterateKeyedNumeric(0, true)));
+    }
 }

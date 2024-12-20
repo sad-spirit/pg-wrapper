@@ -408,6 +408,121 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
+     * Returns an iterator over a single column of the result
+     *
+     * @param int|string $fieldIndex Either a column name or an index (0-based)
+     * @return \Traversable<int, mixed>
+     * @since 3.0.0
+     */
+    public function iterateColumn(int|string $fieldIndex): \Traversable
+    {
+        $fieldIndex = $this->normalizeFieldIndex($fieldIndex);
+        $native     = $this->getNative();
+
+        for ($i = 0; $i < $this->numRows; $i++) {
+            yield $this->converters[$fieldIndex]->input(\pg_fetch_result($native, $i, $fieldIndex));
+        }
+    }
+
+    /**
+     * Returns an iterator over result with values representing result rows as enumerated arrays
+     *
+     * @psalm-suppress MoreSpecificReturnType
+     * @return \Traversable<int,list<mixed>>
+     * @since 3.0.0
+     */
+    public function iterateNumeric(): \Traversable
+    {
+        for ($i = 0; $i < $this->numRows; $i++) {
+            yield $this->read($i, \PGSQL_NUM);
+        }
+    }
+
+    /**
+     * Returns an iterator over result with values representing result rows as associative arrays
+     *
+     * @return \Traversable<int, array<string, mixed>>
+     * @since 3.0.0
+     */
+    public function iterateAssociative(): \Traversable
+    {
+        for ($i = 0; $i < $this->numRows; $i++) {
+            yield $this->read($i, \PGSQL_ASSOC);
+        }
+    }
+
+    /**
+     * Returns an iterator over result with keys corresponding to the values of the given column and values
+     * representing either the values of the remaining column or the rest of the columns as associative arrays
+     *
+     * @param string|null $keyColumn If null, the first column will be used
+     * @param bool $forceArray       Applicable when the query returns exactly two columns. If false (default)
+     *                               the other column's values will be returned directly, if true they will be
+     *                               wrapped in an array keyed with the column name
+     * If true the values will be one element arrays
+     *         with other column's values, instead of values directly
+     * @return \Traversable<mixed, array<string, mixed>|mixed>
+     * @since 3.0.0
+     */
+    public function iterateKeyedAssociative(?string $keyColumn = null, bool $forceArray = false): \Traversable
+    {
+        if ($this->numFields < 2) {
+            throw new exceptions\OutOfBoundsException("At least two columns needed for key-value result iteration");
+        }
+        if (null === $keyColumn) {
+            /** @var string $keyColumn */
+            $keyColumn = \array_key_first($this->namesHash);
+        } elseif (!isset($this->namesHash[$keyColumn])) {
+            throw new exceptions\OutOfBoundsException(
+                \sprintf("%s: field name '%s' is not present", __METHOD__, $keyColumn)
+            );
+        }
+        $killArray = (!$forceArray && 2 === $this->numFields);
+
+        for ($i = 0; $i < $this->numRows; $i++) {
+            $row = $this->read($i, \PGSQL_ASSOC);
+            $key = $row[$keyColumn];
+            unset($row[$keyColumn]);
+
+            yield $key => $killArray ? \reset($row) : $row;
+        }
+    }
+
+    /**
+     * Returns an iterator over result with keys corresponding to the values of the column with the given index and
+     * values representing either the values of the remaining column or the rest of the columns as enumerated arrays
+     *
+     * @param int $keyColumn
+     * @param bool $forceArray Applicable when the query returns exactly two columns. If false (default)
+     *                         the other column's values will be returned directly, if true they will be
+     *                         wrapped in an array
+     * @return \Traversable<mixed, list<mixed>|mixed>
+     * @since 3.0.0
+     */
+    public function iterateKeyedNumeric(int $keyColumn = 0, bool $forceArray = false): \Traversable
+    {
+        if ($this->numFields < 2) {
+            throw new exceptions\OutOfBoundsException("At least two columns needed for key-value result iteration");
+        }
+        if ($keyColumn < 0 || $keyColumn >= $this->numFields) {
+            throw new exceptions\OutOfBoundsException(\sprintf(
+                "%s: field number %d is not within range 0..%d",
+                __METHOD__,
+                $keyColumn,
+                $this->numFields - 1
+            ));
+        }
+        $killArray = (!$forceArray && 2 === $this->numFields);
+
+        for ($i = 0; $i < $this->numRows; $i++) {
+            $row   = $this->read($i, \PGSQL_NUM);
+            [$key] = \array_splice($row, $keyColumn, 1);
+
+            yield $key => $killArray ? \reset($row) : $row;
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function offsetExists(mixed $offset): bool
