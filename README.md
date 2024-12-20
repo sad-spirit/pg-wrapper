@@ -1,6 +1,6 @@
 # sad_spirit\pg_wrapper
 
-> Note: master branch is being upgraded for PHP 8.2+
+> Note: master branch contains code for the upcoming 3.0 versions that requires PHP 8.2+
 >
 > [Branch 2.x](../../tree/2.x) contains the stable version compatible with PHP 7.2+
 
