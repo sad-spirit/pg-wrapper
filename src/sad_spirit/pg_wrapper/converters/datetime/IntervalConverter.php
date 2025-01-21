@@ -14,11 +14,8 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper\converters\datetime;
 
-use sad_spirit\pg_wrapper\{
-    converters\BaseConverter,
-    exceptions\TypeConversionException,
-    types\DateInterval
-};
+use sad_spirit\pg_wrapper\converters\BaseConverter;
+use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
  * Converter for interval type
@@ -78,22 +75,57 @@ class IntervalConverter extends BaseConverter
         'yrs'       => 'y'
     ];
 
-    private readonly DateInterval $intervalPrototype;
+    private readonly \DateInterval $intervalPrototype;
+
+    /**
+     * Returns the value of DateInterval object as an ISO 8601 time interval string
+     *
+     * This string will not necessarily work with DateInterval's constructor
+     * as that cannot handle negative numbers.
+     * Mostly intended for sending to Postgres as a value of interval type.
+     */
+    public static function formatAsISO8601(\DateInterval $interval): string
+    {
+        $string = 'P';
+        $mult   = $interval->invert ? -1 : 1;
+        foreach (['y' => 'Y', 'm' => 'M', 'd' => 'D'] as $key => $char) {
+            if (0 !== $interval->{$key}) {
+                $string .= \sprintf('%d%s', $interval->{$key} * $mult, $char);
+            }
+        }
+        if (0 !== $interval->h || 0 !== $interval->i || 0 !== $interval->s || 0.0 !== $interval->f) {
+            $string .= 'T';
+            foreach (['h' => 'H', 'i' => 'M'] as $key => $char) {
+                if (0 !== $interval->{$key}) {
+                    $string .= \sprintf('%d%s', $interval->{$key} * $mult, $char);
+                }
+            }
+            if (0 !== $interval->s || 0.0 !== $interval->f) {
+                if (0.0 === $interval->f) {
+                    $string .= \sprintf('%d%s', $interval->s * $mult, 'S');
+                } else {
+                    $string .= \rtrim(\sprintf('%.6f', ($interval->s + $interval->f) * $mult), '0');
+                    $string .= 'S';
+                }
+            }
+        }
+
+        // prevent returning an empty string
+        return 'P' === $string ? 'PT0S' : $string;
+    }
 
     public function __construct()
     {
-        $this->intervalPrototype = new DateInterval('PT0S');
+        $this->intervalPrototype = new \DateInterval('PT0S');
     }
 
 
     /**
      * Parses a string representing time, e.g. '01:02:03' or '01:02:03.45' and updates DateInterval's fields
      *
-     * @param string       $token
-     * @param DateInterval $interval
      * @throws TypeConversionException
      */
-    private function parseTimeToken(string $token, DateInterval $interval): void
+    private function parseTimeToken(string $token, \DateInterval $interval): void
     {
         $parts = \explode(':', $token);
 
@@ -127,10 +159,10 @@ class IntervalConverter extends BaseConverter
      * output formats
      *
      * @param array<int, array{string, string}> $tokens
-     * @return DateInterval
+     * @return \DateInterval
      * @throws TypeConversionException
      */
-    private function createInterval(array $tokens): DateInterval
+    private function createInterval(array $tokens): \DateInterval
     {
         $interval    = clone $this->intervalPrototype;
         $intervalKey = null;
@@ -295,12 +327,10 @@ class IntervalConverter extends BaseConverter
      * Unlike native DateInterval::__construct() this handles negative values
      * and fractional seconds. Only integer values are allowed for other units.
      *
-     * @param string $native
-     * @return DateInterval
      * @throws TypeConversionException
      * @psalm-suppress PossiblyUndefinedArrayOffset
      */
-    private function parseISO8601(string $native): DateInterval
+    private function parseISO8601(string $native): \DateInterval
     {
         $interval = clone $this->intervalPrototype;
         $regexp   = '/^P(?=[T\d-])                      # P should be followed by something
@@ -330,7 +360,7 @@ class IntervalConverter extends BaseConverter
         return $interval;
     }
 
-    protected function inputNotNull(string $native): DateInterval
+    protected function inputNotNull(string $native): \DateInterval
     {
         if ('' === ($native = \trim($native, self::WHITESPACE))) {
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
@@ -344,7 +374,7 @@ class IntervalConverter extends BaseConverter
                 // https://bugs.php.net/bug.php?id=53831
                 // No minuses or dots -> built-in constructor can probably handle
                 try {
-                    return new DateInterval($native);
+                    return new \DateInterval($native);
                 } catch (\Exception) {
                     // croaked; let our own parsing function work and throw an Exception
                 }
@@ -380,7 +410,7 @@ class IntervalConverter extends BaseConverter
             ) . ' seconds';
 
         } elseif ($value instanceof \DateInterval) {
-            return DateInterval::formatAsISO8601($value);
+            return self::formatAsISO8601($value);
         }
 
         throw TypeConversionException::unexpectedValue(

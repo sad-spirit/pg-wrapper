@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Removed
+``types\DateInterval`` class: it only contained a static `formatAsISO8601()` method which was moved to
+`converters\datetime\IntervalConverter`. `IntervalConverter::input()` will now return
+an instance of native `\DateInterval`.
+
 ## [3.0.0-beta] - 2024-12-21
 
 The package now requires PHP 8.2+ and Postgres 12+. BC breaks are possible due to new language features being used,
@@ -355,3 +362,4 @@ Initial release on GitHub
 [2.4.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.0...v2.4.1
 [2.5.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...v2.5.0
 [3.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.5.0...v3.0.0-beta
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...HEAD

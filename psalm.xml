@@ -29,7 +29,6 @@
             <errorLevel type="suppress">
                 <file name="src/sad_spirit/pg_wrapper/converters/datetime/IntervalConverter.php" />
                 <file name="tests/converters/IntervalTest.php" />
-                <file name="tests/types/DateIntervalTest.php" />
             </errorLevel>
         </InaccessibleProperty>
 
