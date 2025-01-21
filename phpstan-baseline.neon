@@ -11,3 +11,9 @@ parameters:
 				- src/sad_spirit/pg_wrapper/Connection.php
 				- tests/ConnectionTest.php
 			reportUnmatched: false
+
+		# well duh
+		-
+			message: "#^Offset 'foo' on sad_spirit\\\\pg_wrapper\\\\tests\\\\types\\\\PointListImplementation in isset\\(\\) does not exist\\.$#"
+			paths:
+				- tests\types\PointListTest.php

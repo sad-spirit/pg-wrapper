@@ -29,13 +29,13 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
 {
     /**
      * Points available through ArrayAccess
-     * @var Point[]
+     * @var list<Point>
      */
     protected array $points;
 
     public function __construct(Point ...$points)
     {
-        $this->points = $points;
+        $this->points = \array_values($points);
     }
 
     /**
@@ -64,7 +64,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet($offset, $value): never
     {
         throw new BadMethodCallException(self::class . " objects are immutable");
     }
@@ -74,14 +74,15 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset($offset): never
     {
         throw new BadMethodCallException(self::class . " objects are immutable");
     }
 
     /**
      * {@inheritDoc}
-     * @return \ArrayIterator<int, Point>
+     * @psalm-return \ArrayIterator<int<0, max>, Point>
+     * @phpstan-return \ArrayIterator<int, Point>
      */
     public function getIterator(): \ArrayIterator
     {
@@ -100,7 +101,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
      * Converts an array containing Points
      *
      * @param array $input Expects an array of Points or Point-compatible arrays (=two floats)
-     * @return Point[]
+     * @return list<Point>
      */
     protected static function createPointArray(array $input): array
     {
