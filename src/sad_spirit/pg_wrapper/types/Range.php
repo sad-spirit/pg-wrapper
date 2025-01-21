@@ -97,7 +97,6 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
      * Creates a Range from a given array
      *
      * @param array $input Expects an array of two bounds or array with the keys named as Range properties
-     * @return static
      */
     public static function createFromArray(array $input): static
     {

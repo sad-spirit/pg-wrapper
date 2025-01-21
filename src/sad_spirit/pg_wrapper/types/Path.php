@@ -45,9 +45,8 @@ final readonly class Path extends PointList implements ArrayRepresentable, \Json
      *
      * @param array $input Expects an array of Points or Point-compatible arrays (=two floats), first item
      *                     can also be a bool for $open property of created Path
-     * @return self
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         if (\is_bool(\reset($input))) {
             $open = \array_shift($input);

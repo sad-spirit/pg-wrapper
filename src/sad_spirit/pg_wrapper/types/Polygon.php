@@ -33,9 +33,8 @@ final readonly class Polygon extends PointList implements ArrayRepresentable, \J
      * Creates a Polygon from a given array
      *
      * @param array $input Expects an array of Points or Point-compatible arrays (=two floats)
-     * @return self
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         return new self(...self::createPointArray($input));
     }

@@ -67,10 +67,9 @@ final readonly class Tid implements ArrayRepresentable, \JsonSerializable
      * Creates a Tid from a given array
      *
      * @param array $input Expects an array of two integers
-     * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         if (2 !== \count($input)) {
             throw new InvalidArgumentException(

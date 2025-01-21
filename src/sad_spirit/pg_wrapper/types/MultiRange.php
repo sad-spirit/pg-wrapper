@@ -131,7 +131,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      * @return static
      * @throws InvalidArgumentException
      */
-    final public static function createFromArray(array $input): self
+    final public static function createFromArray(array $input): static
     {
         $rangeClass = static::getItemClass();
         $ranges     = [];

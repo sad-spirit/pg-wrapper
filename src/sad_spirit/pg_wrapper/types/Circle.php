@@ -44,10 +44,9 @@ final readonly class Circle implements ArrayRepresentable, \JsonSerializable
      * Creates a Circle from a given array
      *
      * @param array $input Expects an array with two arguments, one Point-compatible and one float
-     * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         if (2 !== \count($input)) {
             throw new InvalidArgumentException(

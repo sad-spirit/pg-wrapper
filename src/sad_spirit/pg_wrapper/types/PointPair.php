@@ -44,10 +44,9 @@ abstract readonly class PointPair implements ArrayRepresentable, \JsonSerializab
      * Creates an instance of PointPair from a given array
      *
      * @param array $input Expects an array with two Point-compatible values
-     * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         if (2 !== \count($input)) {
             throw new InvalidArgumentException(

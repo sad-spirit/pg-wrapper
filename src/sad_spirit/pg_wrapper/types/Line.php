@@ -48,10 +48,9 @@ final readonly class Line implements ArrayRepresentable, \JsonSerializable
      * Creates a Line from a given array
      *
      * @param array $input Expects an array of three floats
-     * @return self
      * @throws InvalidArgumentException
      */
-    public static function createFromArray(array $input): self
+    public static function createFromArray(array $input): static
     {
         if (3 !== \count($input)) {
             throw new InvalidArgumentException(

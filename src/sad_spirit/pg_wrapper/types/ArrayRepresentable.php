@@ -21,9 +21,6 @@ interface ArrayRepresentable
 {
     /**
      * Creates an object based on the contents of the array
-     *
-     * @param array $input
-     * @return self
      */
-    public static function createFromArray(array $input);
+    public static function createFromArray(array $input): static;
 }
