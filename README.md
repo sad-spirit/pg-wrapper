@@ -100,10 +100,26 @@ array(5) {
   }
   ["occupied"]=>
   object(sad_spirit\pg_wrapper\types\DateTimeRange)#29 (5) {
-    ...
+    ["lower"]=>
+    object(DateTimeImmutable)#30 (3) {
+      ["date"]=>
+      string(26) "2014-01-13 00:00:00.000000"
+      ...
+    }
+    ["upper"]=>
+    object(DateTimeImmutable)#31 (3) {
+      ["date"]=>
+      string(26) "2014-09-19 00:00:00.000000"
+      ...
+    }
   }
   ["age"]=>
-  object(sad_spirit\pg_wrapper\types\DateInterval)#32 (10) {
+  object(DateInterval)#32 (10) {
+    ...
+    ["m"]=>
+    int(8)
+    ["d"]=>
+    int(6)
     ...
   }
   ["document"]=>
