@@ -3,9 +3,16 @@
 ## [Unreleased]
 
 ### Removed
-``types\DateInterval`` class: it only contained a static `formatAsISO8601()` method which was moved to
+`types\DateInterval` class: it only contained a static `formatAsISO8601()` method which was moved to
 `converters\datetime\IntervalConverter`. `IntervalConverter::input()` will now return
 an instance of native `\DateInterval`.
+
+### Fixed
+ * `types\PointList` and `types\MultiRange` can  have 
+    [list-compatible array offsets](https://www.php.net/manual/en/function.array-is-list.php),
+    previously it was possible to make them have any offsets by passing an unpacked associative array
+    to constructors.
+ * `types\MultiRange` and its subclasses is now `readonly` as other classes representing complex types
 
 ## [3.0.0-beta] - 2024-12-21
 

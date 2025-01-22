@@ -2,6 +2,10 @@
 
 ## Removed features
 
+* Custom `types\DateInterval` class. Its `formatAsISO8601()` static method was moved
+  to `converters\datetime\IntervalConverter`, `input()` method of that converter now returns
+  instances of native `\DateInterval` class.
+
 Features deprecated in 2.x releases were removed, specifically
 * `ResultSet` class -- use `Result`.
 * Getter / "isser" methods of classes for complex PostgreSQL types, use the properties instead. The methods were
@@ -68,7 +72,7 @@ $emptyRange = NumericRange::createEmpty();
 
 ### Additional typehints
 
-Typehints were added for method arguments and return values where not previously possible, specifically 
+Typehints were added for method arguments and return values where not previously possible or omitted, specifically 
 * `int|string` typehints for methods dealing with OID values:
   * `$oid` argument of `TypeConverterFactory::getConverterForTypeOID()` and its implementations,
   * Return value of `Result::getTableOID()`,
@@ -80,3 +84,5 @@ Typehints were added for method arguments and return values where not previously
 *  `int|string` typehints for `$fieldIndex` arguments of `setType()`, `fetchColumn()`, and `getTableOID()` methods
    in `Result` class;
 * `int|string|null` typehint for `$keyColumn` argument of `Result::fetchAll()`. 
+* `static` typehint for return value of `types\ArrayRepresentable::createFromArray()`
+* 
