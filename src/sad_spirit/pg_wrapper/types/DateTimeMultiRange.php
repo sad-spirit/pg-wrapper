@@ -21,7 +21,7 @@ namespace sad_spirit\pg_wrapper\types;
  *
  * @extends MultiRange<DateTimeRange>
  */
-class DateTimeMultiRange extends MultiRange
+final readonly class DateTimeMultiRange extends MultiRange
 {
     public static function getItemClass(): string
     {

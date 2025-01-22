@@ -14,6 +14,7 @@ parameters:
 
 		# well duh
 		-
-			message: "#^Offset 'foo' on sad_spirit\\\\pg_wrapper\\\\tests\\\\types\\\\PointListImplementation in isset\\(\\) does not exist\\.$#"
+			message: "#^Offset 'foo' on sad_spirit\\\\pg_wrapper\\\\(tests\\\\)?types\\\\[a-zA-Z]+ in isset\\(\\) does not exist\\.$#"
 			paths:
 				- tests\types\PointListTest.php
+				- tests\types\MultiRangeTest.php

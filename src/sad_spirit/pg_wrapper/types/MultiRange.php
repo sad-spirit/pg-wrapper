@@ -26,10 +26,10 @@ use sad_spirit\pg_wrapper\exceptions\{
  * @implements \ArrayAccess<int, T>
  * @implements \IteratorAggregate<int, T>
  */
-class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
+readonly class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
     /**
-     * @var array<int, T>
+     * @var list<T>
      */
     private array $items;
 
@@ -62,7 +62,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
                 ));
             }
         }
-        $this->items = $items;
+        $this->items = \array_values($items);
     }
 
     /**
@@ -92,7 +92,7 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    final public function offsetSet($offset, $value): void
+    final public function offsetSet($offset, $value): never
     {
         throw new BadMethodCallException(self::class . " objects are immutable");
     }
@@ -102,14 +102,15 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
      * {@inheritDoc}
      * @throws BadMethodCallException
      */
-    final public function offsetUnset($offset): void
+    final public function offsetUnset($offset): never
     {
         throw new BadMethodCallException(self::class . " objects are immutable");
     }
 
     /**
      * {@inheritDoc}
-     * @return \ArrayIterator<int, T>
+     * @psalm-return \ArrayIterator<int<0, max>, T>
+     * @phpstan-return \ArrayIterator<int, T>
      */
     final public function getIterator(): \ArrayIterator
     {
@@ -153,10 +154,10 @@ class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countable, \Itera
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return list<T>
      */
     final public function jsonSerialize(): array
     {
-        return \array_map(fn(Range $item): array => $item->jsonSerialize(), $this->items);
+        return $this->items;
     }
 }

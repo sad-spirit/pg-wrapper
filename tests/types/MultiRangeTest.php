@@ -16,6 +16,7 @@ namespace sad_spirit\pg_wrapper\tests\types;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use sad_spirit\pg_wrapper\exceptions\BadMethodCallException;
 use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 use sad_spirit\pg_wrapper\types\{
     DateTimeMultiRange,
@@ -36,6 +37,35 @@ class MultiRangeTest extends TestCase
         $multiRange = new MultiRange();
         $this::assertCount(0, $multiRange);
         $this::assertEquals(new \ArrayIterator([]), $multiRange->getIterator());
+    }
+
+    public function testIsAList(): void
+    {
+        $input      = ['foo' => new NumericRange(1, 2), 'bar' => new NumericRange(3, 4)];
+        $multiRange = new NumericMultiRange(...$input);
+
+        $this::assertTrue(isset($multiRange[0]));
+        $this::assertFalse(isset($multiRange['foo']));
+        $this::assertEquals(
+            [new NumericRange(1, 2), new NumericRange(3, 4)],
+            $multiRange->getIterator()->getArrayCopy()
+        );
+    }
+
+    public function testCannotOffsetSet(): void
+    {
+        $multiRange = new NumericMultiRange(new NumericRange(1, 2));
+
+        $this::expectException(BadMethodCallException::class);
+        $multiRange[1] = new NumericRange(3, 4);
+    }
+
+    public function testCannotOffsetUnset(): void
+    {
+        $multiRange = new NumericMultiRange(new NumericRange(1, 2));
+
+        $this::expectException(BadMethodCallException::class);
+        unset($multiRange[0]);
     }
 
     public function testCreateNumericMultiRange(): void

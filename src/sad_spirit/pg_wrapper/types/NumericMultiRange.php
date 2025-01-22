@@ -21,7 +21,7 @@ namespace sad_spirit\pg_wrapper\types;
  *
  * @extends MultiRange<NumericRange>
  */
-class NumericMultiRange extends MultiRange
+final readonly class NumericMultiRange extends MultiRange
 {
     public static function getItemClass(): string
     {
