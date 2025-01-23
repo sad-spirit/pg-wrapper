@@ -8,6 +8,10 @@
    `converters\containers\RangeConverter` / `converters\containers\MultiRangeConverter`
    constructor. The converter will return instances of the passed subclass from its `input()` method.
 
+### Changed
+ * `nextChar()` and `expectChar()` methods were moved from `converters\BaseConverter`
+   to `converters\ContainerConverter` as they were only used by subclasses of the latter.
+
 ### Removed
  * `types\DateInterval` class: it only contained a static `formatAsISO8601()` method which was moved to
    `converters\datetime\IntervalConverter`. `IntervalConverter::input()` will now return
