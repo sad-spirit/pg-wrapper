@@ -85,4 +85,3 @@ Typehints were added for method arguments and return values where not previously
    in `Result` class;
 * `int|string|null` typehint for `$keyColumn` argument of `Result::fetchAll()`. 
 * `static` typehint for return value of `types\ArrayRepresentable::createFromArray()`
-* 

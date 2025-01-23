@@ -2,17 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+ * `converters\EnumConverter` class: converts values of Postgres `ENUM` type to PHP's string-backed enum and back.
+ * It is now possible to pass classname of `types\Range` / `types\MultiRange` subclass to 
+   `converters\containers\RangeConverter` / `converters\containers\MultiRangeConverter`
+   constructor. The converter will return instances of the passed subclass from its `input()` method.
+
 ### Removed
-`types\DateInterval` class: it only contained a static `formatAsISO8601()` method which was moved to
-`converters\datetime\IntervalConverter`. `IntervalConverter::input()` will now return
-an instance of native `\DateInterval`.
+ * `types\DateInterval` class: it only contained a static `formatAsISO8601()` method which was moved to
+   `converters\datetime\IntervalConverter`. `IntervalConverter::input()` will now return
+   an instance of native `\DateInterval`.
 
 ### Fixed
- * `types\PointList` and `types\MultiRange` can  have 
+ * `types\PointList` and `types\MultiRange` can have only 
     [list-compatible array offsets](https://www.php.net/manual/en/function.array-is-list.php),
     previously it was possible to make them have any offsets by passing an unpacked associative array
     to constructors.
- * `types\MultiRange` and its subclasses is now `readonly` as other classes representing complex types
+ * `types\MultiRange` and its subclasses are now `readonly` as other classes representing complex types
 
 ## [3.0.0-beta] - 2024-12-21
 
@@ -38,7 +44,7 @@ please consult the [upgrade instructions](./UPGRADE.md).
      with keys corresponding to the values of the given column and values representing either the values
      of the remaining column or the rest of the columns as associative arrays, this complements `fetchAll()` with
      key column specified and mode set to `\PGSQL_ASSOC`;
-   * `iterateKeyedNumeric(int $keyColumn = 0, bool $forceArray = false)` - eeturns an iterator over result 
+   * `iterateKeyedNumeric(int $keyColumn = 0, bool $forceArray = false)` - returns an iterator over result 
      with keys corresponding to the values of the column with the given index and values representing either 
      the values of the remaining column or the rest of the columns as enumerated arrays, this complements `fetchAll()`
      with key column specified and mode set to `\PGSQL_NUM`.
