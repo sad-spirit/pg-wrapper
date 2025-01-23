@@ -44,12 +44,16 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
      * Constructor, sets converter for the base type
      *
      * @param TypeConverter $subtypeConverter
+     * @param class-string<Range>|null $resultClass
      */
     public function __construct(
         /** Converter for the base type of the range */
-        private readonly TypeConverter $subtypeConverter
+        private readonly TypeConverter $subtypeConverter,
+        ?string $resultClass = null
     ) {
-        if ($this->subtypeConverter instanceof BaseNumericConverter) {
+        if (null !== $resultClass) {
+            $this->resultClass = $resultClass;
+        } elseif ($this->subtypeConverter instanceof BaseNumericConverter) {
             $this->resultClass = NumericRange::class;
         } elseif ($this->subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeRange::class;

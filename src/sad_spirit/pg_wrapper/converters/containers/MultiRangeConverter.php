@@ -44,12 +44,16 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
      * Constructor, sets converter for the base type
      *
      * @param TypeConverter $subtypeConverter
+     * @param class-string<MultiRange>|null $resultClass
      */
     public function __construct(
         /** Converter for the base type of the multirange */
-        private readonly TypeConverter $subtypeConverter
+        private readonly TypeConverter $subtypeConverter,
+        ?string $resultClass = null
     ) {
-        if ($this->subtypeConverter instanceof BaseNumericConverter) {
+        if (null !== $resultClass) {
+            $this->resultClass = $resultClass;
+        } elseif ($this->subtypeConverter instanceof BaseNumericConverter) {
             $this->resultClass = NumericMultiRange::class;
         } elseif ($this->subtypeConverter instanceof BaseDateTimeConverter) {
             $this->resultClass = DateTimeMultiRange::class;
@@ -71,7 +75,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
     protected function parseInput(string $native, int &$pos): mixed
     {
         $ranges    = [];
-        $converter = new RangeConverter($this->subtypeConverter);
+        $converter = new RangeConverter($this->subtypeConverter, $this->resultClass::getItemClass());
 
         $this->expectChar($native, $pos, '{');
         while ('}' !== ($char = $this->nextChar($native, $pos))) {
@@ -107,7 +111,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
             return '{}';
         }
 
-        $converter = new RangeConverter($this->subtypeConverter);
+        $converter = new RangeConverter($this->subtypeConverter, $this->resultClass::getItemClass());
         $ranges    = [];
         foreach ($value as $range) {
             $ranges[] = $converter->outputNotNull($range);
