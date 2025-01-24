@@ -1,3 +1,5 @@
+.. _complex-types:
+
 ====================================
 Classes for complex PostgreSQL types
 ====================================

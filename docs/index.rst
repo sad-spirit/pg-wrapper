@@ -17,3 +17,4 @@ features like transparent conversion of query results work only with the wrapper
 
    overview
    types
+   converters

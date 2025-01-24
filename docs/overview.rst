@@ -19,6 +19,9 @@ so pg_wrapper allows to
   that do not have native PHP equivalents,
 - Add custom converters for custom and ad-hoc types.
 
+Usage examples
+==============
+
 Lets try using several of the more complex types
 
 .. code-block:: postgres
