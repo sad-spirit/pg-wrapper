@@ -23,7 +23,8 @@ use sad_spirit\pg_wrapper\converters\{
 use sad_spirit\pg_wrapper\types\{
     DateTimeMultiRange,
     MultiRange,
-    NumericMultiRange
+    NumericMultiRange,
+    Range
 };
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
@@ -31,6 +32,8 @@ use sad_spirit\pg_wrapper\TypeConverter;
 
 /**
  * Converter for multirange types of Postgres 14+
+ *
+ * @template T of Range
  */
 class MultiRangeConverter extends ContainerConverter implements ConnectionAware
 {
@@ -44,7 +47,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
      * Constructor, sets converter for the base type
      *
      * @param TypeConverter $subtypeConverter
-     * @param class-string<MultiRange>|null $resultClass
+     * @param class-string<MultiRange<T>>|null $resultClass
      */
     public function __construct(
         /** Converter for the base type of the multirange */
