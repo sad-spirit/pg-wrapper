@@ -102,11 +102,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             IntegerConverter::class,
             ['oid', 'cid', 'xid', 'int2', 'int4', 'int8']
         );
-        $this->registerConverter(NumericConverter::class, 'numeric');
-        $this->registerConverter(
-            FloatConverter::class,
-            ['float4', 'float8', 'money']
-        );
+        $this->registerConverter(NumericConverter::class, ['numeric', 'money']);
+        $this->registerConverter(FloatConverter::class, ['float4', 'float8']);
         $this->registerConverter(datetime\DateConverter::class, 'date');
         $this->registerConverter(datetime\TimeConverter::class, 'time');
         $this->registerConverter(datetime\TimeTzConverter::class, 'timetz');

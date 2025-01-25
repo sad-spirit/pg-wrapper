@@ -25,6 +25,8 @@
     previously it was possible to make them have any offsets by passing an unpacked associative array
     to constructors.
  * `types\MultiRange` and its subclasses are now `readonly` as other classes representing complex types
+ * `converters\NumericConverter` is used instead of `converters\FloatConverter` for `money` type values
+   to prevent loss of precision.
 
 ## [3.0.0-beta] - 2024-12-21
 
