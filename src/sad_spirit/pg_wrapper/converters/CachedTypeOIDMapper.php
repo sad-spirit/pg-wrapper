@@ -437,7 +437,6 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      *  - changes to those types are expected
      * Otherwise it can be left at the default (true)
      *
-     * @param bool $caching
      * @return $this
      */
     final public function setCompositeTypesCaching(bool $caching): self
@@ -449,8 +448,6 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
 
     /**
      * Returns whether composite types' structure is cached
-     *
-     * @return bool
      */
     final public function getCompositeTypesCaching(): bool
     {
@@ -572,7 +569,6 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      *
      * @param callable $condition                 Should return true if required keys are present, false otherwise
      * @param string   $connectionRequiredMessage Message for the exception thrown if required connection is missing
-     * @return bool
      * @throws RuntimeException
      */
     private function checkTypesArrayWithPossibleReload(callable $condition, string $connectionRequiredMessage): bool
