@@ -184,7 +184,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      *
      * @param class-string<TypeConverter>|callable|TypeConverter $converter
      * @param string|string[]                     $type
-     * @param string                              $schema
      * @throws InvalidArgumentException
      */
     public function registerConverter(
@@ -211,8 +210,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * a converter for the given database type
      *
      * @param class-string $className
-     * @param string       $type
-     * @param string       $schema
      */
     public function registerClassMapping(string $className, string $type, string $schema = 'pg_catalog'): void
     {
@@ -245,8 +242,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
     /**
      * Updates connection data for ConnectionAware converter
-     *
-     * @param TypeConverter $converter
      */
     private function updateConnection(TypeConverter $converter): void
     {
@@ -271,8 +266,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      *
      * If no converter was registered for a (base) type, an exception will be thrown
      *
-     * @param mixed $type
-     * @return TypeConverter
      * @throws InvalidArgumentException
      */
     public function getConverterForTypeSpecification(mixed $type): TypeConverter
@@ -286,11 +279,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
 
         } elseif (\is_array($type)) {
             // type specification for composite type
-            $types = [];
-            foreach ($type as $k => $v) {
-                $types[$k] = $this->getConverterForTypeSpecification($v);
-            }
-            return new containers\CompositeConverter($types);
+            return new containers\CompositeConverter(\array_map(
+                $this->getConverterForTypeSpecification(...),
+                $type
+            ));
         }
 
         throw InvalidArgumentException::unexpectedType(
@@ -308,8 +300,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      *  - values of scalar types (string / int / float / bool)
      *  - instances of classes from $classMapping (new ones may be added with registerClassMapping())
      *
-     * @param mixed $value
-     * @return TypeConverter
      * @throws TypeConversionException
      */
     public function getConverterForPHPValue(mixed $value): TypeConverter
@@ -370,11 +360,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             return $this->getConverterForTypeOID($baseTypeOid);
         }
 
-        try {
-            [$schemaName, $typeName] = $mapper->findTypeNameForOID($oid);
-        } catch (InvalidArgumentException $e) {
-            throw new InvalidArgumentException(__METHOD__ . ': ' . $e->getMessage());
-        }
+        [$schemaName, $typeName] = $mapper->findTypeNameForOID($oid);
 
         try {
             return $this->getConverterForQualifiedName($typeName, $schemaName);
@@ -391,7 +377,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * and only understands '[]' as an array modifier. Use a Parser-backed Factory
      * in sad_spirit/pg_builder package to process any type name Postgres itself understands.
      *
-     * @param string $name
      * @return array{?string, string, bool} schema name, type name, array flag
      * @throws InvalidArgumentException
      */
@@ -478,7 +463,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             $position += \strspn($name, BaseConverter::WHITESPACE, $position);
         }
 
-        if (!$typeName) {
+        if (null === $typeName) {
             throw new InvalidArgumentException("Missing type name in '$name'");
         }
         return [$schema, $typeName, $isArray];
@@ -490,7 +475,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      * @param string      $typeName   type name (as passed to registerConverter())
      * @param string|null $schemaName schema name (only required if converters for the same
      *                                type name were registered for different schemas)
-     * @return ?TypeConverter
      * @throws InvalidArgumentException
      */
     private function getRegisteredConverterInstance(string $typeName, ?string $schemaName = null): ?TypeConverter
@@ -533,12 +517,10 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     /**
      * Returns a converter for a (possibly qualified) type name supplied as string
      *
-     * Name can be either a "known" base type name from $_types property,
-     * 'foo[]' for an array of base type 'foo' or a database-specific name
+     * Name can be either a "known" base type name from $types property,
+     * 'foo[]' for an array of base type 'foo', or a database-specific name
      * (e.g. for composite type)
      *
-     * @param string $name
-     * @return TypeConverter
      * @throws InvalidArgumentException
      */
     private function getConverterForTypeName(string $name): TypeConverter
@@ -565,10 +547,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     /**
      * Returns type converter for separately supplied type and schema names
      *
-     * @param string      $typeName
-     * @param string|null $schemaName
-     * @param bool        $isArray
-     * @return TypeConverter
      * @throws InvalidArgumentException
      * @internal
      */
@@ -579,11 +557,7 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
     ): TypeConverter {
         if (null === $converter = $this->getRegisteredConverterInstance($typeName, $schemaName)) {
             $mapper = $this->getOIDMapper();
-            try {
-                $oid = $mapper->findOIDForTypeName($typeName, $schemaName);
-            } catch (InvalidArgumentException $e) {
-                throw new InvalidArgumentException(__METHOD__ . ': ' . $e->getMessage());
-            }
+            $oid    = $mapper->findOIDForTypeName($typeName, $schemaName);
             if (!$mapper->isBaseTypeOID($oid)) {
                 $converter = $this->getConverterForTypeOID($oid);
             } else {
