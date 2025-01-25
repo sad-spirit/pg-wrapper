@@ -19,3 +19,4 @@ features like transparent conversion of query results work only with the wrapper
    types
    converters
    converter-factories
+   connecting

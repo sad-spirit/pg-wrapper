@@ -96,6 +96,8 @@ Its ``getConverterForTypeOID()`` and ``getConverterForPHPValue()`` also return `
 
 This can be used to essentially disable type conversion, making package behave like stock ``pgsql`` extension.
 
+.. _converter-factories-default:
+
 ``DefaultTypeConverterFactory``
 ===============================
 
