@@ -17,17 +17,14 @@ namespace sad_spirit\pg_wrapper\converters;
 use sad_spirit\pg_wrapper\Connection;
 
 /**
- * Interface for type converters whose behaviour may change according to connection properties
+ * Interface for classes depending on a Connection
  *
- * This is currently implemented by date and time converters to check server's DateStyle setting
+ * This is implemented by e.g. date and time converters to check connected server's DateStyle setting
  */
 interface ConnectionAware
 {
     /**
-     * Sets the connection this converter works with
-     *
-     * @param Connection $connection
-     * @return void
+     * Sets the connection
      */
     public function setConnection(Connection $connection): void;
 }

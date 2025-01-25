@@ -227,11 +227,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      *
      * Database connection is used for reading the types data from the
      * catalog, connection id is used for storing that data in cache.
-     *
-     * @param Connection $connection
-     * @return $this
      */
-    public function setConnection(Connection $connection): self
+    public function setConnection(Connection $connection): void
     {
         if ($this->connection && $connection !== $this->connection) {
             throw new RuntimeException("Connection already set");
@@ -247,8 +244,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
         if ($this->typeOIDMapper instanceof ConnectionAware) {
             $this->typeOIDMapper->setConnection($connection);
         }
-
-        return $this;
     }
 
     /**

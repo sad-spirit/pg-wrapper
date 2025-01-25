@@ -54,14 +54,12 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     /**
      * {@inheritdoc}
      */
-    public function setConnection(Connection $connection): TypeConverterFactory
+    public function setConnection(Connection $connection): void
     {
         if ($this->connection && $connection !== $this->connection) {
             throw new RuntimeException("Connection already set");
         }
         $this->connection = $connection;
-
-        return $this;
     }
 
     /**

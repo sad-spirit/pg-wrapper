@@ -11,6 +11,8 @@
 ### Changed
  * `nextChar()` and `expectChar()` methods were moved from `converters\BaseConverter`
    to `converters\ContainerConverter` as they were only used by subclasses of the latter.
+ * `TypeConverterFactory` interface now extends `converters\ConnectionAware`, thus its
+   `setConnection()` method has a return type of `void`.
 
 ### Removed
  * `types\DateInterval` class: it only contained a static `formatAsISO8601()` method which was moved to

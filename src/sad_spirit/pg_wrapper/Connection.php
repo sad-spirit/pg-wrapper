@@ -411,7 +411,8 @@ class Connection
      */
     public function setTypeConverterFactory(TypeConverterFactory $factory): self
     {
-        $this->converterFactory = $factory->setConnection($this);
+        $factory->setConnection($this);
+        $this->converterFactory = $factory;
 
         return $this;
     }

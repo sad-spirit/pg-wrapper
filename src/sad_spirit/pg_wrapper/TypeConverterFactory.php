@@ -14,16 +14,16 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_wrapper;
 
-use sad_spirit\pg_wrapper\exceptions\{
-    InvalidArgumentException,
-    RuntimeException,
-    TypeConversionException
+use sad_spirit\pg_wrapper\{
+    converters\ConnectionAware,
+    exceptions\InvalidArgumentException,
+    exceptions\TypeConversionException
 };
 
 /**
  * Interface for classes that create type converters
  */
-interface TypeConverterFactory
+interface TypeConverterFactory extends ConnectionAware
 {
     /**
      * Returns a converter specified by a given type
@@ -50,7 +50,7 @@ interface TypeConverterFactory
      * OIDs (object identifiers) are used internally by PostgreSQL as primary keys for various system tables.
      * This method expects an OID that is a primary key of pg_type
      *
-     * This is used mainly by ResultSet to find converters for result columns
+     * This is used mainly by Result to find converters for result columns
      *
      * Unlike getConverterForTypeSpecification() it should not throw an exception in case a converter is missing
      * for a specific base type, returning e.g. an instance of StubConverter instead. It may throw an exception
@@ -78,19 +78,4 @@ interface TypeConverterFactory
      * @throws TypeConversionException
      */
     public function getConverterForPHPValue(mixed $value): TypeConverter;
-
-    /**
-     * Sets database connection details for this object
-     *
-     * This is called by Connection::setTypeConverterFactory(). Generally only one call should be allowed
-     * so that the same Factory is not reused with two different Connections, as those may have different
-     * settings (e.g. DateStyle) and even different custom types mapping to same OIDs.
-     *
-     * Should throw RuntimeException if called with a Connection instance different from the already set one.
-     *
-     * @param Connection $connection
-     * @return $this
-     * @throws RuntimeException
-     */
-    public function setConnection(Connection $connection): self;
 }

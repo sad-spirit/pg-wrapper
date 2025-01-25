@@ -33,9 +33,11 @@ Features deprecated in 2.x releases were removed, specifically
 * `$params` and `$resultTypes` arguments of `PreparedStatement::execute()`. It will now execute the statement using only
   the previously bound values and passing previously specified result types to `Result`. 
 
-## Moved methods
+## Moved and changed methods
  * Static `formatAsISO8601()` from removed `types\DateInterval` class to `converters\datetime\IntervalConverter`.
  * Protected `nextChar()` and `expectChar()` from `converters\BaseConverter` to `converters\ContainerConverter`.
+ * `TypeConverterFactory` interface now extends `converters\ConnectionAware`, thus `setConnection()`
+   method of it and its implementations has a return type of `void`.
 
 ## BC breaks due to PHP version bump
 
