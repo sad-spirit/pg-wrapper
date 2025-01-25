@@ -246,16 +246,24 @@ the existing ones as described above.
 The best course of action will be to extend either ``BaseConverter`` or ``ContainerConverter`` based on the
 properties of the type.
 
-``BaseConverter`` handles the null values as ``pgsql`` extension itself converts ``NULL`` fields of any type
-to PHP ``null`` values. It defines two abstract methods
+``BaseConverter``
+-----------------
+
+This base class implements ``input()`` and ``output()`` methods that handle null values as ``pgsql`` extension itself
+converts ``NULL`` fields of any type to PHP ``null`` values.
+
+It delegates handling of non-null values to the two new abstract methods
 
 ``inputNotNull(string $native): mixed``
-    Parses native value that is not NULL into PHP variable
+    Converts a string received from PostgreSQL to PHP variable of the proper type.
 
 ``outputNotNull(mixed $value): string``
-    Converts PHP variable not identical to null into native format
+    Returns a string representation of PHP variable not identical to null.
 
-``ContainerConverter`` defines helper methods for parsing complex string representations. Those accept the string
+``ContainerConverter``
+----------------------
+
+This class defines helper methods for parsing complex string representations. Those accept the string
 received from the database and position of the current symbol that is updated once parts of the string is processed.
 
 ``nextChar(string $str, int &$p): ?string``
@@ -268,5 +276,5 @@ received from the database and position of the current symbol that is updated on
 ``inputNotNull()`` is implemented in ``ContainerConverter``, a new abstract method is defined instead
 
 ``parseInput(string $native, int &$pos): mixed``
-    Parses a native value into PHP variable from given position. This will be called from current position in
+    Parses a string representation into PHP variable from given position. This may be called from any position in
     the string and should return once it finishes parsing the value.
