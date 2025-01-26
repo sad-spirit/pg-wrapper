@@ -72,17 +72,16 @@ class PreparedStatement
      * @param Connection               $connection  DB connection object.
      * @param string                   $query       SQL query to prepare.
      * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters.
-     * @param array<int|string, mixed> $resultTypes Result types to pass to created ResultSet instances.
+     * @param array<int|string, mixed> $resultTypes Result types to pass to created Result instances.
+     *
+     * @internal Should only be created in {@see Connection}
      *
      * @throws exceptions\ServerException
      */
     public function __construct(
-        /** Connection object */
         private readonly Connection $connection,
-        /** SQL query text */
         private readonly string $query,
         array $paramTypes = [],
-        /** Types information for output values, passed on to ResultSet */
         private array $resultTypes = []
     ) {
         foreach ($paramTypes as $key => $type) {
@@ -121,11 +120,11 @@ class PreparedStatement
     }
 
     /**
-     * Sets result types that will be passed to created ResultSet instances
+     * Sets result types that will be passed to created {@see Result} instances
      *
      * We can theoretically check whether the array keys correspond to correct column numbers,
      * but we cannot know the result column names until actually executing the statement.
-     * Therefore, don't bother checking array keys, ResultSet will complain if something is not right with them.
+     * Therefore, don't bother checking array keys, Result will complain if something is not right with them.
      *
      * @param array $resultTypes
      * @return $this
@@ -225,7 +224,6 @@ class PreparedStatement
      * Parameter symbols should start with $1 and have no gaps in numbers, otherwise Postgres will throw an error,
      * so setting their number is sufficient.
      *
-     * @param int $numberOfParameters
      * @return $this
      * @since 2.4.0
      */
@@ -323,9 +321,7 @@ class PreparedStatement
     /**
      * Checks that a given parameter number is valid for this prepared statement
      *
-     * @param int    $parameterNumber
      * @param string $method          Name of the calling method, used in exception message
-     * @return void
      *
      * @throws exceptions\OutOfBoundsException
      */
@@ -357,7 +353,6 @@ class PreparedStatement
      *
      * @param array<int, mixed> $params
      * @param string            $prefix Prefix for exception message
-     * @return void
      *
      * @throws exceptions\OutOfBoundsException
      */
@@ -414,13 +409,15 @@ class PreparedStatement
 
         $stringParams = [];
         foreach ($this->values as $key => $value) {
-            if (isset($this->converters[$key])) {
-                $stringParams[$key] = $this->converters[$key]->output($value);
-            } else {
-                $stringParams[$key] = $this->connection->getTypeConverterFactory()
-                    ->getConverterForPHPValue($value)
-                    ->output($value);
+            // This shouldn't happen due to logic in bind*() methods, but check just in case
+            if (!isset($this->converters[$key])) {
+                throw new exceptions\RuntimeException(\sprintf(
+                    'Parameter $%d did not have its type specified. Either pass type specifications to constructor '
+                    . 'or use setParameterType() method.',
+                    $key + 1
+                ));
             }
+            $stringParams[$key] = $this->converters[$key]->output($value);
         }
 
         return Result::createFromReturnValue(
@@ -441,7 +438,6 @@ class PreparedStatement
      * This method will throw an exception if some parameter values were bound previously.
      *
      * @param array<int, mixed> $params
-     * @return Result
      * @since 2.4.0
      */
     public function executeParams(array $params): Result
