@@ -335,6 +335,8 @@ Note the following when reading the table:
     |                                 | ``datetime\TimeStampTzConverter``   |                             |                           |
     +---------------------------------+-------------------------------------+-----------------------------+---------------------------+
 
+.. _converter-factories-classes:
+
 Classes mapped to database types
 --------------------------------
 

@@ -93,6 +93,14 @@ and ``Psr\Cache\CacheItemPoolInterface`` implementations to appropriate methods.
     If one was not set explicitly by the previous method, sets and returns
     an instance of :ref:`a default factory <converter-factories-default>`.
 
+A helper method is also available
+
+``getTypeConverter(mixed $type): TypeConverter``
+    Returns type converter for the given. This is a shorthand for
+    ``$this->getTypeConverterFactory()->getConverterForTypeSpecification($type)``
+    and accepts the same parameter.
+
+
 .. tip::
     Using an instance of ``StubTypeConverterFactory`` will effectively disable type conversion.
 
