@@ -73,7 +73,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Constructor.
      *
      * @param NativeResult         $native  SQL result object.
-     * @param TypeConverterFactory $converterFactory
+     * @param TypeConverterFactory $converterFactory Factory for database type converters (mostly needed for setType())
      * @param array                $types   Types information, used to convert output values
      *                                      (overrides auto-generated types).
      * @throws exceptions\InvalidArgumentException
@@ -83,7 +83,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     protected function __construct(
         private readonly NativeResult $native,
-        /** Factory for database type converters (mostly needed for setType()) */
         private readonly TypeConverterFactory $converterFactory,
         array $types = []
     ) {
@@ -141,7 +140,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param Connection         $connection  Connection used to execute the query.
      * @param array              $types       Types information, used to convert output values
      *                                        (overrides auto-generated types).
-     * @return static
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      * @throws exceptions\ServerException
@@ -150,7 +148,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
         false|NativeResult $returnValue,
         Connection $connection,
         array $types = []
-    ): self {
+    ): static {
         if (false === $returnValue) {
             throw exceptions\ServerException::fromConnection($connection);
         }
@@ -214,7 +212,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns an array containing all values from a given column in the result set
      *
      * @param string|int $fieldIndex Either a column name or an index (0-based)
-     * @return array
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
@@ -242,7 +239,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param bool            $group       If true, the values in the returned array are
      *        wrapped in another array. If there are duplicate values in key column, values
      *        of other columns will be appended to this array instead of overwriting previous ones
-     * @return array
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
      */
@@ -453,8 +449,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param bool $forceArray       Applicable when the query returns exactly two columns. If false (default)
      *                               the other column's values will be returned directly, if true they will be
      *                               wrapped in an array keyed with the column name
-     * If true the values will be one element arrays
-     *         with other column's values, instead of values directly
+     *
      * @return \Traversable<mixed, array<string, mixed>|mixed>
      * @since 3.0.0
      */
@@ -486,7 +481,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns an iterator over result with keys corresponding to the values of the column with the given index and
      * values representing either the values of the remaining column or the rest of the columns as enumerated arrays
      *
-     * @param int $keyColumn
      * @param bool $forceArray Applicable when the query returns exactly two columns. If false (default)
      *                         the other column's values will be returned directly, if true they will be
      *                         wrapped in an array
@@ -545,7 +539,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param mixed $value  (not used)
      * @throws exceptions\BadMethodCallException
      */
-    public function offsetSet(mixed $offset, mixed $value): void
+    public function offsetSet(mixed $offset, mixed $value): never
     {
         throw new exceptions\BadMethodCallException(self::class . ' is read-only');
     }
@@ -556,7 +550,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @param mixed $offset (not used)
      * @throws exceptions\BadMethodCallException
      */
-    public function offsetUnset(mixed $offset): void
+    public function offsetUnset(mixed $offset): never
     {
         throw new exceptions\BadMethodCallException(self::class . ' is read-only');
     }
@@ -564,7 +558,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     /**
      * Sanity check for field index
      *
-     * @param string|int $fieldIndex
      * @return int Numeric index of field in result set
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\OutOfBoundsException
@@ -597,7 +590,6 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      *
      * @param int $position row number
      * @param int $mode     fetch mode, either of PGSQL_ASSOC or PGSQL_NUM
-     * @return array
      */
     private function read(int $position, int $mode): array
     {
