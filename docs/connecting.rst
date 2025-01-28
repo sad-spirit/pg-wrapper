@@ -1,3 +1,5 @@
+.. _connecting:
+
 ================================
 Setting up a database connection
 ================================
@@ -78,6 +80,8 @@ The following additional methods of ``Connection`` help with the connection hand
 
 ``getLastError(): ?string``
     Returns the last error message for this connection, ``null`` if none present.
+
+.. _connecting-configuration:
 
 Configuration methods
 =====================

@@ -448,7 +448,7 @@ This interface defines methods for
 ``isBaseTypeOID()``
     Returns ``true`` if type OID does not belong to any of the special categories, ``false`` otherwise.
 
-``isArrayTypeOID()``, ``isDomainTypeOID()``, ``isRangeTypeOID()``, ``isRangeTypeOID()``
+``isArrayTypeOID()``, ``isDomainTypeOID()``, ``isRangeTypeOID()``, ``isMultiRangeTypeOID()``
     These check whether the type OID belongs to the relevant category, if that is the case then
     ``$baseTypeOid`` will be set to the OID of the base type.
 

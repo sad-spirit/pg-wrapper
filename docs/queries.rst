@@ -96,6 +96,8 @@ variable type.
     If the parameter is a scalar or :ref:`an instance of a known class <converter-factories-classes>`
     then guessing will probably work.
 
+.. _queries-result:
+
 Specifying result column types
 ==============================
 
@@ -188,8 +190,9 @@ Methods that help with embedding stuff directly in SQL are also available, but t
 ``PreparedStatement`` API
 =========================
 
-Instances of this class are created by ``Connection::prepare()`` method, its constructor is marked internal
-and should not be used outside of ``Connection`` methods.
+.. note::
+    Instances of this class are created by ``Connection::prepare()`` method, ``PreparedStatement::__construct()``
+    is marked internal and should not be used outside of ``Connection`` methods.
 
 The statement is automatically prepared when an instance of ``PreparedStatement`` is created and automatically
 deallocated when the object is destroyed. Manual methods are also available just in case:
@@ -250,7 +253,7 @@ calling ``execute()``
         ->bindValue(2, false)
         ->execute();
 
-The second method is just
+The second way is just
 
 ``public function executeParams(array $params): Result``
     Executes the prepared query using (only) the given parameters.
