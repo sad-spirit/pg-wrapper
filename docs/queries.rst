@@ -67,7 +67,7 @@ Specifying parameter types
    );
 
 ``PreparedStatement`` will try to get proper parameter types from Postgres by default, but
-these can also be specified manually via ``Connection::prepare()``, ``PreparedStatement::setParameterType()``,
+these can be overridden / specified manually via ``Connection::prepare()``, ``PreparedStatement::setParameterType()``,
 ``PreparedStatement::bindValue()``, and ``PreparedStatement::bindParam()``.
 
 .. code-block:: php
@@ -81,18 +81,17 @@ These type specifications are processed by an implementation of ``TypeConverterF
 ``setTypeConverterFactory()`` method. The :ref:`default implementation <converter-factories-default>`
 will accept either of the following:
 
+- :ref:`Type name as string <converter-factories-names>`. As shown above, array types can be specified using
+  square brackets: ``typename[]``.
+- Composite type specification as an array ``'column' => 'column type specification'``.
 - ``TypeConverter`` instance, it will receive current ``Connection`` to update its configuration, if needed.
-- Type name as string. A minimal parser is implemented, so schema-qualified names like ``'pg_catalog.int4'``,
-  double-quoted identifiers like ``'"CamelCaseType"'``,
-  SQL standard names like ``'CHARACTER VARYING'`` will be understood.
-- Composite type specification as an array ``'column' => 'column type specification'``
 
 It is not necessary to provide type information for *every* parameter: some may be skipped or type info omitted
 altogether. In this case an attempt will be made to guess which converter to use based on PHP
 variable type.
 
 .. tip::
-    You *must* specify the type if the parameter is an array, as guessing will definitely fail.
+    You *must* specify the type if the parameter is a PHP array as in above examples, guessing will definitely fail.
     If the parameter is a scalar or :ref:`an instance of a known class <converter-factories-classes>`
     then guessing will probably work.
 
@@ -101,7 +100,7 @@ variable type.
 Specifying result column types
 ==============================
 
-Generally you don't need to specify types for columns in query result: these are deduced from DB metadata.
+Generally you don't need to specify types for columns in query result: these are deduced from result metadata.
 
 One notable exception is a column defined by a row type constructor:
 
@@ -116,7 +115,8 @@ the above will output
 
    string(22) "("fuzzy dice",42,1.99)"
 
-To provide necessary type information for a ``Result`` you can either pass it to ``execute()`` / ``executeParams()``:
+as Postgres specifies its type as a generic ``record`` pseudo-type. To provide necessary type information
+for a ``Result`` you can either pass it to ``execute()`` / ``executeParams()``:
 
 .. code-block:: php
 

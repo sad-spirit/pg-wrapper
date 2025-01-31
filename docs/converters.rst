@@ -151,7 +151,8 @@ belong to either ``\sad_spirit\pg_wrapper\converters`` or ``\sad_spirit\pg_wrapp
 
     ``ContainerConverter``
         Abstract base class for converters of "container" types: those are composed of multiple values of some "base"
-        type. Usually the converter for "container" type delegates parsing and generating to converter of "base" type.
+        type. Usually the converter for "container" type uses the converter for "base" type to parse / generate
+        parts of the value.
 
         ``containers\ArrayConverter``
             Postgres array <-> PHP array. The converter instance is configured by an instance of base type

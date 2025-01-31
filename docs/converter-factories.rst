@@ -4,10 +4,11 @@
 Type converter factories
 ========================
 
-Factories are used to simplify passing type information to query execution methods, consider
+Factories are used to transparently convert the result fields using metadata provided by
+`pg_field_type_oid() <https://www.php.net/manual/en/function.pg-field-type-oid.php>`__
+and to simplify passing type information to query execution methods, consider
 
 .. code-block:: php
-    :caption: query with type specifications
 
     $result = $connection->executeParams(
         'select row(foo_id, foo_added) from foo where bar = any($1::integer[])',
@@ -19,7 +20,6 @@ Factories are used to simplify passing type information to query execution metho
 vs
 
 .. code-block:: php
-    :caption: query with ``TypeConverter`` instances
 
     $result = $connection->executeParams(
         'select * from foo where bar = any($1::integer[])',
@@ -28,12 +28,9 @@ vs
         [new CompositeConverter(['id' => new IntegerConverter(), 'added' => new TimeStampTzConverter()])]
     );
 
-and to transparently convert the result fields using metadata returned by
-`pg_field_type_oid() <https://www.php.net/manual/en/function.pg-field-type-oid.php>`__.
-
 In the "wrapper" part of the package factory methods are called by ``Connection`` and ``PreparedStatement`` classes
 when converting query parameters and by ``Result`` when converting query results.
-The only methods that should be called directly are those used to set up
+The only methods that will be called directly are those used to set up
 :ref:`custom types conversion <converter-factories-setup>`,
 most probably for :ref:`enum types <converter-factories-enum>` and the like.
 
@@ -56,7 +53,8 @@ Classes that create type converters implement the following interface
     }
 
 ``getConverterForTypeSpecification()``
-    This method returns a converter based on manually provided type specification (commonly, a type name).
+    This method returns a converter based on manually provided type specification (commonly,
+    :ref:`a type name <converter-factories-names>`).
     It should throw an exception if a matching converter cannot be found as this is most probably an user error.
 
     Values accepted as specification are implementation-specific. Any implementation should, however, accept
@@ -86,15 +84,15 @@ and ``converters\StubTypeConverterFactory``
 ``StubTypeConverterFactory``
 ============================
 
-``getConverterForTypeSpecification()`` method of this class returns
+``getConverterForTypeOID()`` and ``getConverterForPHPValue()`` methods of this class return
+an instance of ``converters\StubConverter``.
 
-- ``$type`` argument, if it is an instance of ``TypeConverter``. It will be configured with current ``Connection``
-  if it implements ``ConnectionAware``.
-- An instance of ``converters\StubConverter`` if ``$type`` is anything else.
+Its ``getConverterForTypeSpecification()`` method also returns ``converters\StubConverter`` if passed anything except
+an implementation of ``TypeConverter`` as a ``$type`` argument. Otherwise it will return ``$type``,
+configured with current ``Connection`` if it implements ``ConnectionAware``.
 
-Its ``getConverterForTypeOID()`` and ``getConverterForPHPValue()`` also return ``converters\StubConverter``.
-
-This can be used to essentially disable type conversion, making package behave like stock ``pgsql`` extension.
+.. tip::
+    This class can be used to effectively disable type conversion, making package behave like stock ``pgsql`` extension.
 
 .. _converter-factories-default:
 
@@ -164,6 +162,8 @@ will return
 
 An implementation of ``TypeOIDMapper`` is used, as its name implies, to map type OIDs to type names and is required
 mostly for ``getConverterForTypeOID()`` method.
+
+.. _converter-factories-names:
 
 Type names supported out of the box
 -----------------------------------
@@ -468,7 +468,7 @@ from the connected database. It will also use ``Connection``\ 's metadata cache,
 
 .. note::
     Using some sort of cache is highly recommended in production to prevent
-    database lookups on each page request.
+    metadata lookups from database on each page request.
 
 ``CachedTypeOIDMapper`` is pre-populated with info on PostgreSQL's built-in data types, thus it is usable
 even without a configured connection. There will also be no need to query database for type metadata if only
@@ -478,7 +478,7 @@ If, however, the database has some custom types (``ENUM``\ s count), then the cl
 from the database and / or cache.
 
 
-.. note::
+.. warning::
 
     While the class is smart enough to reload metadata from database when ``OID`` is not found in the cached data
     (i.e. a new type was added after cache saved) it is unable to handle changes in composite type structure,
@@ -497,8 +497,15 @@ These additional public methods control caching of composite types
 ``getCompositeTypesCaching(): bool``
     Returns whether composite types' structure is cached
 
+.. _converter-factories-oids:
+
 Why use OIDs and not type names directly?
 -----------------------------------------
+
+A valid question is why we need ``TypeOIDMapper`` in the first place when pgsql extension provides
+`pg_field_type() <https://www.php.net/manual/en/function.pg-field-type.php>`__ that returns the type name
+for the result column? Or when PDO has
+`PDOStatement::getColumnMeta() <https://www.php.net/manual/en/pdostatement.getcolumnmeta.php>`__?
 
 Result metadata in Postgres contains type OIDs for result columns and these are returned by
 `PQftype function of client library <https://www.postgresql.org/docs/17/libpq-exec.html#LIBPQ-PQFTYPE>`__.
@@ -509,9 +516,19 @@ Type name data should be fetched separately, quoting documentation of ``PQftype(
 
     You can query the system table ``pg_type`` to obtain the names and properties of the various data types.
 
-PHP's `pg_field_type() <https://www.php.net/manual/en/function.pg-field-type.php>`__ does exactly that,
-it just selects all rows of ``pg_catalog.pg_type`` on the first call and later searches the fetched data for
-type OIDs. However, it only fetches the unqualified type name: no schema name, no properties.
+Well, PHP's ``pg_field_type()`` does exactly that, it just selects all rows of ``pg_catalog.pg_type``
+on the first call and later searches the fetched data for type OIDs.
+However, it only fetches the unqualified type name: no schema name, no properties.
 
 ``CachedTypeOIDMapper`` does mostly the same, but fetches more info and allows caching and reusing
 the type data between requests.
+
+Now, speaking of PDO, the huge problem is that its ``PDOStatement::getColumnMeta()`` tries to return all the column's
+metadata at once with no means to request e.g. only ``pgsql:oid`` field. For Postgres this means running *two* queries
+to populate ``table`` and ``native_type`` fields and the driver doesn't even cache the results.
+So that's potentially two metadata queries *for every column* in the result!
+
+To be fair, there is a short list of built-in types that
+`do not require a query <https://github.com/php/php-src/blob/16c9652f2729325dbd31c1d92578e2d41d50ef0c/ext/pdo_pgsql/pgsql_statement.c#L759>`__
+for ``native_type`` in ``getColumnMeta()``, but a query for ``table``
+`will always be run <https://github.com/php/php-src/blob/16c9652f2729325dbd31c1d92578e2d41d50ef0c/ext/pdo_pgsql/pgsql_statement.c#L703>`__.
