@@ -120,4 +120,15 @@ final class Connection extends ConnectionDecorator
 
         return parent::rollbackToSavepoint($savepoint);
     }
+
+    public function atomic(callable $callback, bool $savepoint = false): mixed
+    {
+        $this->logger->debug('Executing a callback atomically with savepoint ' . ($savepoint ? 'enabled' : 'disabled'));
+
+        $result = parent::atomic($callback, $savepoint);
+
+        $this->logger->debug('Finished executing a callback atomically');
+
+        return $result;
+    }
 }

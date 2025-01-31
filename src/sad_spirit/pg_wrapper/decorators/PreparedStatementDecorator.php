@@ -20,7 +20,7 @@ use sad_spirit\pg_wrapper\Result;
 /**
  * Decorator for PreparedStatement class
  *
- * This base class delegates all method calls to the decorated instance, child classes will implement
+ * This base class forwards all method calls to the decorated instance, child classes will implement
  * the additional logic
  *
  * @since 3.0.0

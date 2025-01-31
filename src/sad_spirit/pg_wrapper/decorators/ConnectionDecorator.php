@@ -27,7 +27,7 @@ use Psr\Cache\CacheItemPoolInterface;
 /**
  * Decorator for Connection class
  *
- * This base class delegates all method calls to the decorated instance, child classes will implement
+ * This base class forwards all method calls to the decorated instance, child classes will implement
  * the additional logic
  *
  * @since 3.0.0

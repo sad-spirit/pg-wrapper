@@ -151,4 +151,18 @@ class ConnectionTest extends TestCase
             ]
         ]));
     }
+
+    public function testAtomic(): void
+    {
+        $this->connection->atomic(function (Connection $connection) {
+            $connection->execute('drop database production');
+        }, true);
+
+        $this::assertTrue($this->logger->hasDebug([
+            'message' => 'Executing a callback atomically with savepoint enabled'
+        ]));
+        $this::assertTrue($this->logger->hasDebug([
+            'message' => 'Finished executing a callback atomically'
+        ]));
+    }
 }
