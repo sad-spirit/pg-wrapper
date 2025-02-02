@@ -249,7 +249,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
         $connection->setTypeConverterFactory($this->factory);
         $serverVersion = \pg_parameter_status($connection->getNative(), 'server_version');
-        if (\version_compare($serverVersion, '14-beta', '<')) {
+        if (!\version_compare($serverVersion ?: '1', '13', '>')) {
             $this::markTestSkipped('Postgres version 14 is required for multirange support');
         }
 
@@ -434,7 +434,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $connection    = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING);
         $connection->setTypeConverterFactory($this->factory);
         $serverVersion = \pg_parameter_status($connection->getNative(), 'server_version');
-        if (\version_compare($serverVersion, '14-beta', '<')) {
+        if (!\version_compare($serverVersion ?: '1', '13', '>')) {
             $this::markTestSkipped('Postgres version 14 is required for multirange support');
         }
 
@@ -538,7 +538,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
         $converter     = $this->factory->getConverterForTypeSpecification('integer');
 
         $this->assertSame(
-            \version_compare($serverVersion, '16-beta', '>='),
+            \version_compare($serverVersion ?: '1', '15', '>'),
             $converter->allowNonDecimalLiteralsAndUnderscores()
         );
     }

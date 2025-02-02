@@ -222,7 +222,14 @@ class Result implements \Iterator, \Countable, \ArrayAccess
         $result = [];
         $native = $this->getNative();
         for ($i = 0; $i < $this->numRows; $i++) {
-            $result[] = $this->converters[$fieldIndex]->input(\pg_fetch_result($native, $i, $fieldIndex));
+            if (false === $field = \pg_fetch_result($native, $i, $fieldIndex)) {
+                throw new exceptions\RuntimeException(\sprintf(
+                    "Failed to fetch field %d in row %d of result set",
+                    $fieldIndex,
+                    $i
+                ));
+            }
+            $result[] = $this->converters[$fieldIndex]->input($field);
         }
         return $result;
     }
@@ -410,7 +417,14 @@ class Result implements \Iterator, \Countable, \ArrayAccess
         $native     = $this->getNative();
 
         for ($i = 0; $i < $this->numRows; $i++) {
-            yield $this->converters[$fieldIndex]->input(\pg_fetch_result($native, $i, $fieldIndex));
+            if (false === $field = \pg_fetch_result($native, $i, $fieldIndex)) {
+                throw new exceptions\RuntimeException(\sprintf(
+                    "Failed to fetch field %d in row %d of result set",
+                    $fieldIndex,
+                    $i
+                ));
+            }
+            yield $this->converters[$fieldIndex]->input($field);
         }
     }
 

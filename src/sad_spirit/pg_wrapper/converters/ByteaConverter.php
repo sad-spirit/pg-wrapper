@@ -83,9 +83,11 @@ class ByteaConverter extends BaseConverter
     {
         if (!\is_string($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'string', $value);
+        } elseif (false === $encoded = \unpack('H*', $value)) {
+            // Unlikely to happen
+            throw new TypeConversionException("Failed to encode binary string");
         }
 
-        [, $encoded] = \unpack('H*', $value);
-        return '\x' . $encoded;
+        return '\x' . $encoded[1];
     }
 }

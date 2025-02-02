@@ -52,10 +52,7 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
      */
     public function allowNonDecimalLiteralsAndUnderscores(): bool
     {
-        return (bool)(
-            $this->allowNonDecimal
-            ?? ($this->allowNonDecimal = $this->getAllowNonDecimalLiteralsFromConnection())
-        );
+        return (bool) $this->allowNonDecimal ??= $this->getAllowNonDecimalLiteralsFromConnection();
     }
 
     /**
@@ -70,9 +67,9 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
         }
 
         return \version_compare(
-            \pg_parameter_status($this->connection->getNative(), 'server_version'),
-            '15.999',
-            '>='
+            \pg_parameter_status($this->connection->getNative(), 'server_version') ?: '1',
+            '15',
+            '>'
         );
     }
 }

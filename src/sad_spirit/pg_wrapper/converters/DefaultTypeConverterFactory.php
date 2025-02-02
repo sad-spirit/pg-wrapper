@@ -184,7 +184,6 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      *
      * @param class-string<TypeConverter>|callable|TypeConverter $converter
      * @param string|string[]                     $type
-     * @throws InvalidArgumentException
      */
     public function registerConverter(
         callable|TypeConverter|string $converter,

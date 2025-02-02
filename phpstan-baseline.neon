@@ -5,16 +5,22 @@ parameters:
 			count: 1
 			path: src/sad_spirit/pg_wrapper/converters/CachedTypeOIDMapper.php
 
-		-
-			message: "#^Parameter \\#1 \\$connection of function pg_connection_status expects resource, Pgsql\\\\Connection given\\.$#"
-			paths:
-				- src/sad_spirit/pg_wrapper/Connection.php
-				- tests/ConnectionTest.php
-			reportUnmatched: false
-
 		# well duh
 		-
 			message: "#^Offset 'foo' on sad_spirit\\\\pg_wrapper\\\\(tests\\\\)?types\\\\[a-zA-Z]+ in isset\\(\\) does not exist\\.$#"
 			paths:
 				- tests\types\PointListTest.php
 				- tests\types\MultiRangeTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert::assert(True|False)\\(\\) with false#"
+			paths:
+				- tests\ConnectionTransactionsTest.php
+				- tests\types\PointListTest.php
+				- tests\types\MultiRangeTest.php
+
+		# New false positives in phpstan 2, probably it is trying to be "smart" with methods named isWhatever()?
+		-
+			message: "#^Call to method sad_spirit\\\\pg_wrapper\\\\converters\\\\TypeOIDMapper::is(Range|MultiRange|Domain)TypeOID\\(\\) with int\\|string and null will always evaluate to false\\.$#"
+			count: 3
+			path: src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php

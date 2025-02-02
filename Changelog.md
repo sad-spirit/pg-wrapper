@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+Package manual is now published on [Read the Docs](https://pg-wrapper.readthedocs.io)
+
 ### Added
  * `converters\EnumConverter` class: converts values of Postgres `ENUM` type to PHP's string-backed enum and back.
  * It is now possible to pass classname of `types\Range` / `types\MultiRange` subclass to 

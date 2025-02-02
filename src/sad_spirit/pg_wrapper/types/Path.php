@@ -48,11 +48,7 @@ final readonly class Path extends PointList implements ArrayRepresentable, \Json
      */
     public static function createFromArray(array $input): static
     {
-        if (\is_bool(\reset($input))) {
-            $open = \array_shift($input);
-        } else {
-            $open = false;
-        }
+        $open = \is_bool(\reset($input)) && \array_shift($input);
 
         return new self($open, ...self::createPointArray($input));
     }

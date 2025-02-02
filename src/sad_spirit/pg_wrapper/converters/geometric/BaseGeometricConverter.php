@@ -61,6 +61,7 @@ abstract class BaseGeometricConverter extends ContainerConverter
      * @param int       $count           number of points to parse
      * @param bool      $allowSquare     whether square brackets [] are allowed around points
      * @param bool|null $squareDelimiter whether square brackets were actually used
+     * @param-out bool  $squareDelimiter
      * @return Point[]
      * @throws TypeConversionException
      */
