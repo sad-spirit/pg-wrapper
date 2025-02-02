@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.0-beta.2] - 2025-02-02
 
 Package manual is now published on [Read the Docs](https://pg-wrapper.readthedocs.io)
 
@@ -22,6 +22,7 @@ Package manual is now published on [Read the Docs](https://pg-wrapper.readthedoc
    an instance of native `\DateInterval`.
 
 ### Fixed
+ * Upgraded phpstan to version 2 and psalm to version 6, fixed newly discovered issues.
  * `types\PointList` and `types\MultiRange` can have only 
     [list-compatible array offsets](https://www.php.net/manual/en/function.array-is-list.php),
     previously it was possible to make them have any offsets by passing an unpacked associative array
@@ -385,4 +386,4 @@ Initial release on GitHub
 [2.4.1]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.0...v2.4.1
 [2.5.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...v2.5.0
 [3.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.5.0...v3.0.0-beta
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...HEAD
+[3.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...v3.0.0-beta.2
