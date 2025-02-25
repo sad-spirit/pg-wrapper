@@ -1,12 +1,6 @@
-# sad_spirit\pg_wrapper
-
-> Note: master branch contains code for the upcoming 3.0 version that requires PHP 8.2+
->
-> [Branch 2.x](../../tree/2.x) contains the stable version compatible with PHP 7.2+
-
+# sad_spirit/pg_wrapper
 
 [![Build Status](https://github.com/sad-spirit/pg-wrapper/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions/workflows/ci.yml)
-
 [![Static Analysis](https://github.com/sad-spirit/pg-wrapper/actions/workflows/static-analysis.yml/badge.svg?branch=master)](https://github.com/sad-spirit/pg-wrapper/actions/workflows/static-analysis.yml)
 
 This package has two parts and purposes

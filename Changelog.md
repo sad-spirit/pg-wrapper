@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.0] - 2025-02-25
+
+Upgraded psalm, fixed issues found by `strictBinaryOperands`
+
 ## [3.0.0-beta.2] - 2025-02-02
 
 Package manual is now published on [Read the Docs](https://pg-wrapper.readthedocs.io)
@@ -387,3 +391,4 @@ Initial release on GitHub
 [2.5.0]: https://github.com/sad-spirit/pg-wrapper/compare/v2.4.1...v2.5.0
 [3.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.5.0...v3.0.0-beta
 [3.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...v3.0.0-beta.2
+[3.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta.2...v3.0.0
