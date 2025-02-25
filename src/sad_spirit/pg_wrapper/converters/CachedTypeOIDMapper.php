@@ -729,7 +729,9 @@ SQL;
             $cacheItem = null;
             if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
                 try {
-                    $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-composite-' . $oid);
+                    $cacheItem = $cache->getItem(
+                        \sprintf('%s-composite-%s', $this->connection->getConnectionId(), $oid)
+                    );
                 } catch (\Psr\Cache\InvalidArgumentException) {
                 }
             }

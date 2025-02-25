@@ -104,7 +104,7 @@ class IntervalConverter extends BaseConverter
                 if (0.0 === $interval->f) {
                     $string .= \sprintf('%d%s', $interval->s * $mult, 'S');
                 } else {
-                    $string .= \rtrim(\sprintf('%.6f', ($interval->s + $interval->f) * $mult), '0');
+                    $string .= \rtrim(\sprintf('%.6f', ((float)$interval->s + $interval->f) * (float)$mult), '0');
                     $string .= 'S';
                 }
             }
@@ -184,7 +184,7 @@ class IntervalConverter extends BaseConverter
                         throw TypeConversionException::parsingFailed($this, 'integer value', $tokenValue, 0);
                     } else {
                         $interval->s = (int)\substr($tokenValue, 0, $pos);
-                        $interval->f = ('-' === $tokenValue[0] ? -1 : 1)
+                        $interval->f = ('-' === $tokenValue[0] ? -1. : 1.)
                                        * (float)\substr($tokenValue, $pos);
                     }
 
@@ -350,7 +350,7 @@ class IntervalConverter extends BaseConverter
                     $interval->d = 7 * (int)\substr($m['w'], 0, -1);
                 } elseif ('s' === $key && false !== ($pos = \strpos($m['s'], '.'))) {
                     $interval->s = (int)\substr($m['s'], 0, $pos);
-                    $interval->f = ('-' === $m['s'][0] ? -1 : 1) * (float)\substr($m['s'], $pos, -1);
+                    $interval->f = ('-' === $m['s'][0] ? -1. : 1.) * (float)\substr($m['s'], $pos, -1);
                 } else {
                     $interval->{$key} = (int)\substr($m[$key], 0, -1);
                 }
