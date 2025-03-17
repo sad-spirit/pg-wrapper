@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+ * `converters\DefaultTypeConverterFactory::getConverterForTypeOID()` will return a converter that was explicitly
+   registered for a complex (e.g. composite) type instead of the generic one,
+   see [issue #14](https://github.com/sad-spirit/pg-wrapper/issues/14).
+
+
 ## [3.0.0] - 2025-02-25
 
 Upgraded psalm, fixed issues found by `strictBinaryOperands`
@@ -392,3 +400,4 @@ Initial release on GitHub
 [3.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.5.0...v3.0.0-beta
 [3.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...v3.0.0-beta.2
 [3.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta.2...v3.0.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...HEAD
