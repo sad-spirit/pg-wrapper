@@ -543,6 +543,45 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
+    /**
+     * A converter explicitly registered for a complex (e.g. composite) type should be used for returned values
+     * of that type instead of the generic one
+     *
+     * We use `pg_shseclabel` as a composite type here as it has few fields and a manually assigned OID
+     *
+     * @link https://github.com/sad-spirit/pg-wrapper/issues/14
+     */
+    public function testIssue14PreferCustomConvertersInGetConverterForTypeOID(): void
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+
+        $connection    = new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING, false);
+        $connection->setTypeConverterFactory($this->factory);
+
+        $this->factory->registerConverter(
+            new class ([
+                new IntegerConverter($connection),
+                new IntegerConverter($connection),
+                new StringConverter(),
+                new StringConverter()
+            ]) extends CompositeConverter {
+                protected function inputNotNull(string $native): string
+                {
+                    return \implode('|', parent::inputNotNull($native));
+                }
+            },
+            'pg_shseclabel'
+        );
+
+        $this::assertEquals(
+            ['1|2|foo|bar'],
+            $connection->execute("select row(1, 2, 'foo', 'bar')::pg_shseclabel")
+                ->fetchColumn(0)
+        );
+    }
+
     public static function getBuiltinTypeConverters(): array
     {
         return [

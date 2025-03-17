@@ -333,8 +333,13 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     final public function getConverterForTypeOID(int|string $oid): TypeConverter
     {
-        $mapper = $this->getOIDMapper();
-        if ($mapper->isArrayTypeOID($oid, $baseTypeOid)) {
+        $mapper                  = $this->getOIDMapper();
+        [$schemaName, $typeName] = $mapper->findTypeNameForOID($oid);
+
+        if (null !== $converter = $this->getRegisteredConverterInstance($typeName, $schemaName)) {
+            return $converter;
+
+        } elseif ($mapper->isArrayTypeOID($oid, $baseTypeOid)) {
             return new containers\ArrayConverter(
                 $this->getConverterForTypeOID($baseTypeOid)
             );
@@ -359,13 +364,8 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             return $this->getConverterForTypeOID($baseTypeOid);
         }
 
-        [$schemaName, $typeName] = $mapper->findTypeNameForOID($oid);
-
-        try {
-            return $this->getConverterForQualifiedName($typeName, $schemaName);
-        } catch (InvalidArgumentException) {
-            return new StubConverter();
-        }
+        // Base type with no explicitly registered converter: fall back to returning the string representation
+        return new StubConverter();
     }
 
     /**
