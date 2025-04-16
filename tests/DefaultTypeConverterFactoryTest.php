@@ -56,6 +56,18 @@ class DefaultTypeConverterFactoryTest extends TestCase
     public function setUp(): void
     {
         $this->factory = new DefaultTypeConverterFactory();
+
+        \set_error_handler(
+            static function (int $errno, string $errstr) {
+                throw new \ErrorException($errstr, $errno);
+            },
+            \E_USER_DEPRECATED
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        \restore_error_handler();
     }
 
     #[DataProvider('getBuiltinTypeConverters')]
@@ -579,6 +591,32 @@ class DefaultTypeConverterFactoryTest extends TestCase
             ['1|2|foo|bar'],
             $connection->execute("select row(1, 2, 'foo', 'bar')::pg_shseclabel")
                 ->fetchColumn(0)
+        );
+    }
+
+    public function testIsArrayArgumentForGetConverterForQualifiedNameIsDeprecated(): void
+    {
+        $this::expectException(\ErrorException::class);
+        $this::expectExceptionMessage('$isArray');
+
+        $this->factory->getConverterForQualifiedName('int4', null, false);
+    }
+
+    public function testGetConverterForQualifiedNameMissingBaseType(): void
+    {
+        $this::expectException(InvalidArgumentException::class);
+        $this::expectExceptionMessage('no converter registered');
+
+        $this->factory->getConverterForQualifiedName('xml');
+    }
+
+    public function testGetConverterForQualifiedNameDerivedType(): void
+    {
+        $converter = $this->factory->getConverterForQualifiedName('_int4');
+
+        $this::assertEquals(
+            new ArrayConverter(new IntegerConverter()),
+            $converter
         );
     }
 

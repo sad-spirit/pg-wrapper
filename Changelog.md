@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+ * `converters\ConfigurableTypeConverterFactory` interface that defines the public methods that were previously
+   specific to `converters\DefaultTypeConverterFactory`. The new interface should be used for type hinting instead
+   of the latter class.
+
+### Changed
+ * `converters\DefaultTypeConverterFactory::getConverterForQualifiedName()` method that is now defined in
+   `ConfigurableTypeConverterFactory` is no longer marked `@internal`, its `$isArray` argument is now deprecated.
+
 ### Fixed
  * `converters\DefaultTypeConverterFactory::getConverterForTypeOID()` will return a converter that was explicitly
    registered for a complex (e.g. composite) type instead of the generic one,

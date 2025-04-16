@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace sad_spirit\pg_wrapper\converters;
 
 use sad_spirit\pg_wrapper\{
-    TypeConverterFactory,
     TypeConverter,
     Connection,
     exceptions\InvalidArgumentException,
@@ -27,7 +26,7 @@ use sad_spirit\pg_wrapper\{
 /**
  * Creates type converters for database type based on specific DB metadata
  */
-class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapperAware
+class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
 {
     /**
      * Mapping from one-word SQL standard types to native types
@@ -524,7 +523,9 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
      */
     private function getConverterForTypeName(string $name): TypeConverter
     {
-        if (!isset($this->parsedNames[$name])) {
+        if (isset($this->parsedNames[$name])) {
+            [$typeName, $schemaName, $isArray] = $this->parsedNames[$name];
+        } else {
             if (!\preg_match('/^([A-Za-z\x80-\xff_][A-Za-z\x80-\xff_0-9$]*)(\[])?$/', $name, $m)) {
                 [$schemaName, $typeName, $isArray] = $this->parseTypeName($name);
 
@@ -540,20 +541,30 @@ class DefaultTypeConverterFactory implements TypeConverterFactory, TypeOIDMapper
             $this->parsedNames[$name] = [$typeName, $schemaName, $isArray];
         }
 
-        return $this->getConverterForQualifiedName(...$this->parsedNames[$name]);
+        return $isArray
+            ? new containers\ArrayConverter($this->getConverterForQualifiedName($typeName, $schemaName))
+            : $this->getConverterForQualifiedName($typeName, $schemaName);
     }
 
     /**
      * Returns type converter for separately supplied type and schema names
      *
      * @throws InvalidArgumentException
-     * @internal
      */
     public function getConverterForQualifiedName(
         string $typeName,
-        ?string $schemaName = null,
-        bool $isArray = false
+        ?string $schemaName = null/*,
+        bool $isArray = false*/
     ): TypeConverter {
+        if (\func_num_args() <= 2) {
+            $isArray = false;
+        } else {
+            @\trigger_error(\sprintf(
+                '$isArray argument for %s() method is deprecated since release 3.1.0',
+                __METHOD__
+            ), \E_USER_DEPRECATED);
+            $isArray = func_get_arg(2);
+        }
         if (null === $converter = $this->getRegisteredConverterInstance($typeName, $schemaName)) {
             $mapper = $this->getOIDMapper();
             $oid    = $mapper->findOIDForTypeName($typeName, $schemaName);
