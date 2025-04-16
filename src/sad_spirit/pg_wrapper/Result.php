@@ -339,8 +339,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      */
     public function __destruct()
     {
-        /** @psalm-suppress RedundantCondition */
         // This is only for the mocks, where newInstanceWithoutConstructor() is used
+        /** @psalm-suppress RedundantCondition */
+        /** @phpstan-ignore isset.initializedProperty */
         if (isset($this->native)) {
             \pg_free_result($this->native);
         }

@@ -148,6 +148,7 @@ readonly class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countabl
             }
             $ranges[] = $range;
         }
+        /** @phpstan-ignore return.type */
         return new static(...$ranges);
     }
 
