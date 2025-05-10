@@ -117,7 +117,10 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
                 }
             }
         }
-        throw TypeConversionException::unexpectedValue($this, 'input', $this->expectation, $native);
+        $expectation = \str_contains($this->expectation, '%s')
+            ? \sprintf($this->expectation, $this->style)
+            : $this->expectation;
+        throw TypeConversionException::unexpectedValue($this, 'input', $expectation, $native);
     }
 
     /**
@@ -151,7 +154,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
         throw TypeConversionException::unexpectedValue(
             $this,
             'output',
-            'a string, an integer or an instance of DateTime',
+            'a string, an integer or an implementation of DateTimeInterface',
             $value
         );
     }

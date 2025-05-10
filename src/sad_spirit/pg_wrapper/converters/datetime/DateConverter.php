@@ -21,7 +21,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class DateConverter extends BaseDateTimeConverter
 {
-    protected string $expectation = 'date string';
+    protected string $expectation = "date string in '%s' format";
 
     protected function getFormats(string $style): array
     {

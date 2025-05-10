@@ -21,7 +21,7 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class TimeStampTzConverter extends BaseDateTimeConverter
 {
-    protected string $expectation = 'date and time string with time zone info';
+    protected string $expectation = "date and time string in '%s' format with time zone info";
 
     protected function getFormats(string $style): array
     {
