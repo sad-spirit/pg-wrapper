@@ -1,8 +1,8 @@
 .. _complex-types:
 
-====================================
-Classes for complex PostgreSQL types
-====================================
+==================================
+Classes for complex Postgres types
+==================================
 
 Generally pg_wrapper tries to use native PHP constructs and built-in classes to represent Postgres types:
 associative arrays for composite types and ``hstore``, ``\DateTimeImmutable`` for date and time types, etc.

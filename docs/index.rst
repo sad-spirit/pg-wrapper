@@ -8,20 +8,25 @@ This package has two parts and purposes
   equivalents and back and
 - An object oriented wrapper around PHP's native `pgsql extension <https://php.net/manual/en/book.pgsql.php>`__.
 
-While the converter part can be used separately e.g. with `PDO <https://www.php.net/manual/en/book.pdo.php>`__,
-features like transparent conversion of query results work only with the wrapper.
-
-A similar wrapper for PDO is possible, but is neither implemented nor planned as it will have to depend
-on highly inefficient :ref:`handling of column metadata <converter-factories-oids>` in PDO_pgsql driver.
+The converter part can be used separately, this will require :ref:`manually specifying types and calling the
+type conversion methods <tutorial-types>`.
+:ref:`Using the wrapper part <tutorial-wrapper>` provides transparent conversion of query results
+and easier conversion of parameter values for parametrized queries.
 
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
 
    overview
+   tutorial-types
    types
    converters
    converter-factories
+   default-types
+   internals-oids
+   howto-enums
+   howto-base
+   tutorial-wrapper
    connecting
    queries
    result
