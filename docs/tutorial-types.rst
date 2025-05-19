@@ -117,7 +117,8 @@ properly set up the input format, but this time we'll configure it manually:
     print_r($complex);
 
 As you may notice, the converters are combined in pretty much the same way as the types themselves. Thus adding
-a converter for a new base type will immediately allow
+a converter for a new base type will immediately allow using it for complex types (arrays, ranges, composites)
+containing this base type.
 
 Now the code works as expected, outputting the following (some parts are omitted for brevity):
 

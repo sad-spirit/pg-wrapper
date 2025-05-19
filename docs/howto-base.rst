@@ -2,18 +2,23 @@
 How to add converters for new base types
 ========================================
 
-A custom converter is only needed for a new base type, as values of the derived types can be converted by configuring
-the existing ones.
+Adding support for a new base type, either built-in or added by some Postgres extension, will require
+a new custom ``TypeConverter`` implementation. Additionally, a class to represent values of that type on PHP
+side will probably be needed.
 
-Notably, pg_wrapper lacks converters for types like ``uuid`` and ``inet``. The main reason is that properly
+Notably, ``pg_wrapper`` lacks converters for types like ``uuid`` and ``inet``. The main reason is that properly
 implementing PHP objects to support these types is way out of scope for the package, while using some external
-implementation will introduce unnecessary dependencies.
+implementation will introduce unnecessary dependencies. When you decide on the dependency you wish to use, it doesn't
+require much effort to create a converter, as shown below for ``uuid`` type.
+
+Base classes for ``TypeConverter`` implementations
+==================================================
 
 The package contains abstract ``BaseConverter`` and ``ContainerConverter`` classes, the new converter implementation
 should probably extend one of these based on the properties of the type.
 
 ``BaseConverter``
-=================
+-----------------
 
 This base class implements ``input()`` and ``output()`` methods that handle null values as ``pgsql`` extension itself
 converts ``NULL`` fields of any type to PHP ``null`` values.
@@ -27,10 +32,11 @@ It delegates handling of non-null values to the two new abstract methods
     Returns a string representation of PHP variable not identical to null.
 
 ``ContainerConverter``
-======================
+----------------------
 
-This class defines helper methods for parsing complex string representations. Those accept the string
-received from the database and position of the current symbol that is updated once parts of the string is processed.
+This class extends ``BaseConverter`` and defines helper methods for parsing complex string representations.
+Those accept the string received from the database and position of the current symbol that is updated
+once parts of the string is processed.
 
 ``nextChar(string $str, int &$p): ?string``
     Gets next non-whitespace character from input, position is updated. Returns ``null`` if input ended.
@@ -45,12 +51,17 @@ received from the database and position of the current symbol that is updated on
     Parses a string representation into PHP variable from given position. This may be called from any position in
     the string and should return once it finishes parsing the value.
 
+    This can be used by converters of complex types to delegate parsing to converters of their subtypes, e.g.
+
+    - ``MultiRangeConverter`` delegates to ``RangeConverter``,
+    - Converters of various geometric types delegate to ``PointConverter``.
+
 Adding converter for ``uuid`` type
 ==================================
 
 We will use the obvious choice for representing UUIDs on PHP side: `ramsey/uuid package <https://github.com/ramsey/uuid>`__.
 
-The converter class will extend ``BaseConverter`` as it will not actually parse UUIDs itself.
+The converter class will extend ``BaseConverter`` as it will not actually parse UUIDs itself:
 
 .. code-block:: php
 
@@ -79,7 +90,7 @@ The converter class will extend ``BaseConverter`` as it will not actually parse 
         }
     }
 
-The converter should be registered with ``DefaultTypeConverterFactory`` in the following way
+The classes should then be registered with ``DefaultTypeConverterFactory``:
 
 .. code-block:: php
 
@@ -89,5 +100,9 @@ The converter should be registered with ``DefaultTypeConverterFactory`` in the f
     $factory->registerConverter(UuidConverter::class, 'uuid');
     $factory->registerClassMapping(UuidInterface::class, 'uuid');
 
-Adding a mapping for ``UuidInterface`` will allow using implementations of that as parameter values without the
-need to specify types.
+The ``registerConverter()`` call makes ``$factory`` return an instance of ``UuidConverter`` when asked
+for a converter for ``uuid`` type or its OID, so you'll get implementations of ``UuidInterface`` instead of strings in
+a query result.
+
+Adding a mapping for ``UuidInterface`` via ``registerClassMapping()`` will allow using
+implementations of that for query parameter values without the need to specify types.
