@@ -153,7 +153,7 @@ over these base types will be built automatically:
 
 .. code-block:: php
 
-   $factory->registerConverter('BlahConverter', 'blah', 'blah');
+   $factory->registerConverter(BlahConverter::class, 'blah', 'blah');
    $factory->getConverter('blah.blah[]');
 
 will return

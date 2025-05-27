@@ -29,6 +29,7 @@ and easier conversion of parameter values for parametrized queries.
    tutorial-wrapper
    connecting
    queries
+   prepared-statements
    result
    transactions
    exceptions

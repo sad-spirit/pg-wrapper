@@ -70,8 +70,8 @@ The following additional methods of ``Connection`` help with the connection hand
 
 ``getNative(): \PgSql\Connection``
     returns the `native object
-    <https://www.php.net/manual/en/class.pgsql-connection.php>`__ that represents the connection starting with PHP 8.1,
-    this will call ``connect()`` in lazy connection scenario.
+    <https://www.php.net/manual/en/class.pgsql-connection.php>`__ that represents the connection starting with PHP 8.1
+    (a resource was used before that version), this will call ``connect()`` in lazy connection scenario.
 
 ``getConnectionId(): string``
     Returns a unique identifier for the connection. The identifier is based
@@ -93,7 +93,7 @@ and ``Psr\Cache\CacheItemPoolInterface`` implementations to appropriate methods.
     Sets the factory object for converters to and from PostgreSQL representation.
 
 ``getTypeConverterFactory(): TypeConverterFactory``
-    Returns the factory object for converters to and from PostreSQL representation.
+    Returns the factory object for converters to and from PostgreSQL representation.
     If one was not set explicitly by the previous method, sets and returns
     an instance of :ref:`a default factory <converter-factories-default>`.
 

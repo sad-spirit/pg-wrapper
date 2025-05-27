@@ -153,7 +153,7 @@ Of course, the above code will fail with a ``ConstraintViolationException``. If 
 ``test.test`` it will have no rows inserted: the code within ``atomic()`` is executed inside a transaction
 and that was rolled back.
 
-Let's add a nested ``atomic()`` around the code that *may* fail:
+Let's add a nested ``atomic()`` around the code the *possibly* failing code:
 
 .. code-block:: php
 
@@ -215,3 +215,7 @@ We were expecting the ``ConstraintViolationException`` and handle it, allowing t
 to continue on PHP side.
 
 Finally, we are using the ``fetchAll()`` method of ``Result`` class to receive the whole result as an array.
+
+This concludes the tutorial: we used the most common methods to retrieve and manipulate data and performed some
+advanced error handling along the way. The next chapters contain the complete API reference for the classes
+used in this tutorial.
