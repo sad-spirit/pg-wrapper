@@ -129,6 +129,8 @@ APIs that we can use with the native extension and / or adds another level of co
 * PDO has an *extremely inefficient* way to work with result metadata in Postgres. Its 
   [`PDOStatement::getColumnMeta()`](https://www.php.net/manual/en/pdostatement.getcolumnmeta.php)
   executes one to two database queries for each call.
+* The default way [Doctrine handles date and time types in PostgreSQL](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/known-vendor-issues.html#datetime-datetimetz-and-time-types)
+  is prominently mentioned in [Don't Do This](https://wiki.postgresql.org/wiki/Don%27t_Do_This#Don.27t_use_timestamp.280.29_or_timestamptz.280.29) list on PostgreSQL's official wiki.
 
 ### Parameter as array: native vs. abstraction
 

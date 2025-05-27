@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.1.0] - 2025-05-27
 
 ### Added
  * `converters\ConfigurableTypeConverterFactory` interface that defines the public methods that were previously
@@ -409,4 +409,4 @@ Initial release on GitHub
 [3.0.0-beta]: https://github.com/sad-spirit/pg-wrapper/compare/v2.5.0...v3.0.0-beta
 [3.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...v3.0.0-beta.2
 [3.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta.2...v3.0.0
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...HEAD
+[3.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...v3.1.0
