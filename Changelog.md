@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+* `converters\DefaultTypeConverterFactory::getConverterForTypeSpecification()` accepts another specification
+  for an array type: `['' => type]` where `type` may be either a type name or another array for
+  an unnamed composite type. Empty string is used as a key here as column name / alias cannot legitimately
+  be an empty string in Postgres.
+  
+  There was no way previously to specify an "array of composite" other than creating all `TypeConverter` instances
+  manually.
+
 ## [3.1.0] - 2025-05-27
 
 ### Added
@@ -410,3 +422,4 @@ Initial release on GitHub
 [3.0.0-beta.2]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta...v3.0.0-beta.2
 [3.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta.2...v3.0.0
 [3.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...v3.1.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.1.0...HEAD

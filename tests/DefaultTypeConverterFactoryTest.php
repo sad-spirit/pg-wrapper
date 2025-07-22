@@ -99,6 +99,13 @@ class DefaultTypeConverterFactoryTest extends TestCase
             $this->factory->getConverterForTypeSpecification($typeName . '[]')
         );
     }
+    public function testGetConverterForArrayTypeAlternate(): void
+    {
+        $this->assertEquals(
+            new ArrayConverter(new IntegerConverter()),
+            $this->factory->getConverterForTypeSpecification(['' => 'integer'])
+        );
+    }
 
     #[DataProvider('getInvalidTypeNames')]
     public function testInvalidTypeNames(string $typeName, string $exceptionMessage): void
@@ -123,6 +130,26 @@ class DefaultTypeConverterFactoryTest extends TestCase
                 'string'  => '"varchar"',
                 'strings' => 'text[]',
                 'coord'   => 'pg_catalog.point'
+            ])
+        );
+    }
+
+    public function testGetConverterForArrayOfCompositeType(): void
+    {
+        $this->assertEquals(
+            new ArrayConverter(new CompositeConverter([
+                'num'     => new IntegerConverter(),
+                'string'  => new StringConverter(),
+                'strings' => new ArrayConverter(new StringConverter()),
+                'coord'   => new PointConverter()
+            ])),
+            $this->factory->getConverterForTypeSpecification([
+                '' => [
+                    'num'     => 'integer',
+                    'string'  => '"varchar"',
+                    'strings' => 'text[]',
+                    'coord'   => 'pg_catalog.point'
+                ]
             ])
         );
     }

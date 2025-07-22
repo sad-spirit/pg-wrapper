@@ -22,6 +22,7 @@ use sad_spirit\pg_wrapper\{
     exceptions\TypeConversionException,
     types
 };
+use sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
 
 /**
  * Creates type converters for database type based on specific DB metadata
@@ -255,6 +256,8 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
      *  - type name (string), either simple or schema-qualified,
      *    'foo[]' is treated as an array of base type 'foo'
      *  - ['field' => 'type', ...] for composite types
+     *  - ['' => type] is an alternate way to specify array of given type, which may be also
+     *    an array specifying composite type
      *  - TypeConverter instance. If it implements ConnectionAware, then
      *    it will receive current Connection
      *
@@ -276,6 +279,11 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
             return $this->getConverterForTypeName($type);
 
         } elseif (\is_array($type)) {
+            // alternate type specification for arrays, added in 3.2
+            if (1 === \count($type) && [''] === \array_keys($type)) {
+                return new ArrayConverter($this->getConverterForTypeSpecification(\reset($type)));
+            }
+
             // type specification for composite type
             return new containers\CompositeConverter(\array_map(
                 $this->getConverterForTypeSpecification(...),
