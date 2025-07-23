@@ -22,7 +22,6 @@ use sad_spirit\pg_wrapper\{
     exceptions\TypeConversionException,
     types
 };
-use sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
 
 /**
  * Creates type converters for database type based on specific DB metadata
@@ -281,7 +280,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
         } elseif (\is_array($type)) {
             // alternate type specification for arrays, added in 3.2
             if (1 === \count($type) && [''] === \array_keys($type)) {
-                return new ArrayConverter($this->getConverterForTypeSpecification(\reset($type)));
+                return new containers\ArrayConverter($this->getConverterForTypeSpecification(\reset($type)));
             }
 
             // type specification for composite type
