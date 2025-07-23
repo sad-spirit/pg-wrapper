@@ -153,7 +153,7 @@ Of course, the above code will fail with a ``ConstraintViolationException``. If 
 ``test.test`` it will have no rows inserted: the code within ``atomic()`` is executed inside a transaction
 and that was rolled back.
 
-Let's add a nested ``atomic()`` around the code the *possibly* failing code:
+Let's add a nested ``atomic()`` around the *possibly* failing code:
 
 .. code-block:: php
 
