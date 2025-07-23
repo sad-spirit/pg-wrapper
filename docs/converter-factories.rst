@@ -198,5 +198,9 @@ to a ``Connection`` object unless ``setTypeConverterFactory()`` is explicitly us
 - ``TypeConverter`` instance. Its properties will be updated from current ``Connection`` object if needed
   (e.g. date and time converters will use ``DateStyle`` setting of connected database).
 - Composite type specification as an array
-  ``'column' => 'column type specification'``
+  ``['column' => column type specification, ...]``
+- Array type specification as an array ``['' => base type specification]``, where base type may be anything
+  other than an array, as those cannot be nested. This is mostly intended for specifying an array of composite type.
 
+  Note the empty string used as an array key: an empty string cannot be a column name or alias in Postgres, so
+  this is used to differentiate from composite type specification.

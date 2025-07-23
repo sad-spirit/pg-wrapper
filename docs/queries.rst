@@ -84,8 +84,10 @@ will accept either of the following:
 
 - :ref:`Type name as string <converter-factories-names>`. As shown above, array types can be specified using
   square brackets: ``typename[]``.
-- Composite type specification as an array ``'column' => 'column type specification'``.
+- Composite type specification as an array ``['column' => column type specification, ...]``.
 - ``TypeConverter`` instance, it will receive current ``Connection`` to update its configuration, if needed.
+- Array type specification as an array ``['' => base type specification]``. This is mostly intended for specifying
+  an array of composite type.
 
 It is not necessary to provide type information for *every* parameter: some may be skipped or type info omitted
 altogether. In this case an attempt will be made to guess which converter to use based on PHP
