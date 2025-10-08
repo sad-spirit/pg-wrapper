@@ -98,6 +98,13 @@ enum SqlState: string
     case DIAGNOSTICS_EXCEPTION                               = '0Z000';
     case STACKED_DIAGNOSTICS_ACCESSED_WITHOUT_ACTIVE_HANDLER = '0Z002';
 
+
+    /* Class 10 - XQuery Error */
+    // For some strange reason, there is no generic error for class 10, so we just add one
+    // https://www.postgresql.org/message-id/18937-16eeda8ba8e91c59@postgresql.org
+    case XQUERY_ERROR                = '10000';
+    case INVALID_ARGUMENT_FOR_XQUERY = '10608';
+
     /* Class 20 - Case Not Found */
     case CASE_NOT_FOUND = '20000';
 
@@ -201,7 +208,7 @@ enum SqlState: string
     case NO_ACTIVE_SQL_TRANSACTION                            = '25P01';
     case IN_FAILED_SQL_TRANSACTION                            = '25P02';
     case IDLE_IN_TRANSACTION_SESSION_TIMEOUT                  = '25P03';
-    case ERRCODE_TRANSACTION_TIMEOUT                          = '25P04';
+    case TRANSACTION_TIMEOUT                                  = '25P04';
 
     /* Class 26 - Invalid SQL Statement Name */
     case INVALID_SQL_STATEMENT_NAME = '26000';
@@ -345,13 +352,14 @@ enum SqlState: string
     case IDLE_SESSION_TIMEOUT  = '57P05';
 
     /* Class 58 - System Error (errors external to PostgreSQL itself) */
-    case SYSTEM_ERROR   = '58000';
-    case IO_ERROR       = '58030';
-    case UNDEFINED_FILE = '58P01';
-    case DUPLICATE_FILE = '58P02';
+    case SYSTEM_ERROR       = '58000';
+    case IO_ERROR           = '58030';
+    case UNDEFINED_FILE     = '58P01';
+    case DUPLICATE_FILE     = '58P02';
+    case FILE_NAME_TOO_LONG = '58P03';
 
     /* Class 72 - Snapshot Failure */
-    case SNAPSHOT_TOO_OLD = '72000'; // This was removed in Postgres 17
+    case SNAPSHOT_TOO_OLD = '72000'; // This was removed in Postgres 17, keep while we support Postgres 16 and below
 
     /* Class F0 - Configuration File Error */
     case CONFIG_FILE_ERROR = 'F0000';
