@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+ * New error codes from Postgres 18
+ * Tested on Postgres 18
+
+### Fixed
+ * The error for transaction timeout added in version 3.0 had an incorrect `SqlState::ERRCODE_TRANSACTION_TIMEOUT`
+   name, changed to `SqlState::TRANSACTION_TIMEOUT`
+
 ## [3.2.0] - 2025-07-23
 
 ### Added
@@ -423,3 +433,4 @@ Initial release on GitHub
 [3.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta.2...v3.0.0
 [3.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...v3.1.0
 [3.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.1.0...v3.2.0
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.2.0...HEAD
