@@ -103,7 +103,7 @@ for the result column? Or when PDO has
 `PDOStatement::getColumnMeta() <https://www.php.net/manual/en/pdostatement.getcolumnmeta.php>`__?
 
 Result metadata in Postgres contains type OIDs for result columns and these are returned by
-`PQftype function of client library <https://www.postgresql.org/docs/17/libpq-exec.html#LIBPQ-PQFTYPE>`__.
+`PQftype function of client library <https://www.postgresql.org/docs/current/libpq-exec.html#LIBPQ-PQFTYPE>`__.
 PHP's `pg_field_type_oid() <https://www.php.net/manual/en/function.pg-field-type-oid.php>`__ is a thin wrapper
 around that function.
 

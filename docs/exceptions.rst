@@ -127,7 +127,7 @@ Generally, if a query fails:
 =================
 
 ``\sad_spirit\pg_wrapper\exceptions\SqlState`` is a string-backed ``enum`` representing
-`PostgreSQL error codes <https://www.postgresql.org/docs/current/static/errcodes-appendix.html>`__.
+`PostgreSQL error codes <https://www.postgresql.org/docs/current/errcodes-appendix.html>`__.
 
 Its case names are "condition names" from the table in the above link, these are used in PL/PgSQL
 for exception handling

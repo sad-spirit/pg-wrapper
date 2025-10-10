@@ -10,7 +10,7 @@ Its goal is to leverage PostgreSQL's strengths in PHP projects rather than assis
 RDBMS-agnostic applications.
 
 One of such strengths is a `rich and extensible data type
-system <https://www.postgresql.org/docs/current/interactive/datatype.html>`__,
+system <https://www.postgresql.org/docs/current/datatype.html>`__,
 so pg_wrapper allows to
 
 - Easily build string representations for query parameters,

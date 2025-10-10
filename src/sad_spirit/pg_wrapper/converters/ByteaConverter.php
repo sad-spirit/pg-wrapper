@@ -31,7 +31,7 @@ class ByteaConverter extends BaseConverter
             return \pg_unescape_bytea($native);
 
         } else {
-            // http://www.postgresql.org/docs/current/interactive/datatype-binary.html says:
+            // http://www.postgresql.org/docs/current/datatype-binary.html says:
             // The "hex" format encodes binary data as 2 hexadecimal digits per byte, most significant nibble first.
             // The entire string is preceded by the sequence \x (to distinguish it from the escape format).
             // The hexadecimal digits can be either upper or lower case, and whitespace is permitted between digit
