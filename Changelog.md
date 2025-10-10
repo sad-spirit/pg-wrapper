@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.3.0] - 2025-10-10
 
 ### Added
  * New error codes from Postgres 18
@@ -433,4 +433,4 @@ Initial release on GitHub
 [3.0.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0-beta.2...v3.0.0
 [3.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...v3.1.0
 [3.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.1.0...v3.2.0
-[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.2.0...HEAD
+[3.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.2.0...v3.3.0
