@@ -24,7 +24,7 @@ use sad_spirit\pg_wrapper\exceptions\{
 /**
  * Implementation of TypeOIDMapper loading type data from DB or from cache
  *
- * The methods were extracted from DefaultTypeConverterFactory class
+ * The methods were extracted from `DefaultTypeConverterFactory` class
  *
  * @since 2.2.0
  */
@@ -345,7 +345,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      *
      * If data for composite type was not yet loaded, its key contains relation OID,
      * afterwards it contains type specification of the form
-     * ['field name' => 'field type OID', ...]
+     * `['field name' => 'field type OID', ...]`
      *
      * @var array<int|numeric-string|array<string, int|numeric-string>>
      */
@@ -402,7 +402,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
     /**
      * Mapping 'type OID' => ['schema name', 'type name']
      *
-     * This is built based on $typeNames, but not saved to cache
+     * This is built based on `$typeNames`, but not saved to cache
      *
      * @var array<array{string, string}>
      */
@@ -432,10 +432,10 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      * when columns (attributes) are added / removed / changed. If the cached list of columns is used to convert
      * the composite value with different columns the conversion will obviously fail.
      *
-     * This should be set to false if
+     * This should be set to `false` if
      *  - composite types are used in the application
      *  - changes to those types are expected
-     * Otherwise it can be left at the default (true)
+     * Otherwise it can be left at the default (`true`)
      *
      * @return $this
      */

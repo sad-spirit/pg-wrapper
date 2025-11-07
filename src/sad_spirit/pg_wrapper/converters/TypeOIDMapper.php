@@ -26,8 +26,6 @@ interface TypeOIDMapper
     /**
      * Searches for an OID corresponding to the given type name in loaded type metadata
      *
-     * @param string      $typeName
-     * @param string|null $schemaName
      * @return int|numeric-string
      * @throws InvalidArgumentException
      */
@@ -46,18 +44,16 @@ interface TypeOIDMapper
      * Checks whether given OID corresponds to base type
      *
      * @param int|numeric-string $oid
-     * @return bool
      */
     public function isBaseTypeOID(int|string $oid): bool;
 
     /**
      * Checks whether given OID corresponds to array type
      *
-     * $baseTypeOid will be set to OID of the array base type
+     * `$baseTypeOid` will be set to OID of the array base type if the check succeeds
      *
      * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
-     * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
@@ -66,9 +62,11 @@ interface TypeOIDMapper
     /**
      * Checks whether given OID corresponds to composite type
      *
+     * `$members` will contain a mapping `[fieldName => type OID, ...]` for fields of the composite type
+     * if the check succeeds
+     *
      * @param int|numeric-string $oid
      * @param array<string, int|numeric-string>|null $members
-     * @return bool
      *
      * @psalm-assert-if-true array<string, int|numeric-string> $members
      */
@@ -77,11 +75,10 @@ interface TypeOIDMapper
     /**
      * Checks whether given OID corresponds to domain type
      *
-     * $baseTypeOid will be set to OID of the underlying data type
+     * `$baseTypeOid` will be set to OID of the underlying data type if the check succeeds
      *
      * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
-     * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
@@ -90,11 +87,10 @@ interface TypeOIDMapper
     /**
      * Checks whether given OID corresponds to range type
      *
-     * $baseTypeOid will be set to OID of the range base type
+     * `$baseTypeOid` will be set to OID of the range base type if the check succeeds
      *
      * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
-     * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */
@@ -103,11 +99,10 @@ interface TypeOIDMapper
     /**
      * Checks whether given OID corresponds to multirange type (available since Postgres 14)
      *
-     * $baseTypeOid will be set to OID of the multirange base type
+     * `$baseTypeOid` will be set to OID of the multirange base type if the check succeeds
      *
      * @param int|numeric-string $oid
      * @param int|numeric-string|null $baseTypeOid
-     * @return bool
      *
      * @psalm-assert-if-true int|numeric-string $baseTypeOid
      */

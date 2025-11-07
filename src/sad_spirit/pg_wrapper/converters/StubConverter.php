@@ -19,8 +19,9 @@ use sad_spirit\pg_wrapper\TypeConverter;
 /**
  * Implementation of TypeConverter that performs no conversion
  *
- * Always returned by StubTypeConverterFactory, returned by DefaultTypeConverterFactory in case proper converter
- * could not be determined.
+ * Always returned by {@see \sad_spirit\pg_wrapper\converters\StubTypeConverterFactory StubTypeConverterFactory},
+ * returned by {@see \sad_spirit\pg_wrapper\converters\DefaultTypeConverterFactory DefaultTypeConverterFactory}
+ * in case proper converter could not be determined.
  */
 class StubConverter implements TypeConverter
 {

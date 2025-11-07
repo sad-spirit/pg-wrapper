@@ -26,7 +26,6 @@ abstract class ContainerConverter extends BaseConverter
      *
      * @param string $str Input string
      * @param int    $p   Position within input string
-     * @return string|null
      */
     protected function nextChar(string $str, int &$p): ?string
     {
@@ -37,9 +36,6 @@ abstract class ContainerConverter extends BaseConverter
     /**
      * Throws an Exception if next non-whitespace character in input is not the given char
      *
-     * @param string $string
-     * @param int    $pos
-     * @param string $char
      * @throws TypeConversionException
      */
     protected function expectChar(string $string, int &$pos, string $char): void

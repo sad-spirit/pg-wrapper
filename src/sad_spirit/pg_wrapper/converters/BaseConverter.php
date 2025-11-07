@@ -23,7 +23,8 @@ abstract class BaseConverter implements TypeConverter
 {
     /**
      * Symbols that should be considered whitespace by type converters
-     * https://git.postgresql.org/gitweb/?p=postgresql.git;a=commitdiff;h=ae6d06f09684d8f8a7084514c9b35a274babca61
+     *
+     * @link https://git.postgresql.org/gitweb/?p=postgresql.git;a=commitdiff;h=ae6d06f09684d8f8a7084514c9b35a274babca61
      */
     public const WHITESPACE = " \n\r\t\v\f";
 

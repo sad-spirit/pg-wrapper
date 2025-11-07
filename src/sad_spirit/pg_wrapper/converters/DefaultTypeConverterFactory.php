@@ -204,7 +204,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
     /**
      * Registers a mapping between PHP class and database type name
      *
-     * If an instance of the given class will later be provided to getConverterForPHPValue(), that method will return
+     * If an instance of the given class will later be provided to `getConverterForPHPValue()`, that method will return
      * a converter for the given database type
      *
      * @param class-string $className
@@ -252,15 +252,15 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
      * Returns a converter specified by a given type
      *
      * $type can be either of
-     *  - type name (string), either simple or schema-qualified,
-     *    'foo[]' is treated as an array of base type 'foo'
-     *  - ['field' => 'type', ...] for composite types
-     *  - ['' => type] is an alternate way to specify array of given type, which may be also
+     *  - type name (`string`), either simple or schema-qualified,
+     *    `'foo[]'` is treated as an array of base type `'foo'`
+     *  - `['field' => 'type', ...]` for composite types
+     *  - `['' => type]` is an alternate way to specify array of given type, which may be also
      *    an array specifying composite type
-     *  - TypeConverter instance. If it implements ConnectionAware, then
-     *    it will receive current Connection
+     *  - `TypeConverter` instance. If it implements `ConnectionAware`, then
+     *    it will receive current `Connection`
      *
-     * Converters for type names registered with registerConverter() will
+     * Converters for type names registered with `registerConverter()` will
      * be returned even without database connection. Getting Converters for
      * database-specific names (e.g. composite types) requires a connection.
      *
@@ -301,9 +301,9 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
      * Tries to return a converter based on type of value
      *
      * This will work for
-     *  - nulls
-     *  - values of scalar types (string / int / float / bool)
-     *  - instances of classes from $classMapping (new ones may be added with registerClassMapping())
+     *  - `null`s
+     *  - values of scalar types (`string` / `int` / `float` / `bool`)
+     *  - instances of classes from `$classMapping` (new ones may be added with `registerClassMapping()`)
      *
      * @throws TypeConversionException
      */
@@ -477,7 +477,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
     /**
      * Returns an instance of converter explicitly registered for a given type
      *
-     * @param string      $typeName   type name (as passed to registerConverter())
+     * @param string      $typeName   type name (as passed to `registerConverter()`)
      * @param string|null $schemaName schema name (only required if converters for the same
      *                                type name were registered for different schemas)
      * @throws InvalidArgumentException
@@ -522,8 +522,8 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
     /**
      * Returns a converter for a (possibly qualified) type name supplied as string
      *
-     * Name can be either a "known" base type name from $types property,
-     * 'foo[]' for an array of base type 'foo', or a database-specific name
+     * Name can be either a "known" base type name from `$types` property,
+     * `'foo[]'` for an array of base type `'foo'`, or a database-specific name
      * (e.g. for composite type)
      *
      * @throws InvalidArgumentException

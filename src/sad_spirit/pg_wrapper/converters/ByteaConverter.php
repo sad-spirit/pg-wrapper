@@ -19,8 +19,8 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Converter for bytea (binary string) type
  *
- * Converting value from database representation handles both old 'escape' format
- * via pg_unescape_bytea() and newer 'hex' format used by Postgres 9+.
+ * Converting value from database representation handles both old `'escape'` format
+ * via `pg_unescape_bytea()` and newer `'hex'` format used by Postgres 9+.
  * Converting to database representation always uses the latter
  */
 class ByteaConverter extends BaseConverter
@@ -73,11 +73,9 @@ class ByteaConverter extends BaseConverter
     /**
      * Returns the encoded binary string
      *
-     * This always uses 'hex' encoding
+     * This always uses `'hex'` encoding
      *
-     * @param mixed $value
-     * @return string
-     * @throws TypeConversionException if $value is not a string
+     * @throws TypeConversionException if `$value` is not a string
      */
     protected function outputNotNull(mixed $value): string
     {

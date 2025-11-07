@@ -20,9 +20,9 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Converter for interval type
  *
- * Unfortunately PHP's DateInterval class cannot properly parse *any* of the
- * formats Postgres may use for interval output (settings 'sql_standard',
- * 'postgres', 'postgres_verbose' and 'iso_8601' for IntervalStyle config
+ * Unfortunately PHP's `DateInterval` class cannot properly parse *any* of the
+ * formats Postgres may use for interval output (settings `'sql_standard'`,
+ * `'postgres'`, `'postgres_verbose'` and `'iso_8601'` for `IntervalStyle` config
  * parameter), so this class basically reimplements the parser used internally
  * by Postgres.
  *
@@ -32,14 +32,14 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
  */
 class IntervalConverter extends BaseConverter
 {
-    /**#@+
-     * Token types used by tokenize() and createInterval()
-     */
+    /** Token representing a string value, used by tokenize() and createInterval() */
     private const TOKEN_STRING = 'string';
+    /** Token representing a string value, used by tokenize() and createInterval() */
     private const TOKEN_NUMBER = 'number';
+    /** Token representing a date value, used by tokenize() and createInterval()  */
     private const TOKEN_DATE   = 'date';
+    /** Token representing a time value, used by tokenize() and createInterval()  */
     private const TOKEN_TIME   = 'time';
-    /**#@-*/
 
     /**
      * Mapping of units used in 'postgres' and 'postgres_verbose' formats to DateInterval fields
@@ -159,7 +159,6 @@ class IntervalConverter extends BaseConverter
      * output formats
      *
      * @param array<int, array{string, string}> $tokens
-     * @return \DateInterval
      * @throws TypeConversionException
      */
     private function createInterval(array $tokens): \DateInterval
@@ -262,7 +261,6 @@ class IntervalConverter extends BaseConverter
     /**
      * Splits an interval string in 'sql_standard', 'postgres', 'postgres_verbose' formats into tokens
      *
-     * @param string $native
      * @return array<int, array{string, string}>
      * @throws TypeConversionException
      */
@@ -324,7 +322,7 @@ class IntervalConverter extends BaseConverter
     /**
      * Creates a DateInterval object from 'iso_8601' format interval string
      *
-     * Unlike native DateInterval::__construct() this handles negative values
+     * Unlike native `\DateInterval::__construct()` this handles negative values
      * and fractional seconds. Only integer values are allowed for other units.
      *
      * @throws TypeConversionException
@@ -393,7 +391,6 @@ class IntervalConverter extends BaseConverter
      * class can handle.
      *
      * @param mixed $value Actually accepts strings, numbers and instances of \DateInterval
-     * @return string
      * @throws TypeConversionException if $value is of unexpected type
      */
     protected function outputNotNull(mixed $value): string

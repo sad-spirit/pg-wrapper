@@ -24,8 +24,8 @@ use sad_spirit\pg_wrapper\{
 /**
  * Base class for date/time type converters (except intervals)
  *
- * All of these converters parse dates / times in default 'ISO' format and
- * return \DateTime objects.
+ * All of these converters parse dates / times in 'ISO' format by default and
+ * return `\DateTimeImmutable` objects.
  */
 abstract class BaseDateTimeConverter extends BaseConverter implements ConnectionAware
 {
@@ -45,8 +45,6 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
 
     /**
      * Constructor, possibly sets the connection this converter works with
-     *
-     * @param Connection|null $connection
      */
     public function __construct(?Connection $connection = null)
     {
@@ -68,7 +66,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Tries to update date style from current connection, if available
      *
-     * @return bool Whether $style actually changed
+     * @return bool Whether `$style` actually changed
      */
     private function updateDateStyleFromConnection(): bool
     {
@@ -85,8 +83,6 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
 
     /**
      * Sets the DateStyle to use when converting date / time fields from native format
-     *
-     * @param string $style
      */
     public function setDateStyle(string $style = self::DEFAULT_STYLE): void
     {
@@ -96,7 +92,6 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Returns possible formats for a datetime field (usually with and without '.u') based on style
      *
-     * @param string $style
      * @return string[]
      * @throws TypeConversionException
      */
@@ -126,15 +121,13 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /**
      * Converts PHP variable not identical to null into native format
      *
-     * Actually accepts strings, integers and instances of \DateTimeInterface
+     * Actually accepts strings, integers and instances of `\DateTimeInterface`
      *
      * Note: a passed string will be returned as-is without any attempts to parse it.
      * PostgreSQL's date and time parser accepts a lot more possible formats than this
-     * class can handle. Integer will be handled using date() with an appropriate
+     * class can handle. Integer will be handled using `date()` with an appropriate
      * format specification.
      *
-     * @param mixed $value
-     * @return string
      * @throws TypeConversionException if given a $value of unexpected type
      */
     protected function outputNotNull(mixed $value): string

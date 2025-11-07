@@ -32,8 +32,9 @@ interface ConfigurableTypeConverterFactory extends TypeConverterFactory, TypeOID
     /**
      * Registers a converter for a named type
      *
-     * If a converter is requested for the given type name through {@see getConverterForQualifiedName}, then
-     * a `TypeConverter` implementation created using the given `$converter` is returned.
+     * If a converter is requested for the given type name through
+     * {@see ConfigurableTypeConverterFactory::getConverterForQualifiedName() getConverterForQualifiedName()},
+     * then a `TypeConverter` implementation created using the given `$converter` is returned.
      *
      * `$converter` can be either of
      * - `TypeConverter` instance, a clone of that should be returned;
@@ -52,7 +53,8 @@ interface ConfigurableTypeConverterFactory extends TypeConverterFactory, TypeOID
     /**
      * Registers a mapping between PHP class and database type name
      *
-     * If an instance of the given class will later be provided to {@see getConverterForPHPValue()},
+     * If an instance of the given class will later be provided to
+     * {@see \sad_spirit\pg_wrapper\TypeConverterFactory::getConverterForPHPValue() getConverterForPHPValue()},
      * that method will return a converter for the given database type
      *
      * @param class-string $className
@@ -63,7 +65,7 @@ interface ConfigurableTypeConverterFactory extends TypeConverterFactory, TypeOID
      * Returns type converter for separately supplied type and schema names
      *
      * An exception will be thrown if a converter for a base type is requested, and it was not registered
-     * via {@see registerConverter()}
+     * via {@see ConfigurableTypeConverterFactory::registerConverter() registerConverter()}
      *
      * @throws InvalidArgumentException
      */

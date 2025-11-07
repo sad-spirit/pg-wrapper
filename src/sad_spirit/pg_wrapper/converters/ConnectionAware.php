@@ -19,7 +19,7 @@ use sad_spirit\pg_wrapper\Connection;
 /**
  * Interface for classes depending on a Connection
  *
- * This is implemented by e.g. date and time converters to check connected server's DateStyle setting
+ * This is implemented by e.g. date and time converters to check connected server's `DateStyle` setting
  */
 interface ConnectionAware
 {
