@@ -17,7 +17,7 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing a multirange with numeric bounds
  *
- * Used to convert PostgreSQL's int4multirange, int8multirange, nummultirange types
+ * Used to convert PostgreSQL's `int4multirange`, `int8multirange`, `nummultirange` types
  *
  * @extends MultiRange<NumericRange>
  */

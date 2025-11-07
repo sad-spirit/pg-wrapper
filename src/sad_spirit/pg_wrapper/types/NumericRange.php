@@ -19,7 +19,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Class representing a range with numeric bounds
  *
- * Used to convert PostgreSQL's int4range, int8range, numrange types
+ * Used to convert PostgreSQL's `int4range`, `int8range`, `numrange` types
  *
  * @extends Range<int|float|numeric-string>
  */

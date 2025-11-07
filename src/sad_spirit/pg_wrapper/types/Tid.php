@@ -53,7 +53,8 @@ final readonly class Tid implements ArrayRepresentable, \JsonSerializable
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return array Returned array has the same format that is accepted by
+     *         {@see \sad_spirit\pg_wrapper\types\Tid::createFromArray() createFromArray()}
      */
     public function jsonSerialize(): array
     {

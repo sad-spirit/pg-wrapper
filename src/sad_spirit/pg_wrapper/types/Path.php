@@ -31,7 +31,8 @@ final readonly class Path extends PointList implements ArrayRepresentable, \Json
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return array Returned array has the same format that is accepted by
+     *         {@see \sad_spirit\pg_wrapper\types\Path::createFromArray() createFromArray()}
      */
     public function jsonSerialize(): array
     {
@@ -43,8 +44,8 @@ final readonly class Path extends PointList implements ArrayRepresentable, \Json
     /**
      * Creates a Path from a given array
      *
-     * @param array $input Expects an array of Points or Point-compatible arrays (=two floats), first item
-     *                     can also be a bool for $open property of created Path
+     * @param array $input Expects an array of `Point`s or `Point`-compatible arrays (=two floats), first item
+     *                     can also be a `bool` for `$open` property of created `Path`
      */
     public static function createFromArray(array $input): static
     {

@@ -128,8 +128,6 @@ readonly class MultiRange implements ArrayRepresentable, \ArrayAccess, \Countabl
     /**
      * Creates a MultiRange from a given array
      *
-     * @param array $input
-     * @return static
      * @throws InvalidArgumentException
      */
     final public static function createFromArray(array $input): static

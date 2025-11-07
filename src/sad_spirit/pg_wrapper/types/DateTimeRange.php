@@ -19,7 +19,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Class representing a range with DateTime bounds
  *
- * Used to convert PostgreSQL's tsrange, tstzrange, daterange types
+ * Used to convert PostgreSQL's `tsrange`, `tstzrange`, `daterange` types
  *
  * @extends Range<\DateTimeImmutable>
  */

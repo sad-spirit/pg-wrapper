@@ -23,9 +23,6 @@ class ServerException extends RuntimeException
 {
     /**
      * Creates a proper exception object based on connection resource
-     *
-     * @param Connection $connection
-     * @return self
      */
     public static function fromConnection(Connection $connection): self
     {

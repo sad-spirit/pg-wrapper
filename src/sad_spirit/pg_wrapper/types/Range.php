@@ -54,8 +54,6 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
 
     /**
      * Creates an empty Range
-     *
-     * @return static
      */
     public static function createEmpty(): static
     {
@@ -65,7 +63,8 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return array Returned array has the same format that is accepted by
+     *         {@see \sad_spirit\pg_wrapper\types\Range::createFromArray() createFromArray()}
      */
     public function jsonSerialize(): array
     {
@@ -84,7 +83,7 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
     }
 
     /**
-     * Converts the (possibly JSON-encoded) bound passed to {@see createFromArray()}
+     * Converts the (possibly JSON-encoded) bound passed to createFromArray()
      *
      * @return Bound|null
      */
@@ -96,7 +95,7 @@ readonly class Range implements ArrayRepresentable, RangeConstructor, \JsonSeria
     /**
      * Creates a Range from a given array
      *
-     * @param array $input Expects an array of two bounds or array with the keys named as Range properties
+     * @param array $input Expects an array of two bounds or array with the keys named as `Range` properties
      */
     public static function createFromArray(array $input): static
     {

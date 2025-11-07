@@ -100,7 +100,7 @@ abstract readonly class PointList implements \ArrayAccess, \Countable, \Iterator
     /**
      * Converts an array containing Points
      *
-     * @param array $input Expects an array of Points or Point-compatible arrays (=two floats)
+     * @param array $input Expects an array of `Point`s or `Point`-compatible arrays (=two floats)
      * @return list<Point>
      */
     protected static function createPointArray(array $input): array

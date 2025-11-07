@@ -30,7 +30,8 @@ abstract readonly class PointPair implements ArrayRepresentable, \JsonSerializab
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return array Returned array has the same format that is accepted by
+     *         {@see \sad_spirit\pg_wrapper\types\PointPair::createFromArray() createFromArray()}
      */
     public function jsonSerialize(): array
     {
@@ -43,7 +44,7 @@ abstract readonly class PointPair implements ArrayRepresentable, \JsonSerializab
     /**
      * Creates an instance of PointPair from a given array
      *
-     * @param array $input Expects an array with two Point-compatible values
+     * @param array $input Expects an array with two `Point`-compatible values
      * @throws InvalidArgumentException
      */
     public static function createFromArray(array $input): static

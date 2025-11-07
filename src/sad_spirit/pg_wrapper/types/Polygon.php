@@ -22,7 +22,8 @@ final readonly class Polygon extends PointList implements ArrayRepresentable, \J
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return array Returned array has the same format that is accepted by
+     *         {@see \sad_spirit\pg_wrapper\types\Polygon::createFromArray() createFromArray()}
      */
     public function jsonSerialize(): array
     {
@@ -32,7 +33,7 @@ final readonly class Polygon extends PointList implements ArrayRepresentable, \J
     /**
      * Creates a Polygon from a given array
      *
-     * @param array $input Expects an array of Points or Point-compatible arrays (=two floats)
+     * @param array $input Expects an array of `Point`s or `Point`-compatible arrays (=two floats)
      */
     public static function createFromArray(array $input): static
     {

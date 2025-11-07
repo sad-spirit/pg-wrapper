@@ -49,8 +49,6 @@ class ConstraintViolationException extends ServerException
 
     /**
      * Returns the name of the violated constraint, if available
-     *
-     * @return string|null
      */
     public function getConstraintName(): ?string
     {

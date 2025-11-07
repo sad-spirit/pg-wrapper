@@ -19,7 +19,7 @@ use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
 /**
  * Class representing 'line' geometric type (PostgreSQL 9.4+)
  *
- * Lines are represented by the linear equation Ax + By + C = 0
+ * Lines are represented by the linear equation `Ax + By + C = 0`
  */
 final readonly class Line implements ArrayRepresentable, \JsonSerializable
 {
@@ -33,7 +33,8 @@ final readonly class Line implements ArrayRepresentable, \JsonSerializable
     /**
      * {@inheritDoc}
      *
-     * @return array Returned array has the same format that is accepted by {@see createFromArray()}
+     * @return array Returned array has the same format that is accepted by
+     *         {@see \sad_spirit\pg_wrapper\types\Line::createFromArray() createFromArray()}
      */
     public function jsonSerialize(): array
     {

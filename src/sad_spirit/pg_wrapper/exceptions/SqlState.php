@@ -22,17 +22,17 @@ namespace sad_spirit\pg_wrapper\exceptions;
  * Names of the cases correspond to `spec_name` field and backing strings correspond to `sqlstate` field.
  * Unfortunately, both of these can be repeated in the list. Duplicate `sqlstate` values are covered by constants
  * serving as aliases, e.g.
- * <code>
+ * ```PHP
  * case ARRAY_ELEMENT_ERROR           = '2202E';
  * public const ARRAY_SUBSCRIPT_ERROR = self::ARRAY_ELEMENT_ERROR;
- * </code>
+ * ```
  * while duplicate `spec_name` values are renamed, e.g.
- * <code>
+ * ```PHP
  * case WARNING_STRING_DATA_RIGHT_TRUNCATION  = '01004';
  * case STRING_DATA_RIGHT_TRUNCATION          = '22001';
- * </code>
- * and a {@see canonical()} method is provided to return an un-renamed case for a renamed one. It is, however needed
- * only for renames of a few cases:
+ * ```
+ * and a {@see \sad_spirit\pg_wrapper\exceptions\SqlState::canonical() canonical()} method is provided to return
+ * an un-renamed case for a renamed one. It is, however needed only for renames of a few cases:
  *  - `STRING_DATA_RIGHT_TRUNCATION`
  *  - `MODIFYING_SQL_DATA_NOT_PERMITTED`
  *  - `PROHIBITED_SQL_STATEMENT_ATTEMPTED`
@@ -408,8 +408,6 @@ enum SqlState: string
 
     /**
      * Returns the case with a "canonical" name for the case with a changed name
-     *
-     * @return self
      */
     public function canonical(): self
     {
@@ -427,8 +425,6 @@ enum SqlState: string
      * Returns the "generic subclass" case for the current one
      *
      * Generic subclass error code ends with three zeroes
-     *
-     * @return self
      */
     public function genericSubclass(): self
     {

@@ -17,7 +17,7 @@ namespace sad_spirit\pg_wrapper\types;
 /**
  * Class representing a multirange with DateTime bounds
  *
- * Used to convert PostgreSQL's tsmultirange, tstzmultirange, datemultirange types
+ * Used to convert PostgreSQL's `tsmultirange`, `tstzmultirange`, `datemultirange` types
  *
  * @extends MultiRange<DateTimeRange>
  */
