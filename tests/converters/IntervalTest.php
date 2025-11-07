@@ -97,6 +97,10 @@ class IntervalTest extends TypeConverterTestCase
                 'P-1Y-2M3DT-4H-5M-6S',
                 self::intervalFromArray(['y' => -1, 'm' => '-2', 'd' => 3, 'h' => -4, 'i' => -5, 's' => -6])
             ],
+            [
+                'P1W-2D',
+                self::intervalFromArray(['d' => 5])
+            ],
             // handling whitespace
             [
                 "\v\f1\ryear\n2\v\tmonths\v\f",

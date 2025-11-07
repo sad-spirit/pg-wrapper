@@ -344,11 +344,13 @@ class IntervalConverter extends BaseConverter
             throw TypeConversionException::unexpectedValue($this, 'input', 'interval literal', $native);
         }
 
-        foreach (['y', 'm', 'w', 'd', 'h', 'i', 's'] as $key) {
+        if (isset($m['w']) || isset($m['d'])) {
+            $interval->d = (isset($m['w']) ? 7 * (int)\substr($m['w'], 0, -1) : 0)
+                + (isset($m['d']) ? (int)\substr($m['d'], 0, -1) : 0);
+        }
+        foreach (['y', 'm', 'h', 'i', 's'] as $key) {
             if (isset($m[$key])) {
-                if ('w' === $key) {
-                    $interval->d = 7 * (int)\substr($m['w'], 0, -1);
-                } elseif ('s' === $key && false !== ($pos = \strpos($m['s'], '.'))) {
+                if ('s' === $key && false !== ($pos = \strpos($m['s'], '.'))) {
                     $interval->s = (int)\substr($m['s'], 0, $pos);
                     $interval->f = ('-' === $m['s'][0] ? -1. : 1.) * (float)\substr($m['s'], $pos, -1);
                 } else {
