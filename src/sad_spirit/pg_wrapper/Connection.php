@@ -34,7 +34,7 @@ class Connection
     /** Cache for database metadata */
     private ?CacheItemPoolInterface $cacheItemPool = null;
 
-    /** Marks whether the connection is in a transaction managed by {@link atomic()} */
+    /** Marks whether the connection is in a transaction managed by atomic() */
     private bool $inAtomic = false;
 
     /** Marks whether transaction should be rolled back to the next available savepoint due to error in inner block */
@@ -44,8 +44,8 @@ class Connection
     private int $savepointIndex = 0;
 
     /**
-     * Names of savepoints created by {@link atomic()}
-     * @var array<int, string|null>
+     * Names of savepoints created by atomic()
+     * @var list<string|null>
      */
     private array $savepointNames = [];
 
@@ -56,7 +56,7 @@ class Connection
      *  - Names of savepoints active when callback was registered
      *  - Actual callback
      *
-     * @var array<int, array{array<int, string|null>, callable}>
+     * @var array<int, array{list<string|null>, callable}>
      */
     private array $onCommitCallbacks = [];
 
@@ -68,7 +68,7 @@ class Connection
      *  - Actual callback
      *  - Whether it should be run on commit as well (for rolled back savepoints in committed transaction)
      *
-     * @var array<int, array{array<int, string|null>, callable, bool}>
+     * @var array<int, array{list<string|null>, callable, bool}>
      */
     private array $onRollbackCallbacks = [];
 
@@ -78,8 +78,11 @@ class Connection
     /**
      * Whether disconnect() method was called
      *
-     * We connect to the database automatically only once: on first getNative() call if $lazy = true was passed
-     * to constructor. Once disconnect() was ever called, we require manual call to connect().
+     * We connect to the database automatically only once: on first
+     * {@see \sad_spirit\pg_wrapper\Connection::getNative() getNative()} call if `$lazy = true` was passed
+     * to {@see \sad_spirit\pg_wrapper\Connection::__construct() constructor}.
+     * Once {@see \sad_spirit\pg_wrapper\Connection::disconnect() disconnect()} was ever called, we require
+     * manual call to {@see \sad_spirit\pg_wrapper\Connection::connect() connect()}.
      */
     private bool $disconnected = false;
 
@@ -186,10 +189,8 @@ class Connection
     /**
      * Closes the connection and possibly runs registered "on rollback" callbacks
      *
-     * This is a separate method returning void as calling disconnect() returning $this in __destruct() leads
-     * to breakage of PHPUnit mocks for this class: https://github.com/sebastianbergmann/phpunit/issues/5809
-     *
-     * @return void
+     * This is a separate method returning `void` as calling `disconnect()` returning `$this` in `__destruct()` leads
+     * to {@link https://github.com/sebastianbergmann/phpunit/issues/5809 breakage of PHPUnit mocks for this class}.
      */
     private function disconnectImpl(): void
     {
@@ -266,8 +267,6 @@ class Connection
 
     /**
      * Returns a unique identifier for connection
-     *
-     * @return string
      */
     public function getConnectionId(): string
     {
@@ -277,9 +276,6 @@ class Connection
     /**
      * Quotes a value for inclusion in query, taking connection encoding into account
      *
-     * @param mixed $value
-     * @param mixed $type
-     * @return string
      * @throws exceptions\TypeConversionException
      * @throws exceptions\RuntimeException
      */
@@ -306,9 +302,6 @@ class Connection
 
     /**
      * Quotes an identifier (e.g. table name) for inclusion in a query
-     *
-     * @param string $identifier
-     * @return string
      */
     public function quoteIdentifier(string $identifier): string
     {
@@ -328,7 +321,6 @@ class Connection
      * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters
      * @param array<int|string, mixed> $resultTypes Result types to pass to ResultSet
      *
-     * @return PreparedStatement Prepared statement.
      * @throws exceptions\ServerException
      */
     public function prepare(string $query, array $paramTypes = [], array $resultTypes = []): PreparedStatement
@@ -342,7 +334,6 @@ class Connection
      * @param string $sql         SQL query to execute
      * @param array  $resultTypes Type converters to pass to ResultSet
      *
-     * @return Result Execution result.
      * @throws exceptions\ServerException
      */
     public function execute(string $sql, array $resultTypes = []): Result
@@ -358,12 +349,11 @@ class Connection
     /**
      * Executes a given query with the ability to pass parameters separately
      *
-     * @param string $sql                             Query
+     * @param string                   $sql         Query
      * @param array<int, mixed>        $params      Parameters
      * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters
      * @param array<int|string, mixed> $resultTypes Result types to pass to ResultSet
      *
-     * @return Result
      * @throws exceptions\ServerException
      */
     public function executeParams(string $sql, array $params, array $paramTypes = [], array $resultTypes = []): Result
@@ -390,9 +380,7 @@ class Connection
     }
 
     /**
-     * Get the factory object for converters to and from PostreSQL representation
-     *
-     * @return TypeConverterFactory
+     * Get the factory object for converters to and from PostgreSQL representation
      */
     public function getTypeConverterFactory(): TypeConverterFactory
     {
@@ -406,7 +394,6 @@ class Connection
     /**
      * Sets the factory object for converters to and from PostgreSQL types
      *
-     * @param TypeConverterFactory $factory
      * @return $this
      */
     public function setTypeConverterFactory(TypeConverterFactory $factory): self
@@ -450,7 +437,8 @@ class Connection
      * Starts a transaction
      *
      * @return $this
-     * @throws exceptions\BadMethodCallException If called within atomic() block
+     * @throws exceptions\BadMethodCallException If called within
+     *         {@see \sad_spirit\pg_wrapper\Connection::atomic() atomic()} block
      */
     public function beginTransaction(): self
     {
@@ -469,7 +457,8 @@ class Connection
      * Commits a transaction
      *
      * @return $this
-     * @throws exceptions\BadMethodCallException If called within atomic() block
+     * @throws exceptions\BadMethodCallException If called within
+     *         {@see \sad_spirit\pg_wrapper\Connection::atomic() atomic()} block
      */
     public function commit(): self
     {
@@ -490,7 +479,8 @@ class Connection
      * Rolls back a transaction
      *
      * @return $this
-     * @throws exceptions\BadMethodCallException If called within atomic() block
+     * @throws exceptions\BadMethodCallException If called within
+     *         {@see \sad_spirit\pg_wrapper\Connection::atomic() atomic()} block
      */
     public function rollback(): self
     {
@@ -512,9 +502,8 @@ class Connection
     /**
      * Creates a new savepoint with the given name
      *
-     * @param string $savepoint
      * @return $this
-     * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
+     * @throws exceptions\RuntimeException if trying to create a savepoint outside a transaction block
      */
     public function createSavepoint(string $savepoint): self
     {
@@ -532,9 +521,8 @@ class Connection
     /**
      * Releases the given savepoint
      *
-     * @param string $savepoint
      * @return $this
-     * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
+     * @throws exceptions\RuntimeException if trying to release a savepoint outside a transaction block
      */
     public function releaseSavepoint(string $savepoint): self
     {
@@ -552,9 +540,8 @@ class Connection
     /**
      * Rolls back to the given savepoint
      *
-     * @param string $savepoint
      * @return $this
-     * @throws exceptions\RuntimeException if trying to create a savepoint outside the transaction block
+     * @throws exceptions\RuntimeException if trying to roll back to a savepoint outside a transaction block
      */
     public function rollbackToSavepoint(string $savepoint): self
     {
@@ -581,8 +568,6 @@ class Connection
 
     /**
      * Checks whether a transaction is currently open.
-     *
-     * @return  bool
      */
     public function inTransaction(): bool
     {
@@ -594,25 +579,31 @@ class Connection
     /**
      * Runs a given function atomically
      *
-     * Before running $callback atomic() ensures the transaction is started and creates a savepoint if asked. Since
+     * Before running `$callback` `atomic()` ensures the transaction is started and creates a savepoint if asked. Since
      * savepoints add a bit of overhead, their creation is disabled by default.
      *
-     * If $callback executes normally then transaction is committed or savepoint is released. In case of exception
-     * the transaction is rolled back (to savepoint if one was created) and exception is re-thrown.
+     * If `$callback` executes normally then `atomic()` commits the transaction or releases the savepoint.
+     * In case of exception it rolls back the transaction (to savepoint if one was created) and re-throws the exception.
      *
-     * $callback receives this Connection instance as an argument.
+     * `$callback` receives this `Connection` instance as an argument.
      *
-     * It is possible to use {@link onCommit()} and {@link onRollback()} methods inside $callback to register
-     * functions that will run after a commit or a rollback of the transaction, respectively. Calling
-     * {@link beginTransaction()}, {@link commit()} or {@link rollback()} will fail with an exception to
-     * ensure atomicity.
+     * It is possible to use {@see \sad_spirit\pg_wrapper\Connection::onCommit() onCommit()} and
+     * {@see \sad_spirit\pg_wrapper\Connection::onRollback() onRollback()} methods inside `$callback` to register
+     * functions that will run after a commit or a rollback of the transaction, respectively.
+     *
+     * Transaction control methods
+     * {@see \sad_spirit\pg_wrapper\Connection::beginTransaction() beginTransaction()},
+     * {@see \sad_spirit\pg_wrapper\Connection::commit() commit()},
+     * {@see \sad_spirit\pg_wrapper\Connection::rollback() rollback()} called inside `$callback`
+     * will fail with an exception to prevent breaking automatic transaction handling.
      *
      * @param callable $callback  The function to execute atomically
      * @param bool     $savepoint Whether to create a savepoint if the transaction is already in progress
      *
      * @return mixed The value returned by $callback
      *
-     * @throws \Throwable
+     * @throws \Throwable Usually this will be an error thrown inside `$callback`, may also be an exception thrown
+     *         when trying to commit or roll back the transaction
      */
     public function atomic(callable $callback, bool $savepoint = false): mixed
     {
@@ -717,7 +708,6 @@ class Connection
     /**
      * Registers a callback that will execute when the transaction is committed
      *
-     * @param callable $callback
      * @return $this
      */
     public function onCommit(callable $callback): self
@@ -735,7 +725,6 @@ class Connection
     /**
      * Registers a callback that will execute when the transaction is rolled back
      *
-     * @param callable $callback
      * @return $this
      */
     public function onRollback(callable $callback): self
@@ -765,10 +754,9 @@ class Connection
     /**
      * Sets the $needsRollback flag for the current transaction
      *
-     * This should *only* be used when doing some custom error handling within atomic() closures,
+     * This should *only* be used when doing some custom error handling within `atomic()` closures,
      * as incorrectly setting the flag will break transaction processing
      *
-     * @param bool $needsRollback
      * @return $this
      */
     public function setNeedsRollback(bool $needsRollback): self
@@ -845,8 +833,6 @@ class Connection
 
     /**
      * Returns a savepoint name for use in atomic() blocks
-     *
-     * @return string
      */
     private function generateAtomicSavepointName(): string
     {

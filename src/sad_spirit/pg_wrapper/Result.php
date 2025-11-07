@@ -28,7 +28,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
 {
     /**
      * Type converters, indexed by column number
-     * @var TypeConverter[]
+     * @var array<int, TypeConverter>
      */
     private array $converters = [];
 
@@ -143,6 +143,8 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * @throws exceptions\InvalidArgumentException
      * @throws exceptions\RuntimeException
      * @throws exceptions\ServerException
+     * @internal Should only be created by {@see \sad_spirit\pg_wrapper\Connection Connection} or
+     *           {@see \sad_spirit\pg_wrapper\PreparedStatement PreparedStatement}
      */
     public static function createFromReturnValue(
         false|NativeResult $returnValue,
@@ -161,7 +163,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     /**
      * Returns number of rows affected by INSERT, UPDATE, and DELETE queries
      *
-     * In case of SELECT queries this will be equal to what count() returns
+     * In case of `SELECT` queries this will be equal to what `count()` returns
      */
     public function getAffectedRows(): int
     {
@@ -190,7 +192,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     /**
      * Sets how the returned rows are indexed
      *
-     * @param int $mode either PGSQL_ASSOC or PGSQL_NUM constants. PGSQL_BOTH is not
+     * @param int $mode either `PGSQL_ASSOC` or `PGSQL_NUM` constant. `PGSQL_BOTH` is not
      *                  accepted, since it will lead to double the type conversion
      *                  work for questionable benefits.
      * @return $this
@@ -237,13 +239,13 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     /**
      * Returns an array containing all rows of the result set
      *
-     * @param null|int        $mode       Fetch mode, either PGSQL_ASSOC or PGSQL_NUM
+     * @param null|int        $mode       Fetch mode, either `PGSQL_ASSOC` or `PGSQL_NUM`
      * @param string|int|null $keyColumn  Either a column name or an index (0-based).
      *        If given, values of this column will be used as keys in the outer array
-     * @param bool            $forceArray Used only with $keyColumn when the query
-     *        returns exactly two columns. If true the values will be one element arrays
+     * @param bool            $forceArray Used only with `$keyColumn` when the query
+     *        returns exactly two columns. If `true` the values will be one element arrays
      *        with other column's values, instead of values directly
-     * @param bool            $group       If true, the values in the returned array are
+     * @param bool            $group       If `true`, the values in the returned array are
      *        wrapped in another array. If there are duplicate values in key column, values
      *        of other columns will be appended to this array instead of overwriting previous ones
      * @throws exceptions\InvalidArgumentException
@@ -328,6 +330,8 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns the OID for a table that contains the given result field
      *
      * Will return null if the field is e.g. a literal or a calculated value
+     *
+     * @return int|numeric-string|null
      */
     public function getTableOID(int|string $fieldIndex): int|string|null
     {
@@ -396,9 +400,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
-     * Method defined in Countable interface
-     *
-     * @return int
+     * {@inheritDoc}
      */
     public function count(): int
     {
@@ -460,9 +462,9 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns an iterator over result with keys corresponding to the values of the given column and values
      * representing either the values of the remaining column or the rest of the columns as associative arrays
      *
-     * @param string|null $keyColumn If null, the first column will be used
-     * @param bool $forceArray       Applicable when the query returns exactly two columns. If false (default)
-     *                               the other column's values will be returned directly, if true they will be
+     * @param string|null $keyColumn If `null`, the first column will be used
+     * @param bool $forceArray       Applicable when the query returns _exactly two columns_. If `false` (default)
+     *                               the other column's values will be returned directly, if `true` they will be
      *                               wrapped in an array keyed with the column name
      *
      * @return \Traversable<mixed, array<string, mixed>|mixed>
@@ -496,8 +498,8 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Returns an iterator over result with keys corresponding to the values of the column with the given index and
      * values representing either the values of the remaining column or the rest of the columns as enumerated arrays
      *
-     * @param bool $forceArray Applicable when the query returns exactly two columns. If false (default)
-     *                         the other column's values will be returned directly, if true they will be
+     * @param bool $forceArray Applicable when the query returns _exactly two columns_. If `false` (default)
+     *                         the other column's values will be returned directly, if `true` they will be
      *                         wrapped in an array
      * @return \Traversable<mixed, list<mixed>|mixed>
      * @since 3.0.0
@@ -604,7 +606,7 @@ class Result implements \Iterator, \Countable, \ArrayAccess
      * Retrieves the row from result and performs type conversion on it
      *
      * @param int $position row number
-     * @param int $mode     fetch mode, either of PGSQL_ASSOC or PGSQL_NUM
+     * @param int $mode     fetch mode, either of `PGSQL_ASSOC` or `PGSQL_NUM`
      */
     private function read(int $position, int $mode): array
     {

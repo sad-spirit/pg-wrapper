@@ -46,8 +46,6 @@ class PreparedStatement
     /**
      * Sets whether parameter types should be automatically fetched after first preparing a statement
      *
-     * @param bool $autoFetch
-     * @return void
      * @since 2.4.0
      */
     public static function setAutoFetchParameterTypes(bool $autoFetch): void
@@ -58,7 +56,6 @@ class PreparedStatement
     /**
      * Returns whether parameter types will be automatically fetched after first preparing a statement
      *
-     * @return bool
      * @since 2.4.0
      */
     public static function getAutoFetchParameterTypes(): bool
@@ -74,7 +71,7 @@ class PreparedStatement
      * @param array<int, mixed>        $paramTypes  Types information used to convert input parameters.
      * @param array<int|string, mixed> $resultTypes Result types to pass to created Result instances.
      *
-     * @internal Should only be created in {@see Connection}
+     * @internal Should only be created by {@see \sad_spirit\pg_wrapper\Connection Connection}
      *
      * @throws exceptions\ServerException
      */
@@ -120,13 +117,12 @@ class PreparedStatement
     }
 
     /**
-     * Sets result types that will be passed to created {@see Result} instances
+     * Sets result types that will be passed to created Result instances
      *
-     * We can theoretically check whether the array keys correspond to correct column numbers,
-     * but we cannot know the result column names until actually executing the statement.
+     * We can theoretically check whether the array keys correspond to correct column _numbers_,
+     * but we cannot know the result column _names_ until actually executing the statement.
      * Therefore, don't bother checking array keys, Result will complain if something is not right with them.
      *
-     * @param array $resultTypes
      * @return $this
      * @since 2.4.0
      */
@@ -162,8 +158,10 @@ class PreparedStatement
      * Manually deallocates the prepared statement
      *
      * This is usually not needed as all the prepared statements are automatically
-     * deallocated when database connection is closed. Trying to call execute()
-     * after deallocate() will result in an Exception.
+     * deallocated when database connection is closed. Trying to call
+     * {@see \sad_spirit\pg_wrapper\PreparedStatement::execute() execute()} or
+     * {@see \sad_spirit\pg_wrapper\PreparedStatement::executeParams() executeParams()}
+     * after `deallocate()` will result in an Exception.
      *
      * @return $this
      * @throws exceptions\ServerException
@@ -184,11 +182,11 @@ class PreparedStatement
     /**
      * Fetches info about the types assigned to query parameters from the database
      *
-     * PHP's pgsql extension does not provide a wrapper for PQdescribePrepared function of libpq, so we query
-     * the pg_catalog.pg_prepared_statements view instead.
+     * PHP's `pgsql` extension does not provide a wrapper for `PQdescribePrepared()` function of `libpq`, so we query
+     * the `pg_catalog.pg_prepared_statements` view instead.
      *
      * This method will always set parameter count to a correct value, but will not change existing type converters
-     * for parameters unless $overrideExistingTypes is true
+     * for parameters unless `$overrideExistingTypes` is true
      *
      * @param bool $overrideExistingTypes Whether to override the types that were already set for the parameters
      *
@@ -221,7 +219,7 @@ class PreparedStatement
     /**
      * Sets number of parameters used in the query
      *
-     * Parameter symbols should start with $1 and have no gaps in numbers, otherwise Postgres will throw an error,
+     * Parameter symbols should start with `$1` and have no gaps in numbers, otherwise Postgres will throw an error,
      * so setting their number is sufficient.
      *
      * @return $this
@@ -430,10 +428,11 @@ class PreparedStatement
     /**
      * Executes the prepared query using (only) the given parameters
      *
-     * $params should have integer keys with (0-based) key N corresponding to (1-based) statement placeholder $(N + 1).
-     * Unlike native pg_execute(), array keys will be respected and values mapped by keys rather than in "array order":
-     * passing ['foo', 'bar'] will use 'foo' for $1 and 'bar' for $2, while [1 => 'foo', 0 => 'bar'] will use
-     * 'bar' for $1 and 'foo' for $2.
+     * $params should have integer keys with (0-based) key `N` corresponding to (1-based) statement
+     * placeholder `$(N + 1)`. Unlike native `pg_execute()`, array keys will be respected and values mapped by keys
+     * rather than in "array order":
+     *  - passing `['foo', 'bar']` will use `'foo'` for `$1` and `'bar'` for `$2`, while
+     *  - `[1 => 'foo', 0 => 'bar']` will use `'bar'` for `$1` and `'foo'` for `$2`.
      *
      * This method will throw an exception if some parameter values were bound previously.
      *

@@ -22,8 +22,6 @@ interface TypeConverter
     /**
      * Converts PHP variable to a native format
      *
-     * @param mixed $value
-     * @return string|null
      * @throws exceptions\TypeConversionException if converter doesn't know how to process $value
      */
     public function output(mixed $value): ?string;
@@ -31,8 +29,6 @@ interface TypeConverter
     /**
      * Parses a native value into PHP variable
      *
-     * @param string|null $native
-     * @return mixed
      * @throws exceptions\TypeConversionException if converter cannot parse the incoming string
      */
     public function input(?string $native): mixed;
@@ -42,8 +38,6 @@ interface TypeConverter
      *
      * Returns zero if variable is scalar. This method is mostly needed for
      * correct arrays conversion.
-     *
-     * @return int
      */
     public function dimensions(): int;
 }
