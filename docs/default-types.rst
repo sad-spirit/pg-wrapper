@@ -65,10 +65,6 @@ Note the following when reading the table:
     | ``REAL``, ``FLOAT``,            |                                       |                             |                           |
     | ``DOUBLE PRECISION``            |                                       |                             |                           |
     +---------------------------------+---------------------------------------+-----------------------------+---------------------------+
-    | ``json``, ``jsonb``             | ``JsonConverter``                     | usually an ``array``        | anything                  |
-    |                                 |                                       |                             | ``json_encode()``         |
-    |                                 |                                       |                             | can handle                |
-    +---------------------------------+---------------------------------------+-----------------------------+---------------------------+
     | ``date``                        | ``datetime\DateConverter``            | instance of                 | - instance of             |
     +---------------------------------+---------------------------------------+ ``\DateTimeImmutable``      |   ``\DateTimeInterface``  |
     | ``time``,                       | ``datetime\TimeConverter``            |                             | - ``string`` (passed as   |
