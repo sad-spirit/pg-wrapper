@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.3.1] - 2025-11-08
+
+## Added
+ * Tested on PHP 8.5
+
+## Changed
+ * PHPUnit upgraded to version 11
+
+## Fixed
+ * ISO-8601 interval literals having both `W` and `D` designators are now correctly parsed by `IntervalConverter`,
+   e.g. `P1W-2D` produces a 5 days interval instead of -2 days one.
+ * Consistently allow leading, trailing, and separating whitespace in type names passed
+   to `DefaultTypeConvertedFactory`, use the same list of whitespace characters that is used for parsing
+   database values since version 3.0
+ * PHPDoc: removed redundant type info, fixed usage of `@see` and `@link` tags, fixed markup in descriptions.
+   The API docs are now rendered correctly by phpDocumentor.
+
 ## [3.3.0] - 2025-10-10
 
 ### Added
@@ -434,3 +451,4 @@ Initial release on GitHub
 [3.1.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.0.0...v3.1.0
 [3.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.1.0...v3.2.0
 [3.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.2.0...v3.3.0
+[3.3.1]: https://github.com/sad-spirit/pg-wrapper/compare/v3.3.0...v3.3.1
