@@ -60,8 +60,6 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
 
     /**
      * Propagates $connection to ConnectionAware converters of base type
-     *
-     * @param Connection $connection
      */
     public function setConnection(Connection $connection): void
     {
@@ -76,14 +74,13 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
      * Postgres enforces neither a number of dimensions of an array nor a number
      * of values in each dimension. However, it does require that multidimensional
      * arrays have matching sizes for each dimension. This means that e.g.
-     * ARRAY[['foo', 'bar'], ['baz', 'quux']] is a valid array while
-     * ARRAY[['foo', 'bar'], ['baz']] is invalid.
+     * `ARRAY[['foo', 'bar'], ['baz', 'quux']]` is a valid array while
+     * `ARRAY[['foo', 'bar'], ['baz']]` is invalid.
      *
      * This method calculates the sizes to match based on first elements of the given
      * array and then checks that all other sub-arrays match these sizes.
      *
      * @param mixed $value Will throw an exception on anything but array
-     * @return string
      * @throws TypeConversionException
      */
     protected function outputNotNull(mixed $value): string
@@ -111,9 +108,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
     /**
      * Builds an array literal checking the required sizes for sub-arrays
      *
-     * @param array $value
      * @param int[] $requiredSizes
-     * @return string
      * @throws TypeConversionException
      */
     private function buildArrayLiteral(array $value, array $requiredSizes): string
@@ -150,7 +145,6 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
     /**
      * Calculates the number of array dimensions and required sizes for sub-arrays
      *
-     * @param array $value
      * @return int[]
      * @throws TypeConversionException
      */
@@ -209,8 +203,6 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
     /**
      * Parses the array dimensions specification
      *
-     * @param string $native
-     * @param int $pos
      * @return list<array{int,int}> Contains the first key and number of elements for each dimension
      */
     private function parseDimensions(string $native, int &$pos): array
@@ -264,10 +256,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
     /**
      * Recursively parses the string representation of an array
      *
-     * @param string $native
-     * @param int $pos
      * @param list<array{int,int}>|null $dimensions Will be not null if the literal contained dimensions
-     * @return array
      */
     private function parseArrayRecursive(string $native, int &$pos, ?array $dimensions = null): array
     {

@@ -39,8 +39,6 @@ abstract class BaseGeometricConverter extends ContainerConverter
     /**
      * Counts the number of points in input (based on number of commas)
      *
-     * @param string $native
-     * @return int Number of points
      * @throws TypeConversionException
      */
     protected function countPoints(string $native): int

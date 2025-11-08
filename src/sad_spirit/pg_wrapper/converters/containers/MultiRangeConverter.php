@@ -46,7 +46,6 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
     /**
      * Constructor, sets converter for the base type
      *
-     * @param TypeConverter $subtypeConverter
      * @param class-string<MultiRange<T>>|null $resultClass
      */
     public function __construct(
@@ -65,8 +64,6 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
 
     /**
      * Propagates $connection to ConnectionAware converters of base type
-     *
-     * @param Connection $connection
      */
     public function setConnection(Connection $connection): void
     {

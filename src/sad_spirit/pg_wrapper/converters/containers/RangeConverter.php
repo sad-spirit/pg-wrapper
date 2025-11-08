@@ -43,7 +43,6 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     /**
      * Constructor, sets converter for the base type
      *
-     * @param TypeConverter $subtypeConverter
      * @param class-string<Range>|null $resultClass
      */
     public function __construct(
@@ -62,8 +61,6 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
 
     /**
      * Propagates $connection to ConnectionAware converters of base type
-     *
-     * @param Connection $connection
      */
     public function setConnection(Connection $connection): void
     {
@@ -75,10 +72,6 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     /**
      * Reads a range bound (upper or lower) from input
      *
-     * @param string $string
-     * @param int    $pos
-     *
-     * @return null|string
      * @throws TypeConversionException
      */
     private function readRangeBound(string $string, int &$pos): ?string
@@ -114,10 +107,6 @@ class RangeConverter extends ContainerConverter implements ConnectionAware
     /**
      * Parses a native value into PHP variable from given position
      *
-     * @param string $native
-     * @param int    $pos
-     *
-     * @return Range
      * @throws TypeConversionException
      * @noinspection PhpMissingBreakStatementInspection
      */

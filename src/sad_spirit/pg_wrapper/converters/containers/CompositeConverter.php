@@ -83,8 +83,6 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
 
     /**
      * Propagates $connection to ConnectionAware converters for fields
-     *
-     * @param Connection $connection
      */
     public function setConnection(Connection $connection): void
     {

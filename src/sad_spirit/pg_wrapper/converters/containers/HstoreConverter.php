@@ -48,9 +48,6 @@ class HstoreConverter extends ContainerConverter
     /**
      * Reads a quoted string from input
      *
-     * @param string $string
-     * @param int    $pos
-     * @return string
      * @throws TypeConversionException in case of unterminated string
      */
     private function readQuoted(string $string, int &$pos): string
@@ -65,10 +62,7 @@ class HstoreConverter extends ContainerConverter
     /**
      * Reads an unquoted string from input
      *
-     * @param string $string
-     * @param int    $pos
      * @param string $delimiter Delimiter for a string, either '=' or ','
-     * @return string
      * @throws TypeConversionException in case of empty string, those should always be quoted
      */
     private function readUnquoted(string $string, int &$pos, string $delimiter): string
@@ -84,10 +78,6 @@ class HstoreConverter extends ContainerConverter
 
     /**
      * Reads a hstore key from input
-     *
-     * @param string $string
-     * @param int    $pos
-     * @return string
      */
     private function readKey(string $string, int &$pos): string
     {
@@ -101,11 +91,7 @@ class HstoreConverter extends ContainerConverter
     /**
      * Reads a hstore value from input
      *
-     * This converts an unquoted string 'null' to an actual null value
-     *
-     * @param string $string
-     * @param int    $pos
-     * @return string|null
+     * This converts an unquoted string `'null'` to an actual `null` value
      */
     private function readValue(string $string, int &$pos): ?string
     {
