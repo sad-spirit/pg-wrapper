@@ -58,7 +58,7 @@ class CompositeConverter extends ContainerConverter implements ConnectionAware
      */
     public function __construct(array $items)
     {
-        if (0 === \count($items)) {
+        if ([] === $items) {
             throw new InvalidArgumentException(
                 self::class . " expects an array of TypeConverter instances, empty array given"
             );

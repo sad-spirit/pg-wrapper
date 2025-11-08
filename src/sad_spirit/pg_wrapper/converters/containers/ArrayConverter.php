@@ -88,7 +88,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         if (!\is_array($value)) {
             throw TypeConversionException::unexpectedValue($this, 'output', 'array', $value);
         }
-        if (0 === \count($value)) {
+        if ([] === $value) {
             return '{}';
         }
 
@@ -124,7 +124,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         }
 
         $parts = [];
-        if (empty($requiredSizes)) {
+        if ([] === $requiredSizes) {
             foreach ($value as $v) {
                 $item    = $this->itemConverter->output($v);
                 $parts[] = ($item === null) ? 'NULL' : '"' . \addcslashes($item, '"\\') . '"';
@@ -153,7 +153,7 @@ class ArrayConverter extends ContainerConverter implements ConnectionAware
         $sizes = [];
         while (\is_array($value)) {
             $sizes[] = \count($value);
-            if (!\count($value) || \array_keys($value) !== \range(0, \count($value) - 1)) {
+            if ([] === $value || \array_keys($value) !== \range(0, \count($value) - 1)) {
                 if (0 === $this->itemConverter->dimensions()) {
                     // scalar base type? "weird" sub-array is not allowed
                     throw TypeConversionException::unexpectedValue(

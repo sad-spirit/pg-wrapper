@@ -501,7 +501,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
             }
             $schemaName = \array_key_first($this->types[$typeName]);
         }
-        if (empty($this->converters[$typeName][$schemaName])) {
+        if (!isset($this->converters[$typeName][$schemaName])) {
             if ($this->types[$typeName][$schemaName] instanceof TypeConverter) {
                 $converter = clone $this->types[$typeName][$schemaName];
 
@@ -538,7 +538,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
 
             } else {
                 $schemaName = null;
-                $isArray    = !empty($m[2]);
+                $isArray    = isset($m[2]);
                 $typeName   = \strtolower($m[1]);
                 if (isset(self::SIMPLE_ALIASES[$typeName])) {
                     $typeName = self::SIMPLE_ALIASES[$typeName];

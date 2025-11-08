@@ -636,7 +636,7 @@ class Connection
             throw $exception;
 
         } finally {
-            if (!empty($this->savepointNames)) {
+            if ([] !== $this->savepointNames) {
                 $savepointName  = \array_pop($this->savepointNames);
             } else {
                 $this->inAtomic = false;
@@ -647,7 +647,7 @@ class Connection
                 if ($this->disconnectedInAtomic) {
                     // No-op
 
-                } elseif (!empty($exception) || $this->needsRollback) {
+                } elseif (isset($exception) || $this->needsRollback) {
                     // either current $callback errored or some nested one, do a rollback
                     if (!$this->inAtomic) {
                         $this->rollback();
@@ -694,7 +694,7 @@ class Connection
 
             } finally {
                 // Covers the case when outermost atomic() was entered with transaction already open
-                if (!empty($inTransaction) && 0 === \count($this->savepointNames)) {
+                if (($inTransaction ?? false) && [] === $this->savepointNames) {
                     $this->inAtomic = false;
                 }
                 // If disconnected from DB, run callbacks on exit from outermost atomic()

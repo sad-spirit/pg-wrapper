@@ -80,7 +80,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
         $this->expectChar($native, $pos, '{');
         while ('}' !== ($char = $this->nextChar($native, $pos))) {
             // require a comma delimiter between ranges
-            if (!empty($ranges)) {
+            if ([] !== $ranges) {
                 if (',' !== $char) {
                     throw TypeConversionException::parsingFailed($this, "','", $native, $pos);
                 }
@@ -107,7 +107,7 @@ class MultiRangeConverter extends ContainerConverter implements ConnectionAware
             );
         }
 
-        if (0 === \count($value)) {
+        if ([] === $value) {
             return '{}';
         }
 
