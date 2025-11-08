@@ -91,6 +91,15 @@ class DefaultTypeConverterFactoryTest extends TestCase
         );
     }
 
+    #[DataProvider('getArrayTypeMarkersContainingWhitespace')]
+    public function testGetConverterForArrayTypeWithMarkerContainingWhitespace(string $typeName): void
+    {
+        $this::assertEquals(
+            new ArrayConverter(new StringConverter()),
+            $this->factory->getConverterForTypeSpecification($typeName)
+        );
+    }
+
     #[DataProvider('getSqlStandardTypeConverters')]
     public function testGetConverterForSqlStandardTypeArray(string $typeName, TypeConverter $converter): void
     {
@@ -664,13 +673,24 @@ class DefaultTypeConverterFactoryTest extends TestCase
         ];
     }
 
+    public static function getArrayTypeMarkersContainingWhitespace(): array
+    {
+        return [
+            ["text [\t]"],
+            ["text[\f]\n"],
+            ["text[]\v"],
+            ["\tcharacter\fvarying\v[\n]  "]
+        ];
+    }
+
     public static function getSqlStandardTypeConverters(): array
     {
         return [
             ['integer',                    new IntegerConverter()],
             ['DOUBLE   precision',         new FloatConverter()],
             ["timestamp  WITH\ntime zone", new TimeStampTzConverter()],
-            ['time without time zone',     new TimeConverter()]
+            ['time without time zone',     new TimeConverter()],
+            ["\tcharacter\fvarying\v",     new StringConverter()]
         ];
     }
 
@@ -684,6 +704,7 @@ class DefaultTypeConverterFactoryTest extends TestCase
             ['foo[bar]',     'Invalid array specification'],
             ['foo[',         'Invalid array specification'],
             ['[]',           'Invalid array specification'],
+            ['foo[].bar',    'Invalid array specification'],
             ['.foo',         'Extra dots'],
             ['foo.bar.baz',  'Extra dots'],
             ['foo.""',       'Invalid double-quoted string'],

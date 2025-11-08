@@ -387,22 +387,23 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
      */
     protected function parseTypeName(string $name): array
     {
+        $ws = '[' . BaseConverter::WHITESPACE . ']';
         if (!\str_contains($name, '.') && !\str_contains($name, '"')) {
             // can be an SQL standard type, try known aliases
-            $regexp = '(?:(' . \implode('|', \array_keys(self::SIMPLE_ALIASES)) . ')' // 1
-                      . '|(double\\s+precision)' // 2
-                      . '|(time|timestamp)(?:\\s+(with|without)\\s+time\\s+zone)?' // 3,4
-                      . '|(national\\s+(?:character|char)(?:\\s*varying)?)' // 5
-                      . '|(bit|character|char|nchar)(?:\\s*varying)?)' // 6
-                      . '\\s*(\\[\\s*])?'; // 7
-            if (\preg_match('/^' . $regexp . '$/i', $name, $matches)) {
-                $isArray = !empty($matches[7]);
-                if (!empty($matches[1])) {
+            $regexp = "$ws*(?:(" . \implode('|', \array_keys(self::SIMPLE_ALIASES)) . ')' // 1
+                      . "|(double$ws+precision)" // 2
+                      . "|(time|timestamp)(?:$ws+(with|without)$ws+time$ws+zone)?" // 3,4
+                      . "|(national$ws+(?:character|char)(?:$ws*varying)?)" // 5
+                      . "|(bit|character|char|nchar)(?:$ws*varying)?)" // 6
+                      . "$ws*(\\[$ws*]$ws*)?"; // 7
+            if (\preg_match('/^' . $regexp . '$/i', $name, $matches, \PREG_UNMATCHED_AS_NULL)) {
+                $isArray = isset($matches[7]);
+                if (isset($matches[1])) {
                     $typeName = self::SIMPLE_ALIASES[\strtolower($matches[1])];
-                } elseif (!empty($matches[2])) {
+                } elseif (isset($matches[2])) {
                     $typeName = 'float8';
-                } elseif (!empty($matches[3])) {
-                    $typeName = \strtolower($matches[3]) . (0 === \strcasecmp($matches[4], 'with') ? 'tz' : '');
+                } elseif (isset($matches[3])) {
+                    $typeName = \strtolower($matches[3]) . (0 === \strcasecmp($matches[4] ?? '', 'with') ? 'tz' : '');
                 } else {
                     $typeName = 'text';
                 }
@@ -421,7 +422,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
             if ('[' === $name[$position]) {
                 if (
                     !$typeName || $isArray || $identifier
-                    || !\preg_match('/\[\s*]$/A', $name, $m, 0, $position)
+                    || !\preg_match("/\[$ws*]$ws*$/A", $name, $m, 0, $position)
                 ) {
                     throw new InvalidArgumentException("Invalid array specification in type name '$name'");
                 }
