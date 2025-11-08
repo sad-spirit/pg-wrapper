@@ -2,13 +2,13 @@
 
 ## [3.3.1] - 2025-11-08
 
-## Added
+### Added
  * Tested on PHP 8.5
 
-## Changed
+### Changed
  * PHPUnit upgraded to version 11
 
-## Fixed
+### Fixed
  * ISO-8601 interval literals having both `W` and `D` designators are now correctly parsed by `IntervalConverter`,
    e.g. `P1W-2D` produces a 5 days interval instead of -2 days one.
  * Consistently allow leading, trailing, and separating whitespace in type names passed
