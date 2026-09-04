@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit backupGlobals="false"
+<phpunit
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         failOnDeprecation="true"
+         backupGlobals="false"
          backupStaticAttributes="false"
          colors="false"
          convertErrorsToExceptions="true"
