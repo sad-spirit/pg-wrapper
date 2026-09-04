@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          failOnDeprecation="true"
          backupGlobals="false"
-         backupStaticAttributes="false"
          colors="false"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
          bootstrap="./github-bootstrap.php"
@@ -19,9 +16,9 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
+    <source>
+        <include>
             <directory>../src/</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </source>
 </phpunit>
