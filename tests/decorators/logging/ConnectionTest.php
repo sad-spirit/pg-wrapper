@@ -26,7 +26,7 @@ class ConnectionTest extends TestCase
 
     protected function setUp(): void
     {
-        $wrapped = $this->createMock(Connection::class);
+        $wrapped = $this->createStub(Connection::class);
         $wrapped->method('getConnectionId')
             ->willReturn('pg-fake');
 

@@ -87,7 +87,7 @@ class PreparedStatementDecoratorTest extends TestCase
 
     public function testExecute(): void
     {
-        $result    = $this->createMock(Result::class);
+        $result    = $this->createStub(Result::class);
         $statement = $this->createMock(PreparedStatement::class);
         $decorator = $this->createDecorator($statement);
         $statement->expects($this->once())

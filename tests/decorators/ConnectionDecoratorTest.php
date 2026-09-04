@@ -97,7 +97,7 @@ class ConnectionDecoratorTest extends TestCase
 
     public function testPrepare(): void
     {
-        $statement  = $this->createMock(PreparedStatement::class);
+        $statement  = $this->createStub(PreparedStatement::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('prepare')
@@ -108,7 +108,7 @@ class ConnectionDecoratorTest extends TestCase
 
     public function testExecute(): void
     {
-        $result     = $this->createMock(Result::class);
+        $result     = $this->createStub(Result::class);
         $connection = $this->createMock(Connection::class);
         $decorator  = $this->createDecorator($connection);
         $connection->expects($this->once())
@@ -126,8 +126,8 @@ class ConnectionDecoratorTest extends TestCase
 
     public function testConverters(): void
     {
-        $converter  = $this->createMock(TypeConverter::class);
-        $factory    = $this->createMock(TypeConverterFactory::class);
+        $converter  = $this->createStub(TypeConverter::class);
+        $factory    = $this->createStub(TypeConverterFactory::class);
         $connection = $this->createMock(Connection::class);
         $decorator  = $this->createDecorator($connection);
         $connection->expects($this->once())
@@ -148,7 +148,7 @@ class ConnectionDecoratorTest extends TestCase
 
     public function testMetadataCache(): void
     {
-        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache = $this->createStub(CacheItemPoolInterface::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('setMetadataCache')
