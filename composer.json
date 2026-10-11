@@ -27,8 +27,8 @@
         "fig/log-test":     "^1.2.1",
         "phpunit/phpunit":  "^11|^12",
         "psr/cache":        "^3.0",
-        "phpstan/phpstan":  "^2.0",
-        "vimeo/psalm":      "^6.8"
+        "phpstan/phpstan":  "^2.3",
+        "vimeo/psalm":      "^6.20"
     },
     "autoload":     {
         "psr-4":    {

@@ -18,9 +18,3 @@ parameters:
 				- tests\ConnectionTransactionsTest.php
 				- tests\types\PointListTest.php
 				- tests\types\MultiRangeTest.php
-
-		# New false positives in phpstan 2, probably it is trying to be "smart" with methods named isWhatever()?
-		-
-			message: "#^Call to method sad_spirit\\\\pg_wrapper\\\\converters\\\\TypeOIDMapper::is(Range|MultiRange|Domain)TypeOID\\(\\) with int\\|string and null will always evaluate to false\\.$#"
-			count: 3
-			path: src/sad_spirit/pg_wrapper/converters/DefaultTypeConverterFactory.php
