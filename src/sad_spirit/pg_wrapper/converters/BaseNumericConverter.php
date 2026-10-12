@@ -25,7 +25,11 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
     public const REGEXP_REAL    = '/^-?(\d(_?\d)*(\.(\d(_?\d)*)?)?|\.\d(_?\d)*)([Ee][-+]?\d(_?\d)*)?$/';
 
     private ?bool $allowNonDecimal = null;
-    private ?Connection $connection = null;
+    /**
+     * Connection, used for checking server version
+     * @var \WeakReference<Connection>|null
+     */
+    private ?\WeakReference $connection = null;
 
     public function __construct(?Connection $connection = null)
     {
@@ -36,7 +40,7 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
 
     public function setConnection(Connection $connection): void
     {
-        $this->connection = $connection;
+        $this->connection = \WeakReference::create($connection);
     }
 
     /**
@@ -62,12 +66,13 @@ abstract class BaseNumericConverter extends BaseConverter implements ConnectionA
      */
     protected function getAllowNonDecimalLiteralsFromConnection(): ?bool
     {
-        if (null === $this->connection || !$this->connection->isConnected()) {
+        $connection = $this->connection?->get();
+        if (null === $connection || !$connection->isConnected()) {
             return null;
         }
 
         return \version_compare(
-            \pg_parameter_status($this->connection->getNative(), 'server_version') ?: '1',
+            \pg_parameter_status($connection->getNative(), 'server_version') ?: '1',
             '15',
             '>'
         );

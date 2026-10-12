@@ -37,8 +37,11 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
     /** Current DateStyle setting, used for input */
     private string $style = self::DEFAULT_STYLE;
 
-    /** Connection, used for checking DateStyle setting */
-    private ?Connection $connection = null;
+    /**
+     * Connection, used for checking DateStyle setting
+     * @var \WeakReference<Connection>|null
+     */
+    private ?\WeakReference $connection = null;
 
     /** What to display in exception message if conversion failed */
     protected string $expectation = 'date/time string';
@@ -58,7 +61,7 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     public function setConnection(Connection $connection): void
     {
-        $this->connection = $connection;
+        $this->connection = \WeakReference::create($connection);
 
         $this->updateDateStyleFromConnection();
     }
@@ -70,9 +73,10 @@ abstract class BaseDateTimeConverter extends BaseConverter implements Connection
      */
     private function updateDateStyleFromConnection(): bool
     {
-        $style = null !== $this->connection && $this->connection->isConnected()
-                 ? \pg_parameter_status($this->connection->getNative(), 'DateStyle')
-                 : false;
+        $connection = $this->connection?->get();
+        $style      = null !== $connection && $connection->isConnected()
+            ? \pg_parameter_status($connection->getNative(), 'DateStyle')
+            : false;
         if (false === $style || $style === $this->style) {
             return false;
         }

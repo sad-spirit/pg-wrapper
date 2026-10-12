@@ -407,7 +407,15 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      * @var array<array{string, string}>
      */
     private array $oidMap = [];
-    private ?Connection $connection = null;
+
+    /**
+     * DB connection object
+     *
+     * A weak reference is used to allow garbage collecting an instance of Connection containing this Mapper
+     *
+     * @var \WeakReference<Connection>|null
+     */
+    private ?\WeakReference $connection = null;
 
     public function __construct(?Connection $connection = null)
     {
@@ -419,10 +427,21 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
 
     public function setConnection(Connection $connection): void
     {
-        if ($this->connection && $connection !== $this->connection) {
+        if (
+            (null !== $existing = $this->getConnection())
+            && $existing !== $connection
+        ) {
             throw new RuntimeException("Connection already set");
         }
-        $this->connection = $connection;
+        $this->connection = \WeakReference::create($connection);
+    }
+
+    /**
+     * Returns a database connection object for this Mapper, if one is available
+     */
+    private function getConnection(): ?Connection
+    {
+        return $this->connection?->get();
     }
 
     /**
@@ -576,7 +595,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         if ($condition()) {
             return true;
 
-        } elseif (!$this->connection) {
+        } elseif (null === $this->getConnection()) {
             throw new RuntimeException($connectionRequiredMessage);
 
         } elseif (self::SOURCE_BUILTIN === $this->dbTypesSource) {
@@ -601,14 +620,14 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
      */
     private function loadTypes(bool $force = false): void
     {
-        if (null === $this->connection) {
+        if (null === $connection = $this->getConnection()) {
             throw new RuntimeException(__METHOD__ . '(): Database connection required');
         }
 
         $cacheItem = null;
-        if ($cache = $this->connection->getMetadataCache()) {
+        if ($cache = $connection->getMetadataCache()) {
             try {
-                $cacheItem = $cache->getItem($this->connection->getConnectionId() . '-types');
+                $cacheItem = $cache->getItem($connection->getConnectionId() . '-types');
             } catch (\Psr\Cache\InvalidArgumentException) {
             }
         }
@@ -636,8 +655,8 @@ from pg_catalog.pg_type as t, pg_catalog.pg_namespace as s
 where t.typnamespace = s.oid
 order by 1
 SQL;
-            if (!($res = @\pg_query($this->connection->getNative(), $sql))) {
-                throw ServerException::fromConnection($this->connection);
+            if (!($res = @\pg_query($connection->getNative(), $sql))) {
+                throw ServerException::fromConnection($connection);
             }
             $converter = new IntegerConverter();
             while ($row = \pg_fetch_assoc($res)) {
@@ -669,8 +688,8 @@ where a.attrelid = c.oid and
       a.attnum > 0
 order by attrelid, attnum
 SQL;
-                if (!($res = @\pg_query($this->connection->getNative(), $sql))) {
-                    throw ServerException::fromConnection($this->connection);
+                if (!($res = @\pg_query($connection->getNative(), $sql))) {
+                    throw ServerException::fromConnection($connection);
                 }
                 while ($row = \pg_fetch_assoc($res)) {
                     $relTypeId = $converter->input($row['reltype']);
@@ -682,8 +701,8 @@ SQL;
                 \pg_free_result($res);
             }
 
-            if (!($res = @\pg_query($this->connection->getNative(), "select * from pg_range"))) {
-                throw ServerException::fromConnection($this->connection);
+            if (!($res = @\pg_query($connection->getNative(), "select * from pg_range"))) {
+                throw ServerException::fromConnection($connection);
             }
             while ($row = \pg_fetch_assoc($res)) {
                 if (\array_key_exists('rngmultitypid', $row)) {
@@ -721,17 +740,15 @@ SQL;
      */
     private function getCompositeTypeMembers(int|string $oid): array
     {
-        if (null === $this->connection) {
+        if (null === $connection = $this->getConnection()) {
             throw new RuntimeException('Database connection required for getting composite types data');
         }
 
         if (!\is_array($this->compositeTypes[$oid])) {
             $cacheItem = null;
-            if (($cache = $this->connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
+            if (($cache = $connection->getMetadataCache()) && $this->getCompositeTypesCaching()) {
                 try {
-                    $cacheItem = $cache->getItem(
-                        \sprintf('%s-composite-%s', $this->connection->getConnectionId(), $oid)
-                    );
+                    $cacheItem = $cache->getItem(\sprintf('%s-composite-%s', $connection->getConnectionId(), $oid));
                 } catch (\Psr\Cache\InvalidArgumentException) {
                 }
             }
@@ -747,14 +764,8 @@ where attrelid = $1 and
       attnum > 0
 order by attnum
 SQL;
-                if (
-                    !($res = @\pg_query_params(
-                        $this->connection->getNative(),
-                        $sql,
-                        [$this->compositeTypes[$oid]]
-                    ))
-                ) {
-                    throw ServerException::fromConnection($this->connection);
+                if (!($res = @\pg_query_params($connection->getNative(), $sql, [$this->compositeTypes[$oid]]))) {
+                    throw ServerException::fromConnection($connection);
                 }
                 $this->compositeTypes[$oid] = [];
                 $converter = new IntegerConverter();

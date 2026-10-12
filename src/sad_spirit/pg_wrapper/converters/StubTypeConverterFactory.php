@@ -30,7 +30,12 @@ use sad_spirit\pg_wrapper\{
 final class StubTypeConverterFactory implements TypeConverterFactory
 {
     private readonly StubConverter $converter;
-    private ?Connection $connection = null;
+
+    /**
+     * DB connection object
+     * @var \WeakReference<Connection>|null
+     */
+    private ?\WeakReference $connection = null;
 
     public function __construct()
     {
@@ -43,8 +48,11 @@ final class StubTypeConverterFactory implements TypeConverterFactory
     public function getConverterForTypeSpecification(mixed $type): TypeConverter
     {
         if ($type instanceof TypeConverter) {
-            if ($this->connection && $type instanceof ConnectionAware) {
-                $type->setConnection($this->connection);
+            if (
+                $type instanceof ConnectionAware
+                && (null !== $connection = $this->getConnection())
+            ) {
+                $type->setConnection($connection);
             }
             return $type;
         }
@@ -56,10 +64,21 @@ final class StubTypeConverterFactory implements TypeConverterFactory
      */
     public function setConnection(Connection $connection): void
     {
-        if ($this->connection && $connection !== $this->connection) {
+        if (
+            (null !== $existing = $this->getConnection())
+            && $connection !== $existing
+        ) {
             throw new RuntimeException("Connection already set");
         }
-        $this->connection = $connection;
+        $this->connection = \WeakReference::create($connection);
+    }
+
+    /**
+     * Returns a database connection object for this Factory, if one is available
+     */
+    private function getConnection(): ?Connection
+    {
+        return $this->connection?->get();
     }
 
     /**

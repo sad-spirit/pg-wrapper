@@ -45,8 +45,14 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
         'nchar'     => 'text'
     ];
 
-    /** DB connection object */
-    private ?Connection $connection = null;
+    /**
+     * DB connection object
+     *
+     * A weak reference is used to allow garbage collecting an instance of Connection containing this Factory
+     *
+     * @var \WeakReference<Connection>|null
+     */
+    private ?\WeakReference $connection = null;
 
     /**
      * Mapping of known base types to converter class names
@@ -167,15 +173,18 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
 
     public function setOIDMapper(TypeOIDMapper $mapper): void
     {
-        if ($mapper instanceof ConnectionAware && null !== $this->connection) {
-            $mapper->setConnection($this->connection);
+        if (
+            $mapper instanceof ConnectionAware
+            && (null !== $connection = $this->getConnection())
+        ) {
+            $mapper->setConnection($connection);
         }
         $this->typeOIDMapper = $mapper;
     }
 
     public function getOIDMapper(): TypeOIDMapper
     {
-        return $this->typeOIDMapper ??= new CachedTypeOIDMapper($this->connection);
+        return $this->typeOIDMapper ??= new CachedTypeOIDMapper($this->getConnection());
     }
 
     /**
@@ -222,11 +231,14 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
      */
     public function setConnection(Connection $connection): void
     {
-        if ($this->connection && $connection !== $this->connection) {
+        if (
+            (null !== $existing = $this->getConnection())
+            && $connection !== $existing
+        ) {
             throw new RuntimeException("Connection already set");
         }
 
-        $this->connection = $connection;
+        $this->connection = \WeakReference::create($connection);
         foreach ($this->converters as $typeNameConverters) {
             foreach ($typeNameConverters as $converter) {
                 $this->updateConnection($converter);
@@ -239,12 +251,23 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
     }
 
     /**
+     * Returns a database connection object for this Factory, if one is available
+     */
+    private function getConnection(): ?Connection
+    {
+        return $this->connection?->get();
+    }
+
+    /**
      * Updates connection data for ConnectionAware converter
      */
     private function updateConnection(TypeConverter $converter): void
     {
-        if ($this->connection && $converter instanceof ConnectionAware) {
-            $converter->setConnection($this->connection);
+        if (
+            $converter instanceof ConnectionAware
+            && (null !== $connection = $this->getConnection())
+        ) {
+            $converter->setConnection($connection);
         }
     }
 
