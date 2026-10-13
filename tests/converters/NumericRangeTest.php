@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for numrange type converter
  *
- * @extends TypeConverterTestCase<RangeConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<RangeConverter>
  */
-class NumericRangeTest extends TypeConverterTestCase
+class NumericRangeTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new RangeConverter(new NumericConverter());
+    }
+
+    public function typecast(): string
+    {
+        return 'numrange';
     }
 
     public static function valuesBoth(): array

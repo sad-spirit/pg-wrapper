@@ -22,13 +22,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for float type converter
  *
- * @extends TypeConverterTestCase<FloatConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<FloatConverter>
  */
-class FloatTest extends TypeConverterTestCase
+class FloatTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new FloatConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'float';
     }
 
     public static function valuesBoth(): array

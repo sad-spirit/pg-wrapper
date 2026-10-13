@@ -20,13 +20,18 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Unit test for int2vector / oidvector type converter
  *
- * @extends TypeConverterTestCase<IntegerVectorConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<IntegerVectorConverter>
  */
-class IntegerVectorConverterTest extends TypeConverterTestCase
+class IntegerVectorConverterTest extends DatabaseBackedTypeConverterTestCase
 {
     protected function setUp(): void
     {
         $this->converter = new IntegerVectorConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'int2vector';
     }
 
     public static function valuesBoth(): array

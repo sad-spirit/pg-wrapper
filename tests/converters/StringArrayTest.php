@@ -23,13 +23,18 @@ use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 /**
  * Unit test for an array of strings type converter
  *
- * @extends TypeConverterTestCase<ArrayConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<ArrayConverter>
  */
-class StringArrayTest extends TypeConverterTestCase
+class StringArrayTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new ArrayConverter(new StringConverter());
+    }
+
+    public function typecast(): string
+    {
+        return 'text[]';
     }
 
     public static function valuesBoth(): array

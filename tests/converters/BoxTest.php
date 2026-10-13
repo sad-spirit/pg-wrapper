@@ -25,20 +25,25 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'box' geometric type converter
  *
- * @extends TypeConverterTestCase<BoxConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<BoxConverter>
  */
-class BoxTest extends TypeConverterTestCase
+class BoxTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new BoxConverter();
     }
 
+    public function typecast(): string
+    {
+        return 'box';
+    }
+
     public static function valuesBoth(): array
     {
         return [
             [null, null],
-            ['((1.2,3.4),(5.6,7.8))', new Box(new Point(1.2, 3.4), new Point(5.6, 7.8))]
+            ['((5.6,7.8),(1.2,3.4))', new Box(new Point(5.6, 7.8), new Point(1.2, 3.4))]
         ];
     }
 

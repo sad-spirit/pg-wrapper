@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for a combination of array and point type converters
  *
- * @extends TypeConverterTestCase<ArrayConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<ArrayConverter>
  */
-class PointArrayTest extends TypeConverterTestCase
+class PointArrayTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new ArrayConverter(new PointConverter());
+    }
+
+    public function typecast(): string
+    {
+        return 'point[]';
     }
 
     public static function valuesBoth(): array

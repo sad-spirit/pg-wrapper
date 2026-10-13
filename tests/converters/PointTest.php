@@ -24,13 +24,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'point' geometric type converter
  *
- * @extends TypeConverterTestCase<PointConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<PointConverter>
  */
-class PointTest extends TypeConverterTestCase
+class PointTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new PointConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'point';
     }
 
     public static function valuesBoth(): array

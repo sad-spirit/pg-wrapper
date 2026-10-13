@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'lseg' geometric type converter
  *
- * @extends TypeConverterTestCase<LSegConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<LSegConverter>
  */
-class LSegTest extends TypeConverterTestCase
+class LSegTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new LSegConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'lseg';
     }
 
     public static function valuesBoth(): array

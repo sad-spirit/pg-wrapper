@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\types\Point;
  *
  * 'box' is the only built-in type having a separator for array elements that is not a comma
  *
- * @extends TypeConverterTestCase<ArrayConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<ArrayConverter>
  */
-class BoxArrayTest extends TypeConverterTestCase
+class BoxArrayTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new ArrayConverter(new BoxConverter());
+    }
+
+    public function typecast(): string
+    {
+        return 'box[]';
     }
 
     public static function valuesBoth(): array
@@ -40,9 +45,9 @@ class BoxArrayTest extends TypeConverterTestCase
             [null, null],
             ['{}', []],
             [
-                '{"((1.2,3.4),(5.6,7.8))";"((9.8,7.6),(5.4,3.2))"}',
+                '{"((5.6,7.8),(1.2,3.4))";"((9.8,7.6),(5.4,3.2))"}',
                 [
-                    new Box(new Point(1.2, 3.4), new Point(5.6, 7.8)),
+                    new Box(new Point(5.6, 7.8), new Point(1.2, 3.4)),
                     new Box(new Point(9.8, 7.6), new Point(5.4, 3.2))
                 ]
             ]

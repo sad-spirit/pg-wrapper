@@ -26,20 +26,24 @@ use sad_spirit\pg_wrapper\converters\containers\MultiRangeConverter;
 /**
  * Unit test for nummultirange type converter
  *
- * @extends TypeConverterTestCase<MultiRangeConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<MultiRangeConverter>
  */
-class NumericMultiRangeTest extends TypeConverterTestCase
+class NumericMultiRangeTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new MultiRangeConverter(new NumericConverter());
     }
 
+    public function typecast(): string
+    {
+        return 'nummultirange';
+    }
+
     public static function valuesBoth(): array
     {
         return [
             ['{}',                      new NumericMultiRange()],
-            ['{empty}',                 new NumericMultiRange(NumericRange::createEmpty())],
             ['{(,)}',                   new NumericMultiRange(new NumericRange())],
             [
                 '{["1","2"],("3","4.5")}',
@@ -54,6 +58,7 @@ class NumericMultiRangeTest extends TypeConverterTestCase
     public static function valuesFrom(): array
     {
         return [
+            ['{empty}',                 new NumericMultiRange(NumericRange::createEmpty())],
             ['   {    [1     , 2]  }',  new NumericMultiRange(new NumericRange('1', '2', true, true))],
             ['[1,2]',                   new TypeConversionException()],
             ['{[1,2]',                  new TypeConversionException()],

@@ -24,13 +24,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'line' geometric type (9.4+) converter
  *
- * @extends TypeConverterTestCase<LineConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<LineConverter>
  */
-class LineTest extends TypeConverterTestCase
+class LineTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new LineConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'line';
     }
 
     public static function valuesBoth(): array

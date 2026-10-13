@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'circle' geometric type converter
  *
- * @extends TypeConverterTestCase<CircleConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<CircleConverter>
  */
-class CircleTest extends TypeConverterTestCase
+class CircleTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new CircleConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'circle';
     }
 
     public static function valuesBoth(): array

@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'polygon' geometric type converter
  *
- * @extends TypeConverterTestCase<PolygonConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<PolygonConverter>
  */
-class PolygonTest extends TypeConverterTestCase
+class PolygonTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new PolygonConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'polygon';
     }
 
     public static function valuesBoth(): array

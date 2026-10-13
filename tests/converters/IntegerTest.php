@@ -23,13 +23,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Unit test for integer type converter
  *
- * @extends TypeConverterTestCase<IntegerConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<IntegerConverter>
  */
-class IntegerTest extends TypeConverterTestCase
+class IntegerTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new IntegerConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'int8';
     }
 
     #[DataProvider('postgres16ValidIntegerLiterals')]

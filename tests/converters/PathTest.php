@@ -25,13 +25,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for 'path' geometric type converter
  *
- * @extends TypeConverterTestCase<PathConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<PathConverter>
  */
-class PathTest extends TypeConverterTestCase
+class PathTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new PathConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'path';
     }
 
     public static function valuesBoth(): array

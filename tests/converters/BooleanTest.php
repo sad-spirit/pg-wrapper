@@ -19,13 +19,18 @@ use sad_spirit\pg_wrapper\converters\BooleanConverter;
 /**
  * Unit test for boolean type converter
  *
- * @extends TypeConverterTestCase<BooleanConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<BooleanConverter>
  */
-class BooleanTest extends TypeConverterTestCase
+class BooleanTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new BooleanConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'bool';
     }
 
     public static function valuesBoth(): array

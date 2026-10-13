@@ -22,13 +22,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for JSON (and JSONB) type converter
  *
- * @extends TypeConverterTestCase<JSONConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<JSONConverter>
  */
-class JSONTest extends TypeConverterTestCase
+class JSONTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new JSONConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'json';
     }
 
     public function testJSONBigintAsString(): void
