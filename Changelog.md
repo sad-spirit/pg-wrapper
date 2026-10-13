@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+ * Tested on PHP 8.6
+
+### Changed
+ * Implementations of `ConnectionAware` interface that kept a reference to `Connection` object now keep it wrapped in
+   a `WeakReference`, allowing garbage collection of `Connection` objects that are no longer needed.
+
+
 ## [3.3.1] - 2025-11-08
 
 ### Added
@@ -452,3 +462,4 @@ Initial release on GitHub
 [3.2.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.1.0...v3.2.0
 [3.3.0]: https://github.com/sad-spirit/pg-wrapper/compare/v3.2.0...v3.3.0
 [3.3.1]: https://github.com/sad-spirit/pg-wrapper/compare/v3.3.0...v3.3.1
+[Unreleased]: https://github.com/sad-spirit/pg-wrapper/compare/v3.3.1...HEAD
