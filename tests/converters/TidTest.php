@@ -24,13 +24,18 @@ use sad_spirit\pg_wrapper\{
 /**
  * Unit test for tid type converter
  *
- * @extends TypeConverterTestCase<TidConverter>
+ * @extends DatabaseBackedTypeConverterTestCase<TidConverter>
  */
-class TidTest extends TypeConverterTestCase
+class TidTest extends DatabaseBackedTypeConverterTestCase
 {
     public function setUp(): void
     {
         $this->converter = new TidConverter();
+    }
+
+    public function typecast(): string
+    {
+        return 'tid';
     }
 
     public static function valuesBoth(): array

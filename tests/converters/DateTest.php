@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\converters\datetime\DateConverter;
-use sad_spirit\pg_wrapper\exceptions\InvalidArgumentException;
+use sad_spirit\pg_wrapper\converters\StubTypeConverterFactory;
 use sad_spirit\pg_wrapper\exceptions\TypeConversionException;
 
 /**
@@ -51,11 +51,30 @@ class DateTest extends TestCase
     }
 
     #[DataProvider('getValuesFrom')]
+    public function testCastFromUsingDatabase(?string $style, ?string $native, ?\DateTime $value)
+    {
+        if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
+            $this::markTestSkipped('Connection string is not configured');
+        }
+        $connection = (new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING))
+            ->setTypeConverterFactory(new StubTypeConverterFactory());
+        if (null !== $style) {
+            $connection->execute("set datestyle to " . $connection->quote($style));
+        }
+        $row = $connection->executeParams(
+            'select $1::date as native, $2::date as converted',
+            [$native, $value],
+            ['date', $this->caster]
+        )
+            ->current();
+
+        $this::assertSame($row['native'], $row['converted']);
+        $this::assertEquals($value, $this->caster->input($row['native']));
+    }
+
+    #[DataProvider('getValuesFrom')]
     public function testCastFrom(?string $style, ?string $native, ?\DateTime $value): void
     {
-        if ($value instanceof \Throwable) {
-            $this->expectException($value::class);
-        }
         if (null !== $style) {
             $this->caster->setDateStyle($style);
         }
@@ -82,7 +101,8 @@ class DateTest extends TestCase
             ['Postgres, MDY',  '02-03-2001', new \DateTime('2001-02-03')],
             ['SQL, DMY',       '03/02/2001', new \DateTime('2001-02-03')],
             ['SQL, MDY',       '02/03/2001', new \DateTime('2001-02-03')],
-            ['German, YMD',    '03.02.2001', new \DateTime('2001-02-03')]
+            // If anything other than DMY is given, Postgres will not accept the output it itself generates
+            ['German, DMY',    '03.02.2001', new \DateTime('2001-02-03')]
         ];
     }
 
