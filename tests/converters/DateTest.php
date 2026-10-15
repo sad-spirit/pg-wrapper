@@ -51,7 +51,7 @@ class DateTest extends TestCase
     }
 
     #[DataProvider('getValuesFrom')]
-    public function testCastFromUsingDatabase(?string $style, ?string $native, ?\DateTime $value)
+    public function testCastFromUsingDatabase(?string $style, ?string $native, ?\DateTime $value): void
     {
         if (!TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING) {
             $this::markTestSkipped('Connection string is not configured');

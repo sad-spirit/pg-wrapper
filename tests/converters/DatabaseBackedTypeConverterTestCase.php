@@ -40,9 +40,9 @@ abstract class DatabaseBackedTypeConverterTestCase extends TypeConverterTestCase
             ->setTypeConverterFactory(new StubTypeConverterFactory());
         if (
             (null !== $version = $this->requiredDatabaseVersion())
-            && 0 > \version_compare(\pg_parameter_status($connection->getNative(), 'server_version'), $version)
+            && 0 > \version_compare(\pg_parameter_status($connection->getNative(), 'server_version') ?: '1', $version)
         ) {
-            $this::markTestSkipped('This test requires connection to Postgres version '. $version . '+');
+            $this::markTestSkipped('This test requires connection to Postgres version ' . $version . '+');
         }
         $row        = $connection->executeParams(
             'select $1::' . $type . ' as native, $2::' . $type . ' as converted',
