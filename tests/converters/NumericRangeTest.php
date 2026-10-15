@@ -39,6 +39,11 @@ class NumericRangeTest extends DatabaseBackedTypeConverterTestCase
         return 'numrange';
     }
 
+    public function requiredDatabaseVersion(): ?string
+    {
+        return '14';
+    }
+
     public static function valuesBoth(): array
     {
         return [

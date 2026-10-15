@@ -40,6 +40,11 @@ class NumericMultiRangeTest extends DatabaseBackedTypeConverterTestCase
         return 'nummultirange';
     }
 
+    public function requiredDatabaseVersion(): ?string
+    {
+        return '14';
+    }
+
     public static function valuesBoth(): array
     {
         return [
