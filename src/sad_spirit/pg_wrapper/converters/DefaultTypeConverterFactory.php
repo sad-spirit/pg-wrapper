@@ -107,6 +107,7 @@ class DefaultTypeConverterFactory implements ConfigurableTypeConverterFactory
             IntegerConverter::class,
             ['oid', 'cid', 'xid', 'int2', 'int4', 'int8']
         );
+        $this->registerConverter(OID8Converter::class, 'oid8');
         $this->registerConverter(NumericConverter::class, ['numeric', 'money']);
         $this->registerConverter(FloatConverter::class, ['float4', 'float8']);
         $this->registerConverter(datetime\DateConverter::class, 'date');

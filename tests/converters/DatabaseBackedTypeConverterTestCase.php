@@ -36,16 +36,27 @@ abstract class DatabaseBackedTypeConverterTestCase extends TypeConverterTestCase
             $this::markTestSkipped('Connection string is not configured');
         }
         $type       = $this->typecast();
-        $row = (new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING))
-            ->setTypeConverterFactory(new StubTypeConverterFactory())
-            ->executeParams(
-                'select $1::' . $type . ' as native, $2::' . $type . ' as converted',
-                [$native, $value],
-                [$type, $this->converter]
-            )
+        $connection = (new Connection(TESTS_SAD_SPIRIT_PG_WRAPPER_CONNECTION_STRING))
+            ->setTypeConverterFactory(new StubTypeConverterFactory());
+        if (
+            (null !== $version = $this->requiredDatabaseVersion())
+            && 0 > \version_compare(\pg_parameter_status($connection->getNative(), 'server_version'), $version)
+        ) {
+            $this::markTestSkipped('This test requires connection to Postgres version '. $version . '+');
+        }
+        $row        = $connection->executeParams(
+            'select $1::' . $type . ' as native, $2::' . $type . ' as converted',
+            [$native, $value],
+            [$type, $this->converter]
+        )
             ->current();
         $this::assertSame($row['native'], $row['converted']);
         $this::assertEquals($value, $this->converter->input($row['native']));
+    }
+
+    public function requiredDatabaseVersion(): ?string
+    {
+        return null;
     }
 
     abstract public function typecast(): string;

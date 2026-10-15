@@ -37,7 +37,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
     /**
      * Types list for current database, loaded from pg_catalog.pg_type
      *
-     * The array is pre-populated with known builtin types of Postgres 18.
+     * The array is pre-populated with known builtin types of Postgres 19.
      * Only types with OIDs below 10000 are used since those OIDs are assigned manually
      * (see src/include/access/transam.h) and don't change between versions and
      * installations.
@@ -154,6 +154,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         '_varbit'                      => ['pg_catalog' => 1563],
         'numeric'                      => ['pg_catalog' => 1700],
         'refcursor'                    => ['pg_catalog' => 1790],
+        'pg_parameter_acl'             => ['pg_catalog' => 2173],
         '_refcursor'                   => ['pg_catalog' => 2201],
         'regprocedure'                 => ['pg_catalog' => 2202],
         'regoper'                      => ['pg_catalog' => 2203],
@@ -248,7 +249,11 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         '_tsmultirange'                => ['pg_catalog' => 6152],
         '_tstzmultirange'              => ['pg_catalog' => 6153],
         '_datemultirange'              => ['pg_catalog' => 6155],
-        '_int8multirange'              => ['pg_catalog' => 6157]
+        '_int8multirange'              => ['pg_catalog' => 6157],
+        'oid8'                         => ['pg_catalog' => 6437],
+        '_oid8'                        => ['pg_catalog' => 6442],
+        'regdatabase'                  => ['pg_catalog' => 6490],
+        '_regdatabase'                 => ['pg_catalog' => 6491]
     ];
 
     /**
@@ -337,7 +342,9 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         6155 => 4535,
         6157 => 4536,
         5039 => 5038,
-        271  => 5069
+        271  => 5069,
+        6442 => 6437,
+        6491 => 6490
     ];
 
     /**
@@ -355,6 +362,7 @@ class CachedTypeOIDMapper implements ConnectionAware, TypeOIDMapper
         81   => 1255,
         83   => 1259,
         1248 => 1262,
+        2173 => 6243,
         2842 => 1260,
         2843 => 1261,
         4066 => 3592,

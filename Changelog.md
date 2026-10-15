@@ -4,6 +4,7 @@
 
 ### Added
  * Tested on PHP 8.6
+ * New types from Postgres 19 (as of beta4), with a special type converter for `oid8` type. 
 
 ### Changed
  * Implementations of `ConnectionAware` interface that kept a reference to `Connection` object now keep it wrapped in
