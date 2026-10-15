@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
- * Tested on PHP 8.6
+ * Tested on PHP 8.6 and Postgres 19
  * New types from Postgres 19 (as of beta4), with a special type converter for `oid8` type. 
 
 ### Changed
