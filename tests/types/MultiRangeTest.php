@@ -45,6 +45,7 @@ class MultiRangeTest extends TestCase
         $multiRange = new NumericMultiRange(...$input);
 
         $this::assertTrue(isset($multiRange[0]));
+        /** @psalm-suppress InvalidArgument */
         $this::assertFalse(isset($multiRange['foo']));
         $this::assertEquals(
             [new NumericRange(1, 2), new NumericRange(3, 4)],

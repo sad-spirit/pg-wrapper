@@ -788,6 +788,7 @@ SQL;
             }
         }
 
+        /** @var array<string, int|numeric-string> */
         return $this->compositeTypes[$oid];
     }
 

@@ -27,6 +27,7 @@ class PointListTest extends TestCase
         $list = new PointListImplementation(...$input);
 
         $this::assertTrue(isset($list[0]));
+        /** @psalm-suppress InvalidArgument */
         $this::assertFalse(isset($list['foo']));
 
         $this::assertEquals(

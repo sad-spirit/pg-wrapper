@@ -138,7 +138,7 @@ class Connection
      * @return $this
      * @throws exceptions\ConnectionException
      */
-    public function connect(): self
+    public function connect(): static
     {
         if ($this->isConnected()) {
             return $this;
@@ -179,7 +179,7 @@ class Connection
      *
      * @return $this
      */
-    public function disconnect(): self
+    public function disconnect(): static
     {
         $this->disconnectImpl();
 
@@ -396,7 +396,7 @@ class Connection
      *
      * @return $this
      */
-    public function setTypeConverterFactory(TypeConverterFactory $factory): self
+    public function setTypeConverterFactory(TypeConverterFactory $factory): static
     {
         $factory->setConnection($this);
         $this->converterFactory = $factory;
@@ -426,7 +426,7 @@ class Connection
      * @param CacheItemPoolInterface $cache Cache instance
      * @return $this
      */
-    public function setMetadataCache(CacheItemPoolInterface $cache): self
+    public function setMetadataCache(CacheItemPoolInterface $cache): static
     {
         $this->cacheItemPool = $cache;
 
@@ -440,7 +440,7 @@ class Connection
      * @throws exceptions\BadMethodCallException If called within
      *         {@see \sad_spirit\pg_wrapper\Connection::atomic() atomic()} block
      */
-    public function beginTransaction(): self
+    public function beginTransaction(): static
     {
         if ($this->inAtomic) {
             throw new exceptions\BadMethodCallException(
@@ -460,7 +460,7 @@ class Connection
      * @throws exceptions\BadMethodCallException If called within
      *         {@see \sad_spirit\pg_wrapper\Connection::atomic() atomic()} block
      */
-    public function commit(): self
+    public function commit(): static
     {
         if ($this->inAtomic) {
             throw new exceptions\BadMethodCallException(
@@ -482,7 +482,7 @@ class Connection
      * @throws exceptions\BadMethodCallException If called within
      *         {@see \sad_spirit\pg_wrapper\Connection::atomic() atomic()} block
      */
-    public function rollback(): self
+    public function rollback(): static
     {
         if ($this->inAtomic) {
             throw new exceptions\BadMethodCallException(
@@ -505,7 +505,7 @@ class Connection
      * @return $this
      * @throws exceptions\RuntimeException if trying to create a savepoint outside a transaction block
      */
-    public function createSavepoint(string $savepoint): self
+    public function createSavepoint(string $savepoint): static
     {
         if (!$this->inTransaction()) {
             throw new exceptions\RuntimeException(
@@ -524,7 +524,7 @@ class Connection
      * @return $this
      * @throws exceptions\RuntimeException if trying to release a savepoint outside a transaction block
      */
-    public function releaseSavepoint(string $savepoint): self
+    public function releaseSavepoint(string $savepoint): static
     {
         if (!$this->inTransaction()) {
             throw new exceptions\RuntimeException(
@@ -543,7 +543,7 @@ class Connection
      * @return $this
      * @throws exceptions\RuntimeException if trying to roll back to a savepoint outside a transaction block
      */
-    public function rollbackToSavepoint(string $savepoint): self
+    public function rollbackToSavepoint(string $savepoint): static
     {
         if (!$this->inTransaction()) {
             throw new exceptions\RuntimeException(

@@ -33,7 +33,7 @@ final class Connection extends ConnectionDecorator
         parent::__construct($wrapped);
     }
 
-    public function connect(): self
+    public function connect(): static
     {
         $this->logger->debug(
             'Connecting explicitly, connection ID {connectionId}',
@@ -43,7 +43,7 @@ final class Connection extends ConnectionDecorator
         return parent::connect();
     }
 
-    public function disconnect(): self
+    public function disconnect(): static
     {
         $this->logger->debug(
             'Disconnecting explicitly, connection ID {connectionId}',
@@ -79,42 +79,42 @@ final class Connection extends ConnectionDecorator
         );
     }
 
-    public function beginTransaction(): self
+    public function beginTransaction(): static
     {
         $this->logger->debug("Beginning transaction");
 
         return parent::beginTransaction();
     }
 
-    public function commit(): self
+    public function commit(): static
     {
         $this->logger->debug("Committing transaction");
 
         return parent::commit();
     }
 
-    public function rollback(): self
+    public function rollback(): static
     {
         $this->logger->debug("Rolling back transaction");
 
         return parent::rollback();
     }
 
-    public function createSavepoint(string $savepoint): self
+    public function createSavepoint(string $savepoint): static
     {
         $this->logger->debug('Creating savepoint {name}', ['name' => $savepoint]);
 
         return parent::createSavepoint($savepoint);
     }
 
-    public function releaseSavepoint(string $savepoint): self
+    public function releaseSavepoint(string $savepoint): static
     {
         $this->logger->debug('Releasing savepoint {name}', ['name' => $savepoint]);
 
         return parent::releaseSavepoint($savepoint);
     }
 
-    public function rollbackToSavepoint(string $savepoint): self
+    public function rollbackToSavepoint(string $savepoint): static
     {
         $this->logger->debug('Rolling back to savepoint {name}', ['name' => $savepoint]);
 

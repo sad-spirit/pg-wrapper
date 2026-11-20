@@ -49,7 +49,7 @@ abstract class ConnectionDecorator extends Connection
         // No-op, logic from parent __clone() is not needed here
     }
 
-    public function connect(): self
+    public function connect(): static
     {
         $this->wrapped->connect();
 
@@ -57,7 +57,7 @@ abstract class ConnectionDecorator extends Connection
     }
 
 
-    public function disconnect(): self
+    public function disconnect(): static
     {
         $this->wrapped->disconnect();
 
@@ -114,7 +114,7 @@ abstract class ConnectionDecorator extends Connection
         return $this->wrapped->getTypeConverterFactory();
     }
 
-    public function setTypeConverterFactory(TypeConverterFactory $factory): self
+    public function setTypeConverterFactory(TypeConverterFactory $factory): static
     {
         $this->wrapped->setTypeConverterFactory($factory);
 
@@ -131,49 +131,49 @@ abstract class ConnectionDecorator extends Connection
         return $this->wrapped->getMetadataCache();
     }
 
-    public function setMetadataCache(CacheItemPoolInterface $cache): self
+    public function setMetadataCache(CacheItemPoolInterface $cache): static
     {
         $this->wrapped->setMetadataCache($cache);
 
         return $this;
     }
 
-    public function beginTransaction(): self
+    public function beginTransaction(): static
     {
         $this->wrapped->beginTransaction();
 
         return $this;
     }
 
-    public function commit(): self
+    public function commit(): static
     {
         $this->wrapped->commit();
 
         return $this;
     }
 
-    public function rollback(): self
+    public function rollback(): static
     {
         $this->wrapped->rollback();
 
         return $this;
     }
 
-    public function createSavepoint(string $savepoint): self
+    public function createSavepoint(string $savepoint): static
     {
         $this->wrapped->createSavepoint($savepoint);
 
         return $this;
     }
 
-    public function releaseSavepoint(string $savepoint): self
+    public function releaseSavepoint(string $savepoint): static
     {
         $this->wrapped->releaseSavepoint($savepoint);
 
         return $this;
     }
 
-    public function rollbackToSavepoint(string $savepoint): self
+    public function rollbackToSavepoint(string $savepoint): static
     {
         $this->wrapped->rollbackToSavepoint($savepoint);
 

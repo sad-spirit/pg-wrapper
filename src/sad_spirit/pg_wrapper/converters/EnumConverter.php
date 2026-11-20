@@ -80,6 +80,8 @@ class EnumConverter extends BaseConverter
                 $value
             );
         }
+        // No way to specify that we only accept string-backed enums currently
+        /** @var string */
         return $value->value;
     }
 }
